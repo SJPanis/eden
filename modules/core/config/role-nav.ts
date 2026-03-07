@@ -6,6 +6,13 @@ type EdenRoleMeta = {
   subheading: string;
 };
 
+type EdenTopNavItem = {
+  label: string;
+  href: string;
+  accessLabel: string;
+  allowedRoles?: EdenRole[];
+};
+
 export const roleMeta: Record<EdenRole, EdenRoleMeta> = {
   consumer: {
     label: "Consumer",
@@ -27,8 +34,8 @@ export const roleMeta: Record<EdenRole, EdenRoleMeta> = {
   },
 };
 
-export const topNavItems: Array<{ label: string; href: string }> = [
-  { label: "Consumer", href: "/consumer" },
-  { label: "Business", href: "/business" },
-  { label: "Owner", href: "/owner" },
+export const topNavItems: EdenTopNavItem[] = [
+  { label: "Consumer", href: "/consumer", accessLabel: "Public" },
+  { label: "Business", href: "/business", accessLabel: "Business+", allowedRoles: ["business", "owner"] },
+  { label: "Owner", href: "/owner", accessLabel: "Owner only", allowedRoles: ["owner"] },
 ];
