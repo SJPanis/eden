@@ -14,11 +14,13 @@ import {
 import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pipeline/server";
 import {
   defaultServiceId,
-  getBusinessForService,
-  getDiscoveryBusinessForService,
-  getDiscoveryServiceById,
-  getServiceById,
 } from "@/modules/core/mock-data";
+import {
+  loadDiscoveryBusinessForService,
+  loadDiscoveryServiceById,
+  loadServiceById,
+  getBusinessForService,
+} from "@/modules/core/services";
 
 type SearchValue = string | string[] | undefined;
 
@@ -88,25 +90,28 @@ export default async function ServiceDetailPage({
     getMockWorkspaceServices(),
   ]);
   const fallbackService =
-    getDiscoveryServiceById(defaultServiceId, {
+    await loadDiscoveryServiceById(defaultServiceId, {
       pipelineRecords,
       createdBusiness,
       workspaceServices,
     }) ??
-    getServiceById(defaultServiceId);
+    await loadServiceById(defaultServiceId);
   const service =
-    getDiscoveryServiceById(id, {
+    await loadDiscoveryServiceById(id, {
       pipelineRecords,
       createdBusiness,
       workspaceServices,
     }) ?? fallbackService;
   const business = service
-    ? getDiscoveryBusinessForService(service, {
+    ? await loadDiscoveryBusinessForService(service, {
         pipelineRecords,
         createdBusiness,
         workspaceServices,
       }) ??
-      getBusinessForService(service, createdBusiness, workspaceServices)
+      getBusinessForService(service, {
+        createdBusiness,
+        workspaceServices,
+      })
     : null;
   const businessFrozen = business ? isBusinessFrozen(business.id, adminState) : false;
   const pipelineSnapshot =

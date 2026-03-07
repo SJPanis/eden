@@ -3,11 +3,6 @@ import { getMockAdminState } from "@/modules/core/admin/server";
 import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
 import { DetailPlaceholderPanel } from "@/modules/core/components/detail-placeholder-panel";
-import {
-  getBusinessById,
-  getBusinessOwner,
-  getDiscoveryBusinessById,
-} from "@/modules/core/mock-data";
 import { getSimulatedTransactions } from "@/modules/core/credits/server";
 import {
   formatPipelineTimestamp,
@@ -16,6 +11,11 @@ import {
   getRecentPipelineEvents,
 } from "@/modules/core/pipeline/mock-pipeline";
 import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pipeline/server";
+import {
+  getBusinessOwner,
+  loadBusinessById,
+  loadDiscoveryBusinessById,
+} from "@/modules/core/services";
 
 type SearchValue = string | string[] | undefined;
 
@@ -63,12 +63,12 @@ export default async function BusinessDetailPage({
     getMockWorkspaceServices(),
   ]);
   const business =
-    getDiscoveryBusinessById(id, {
+    await loadDiscoveryBusinessById(id, {
       pipelineRecords,
       createdBusiness,
       workspaceServices,
-    }) ?? getBusinessById(id);
-  const ownerRecord = business ? getBusinessOwner(business, createdBusiness) : null;
+    }) ?? await loadBusinessById(id, { createdBusiness });
+  const ownerRecord = business ? getBusinessOwner(business, { createdBusiness }) : null;
   const businessFrozen = business ? isBusinessFrozen(business.id, adminState) : false;
   const pipelineSnapshot = business
     ? getBusinessPipelineSnapshot(

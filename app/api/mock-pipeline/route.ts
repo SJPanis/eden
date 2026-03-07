@@ -16,7 +16,6 @@ import {
   resolveBusinessContext,
 } from "@/modules/core/credits/mock-credits";
 import {
-  applyPipelineAction,
   mockPipelineCookieName,
   mockPipelineEventsCookieName,
   parseMockPipelineCookie,
@@ -26,6 +25,7 @@ import {
   type EdenMockPipelineAction,
 } from "@/modules/core/pipeline/mock-pipeline";
 import { mockSessionCookieName, resolveMockSession } from "@/modules/core/session/mock-session";
+import { createBuilderLoopWriteService } from "@/modules/core/services";
 
 const mockPipelineCookieOptions = {
   httpOnly: true,
@@ -45,6 +45,7 @@ const allowedPipelineActions = new Set<EdenMockPipelineAction>([
 type MockPipelineResetScope = "pipeline" | "history" | "all";
 
 const allowedResetScopes = new Set<MockPipelineResetScope>(["pipeline", "history", "all"]);
+const builderLoopWriteService = createBuilderLoopWriteService();
 
 export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => ({}))) as {
@@ -106,14 +107,14 @@ export async function POST(request: Request) {
   const currentEvents = parseMockPipelineEventsCookie(
     cookieStore.get(mockPipelineEventsCookieName)?.value,
   );
-  const transition = applyPipelineAction({
+  const transition = await builderLoopWriteService.applyPipelineTransition({
     action: requestedAction,
     businessId,
     userId: session.user.id,
     actor: session.user.displayName,
     simulatedTransactions,
-    records: currentRecords,
-    events: currentEvents,
+    currentRecords,
+    currentEvents,
     createdBusiness,
     workspaceServices,
   });

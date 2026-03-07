@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
-  buildMockCreatedBusinessRecord,
   defaultBusinessCreationUserId,
   getSanitizedMockCreatedBusinessInput,
   mockCreatedBusinessCookieName,
@@ -9,6 +8,7 @@ import {
   type EdenMockCreatedBusinessInput,
 } from "@/modules/core/business/mock-created-business";
 import { mockSessionCookieName, resolveMockSession } from "@/modules/core/session/mock-session";
+import { createBuilderLoopWriteService } from "@/modules/core/services";
 
 const mockCookieOptions = {
   httpOnly: true,
@@ -16,6 +16,7 @@ const mockCookieOptions = {
   path: "/",
   sameSite: "lax" as const,
 };
+const builderLoopWriteService = createBuilderLoopWriteService();
 
 export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => ({}))) as Partial<EdenMockCreatedBusinessInput>;
@@ -35,20 +36,24 @@ export async function POST(request: Request) {
   const session = resolveMockSession(cookieStore.get(mockSessionCookieName)?.value);
   const targetUserId =
     session.role === "business" ? session.user.id : defaultBusinessCreationUserId;
-  const record = buildMockCreatedBusinessRecord(input, targetUserId);
+  const result = await builderLoopWriteService.createBusiness({
+    input,
+    ownerUserId: targetUserId,
+    targetUserId,
+  });
   const response = NextResponse.json({
     ok: true,
-    businessId: record.businessId,
-    userId: targetUserId,
+    businessId: result.record.businessId,
+    userId: result.targetUserId,
     redirectTo: "/business",
   });
 
   response.cookies.set(
     mockCreatedBusinessCookieName,
-    serializeMockCreatedBusinessCookie(record),
+    serializeMockCreatedBusinessCookie(result.record),
     mockCookieOptions,
   );
-  response.cookies.set(mockSessionCookieName, targetUserId, mockCookieOptions);
+  response.cookies.set(mockSessionCookieName, result.targetUserId, mockCookieOptions);
 
   return response;
 }

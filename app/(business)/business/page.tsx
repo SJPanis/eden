@@ -8,10 +8,11 @@ import {
 import {
   resolveBusinessContext,
 } from "@/modules/core/credits/mock-credits";
-import { buildDiscoverySnapshot, defaultBusinessId } from "@/modules/core/mock-data";
+import { defaultBusinessId } from "@/modules/core/mock-data";
 import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pipeline/server";
 import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
+import { loadDiscoverySnapshot } from "@/modules/core/services";
 import {
   BusinessDashboardPanel,
   BusinessWorkspaceStarterPanel,
@@ -44,7 +45,7 @@ export default async function BusinessPage() {
     return <BusinessWorkspaceStarterPanel session={session} />;
   }
 
-  const discoverySnapshot = buildDiscoverySnapshot({
+  const discoverySnapshot = await loadDiscoverySnapshot({
     pipelineRecords,
     createdBusiness,
     workspaceServices,

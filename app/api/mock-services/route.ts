@@ -2,22 +2,21 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getMockCreatedBusinessState, mockCreatedBusinessCookieName, parseMockCreatedBusinessCookie } from "@/modules/core/business/mock-created-business";
 import {
-  buildMockWorkspaceServiceRecord,
   getSanitizedMockWorkspaceServiceInput,
   mockWorkspaceServicesCookieName,
   parseMockWorkspaceServicesCookie,
   serializeMockWorkspaceServicesCookie,
-  upsertMockWorkspaceServiceRecord,
   type EdenMockWorkspaceServiceInput,
 } from "@/modules/core/business/mock-workspace-services";
 import { resolveBusinessContext } from "@/modules/core/credits/mock-credits";
-import { getBusinessById } from "@/modules/core/mock-data";
 import {
   mockPipelineCookieName,
   parseMockPipelineCookie,
   serializeMockPipelineCookie,
 } from "@/modules/core/pipeline/mock-pipeline";
 import { mockSessionCookieName, resolveMockSession } from "@/modules/core/session/mock-session";
+import { getBusinessById } from "@/modules/core/services";
+import { createBuilderLoopWriteService } from "@/modules/core/services";
 
 const mockCookieOptions = {
   httpOnly: true,
@@ -25,6 +24,7 @@ const mockCookieOptions = {
   path: "/",
   sameSite: "lax" as const,
 };
+const builderLoopWriteService = createBuilderLoopWriteService();
 
 export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => ({}))) as Partial<EdenMockWorkspaceServiceInput> & {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const business = getBusinessById(businessId, createdBusiness);
+  const business = getBusinessById(businessId, { createdBusiness });
 
   if (!business) {
     return NextResponse.json(
@@ -86,47 +86,33 @@ export async function POST(request: Request) {
     );
   }
 
-  const workspaceServiceRecord = buildMockWorkspaceServiceRecord(input, {
-    businessId,
-    ownerUserId: business.ownerUserId,
-  });
   const currentWorkspaceServices = parseMockWorkspaceServicesCookie(
     cookieStore.get(mockWorkspaceServicesCookieName)?.value,
   );
   const currentPipelineRecords = parseMockPipelineCookie(
     cookieStore.get(mockPipelineCookieName)?.value,
   );
-  const nextWorkspaceServices = upsertMockWorkspaceServiceRecord(
-    workspaceServiceRecord,
-    currentWorkspaceServices,
-  );
-  const nextPipelineRecord = {
+  const result = await builderLoopWriteService.createServiceDraft({
+    input,
     businessId,
-    serviceId: workspaceServiceRecord.serviceId,
-    projectId: workspaceServiceRecord.projectId,
-    status: "draft" as const,
-    buildStarted: false,
-    updatedAt: new Date().toISOString(),
-    lastActionLabel: "A new local service draft was staged in the Service Builder.",
-  };
-  const nextPipelineRecords = [
-    nextPipelineRecord,
-    ...currentPipelineRecords.filter((record) => record.businessId !== businessId),
-  ];
+    ownerUserId: business.ownerUserId,
+    currentWorkspaceServices,
+    currentPipelineRecords,
+  });
   const response = NextResponse.json({
     ok: true,
     businessId,
-    serviceId: workspaceServiceRecord.serviceId,
+    serviceId: result.workspaceServiceRecord.serviceId,
   });
 
   response.cookies.set(
     mockWorkspaceServicesCookieName,
-    serializeMockWorkspaceServicesCookie(nextWorkspaceServices),
+    serializeMockWorkspaceServicesCookie(result.nextWorkspaceServices),
     mockCookieOptions,
   );
   response.cookies.set(
     mockPipelineCookieName,
-    serializeMockPipelineCookie(nextPipelineRecords),
+    serializeMockPipelineCookie(result.nextPipelineRecords),
     mockCookieOptions,
   );
 

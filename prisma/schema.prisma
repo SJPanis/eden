@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EdenRole {
+  CONSUMER
+  BUSINESS
+  OWNER
+}
+
+enum UserStatus {
+  ACTIVE
+  REVIEW
+  FROZEN
+}
+
+enum BusinessStatus {
+  DRAFT
+  TESTING
+  PUBLISHED
+}
+
+enum BusinessVisibility {
+  PRIVATE_PREVIEW
+  INTERNAL_TESTING
+  PUBLISHED
+}
+
+enum BusinessMemberRole {
+  OWNER
+  ADMIN
+  EDITOR
+  MEMBER
+}
+
+enum PipelineStatus {
+  DRAFT
+  TESTING
+  READY
+  PUBLISHED
+}
+
+model User {
+  id                  String           @id @default(cuid())
+  username            String           @unique
+  displayName         String
+  role                EdenRole         @default(CONSUMER)
+  status              UserStatus       @default(ACTIVE)
+  summary             String?
+  edenBalanceCredits  Int              @default(0)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  ownedBusinesses     Business[]       @relation("BusinessOwner")
+  businessMemberships BusinessMember[]
+}
+
+model Business {
+  id                      String             @id @default(cuid())
+  name                    String
+  ownerUserId             String
+  status                  BusinessStatus     @default(DRAFT)
+  category                String
+  tags                    String[]
+  description             String
+  summary                 String?
+  tagline                 String?
+  targetAudience          String?
+  monetizationModel       String?
+  visibility              BusinessVisibility @default(PRIVATE_PREVIEW)
+  teamLabel               String?
+  creditBalanceCredits    Int                @default(0)
+  publishReadinessPercent Int                @default(0)
+  nextMilestone           String?
+  featuredServiceId       String?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  ownerUser               User               @relation("BusinessOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  members                 BusinessMember[]
+  services                Service[]          @relation("BusinessServices")
+  featuredService         Service?           @relation("FeaturedService", fields: [featuredServiceId], references: [id], onDelete: SetNull)
+  pipelineRecords         PipelineRecord[]
+  pipelineEvents          PipelineEvent[]
+
+  @@index([ownerUserId])
+  @@index([status])
+  @@index([category])
+}
+
+model BusinessMember {
+  id         String             @id @default(cuid())
+  businessId String
+  userId     String
+  role       BusinessMemberRole @default(MEMBER)
+  title      String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  business   Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@index([userId])
+}
+
+model Service {
+  id                   String           @id @default(cuid())
+  businessId           String
+  title                String
+  category             String
+  tags                 String[]
+  description          String
+  summary              String?
+  status               PipelineStatus   @default(DRAFT)
+  pricingModel         String?
+  automationSummary    String?
+  publishedAt          DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  business             Business         @relation("BusinessServices", fields: [businessId], references: [id], onDelete: Cascade)
+  featuredInBusinesses Business[]       @relation("FeaturedService")
+  pipelineRecords      PipelineRecord[]
+  pipelineEvents       PipelineEvent[]
+
+  @@index([businessId])
+  @@index([status])
+  @@index([category])
+}
+
+model PipelineRecord {
+  id              String          @id @default(cuid())
+  businessId      String
+  serviceId       String
+  projectId       String?
+  status          PipelineStatus  @default(DRAFT)
+  buildStarted    Boolean         @default(false)
+  lastActionLabel String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  business        Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  service         Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  events          PipelineEvent[]
+
+  @@unique([businessId, serviceId])
+  @@index([status])
+}
+
+model PipelineEvent {
+  id               String          @id @default(cuid())
+  pipelineRecordId String?
+  businessId       String
+  serviceId        String
+  projectId        String?
+  previousStatus   PipelineStatus
+  newStatus        PipelineStatus
+  actorLabel       String
+  detail           String?
+  occurredAt       DateTime        @default(now())
+  createdAt        DateTime        @default(now())
+  pipelineRecord   PipelineRecord? @relation(fields: [pipelineRecordId], references: [id], onDelete: SetNull)
+  business         Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  service          Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, occurredAt])
+  @@index([serviceId, occurredAt])
+  @@index([newStatus])
+}

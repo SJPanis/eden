@@ -1,9 +1,9 @@
 import { ConsumerHomePanel } from "@/ui/consumer/consumer-home";
 import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
-import { buildDiscoverySnapshot } from "@/modules/core/mock-data";
 import { getMockPipelineRecords } from "@/modules/core/pipeline/server";
 import { getMockSession } from "@/modules/core/session/server";
+import { loadDiscoverySnapshot } from "@/modules/core/services";
 
 export default async function ConsumerPage() {
   const [session, pipelineRecords, createdBusiness, workspaceServices] = await Promise.all([
@@ -12,7 +12,7 @@ export default async function ConsumerPage() {
     getMockCreatedBusiness(),
     getMockWorkspaceServices(),
   ]);
-  const discoverySnapshot = buildDiscoverySnapshot({
+  const discoverySnapshot = await loadDiscoverySnapshot({
     pipelineRecords,
     createdBusiness,
     workspaceServices,

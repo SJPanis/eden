@@ -1,31 +1,25 @@
-import type { EdenMockCreatedBusinessState } from "@/modules/core/business/mock-created-business";
-import type { EdenMockWorkspaceServiceState } from "@/modules/core/business/mock-workspace-services";
 import {
-  businesses as platformBusinesses,
-  projects as platformProjects,
-  services as platformServices,
-} from "@/modules/core/mock-data/platform-data";
+  buildDiscoverySnapshot,
+  getDiscoveryBusinessById,
+  getDiscoveryBusinessForService,
+  getDiscoveryServiceById,
+  loadDiscoverySnapshot,
+  loadPublishedBusinesses,
+  loadPublishedServices,
+  listPublishedBusinesses,
+  listPublishedServices,
+  type EdenDiscoverySnapshot,
+} from "@/modules/core/services/discovery-service";
+import type { EdenReadServiceOptions } from "@/modules/core/services/read-service-types";
 import type {
   EdenMockBusiness,
-  EdenMockPipelineRecord,
   EdenMockProject,
-  EdenMockReleaseStatus,
   EdenMockService,
 } from "@/modules/core/mock-data/platform-types";
 
-export type EdenDiscoverySnapshot = {
-  marketplaceServices: EdenMockService[];
-  marketplaceBusinesses: EdenMockBusiness[];
-  projects: EdenMockProject[];
-  serviceCatalog: EdenMockService[];
-  businessCatalog: EdenMockBusiness[];
-};
+export type { EdenDiscoverySnapshot } from "@/modules/core/services/discovery-service";
 
-type EdenDiscoveryOptions = {
-  pipelineRecords?: EdenMockPipelineRecord[];
-  createdBusiness?: EdenMockCreatedBusinessState | null;
-  workspaceServices?: EdenMockWorkspaceServiceState[];
-};
+type EdenDiscoveryOptions = EdenReadServiceOptions;
 
 type RankedRecord<T> = {
   record: T;
@@ -74,155 +68,43 @@ const categoryKeywords: Record<string, string[]> = {
   Home: ["home", "household", "living", "operations", "setup", "smart"],
 };
 
-export function buildDiscoverySnapshot(
-  options: EdenDiscoveryOptions = {},
-): EdenDiscoverySnapshot {
-  const { pipelineRecords = [], createdBusiness, workspaceServices = [] } = options;
-  const localServices = workspaceServices.map((entry) => entry.service);
-  const localProjects = workspaceServices.map((entry) => entry.project);
-  const businessCatalog = mergeCatalogRecord(
-    platformBusinesses,
-    createdBusiness?.business,
-  ).map((business) => {
-    const relatedServices = mergeCatalogRecord(
-      platformServices.filter((service) => service.businessId === business.id),
-      createdBusiness?.business.id === business.id ? createdBusiness.service : undefined,
-    ).concat(
-      localServices.filter((service) => service.businessId === business.id),
-    );
-    const activeServiceId = resolveActiveServiceId(
-      business,
-      relatedServices,
-      pipelineRecords,
-      workspaceServices,
-    );
-    const effectiveStatus = resolveBusinessReleaseStatus(
-      business,
-      relatedServices,
-      pipelineRecords,
-    );
-
-    return {
-      ...business,
-      featuredServiceId: activeServiceId,
-      status: effectiveStatus,
-      visibility: getVisibilityLabel(effectiveStatus),
-      publishReadinessPercent:
-        effectiveStatus === "published"
-          ? Math.max(100, business.publishReadinessPercent)
-          : business.publishReadinessPercent,
-      nextMilestone:
-        effectiveStatus === "published"
-          ? "Monitor live usage and iterate"
-          : business.nextMilestone,
-    } satisfies EdenMockBusiness;
-  });
-  const businessLookup = new Map(businessCatalog.map((business) => [business.id, business]));
-  const serviceCatalog = mergeCatalogRecord(
-    platformServices,
-    createdBusiness?.service,
-  )
-    .concat(localServices)
-    .filter(
-      (service, index, services) =>
-        services.findIndex((entry) => entry.id === service.id) === index,
-    )
-    .map((service) => {
-    const business = businessLookup.get(service.businessId) ?? null;
-    const effectiveStatus = resolveServiceReleaseStatus(service, business, pipelineRecords);
-
-    return {
-      ...service,
-      status: getServiceStatusLabel(effectiveStatus),
-    } satisfies EdenMockService;
-  });
-  const publishedBusinessIds = new Set(
-    serviceCatalog
-      .filter((service) => service.status.toLowerCase() === "published")
-      .map((service) => service.businessId),
-  );
-  const marketplaceBusinesses = businessCatalog
-    .filter((business) => publishedBusinessIds.has(business.id))
-    .sort((left, right) => {
-      if (right.publishReadinessPercent !== left.publishReadinessPercent) {
-        return right.publishReadinessPercent - left.publishReadinessPercent;
-      }
-
-      return left.name.localeCompare(right.name);
-    });
-  const marketplaceServices = serviceCatalog
-    .filter((service) => service.status.toLowerCase() === "published")
-    .sort((left, right) => {
-      const rightBusiness = businessLookup.get(right.businessId);
-      const leftBusiness = businessLookup.get(left.businessId);
-      const readinessDelta =
-        (rightBusiness?.publishReadinessPercent ?? 0) -
-        (leftBusiness?.publishReadinessPercent ?? 0);
-
-      if (readinessDelta !== 0) {
-        return readinessDelta;
-      }
-
-      return left.title.localeCompare(right.title);
-    });
-
-  return {
-    marketplaceServices,
-    marketplaceBusinesses,
-    projects: mergeCatalogRecord(platformProjects, createdBusiness?.project)
-      .concat(localProjects)
-      .filter(
-        (project, index, projects) =>
-          projects.findIndex((entry) => entry.id === project.id) === index,
-      ),
-    serviceCatalog,
-    businessCatalog,
-  };
-}
+export {
+  buildDiscoverySnapshot,
+  getDiscoveryBusinessById,
+  getDiscoveryBusinessForService,
+  getDiscoveryServiceById,
+};
 
 export function getMarketplaceServices(
   options: EdenDiscoveryOptions = {},
   limit?: number,
 ) {
-  const services = buildDiscoverySnapshot(options).marketplaceServices;
-  return typeof limit === "number" ? services.slice(0, limit) : services;
+  return listPublishedServices(options, limit);
+}
+
+export async function loadMarketplaceServices(
+  options: EdenDiscoveryOptions = {},
+  limit?: number,
+) {
+  return loadPublishedServices(options, limit);
 }
 
 export function getTrendingBusinesses(
   options: EdenDiscoveryOptions = {},
   limit?: number,
 ) {
-  const businesses = buildDiscoverySnapshot(options).marketplaceBusinesses;
-  return typeof limit === "number" ? businesses.slice(0, limit) : businesses;
+  return listPublishedBusinesses(options, limit);
 }
 
-export function getDiscoveryServiceById(
-  id: string,
+export async function loadTrendingBusinesses(
   options: EdenDiscoveryOptions = {},
+  limit?: number,
 ) {
-  return buildDiscoverySnapshot(options).serviceCatalog.find((service) => service.id === id) ?? null;
+  return loadPublishedBusinesses(options, limit);
 }
 
-export function getDiscoveryBusinessById(
-  id: string,
-  options: EdenDiscoveryOptions = {},
-) {
-  return buildDiscoverySnapshot(options).businessCatalog.find((business) => business.id === id) ?? null;
-}
-
-export function getDiscoveryBusinessForService(
-  serviceOrId: string | EdenMockService,
-  options: EdenDiscoveryOptions = {},
-) {
-  const service =
-    typeof serviceOrId === "string"
-      ? getDiscoveryServiceById(serviceOrId, options)
-      : serviceOrId;
-  if (!service) {
-    return null;
-  }
-
-  return getDiscoveryBusinessById(service.businessId, options);
+export async function loadAskEdenSnapshot(options: EdenDiscoveryOptions = {}) {
+  return loadDiscoverySnapshot(options);
 }
 
 export function getAskEdenRecommendedServices(
@@ -312,136 +194,6 @@ export function inferDiscoveryCategory(prompt: string, existingTokens?: string[]
   }
 
   return bestCategory;
-}
-
-function mergeCatalogRecord<T extends { id: string }>(
-  records: T[],
-  record?: T | null,
-) {
-  if (!record) {
-    return records;
-  }
-
-  return [record, ...records.filter((entry) => entry.id !== record.id)];
-}
-
-function resolveActiveServiceId(
-  business: EdenMockBusiness,
-  relatedServices: EdenMockService[],
-  pipelineRecords: EdenMockPipelineRecord[],
-  workspaceServices: EdenMockWorkspaceServiceState[],
-) {
-  const storedRecord =
-    pipelineRecords.find((record) => record.businessId === business.id) ?? null;
-
-  if (storedRecord && relatedServices.some((service) => service.id === storedRecord.serviceId)) {
-    return storedRecord.serviceId;
-  }
-
-  const localService = workspaceServices.find((entry) => entry.record.businessId === business.id);
-
-  if (localService) {
-    return localService.service.id;
-  }
-
-  return business.featuredServiceId;
-}
-
-function resolveBusinessReleaseStatus(
-  business: EdenMockBusiness,
-  relatedServices: EdenMockService[],
-  pipelineRecords: EdenMockPipelineRecord[],
-): EdenMockBusiness["status"] {
-  const storedRecord = pipelineRecords.find((record) => record.businessId === business.id) ?? null;
-  const statuses = relatedServices.map((service) =>
-    resolveServiceReleaseStatus(service, business, pipelineRecords),
-  );
-
-  if (storedRecord?.status === "published" || statuses.includes("published")) {
-    return "published";
-  }
-
-  if (
-    storedRecord?.status === "ready" ||
-    storedRecord?.status === "testing" ||
-    statuses.includes("ready") ||
-    statuses.includes("testing")
-  ) {
-    return "testing";
-  }
-
-  return "draft";
-}
-
-function resolveServiceReleaseStatus(
-  service: EdenMockService,
-  business: EdenMockBusiness | null,
-  pipelineRecords: EdenMockPipelineRecord[],
-): EdenMockReleaseStatus {
-  const exactRecord =
-    pipelineRecords.find(
-      (record) =>
-        record.businessId === service.businessId && record.serviceId === service.id,
-    ) ?? null;
-
-  if (exactRecord) {
-    return exactRecord.status;
-  }
-
-  const businessRecord =
-    business?.featuredServiceId === service.id
-      ? pipelineRecords.find((record) => record.businessId === service.businessId) ?? null
-      : null;
-
-  if (businessRecord) {
-    return businessRecord.status;
-  }
-
-  const normalizedStatus = service.status.toLowerCase();
-
-  if (normalizedStatus.includes("publish") || business?.status === "published") {
-    return "published";
-  }
-
-  if (normalizedStatus.includes("ready")) {
-    return "ready";
-  }
-
-  if (normalizedStatus.includes("testing") || business?.status === "testing") {
-    return "testing";
-  }
-
-  return "draft";
-}
-
-function getServiceStatusLabel(status: EdenMockReleaseStatus) {
-  if (status === "published") {
-    return "Published";
-  }
-
-  if (status === "ready") {
-    return "Ready";
-  }
-
-  if (status === "testing") {
-    return "Testing";
-  }
-
-  return "Draft";
-}
-
-function getVisibilityLabel(
-  status: EdenMockReleaseStatus | EdenMockBusiness["status"],
-) {
-  if (status === "published") {
-    return "Published";
-  }
-
-  if (status === "testing" || status === "ready") {
-    return "Internal testing";
-  }
-
-  return "Private preview";
 }
 
 function rankService(

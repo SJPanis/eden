@@ -23,11 +23,13 @@ import {
   getAskEdenBusinessMatches,
   getAskEdenRecommendedServices,
   getAskEdenRelevantProjects,
+  inferDiscoveryCategory,
+} from "@/modules/core/mock-data";
+import {
   getBusinessById,
   getBusinessForService,
-  inferDiscoveryCategory,
   getServiceById,
-} from "@/modules/core/mock-data";
+} from "@/modules/core/services";
 
 const simulatedDelayMs = 450;
 const serviceBuilderStopWords = new Set([
