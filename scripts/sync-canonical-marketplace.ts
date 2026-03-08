@@ -142,12 +142,6 @@ async function main() {
     return;
   }
 
-  if (!process.env.DATABASE_URL) {
-    throw new Error(
-      "DATABASE_URL is required. Run this sync against a local PostgreSQL database after `npx prisma db push`.",
-    );
-  }
-
   const { getPrismaClient } = await import(
     new URL("../modules/core/repos/prisma-client.ts", import.meta.url).href
   );

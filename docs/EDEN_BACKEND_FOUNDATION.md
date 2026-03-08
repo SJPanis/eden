@@ -109,6 +109,14 @@ What exists now:
   - server-side persistent session resolver that chains a provider adapter into the Prisma identity adapter and maps the result into the current session shape
 - `modules/core/session/auth-provider-adapter.ts`
   - provider-session cookie contract plus parser/serializer for provider-style claims
+- `modules/core/session/authjs-runtime.ts`
+  - Auth.js env seam for optional JWT-token resolution
+- `modules/core/session/authjs-config.ts`
+  - future-facing Auth.js config scaffold that preserves provider and provider-subject claims in JWT callbacks
+- `modules/core/session/authjs-provider-adapter.ts`
+  - first real Auth.js-based provider adapter, resolving Auth.js JWT claims through persisted provider-account mappings before falling back to compatibility lookup
+- `app/api/auth/[...nextauth]/route.ts`
+  - minimal Auth.js route handler scaffold wired to the shared Auth.js config
 - `modules/core/session/prisma-cookie-auth-provider-adapter.ts`
   - first auth provider adapter, resolving persisted provider-account mappings before falling back to compatibility lookups
 - `modules/core/session/prisma-auth-identity-adapter.ts`
@@ -118,12 +126,14 @@ Current safety notes:
 
 - UI pages and guards still consume the same session shape they already used
 - mock fallback remains authoritative if no persisted auth identity is available
+- the persistent resolver now attempts an Auth.js JWT-backed provider adapter first, then falls back to the current Eden development cookie adapter
 - the mock session switcher still works and now seeds development-only provider-style claims for adapter testing
 - persisted provider-account mappings can now be stored in Prisma through the `AuthProviderAccount` model
 - persisted auth memberships now come from Prisma-backed `BusinessMember` relationships, with owned businesses added as owner claims when needed
 - older local auth cookies that still store a raw user id are accepted temporarily through a compatibility parser inside the provider adapter
 
 Set `EDEN_AUTH_SESSION_MODE="hybrid"` to exercise the new server-side resolver seam without removing mock fallback.
+Set `EDEN_ENABLE_AUTHJS_PROVIDER_ADAPTER="true"` together with `NEXTAUTH_SECRET` to let the boundary inspect Auth.js JWT session cookies before the current Eden compatibility cookie path.
 Set `EDEN_LOG_AUTH_SESSION_RESOLUTION="true"` to log whether server sessions resolved through the persistent compatibility path or fell back to mock cookies.
 Set `EDEN_SHOW_AUTH_SESSION_DIAGNOSTICS="true"` to render a development-only shell panel showing the resolved session source, resolver, role, memberships, and whether owned-business fallback claims were used.
 
@@ -148,6 +158,8 @@ The sync is idempotent and currently upserts:
 - owner business memberships
 - services
 - pipeline records used for release visibility and marketplace testing
+
+The canonical sync script now imports the shared Prisma runtime client directly, so local `.env` loading and PostgreSQL adapter setup follow the same path used by the running app.
 
 ## Hybrid Read Divergence Verification
 

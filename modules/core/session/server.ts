@@ -40,6 +40,7 @@ export async function getServerSession() {
   const authMode = resolveAuthSessionMode();
   const persistentSession = await resolvePersistentCompatibilitySession(
     cookieStore.get(persistentSessionCookieName)?.value,
+    buildCookieHeader(cookieStore),
     authMode,
   );
 
@@ -133,4 +134,14 @@ export async function requireAccess(allowedRoles: EdenRole[], targetPath: string
   }
 
   return session;
+}
+
+function buildCookieHeader(
+  cookieStore: Awaited<ReturnType<typeof cookies>>,
+) {
+  const cookiesForHeader = cookieStore
+    .getAll()
+    .map((cookie) => `${cookie.name}=${cookie.value}`);
+
+  return cookiesForHeader.length > 0 ? cookiesForHeader.join("; ") : null;
 }

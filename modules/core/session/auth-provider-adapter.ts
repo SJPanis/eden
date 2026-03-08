@@ -25,9 +25,15 @@ export type EdenResolvedAuthProviderSession = {
   };
 };
 
+export type EdenAuthProviderResolutionInput = {
+  providerCookieValue?: string | null;
+  cookieHeader?: string | null;
+  requestUrl?: string | null;
+};
+
 export interface EdenAuthProviderAdapter {
   resolveProviderSession(
-    cookieValue: string | null | undefined,
+    input: EdenAuthProviderResolutionInput,
   ): Promise<EdenResolvedAuthProviderSession | null>;
 }
 

@@ -12,21 +12,38 @@ import {
   withSessionAuthDebug,
 } from "@/modules/core/session/mock-session";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { createAuthJsProviderAdapter } from "@/modules/core/session/authjs-provider-adapter";
 import { createPrismaCookieAuthProviderAdapter } from "@/modules/core/session/prisma-cookie-auth-provider-adapter";
 import { createPrismaAuthIdentityAdapter } from "@/modules/core/session/prisma-auth-identity-adapter";
 
 export async function resolvePersistentCompatibilitySession(
   providerCookieValue: string | null | undefined,
+  cookieHeader: string | null | undefined,
   mode: EdenAuthSessionMode,
 ): Promise<EdenMockSession | null> {
-  if (!providerCookieValue) {
+  if (!providerCookieValue && !cookieHeader) {
     return null;
   }
 
   try {
     const prisma = getPrismaClient();
-    const providerAdapter = createPrismaCookieAuthProviderAdapter(prisma);
-    const providerSession = await providerAdapter.resolveProviderSession(providerCookieValue);
+    const providerResolutionInput = {
+      providerCookieValue,
+      cookieHeader,
+    };
+    const providerAdapters = [
+      createAuthJsProviderAdapter(prisma),
+      createPrismaCookieAuthProviderAdapter(prisma),
+    ];
+    let providerSession = null;
+
+    for (const providerAdapter of providerAdapters) {
+      providerSession = await providerAdapter.resolveProviderSession(providerResolutionInput);
+
+      if (providerSession) {
+        break;
+      }
+    }
 
     if (!providerSession) {
       logSessionResolution(

@@ -16,8 +16,8 @@ export function createPrismaCookieAuthProviderAdapter(
   prisma: EdenPrismaClient,
 ): EdenAuthProviderAdapter {
   return {
-    async resolveProviderSession(cookieValue) {
-      const parsed = parseAuthProviderSessionCookie(cookieValue);
+    async resolveProviderSession(input) {
+      const parsed = parseAuthProviderSessionCookie(input.providerCookieValue);
 
       if (!parsed) {
         return null;
