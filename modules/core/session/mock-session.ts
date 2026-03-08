@@ -11,6 +11,7 @@ import type {
   EdenSessionAccessProfile,
   EdenSessionAuthSource,
   EdenSessionBusinessMembership,
+  EdenSessionDebugSnapshot,
   EdenSessionResolver,
 } from "@/modules/core/session/auth-runtime";
 
@@ -32,6 +33,7 @@ export type EdenMockSession = {
     source: EdenSessionAuthSource;
     resolver: EdenSessionResolver;
     sessionKey: string | null;
+    debug?: EdenSessionDebugSnapshot;
   };
 };
 
@@ -180,6 +182,26 @@ export function createCompatibilitySession(
       resolver: "default_fallback",
       sessionKey: null,
       ...options.auth,
+    },
+  };
+}
+
+export function withSessionAuthDebug(
+  session: EdenMockSession,
+  debug: Omit<EdenSessionDebugSnapshot, "enabled" | "resolvedRole" | "memberships"> &
+    Partial<Pick<EdenSessionDebugSnapshot, "resolvedRole" | "memberships">>,
+): EdenMockSession {
+  return {
+    ...session,
+    auth: {
+      ...session.auth,
+      debug: {
+        enabled: true,
+        resolvedRole: debug.resolvedRole ?? session.role,
+        memberships: debug.memberships ?? session.access.memberships,
+        usedOwnedBusinessFallbackClaims: debug.usedOwnedBusinessFallbackClaims,
+        note: debug.note,
+      },
     },
   };
 }

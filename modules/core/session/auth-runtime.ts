@@ -20,6 +20,14 @@ export type EdenSessionAccessProfile = {
   memberships: EdenSessionBusinessMembership[];
 };
 
+export type EdenSessionDebugSnapshot = {
+  enabled: boolean;
+  resolvedRole: EdenRole;
+  memberships: EdenSessionBusinessMembership[];
+  usedOwnedBusinessFallbackClaims: boolean;
+  note?: string;
+};
+
 export const persistentSessionCookieName = "eden_v1_auth_user_id";
 
 const allowedAuthSessionModes = new Set<EdenAuthSessionMode>([
@@ -56,5 +64,36 @@ export function logSessionResolution(
 
   console.info(
     `[eden-auth-session] ${mode} resolved ${source} session via ${resolver}: ${detail}`,
+  );
+}
+
+export function shouldExposeAuthSessionDiagnostics(
+  input = process.env.EDEN_SHOW_AUTH_SESSION_DIAGNOSTICS,
+) {
+  return input === "true";
+}
+
+export function logResolvedSessionSnapshot(input: {
+  mode: EdenAuthSessionMode;
+  source: EdenSessionAuthSource;
+  resolver: EdenSessionResolver;
+  role: EdenRole;
+  memberships: EdenSessionBusinessMembership[];
+  usedOwnedBusinessFallbackClaims: boolean;
+  detail: string;
+}) {
+  if (process.env.EDEN_LOG_AUTH_SESSION_RESOLUTION !== "true") {
+    return;
+  }
+
+  const memberships =
+    input.memberships.length > 0
+      ? input.memberships
+          .map((membership) => `${membership.businessId}:${membership.businessRole}`)
+          .join(", ")
+      : "none";
+
+  console.info(
+    `[eden-auth-session] ${input.mode} session snapshot source=${input.source} resolver=${input.resolver} role=${input.role} memberships=[${memberships}] ownerFallbackClaims=${input.usedOwnedBusinessFallbackClaims}: ${input.detail}`,
   );
 }

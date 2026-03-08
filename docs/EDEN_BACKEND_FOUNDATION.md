@@ -119,6 +119,7 @@ Current safety notes:
 
 Set `EDEN_AUTH_SESSION_MODE="hybrid"` to exercise the new server-side resolver seam without removing mock fallback.
 Set `EDEN_LOG_AUTH_SESSION_RESOLUTION="true"` to log whether server sessions resolved through the persistent compatibility path or fell back to mock cookies.
+Set `EDEN_SHOW_AUTH_SESSION_DIAGNOSTICS="true"` to render a development-only shell panel showing the resolved session source, resolver, role, memberships, and whether owned-business fallback claims were used.
 
 ## Canonical Marketplace Sync
 

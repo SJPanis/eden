@@ -4,15 +4,18 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { EdenRole } from "@/modules/core/config/role-nav";
 import {
+  logResolvedSessionSnapshot,
   logSessionResolution,
   persistentSessionCookieName,
   resolveAuthSessionMode,
+  shouldExposeAuthSessionDiagnostics,
 } from "@/modules/core/session/auth-runtime";
 import {
   buildForbiddenHref,
   canAccessRoles,
   mockSessionCookieName,
   resolveMockSession,
+  withSessionAuthDebug,
 } from "@/modules/core/session/mock-session";
 import {
   mockOnboardingCookieName,
@@ -52,6 +55,16 @@ export async function getServerSession() {
       sessionKey: fallbackUserId,
     },
   });
+  const diagnosticsEnabled = shouldExposeAuthSessionDiagnostics();
+  const fallbackSession = diagnosticsEnabled
+    ? withSessionAuthDebug(session, {
+        usedOwnedBusinessFallbackClaims: false,
+        note:
+          authMode === "mock_only"
+            ? "Auth runtime is in mock_only mode."
+            : "Persistent identity was unavailable, so the session fell back to the mock cookie path.",
+      })
+    : session;
 
   if (authMode !== "mock_only") {
     logSessionResolution(
@@ -61,8 +74,20 @@ export async function getServerSession() {
       "Persistent auth is not yet authoritative, so the server session fell back to the mock cookie path.",
     );
   }
+  logResolvedSessionSnapshot({
+    mode: authMode,
+    source: fallbackSession.auth.source,
+    resolver: fallbackSession.auth.resolver,
+    role: fallbackSession.role,
+    memberships: fallbackSession.access.memberships,
+    usedOwnedBusinessFallbackClaims: false,
+    detail:
+      authMode === "mock_only"
+        ? "Resolved through the mock session path."
+        : "Resolved through mock fallback because no persistent identity was available.",
+  });
 
-  return session;
+  return fallbackSession;
 }
 
 export async function getMockOnboardingProfile() {

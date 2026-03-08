@@ -1,12 +1,15 @@
 import "server-only";
 
 import {
+  logResolvedSessionSnapshot,
   logSessionResolution,
+  shouldExposeAuthSessionDiagnostics,
   type EdenAuthSessionMode,
 } from "@/modules/core/session/auth-runtime";
 import {
   createCompatibilitySession,
   type EdenMockSession,
+  withSessionAuthDebug,
 } from "@/modules/core/session/mock-session";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 import { createPrismaAuthIdentityAdapter } from "@/modules/core/session/prisma-auth-identity-adapter";
@@ -53,6 +56,17 @@ export async function resolvePersistentCompatibilitySession(
         memberships: identity.memberships,
       },
     );
+    const diagnosticsEnabled = shouldExposeAuthSessionDiagnostics();
+    const resolvedSession = diagnosticsEnabled
+      ? withSessionAuthDebug(session, {
+          memberships: identity.memberships,
+          usedOwnedBusinessFallbackClaims: identity.diagnostics.usedOwnedBusinessFallbackClaims,
+          note:
+            identity.diagnostics.ownerFallbackMembershipCount > 0
+              ? `Used ${identity.diagnostics.ownerFallbackMembershipCount} owned-business fallback claim(s) alongside ${identity.diagnostics.explicitMembershipCount} explicit membership(s).`
+              : `Resolved ${identity.diagnostics.explicitMembershipCount} explicit persistent membership(s).`,
+        })
+      : session;
 
     logSessionResolution(
       mode,
@@ -60,8 +74,17 @@ export async function resolvePersistentCompatibilitySession(
       identity.resolver,
       `Resolved persisted identity for ${identity.user.username}.`,
     );
+    logResolvedSessionSnapshot({
+      mode,
+      source: "persistent",
+      resolver: identity.resolver,
+      role: identity.platformRole,
+      memberships: identity.memberships,
+      usedOwnedBusinessFallbackClaims: identity.diagnostics.usedOwnedBusinessFallbackClaims,
+      detail: `Resolved persisted identity for ${identity.user.username}.`,
+    });
 
-    return session;
+    return resolvedSession;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown persistent auth adapter failure";

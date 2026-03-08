@@ -64,6 +64,11 @@ export function createPrismaAuthIdentityAdapter(
         sessionKey,
         resolver: "prisma_identity_adapter",
         platformRole: formatPlatformRole(user.role),
+        diagnostics: {
+          usedOwnedBusinessFallbackClaims: ownerMemberships.length > 0,
+          explicitMembershipCount: explicitMemberships.length,
+          ownerFallbackMembershipCount: ownerMemberships.length,
+        },
         user: {
           id: user.id,
           username: user.username,
@@ -117,4 +122,3 @@ function formatBusinessMembershipRole(role: BusinessMemberRole) {
 
   return "member" as const;
 }
-

@@ -199,6 +199,66 @@ export function RoleShell({
                     {session.user.initials}
                   </div>
                 </div>
+
+                {session.auth.debug?.enabled ? (
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50/80 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-sky-700">
+                        Auth Boundary
+                      </p>
+                      <span className="rounded-full border border-sky-200 bg-white/90 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-sky-700">
+                        Dev only
+                      </span>
+                    </div>
+                    <div className="mt-3 grid gap-3 text-xs text-slate-700">
+                      <div className="flex flex-wrap gap-3">
+                        <span>
+                          <span className="font-semibold">Source:</span> {session.auth.source}
+                        </span>
+                        <span>
+                          <span className="font-semibold">Resolver:</span> {session.auth.resolver}
+                        </span>
+                        <span>
+                          <span className="font-semibold">Role:</span>{" "}
+                          {session.auth.debug.resolvedRole}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span
+                          className={`rounded-full border px-2 py-0.5 uppercase tracking-[0.12em] ${
+                            session.auth.debug.usedOwnedBusinessFallbackClaims
+                              ? "border-amber-200 bg-amber-50 text-amber-700"
+                              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          }`}
+                        >
+                          {session.auth.debug.usedOwnedBusinessFallbackClaims
+                            ? "Owned-business fallback used"
+                            : "No owner fallback claims"}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-800">Memberships</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {session.auth.debug.memberships.length > 0 ? (
+                            session.auth.debug.memberships.map((membership) => (
+                              <span
+                                key={`${membership.businessId}-${membership.businessRole}-${membership.source}`}
+                                className="rounded-full border border-sky-200 bg-white/90 px-2 py-1 text-[11px] text-sky-800"
+                              >
+                                {membership.businessId} - {membership.businessRole}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-slate-600">No business memberships resolved.</span>
+                          )}
+                        </div>
+                      </div>
+                      {session.auth.debug.note ? (
+                        <p className="text-[11px] text-slate-600">{session.auth.debug.note}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>

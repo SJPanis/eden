@@ -8,6 +8,11 @@ export type EdenAuthIdentity = {
   sessionKey: string;
   resolver: EdenSessionResolver;
   platformRole: EdenRole;
+  diagnostics: {
+    usedOwnedBusinessFallbackClaims: boolean;
+    explicitMembershipCount: number;
+    ownerFallbackMembershipCount: number;
+  };
   user: {
     id: string;
     username: string;
@@ -22,4 +27,3 @@ export type EdenAuthIdentity = {
 export interface EdenAuthIdentityAdapter {
   resolveIdentity(sessionKey: string): Promise<EdenAuthIdentity | null>;
 }
-
