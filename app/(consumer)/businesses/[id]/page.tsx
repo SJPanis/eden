@@ -12,9 +12,9 @@ import {
 } from "@/modules/core/pipeline/mock-pipeline";
 import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pipeline/server";
 import {
-  getBusinessOwner,
   loadBusinessById,
   loadDiscoveryBusinessById,
+  loadUserById,
 } from "@/modules/core/services";
 
 type SearchValue = string | string[] | undefined;
@@ -68,7 +68,7 @@ export default async function BusinessDetailPage({
       createdBusiness,
       workspaceServices,
     }) ?? await loadBusinessById(id, { createdBusiness });
-  const ownerRecord = business ? getBusinessOwner(business, { createdBusiness }) : null;
+  const ownerRecord = business ? await loadUserById(business.ownerUserId) : null;
   const businessFrozen = business ? isBusinessFrozen(business.id, adminState) : false;
   const pipelineSnapshot = business
     ? getBusinessPipelineSnapshot(

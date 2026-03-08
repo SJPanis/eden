@@ -3,9 +3,10 @@ import {
   isUserFrozen,
 } from "@/modules/core/admin/mock-admin-state";
 import { getMockAdminState } from "@/modules/core/admin/server";
+import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
 import { DetailPlaceholderPanel } from "@/modules/core/components/detail-placeholder-panel";
-import { formatCredits, getBusinessesForOwner, getUserById } from "@/modules/core/mock-data";
+import { formatCredits } from "@/modules/core/mock-data";
 import { getUserCreditsBalance } from "@/modules/core/credits/mock-credits";
 import { getSimulatedTransactions } from "@/modules/core/credits/server";
 import {
@@ -15,6 +16,7 @@ import {
   getRecentPipelineEvents,
 } from "@/modules/core/pipeline/mock-pipeline";
 import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pipeline/server";
+import { loadBusinessesForOwner, loadUserById } from "@/modules/core/services";
 
 type OwnerUserInspectionPageProps = {
   params: Promise<{ id: string }>;
@@ -32,15 +34,16 @@ export default async function OwnerUserInspectionPage({
   params,
 }: OwnerUserInspectionPageProps) {
   const { id } = await params;
-  const [simulatedTransactions, pipelineRecords, pipelineEvents, adminState, workspaceServices] = await Promise.all([
+  const [simulatedTransactions, pipelineRecords, pipelineEvents, adminState, createdBusiness, workspaceServices, user] = await Promise.all([
     getSimulatedTransactions(),
     getMockPipelineRecords(),
     getMockPipelineEvents(),
     getMockAdminState(),
+    getMockCreatedBusiness(),
     getMockWorkspaceServices(),
+    loadUserById(id),
   ]);
-  const user = getUserById(id);
-  const ownedBusinesses = getBusinessesForOwner(id);
+  const ownedBusinesses = await loadBusinessesForOwner(id, { createdBusiness });
   const userFrozen = user ? isUserFrozen(user.id, adminState) : false;
   const primaryBusiness = ownedBusinesses[0] ?? null;
   const releaseCards = ownedBusinesses.map((business) => ({
@@ -53,7 +56,7 @@ export default async function OwnerUserInspectionPage({
       },
       simulatedTransactions,
       pipelineRecords,
-      undefined,
+      createdBusiness,
       workspaceServices,
     ),
     events: getRecentPipelineEvents(

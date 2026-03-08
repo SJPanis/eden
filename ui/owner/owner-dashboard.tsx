@@ -24,25 +24,16 @@ import {
   getRecentPipelineEvents,
 } from "@/modules/core/pipeline/mock-pipeline";
 import {
-  businesses as platformBusinesses,
   formatCredits,
-  getBusinessById,
-  getBusinessForService,
-  getBusinessOwner,
-  getOwnerDashboardBusinesses,
-  getOwnerDashboardServices,
-  getOwnerDashboardUsers,
-  getServiceById,
   logs as platformLogs,
   ownerAgentNodes as agentNodes,
   ownerHealthChecks as systemHealthChecks,
   ownerSecurityControls as securityControls,
   ownerSignals as topSignals,
-  services as platformServices,
-  users as platformUsers,
 } from "@/modules/core/mock-data";
 import type {
   EdenMockAgentStatus,
+  EdenMockBusiness,
   EdenMockBusinessStatus,
   EdenMockLogLevel,
   EdenMockPipelineEvent,
@@ -52,6 +43,7 @@ import type {
   EdenMockService,
   EdenMockTransaction,
   EdenMockTransactionDirection,
+  EdenMockUser,
   EdenMockUserStatus,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
@@ -65,6 +57,12 @@ type OwnerDashboardPanelProps = {
   adminState: EdenMockAdminState;
   simulationBusinessId?: string;
   workspaceServices?: EdenMockWorkspaceServiceState[];
+  watchedUsers: EdenMockUser[];
+  watchedBusinesses: EdenMockBusiness[];
+  watchedServices: EdenMockService[];
+  userCatalog: EdenMockUser[];
+  businessCatalog: EdenMockBusiness[];
+  serviceCatalog: EdenMockService[];
 };
 
 type CreditActivity = {
@@ -175,13 +173,30 @@ export function OwnerDashboardPanel({
   adminState,
   simulationBusinessId,
   workspaceServices = [],
+  watchedUsers,
+  watchedBusinesses,
+  watchedServices,
+  userCatalog,
+  businessCatalog,
+  serviceCatalog,
 }: OwnerDashboardPanelProps) {
-  const users = getOwnerDashboardUsers();
-  const businesses = getOwnerDashboardBusinesses();
-  const baseServices = getOwnerDashboardServices();
+  const users = watchedUsers;
+  const businesses = watchedBusinesses;
+  const baseServices = watchedServices;
+  const userLookup = new Map(userCatalog.map((user) => [user.id, user]));
+  const businessLookup = new Map(businessCatalog.map((business) => [business.id, business]));
+  const serviceLookup = new Map(serviceCatalog.map((service) => [service.id, service]));
+  const getCatalogUserById = (userId?: string | null) =>
+    userId ? userLookup.get(userId) ?? null : null;
+  const getCatalogBusinessById = (businessId?: string | null) =>
+    businessId ? businessLookup.get(businessId) ?? null : null;
+  const getCatalogServiceById = (serviceId?: string | null) =>
+    serviceId ? serviceLookup.get(serviceId) ?? null : null;
   const scopedBusinessIds = businesses.map((business) => business.id);
   const creditFlow = getCreditFlowSummary(simulatedTransactions);
-  const simulationBusiness = simulationBusinessId ? getBusinessById(simulationBusinessId) : null;
+  const simulationBusiness = simulationBusinessId
+    ? getCatalogBusinessById(simulationBusinessId)
+    : null;
   const maintenanceMode = adminState.maintenanceMode;
   const frozenUsersCount = adminState.frozenUserIds.length;
   const frozenBusinessesCount = adminState.frozenBusinessIds.length;
@@ -221,7 +236,7 @@ export function OwnerDashboardPanel({
 
     return {
       business,
-      ownerName: getBusinessOwner(business)?.displayName ?? "Unknown owner",
+      ownerName: getCatalogUserById(business.ownerUserId)?.displayName ?? "Unknown owner",
       isFrozen: isBusinessFrozen(business.id, adminState),
       snapshot,
       latestEvent,
@@ -232,22 +247,25 @@ export function OwnerDashboardPanel({
     new Map(
       [
         ...baseServices,
-        ...businessCards.map((entry) =>
-          getServiceById(
-            entry.snapshot?.serviceId ?? entry.business.featuredServiceId,
-            undefined,
-            workspaceServices,
-          ),
+        ...businessCards.map(
+          (entry) =>
+            getCatalogServiceById(entry.snapshot?.serviceId ?? entry.business.featuredServiceId) ??
+            entry.snapshot?.service,
         ),
       ]
         .filter((service): service is EdenMockService => Boolean(service))
         .map((service) => [service.id, service]),
     ).values(),
   ).map((service) => {
-    const business = getBusinessForService(service, undefined, workspaceServices);
+    const business = getCatalogBusinessById(service.businessId);
     const latestEvent =
       getRecentPipelineEvents({ serviceId: service.id, limit: 1 }, pipelineEvents)[0] ?? null;
-    const linkedBusiness = businessCards.find((entry) => entry.business.id === business?.id);
+    const linkedBusiness = businessCards.find(
+      (entry) =>
+        entry.business.id === business?.id ||
+        entry.business.id === service.businessId ||
+        entry.snapshot?.serviceId === service.id,
+    );
 
     return {
       service,
@@ -284,19 +302,19 @@ export function OwnerDashboardPanel({
     {
       id: "overview-users",
       label: "Total users",
-      value: `${platformUsers.length}`,
+      value: `${userCatalog.length}`,
       detail: "Shared mock accounts spanning consumer, business, and owner roles.",
     },
     {
       id: "overview-businesses",
       label: "Total businesses",
-      value: `${platformBusinesses.length}`,
+      value: `${businessCatalog.length}`,
       detail: "Mock business workspaces currently staged across draft, testing, ready, and published states.",
     },
     {
       id: "overview-services",
       label: "Total services",
-      value: `${platformServices.length}`,
+      value: `${serviceCatalog.length}`,
       detail: "Published and staged service catalog entries visible to owner monitoring surfaces.",
     },
     {
@@ -721,14 +739,12 @@ export function OwnerDashboardPanel({
                       <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Active service</p>
                         <p className="mt-2 text-sm font-semibold text-eden-ink">
-                          {entry.snapshot?.service?.title ??
-                            getServiceById(
-                              entry.business.featuredServiceId,
-                              undefined,
-                              workspaceServices,
+                            {getCatalogServiceById(
+                              entry.snapshot?.serviceId ?? entry.business.featuredServiceId,
                             )?.title ??
-                            "Active service"}
-                        </p>
+                              entry.snapshot?.service?.title ??
+                              "Active service"}
+                          </p>
                       </div>
                       <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Readiness</p>
@@ -877,12 +893,8 @@ export function OwnerDashboardPanel({
                 className="space-y-3"
               >
                 {releaseEvents.map((event) => {
-                  const business = getBusinessById(event.businessId);
-                  const service = getServiceById(
-                    event.serviceId,
-                    undefined,
-                    workspaceServices,
-                  );
+                  const business = getCatalogBusinessById(event.businessId);
+                  const service = getCatalogServiceById(event.serviceId);
 
                   return (
                     <motion.article
@@ -925,11 +937,8 @@ export function OwnerDashboardPanel({
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Latest publish</p>
                   <p className="mt-2 text-lg font-semibold text-eden-ink">
                     {publishSummary.latestPublishEvent
-                      ? getServiceById(
-                          publishSummary.latestPublishEvent.serviceId,
-                          undefined,
-                          workspaceServices,
-                        )?.title ?? "Published service"
+                      ? getCatalogServiceById(publishSummary.latestPublishEvent.serviceId)?.title ??
+                        "Published service"
                       : "No publish recorded"}
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
@@ -964,12 +973,10 @@ export function OwnerDashboardPanel({
                             </span>
                           </div>
                           <p className="mt-2 text-sm leading-6 text-eden-muted">
-                            {entry.snapshot?.service?.title ??
-                              getServiceById(
-                                entry.business.featuredServiceId,
-                                undefined,
-                                workspaceServices,
-                              )?.title ??
+                            {getCatalogServiceById(
+                              entry.snapshot?.serviceId ?? entry.business.featuredServiceId,
+                            )?.title ??
+                              entry.snapshot?.service?.title ??
                               "Active service"}{" "}
                             is at {entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}% readiness.
                           </p>

@@ -4,9 +4,9 @@ import {
   BusinessVisibility,
   EdenRole,
   PipelineStatus,
+  Prisma,
   UserStatus,
 } from "@prisma/client";
-import { getPrismaClient } from "../modules/core/repos/prisma-client.ts";
 
 type SyncOptions = {
   dryRun: boolean;
@@ -143,10 +143,13 @@ async function main() {
     );
   }
 
+  const { getPrismaClient } = await import(
+    new URL("../modules/core/repos/prisma-client.ts", import.meta.url).href
+  );
   const prisma = getPrismaClient();
 
   try {
-    await prisma.$transaction(async (transaction) => {
+    await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
       for (const user of payload.users) {
         await transaction.user.upsert({
           where: {

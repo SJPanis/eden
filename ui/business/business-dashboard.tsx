@@ -16,17 +16,17 @@ import {
   getRecentPipelineEvents,
   formatPipelineTimestamp,
   getPipelineStatusLabel,
+  getStoredMockPipelineRecord,
 } from "@/modules/core/pipeline/mock-pipeline";
 import { MockPipelineControls } from "@/modules/core/pipeline/mock-pipeline-controls";
 import {
   type EdenDiscoverySnapshot,
   formatCredits,
-  getBusinessById,
-  getBusinessOwner,
   getLogsByBusinessId,
   getProjectsByBusinessId,
 } from "@/modules/core/mock-data";
 import type {
+  EdenMockBusiness,
   EdenMockChecklistState,
   EdenMockPipelineEvent,
   EdenMockPipelineRecord,
@@ -34,6 +34,7 @@ import type {
   EdenMockProject,
   EdenMockReleaseStatus,
   EdenMockTransaction,
+  EdenMockUser,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
 import { BusinessAiAssistantPanel } from "@/ui/business/components/business-ai-assistant-panel";
@@ -82,6 +83,8 @@ type BusinessDashboardPanelProps = {
   pipelineEvents: EdenMockPipelineEvent[];
   assistantHistory: EdenMockBusinessAssistantHistoryEntry[];
   activeBusinessId: string;
+  businessProfile: EdenMockBusiness | null;
+  businessOwner: EdenMockUser | null;
   createdBusiness?: EdenMockCreatedBusinessState | null;
   workspaceServices?: EdenMockWorkspaceServiceState[];
 };
@@ -193,6 +196,24 @@ function getTransactionDirectionClasses(direction: EdenMockTransaction["directio
   return "bg-sky-100 text-sky-700";
 }
 
+function getFallbackReleaseStatus(status: string) {
+  const normalized = status.toLowerCase();
+
+  if (normalized.includes("publish")) {
+    return "published" as const;
+  }
+
+  if (normalized.includes("ready")) {
+    return "ready" as const;
+  }
+
+  if (normalized.includes("testing")) {
+    return "testing" as const;
+  }
+
+  return "draft" as const;
+}
+
 export function BusinessDashboardPanel({
   session,
   discoverySnapshot,
@@ -201,13 +222,13 @@ export function BusinessDashboardPanel({
   pipelineEvents,
   assistantHistory,
   activeBusinessId,
+  businessProfile,
+  businessOwner,
   createdBusiness,
   workspaceServices = [],
 }: BusinessDashboardPanelProps) {
   const [releaseEventFilter, setReleaseEventFilter] = useState<ReleaseEventFilter>("all");
-  const businessProfile = getBusinessById(activeBusinessId, createdBusiness);
   const projects = getProjectsByBusinessId(activeBusinessId, createdBusiness, workspaceServices);
-  const businessOwner = businessProfile ? getBusinessOwner(businessProfile, createdBusiness) : null;
   const isSessionCreatedBusiness = createdBusiness?.business.id === activeBusinessId;
   const workspaceService =
     workspaceServices.find((entry) => entry.record.businessId === activeBusinessId) ?? null;
@@ -233,7 +254,12 @@ export function BusinessDashboardPanel({
         workspaceServices,
       )
     : null;
-  const releaseStatus = pipelineSnapshot?.status ?? "draft";
+  const storedPipelineRecord = getStoredMockPipelineRecord(activeBusinessId, pipelineRecords);
+  const releaseStatus =
+    storedPipelineRecord?.status ??
+    getFallbackReleaseStatus(
+      pipelineSnapshot?.service?.status ?? businessProfile?.status ?? "draft",
+    );
   const draftDefaultCategory =
     pipelineSnapshot?.service?.category ?? workspaceService?.record.category ?? businessProfile?.category ?? "Productivity";
   const draftDefaultTagsSignature = (
@@ -360,7 +386,9 @@ export function BusinessDashboardPanel({
         },
         {
           label: "Workspace readiness",
-          value: `${pipelineSnapshot?.readinessPercent ?? businessProfile.publishReadinessPercent}%`,
+          value: `${storedPipelineRecord
+            ? pipelineSnapshot?.readinessPercent ?? businessProfile.publishReadinessPercent
+            : businessProfile.publishReadinessPercent}%`,
           detail: "Shared readiness state derived from the mocked build, test, and publish pipeline.",
         },
         {
@@ -370,7 +398,10 @@ export function BusinessDashboardPanel({
         },
         {
           label: "Next milestone",
-          value: pipelineSnapshot?.nextMilestone ?? businessProfile.nextMilestone,
+          value:
+            storedPipelineRecord?.status
+              ? pipelineSnapshot?.nextMilestone ?? businessProfile.nextMilestone
+              : businessProfile.nextMilestone,
           detail: "Current staged milestone from the mocked build, test, and publish flow.",
         },
       ]
@@ -381,7 +412,11 @@ export function BusinessDashboardPanel({
           id: "release-summary-01",
           label: "Current status",
           value: getPipelineStatusLabel(releaseStatus),
-          detail: pipelineSnapshot?.lastActionLabel ?? "This release is still following the shared mocked baseline.",
+          detail:
+            storedPipelineRecord?.status
+              ? pipelineSnapshot?.lastActionLabel ??
+                "This release is still following the shared mocked baseline."
+              : `Defaulting to the current workspace status from ${businessProfile.name}.`,
         },
         {
           id: "release-summary-02",
@@ -392,8 +427,11 @@ export function BusinessDashboardPanel({
         {
           id: "release-summary-03",
           label: "Active project",
-          value: pipelineSnapshot?.project?.title ?? "No active project",
-          detail: pipelineSnapshot?.project?.milestone ?? "Assign or stage a project to drive the next release pass.",
+          value: pipelineSnapshot?.project?.title ?? projects[0]?.title ?? "No active project",
+          detail:
+            pipelineSnapshot?.project?.milestone ??
+            projects[0]?.milestone ??
+            "Assign or stage a project to drive the next release pass.",
         },
         {
           id: "release-summary-04",

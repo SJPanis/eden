@@ -1,11 +1,13 @@
 import type {
   EdenMockBusiness,
   EdenMockService,
+  EdenMockUser,
 } from "@/modules/core/mock-data/platform-types";
 import type {
   EdenRepoBusinessRecord,
   EdenRepoPipelineStatus,
   EdenRepoServiceRecord,
+  EdenRepoUserRecord,
 } from "@/modules/core/repos/repo-types";
 
 export function mapRepoBusinessToMockBusiness(
@@ -48,6 +50,27 @@ export function mapRepoServiceToMockService(
       `A persisted Eden service draft for ${service.category.toLowerCase()} discovery.`,
     status: formatRepoPipelineStatus(service.status),
     tags: service.tags,
+  };
+}
+
+export function mapRepoUserToMockUser(
+  user: EdenRepoUserRecord,
+  fallbackUser?: EdenMockUser | null,
+): EdenMockUser {
+  return {
+    id: user.id,
+    username: user.username,
+    displayName: user.displayName,
+    status: user.status,
+    role: user.role,
+    edenBalanceCredits: user.edenBalanceCredits,
+    summary:
+      user.summary ??
+      fallbackUser?.summary ??
+      `${user.displayName} is a persisted Eden ${user.role} account.`,
+    businessIds: fallbackUser?.businessIds ?? [],
+    savedBusinessIds: fallbackUser?.savedBusinessIds ?? [],
+    savedServiceIds: fallbackUser?.savedServiceIds ?? [],
   };
 }
 

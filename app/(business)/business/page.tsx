@@ -12,7 +12,10 @@ import { defaultBusinessId } from "@/modules/core/mock-data";
 import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pipeline/server";
 import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
-import { loadDiscoverySnapshot } from "@/modules/core/services";
+import {
+  loadBusinessWorkspaceOverview,
+  loadDiscoverySnapshot,
+} from "@/modules/core/services";
 import {
   BusinessDashboardPanel,
   BusinessWorkspaceStarterPanel,
@@ -45,11 +48,17 @@ export default async function BusinessPage() {
     return <BusinessWorkspaceStarterPanel session={session} />;
   }
 
-  const discoverySnapshot = await loadDiscoverySnapshot({
-    pipelineRecords,
-    createdBusiness,
-    workspaceServices,
-  });
+  const [discoverySnapshot, workspaceOverview] = await Promise.all([
+    loadDiscoverySnapshot({
+      pipelineRecords,
+      createdBusiness,
+      workspaceServices,
+    }),
+    loadBusinessWorkspaceOverview(activeBusinessId, {
+      createdBusiness,
+      workspaceServices,
+    }),
+  ]);
   const scopedAssistantHistory = getMockBusinessAssistantHistoryForBusiness(
     activeBusinessId,
     assistantHistory,
@@ -63,6 +72,8 @@ export default async function BusinessPage() {
       pipelineRecords={pipelineRecords}
       pipelineEvents={pipelineEvents}
       activeBusinessId={activeBusinessId}
+      businessProfile={workspaceOverview.businessProfile}
+      businessOwner={workspaceOverview.businessOwner}
       createdBusiness={createdBusiness}
       workspaceServices={workspaceServices}
       assistantHistory={scopedAssistantHistory}

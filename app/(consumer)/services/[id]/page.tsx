@@ -16,10 +16,10 @@ import {
   defaultServiceId,
 } from "@/modules/core/mock-data";
 import {
+  loadBusinessById,
   loadDiscoveryBusinessForService,
   loadDiscoveryServiceById,
   loadServiceById,
-  getBusinessForService,
 } from "@/modules/core/services";
 
 type SearchValue = string | string[] | undefined;
@@ -108,9 +108,8 @@ export default async function ServiceDetailPage({
         createdBusiness,
         workspaceServices,
       }) ??
-      getBusinessForService(service, {
+      await loadBusinessById(service.businessId, {
         createdBusiness,
-        workspaceServices,
       })
     : null;
   const businessFrozen = business ? isBusinessFrozen(business.id, adminState) : false;

@@ -20,16 +20,14 @@ import type {
 import {
   type EdenDiscoverySnapshot,
   type EdenMockBusiness,
+  getBusinessById,
+  getBusinessForService,
   getAskEdenBusinessMatches,
   getAskEdenRecommendedServices,
   getAskEdenRelevantProjects,
+  getServiceById,
   inferDiscoveryCategory,
 } from "@/modules/core/mock-data";
-import {
-  getBusinessById,
-  getBusinessForService,
-  getServiceById,
-} from "@/modules/core/services";
 
 const simulatedDelayMs = 450;
 const serviceBuilderStopWords = new Set([

@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { BusinessRepo } from "@/modules/core/repos/business-repo";
 import type { EdenMockBusiness, EdenMockService } from "@/modules/core/mock-data/platform-types";
 import {
@@ -90,6 +92,33 @@ export async function loadBusinessCatalog(
 
   return mergeCatalogLayers(baseBusinesses, [
     options.createdBusiness?.business,
+    ...(persistentBusinesses ?? []),
+  ]);
+}
+
+export async function loadBusinessesForOwner(
+  ownerUserId: string,
+  options: Pick<EdenReadServiceOptions, "createdBusiness"> = {},
+) {
+  const localBusiness =
+    options.createdBusiness?.business?.ownerUserId === ownerUserId
+      ? options.createdBusiness.business
+      : null;
+  const readMode = resolveBuilderLoopReadMode();
+  const readRepos = resolveBuilderLoopReadRepos(readMode);
+  const persistentBusinesses = readRepos
+    ? await tryPersistentBuilderLoopRead("list_business_catalog", readMode, async () => {
+        const businesses = await readRepos.businessRepo.findByOwnerUserId(ownerUserId);
+        return businesses.map(mapRepoBusinessToMockBusiness);
+      })
+    : null;
+  const baseBusinesses =
+    readMode === "real_only"
+      ? []
+      : platformBusinesses.filter((business) => business.ownerUserId === ownerUserId);
+
+  return mergeCatalogLayers(baseBusinesses, [
+    localBusiness,
     ...(persistentBusinesses ?? []),
   ]);
 }

@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { ServiceRepo } from "@/modules/core/repos/service-repo";
 import {
   getServiceById as getMockServiceById,

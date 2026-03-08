@@ -1,13 +1,18 @@
+import "server-only";
+
 import { createPrismaBusinessRepo } from "@/modules/core/repos/prisma-business-repo";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 import { createPrismaDiscoveryRepo } from "@/modules/core/repos/prisma-discovery-repo";
 import { createPrismaServiceRepo } from "@/modules/core/repos/prisma-service-repo";
+import { createPrismaUserRepo } from "@/modules/core/repos/prisma-user-repo";
 import type { BusinessRepo } from "@/modules/core/repos/business-repo";
 import type { DiscoveryRepo } from "@/modules/core/repos/discovery-repo";
 import type { ServiceRepo } from "@/modules/core/repos/service-repo";
+import type { UserRepo } from "@/modules/core/repos/user-repo";
 import type { EdenBuilderLoopReadMode } from "@/modules/core/services/read-service-types";
 
 type EdenBuilderLoopReadRepos = {
+  userRepo: UserRepo;
   businessRepo: BusinessRepo;
   serviceRepo: ServiceRepo;
   discoveryRepo: DiscoveryRepo;
@@ -15,6 +20,9 @@ type EdenBuilderLoopReadRepos = {
 
 type EdenBuilderLoopReadOperation =
   | "initialize_persistent_read_repos"
+  | "get_user_by_id"
+  | "get_user_by_username"
+  | "list_users"
   | "get_business_by_id"
   | "get_service_by_id"
   | "list_business_catalog"
@@ -62,6 +70,7 @@ export function resolveBuilderLoopReadRepos(
     const prisma = getPrismaClient();
 
     cachedBuilderLoopReadRepos = {
+      userRepo: createPrismaUserRepo(prisma),
       businessRepo: createPrismaBusinessRepo(prisma),
       serviceRepo: createPrismaServiceRepo(prisma),
       discoveryRepo: createPrismaDiscoveryRepo(prisma),

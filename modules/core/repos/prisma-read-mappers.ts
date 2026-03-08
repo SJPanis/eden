@@ -3,12 +3,17 @@ import {
   BusinessVisibility,
   PipelineStatus,
   Prisma,
+  UserStatus,
+  EdenRole,
 } from "@prisma/client";
 import type {
   EdenRepoBusinessRecord,
   EdenRepoBusinessVisibility,
   EdenRepoPipelineStatus,
   EdenRepoServiceRecord,
+  EdenRepoRole,
+  EdenRepoUserRecord,
+  EdenRepoUserStatus,
 } from "@/modules/core/repos/repo-types";
 
 export const prismaBusinessSelect = {
@@ -45,12 +50,26 @@ export const prismaServiceSelect = {
   publishedAt: true,
 } satisfies Prisma.ServiceSelect;
 
+export const prismaUserSelect = {
+  id: true,
+  username: true,
+  displayName: true,
+  role: true,
+  status: true,
+  edenBalanceCredits: true,
+  summary: true,
+} satisfies Prisma.UserSelect;
+
 type PrismaBusinessReadRecord = Prisma.BusinessGetPayload<{
   select: typeof prismaBusinessSelect;
 }>;
 
 type PrismaServiceReadRecord = Prisma.ServiceGetPayload<{
   select: typeof prismaServiceSelect;
+}>;
+
+type PrismaUserReadRecord = Prisma.UserGetPayload<{
+  select: typeof prismaUserSelect;
 }>;
 
 export function mapPrismaBusinessToRepoRecord(
@@ -95,6 +114,20 @@ export function mapPrismaServiceToRepoRecord(
   };
 }
 
+export function mapPrismaUserToRepoRecord(
+  user: PrismaUserReadRecord,
+): EdenRepoUserRecord {
+  return {
+    id: user.id,
+    username: user.username,
+    displayName: user.displayName,
+    role: mapPrismaRole(user.role),
+    status: mapPrismaUserStatus(user.status),
+    edenBalanceCredits: user.edenBalanceCredits,
+    summary: user.summary,
+  };
+}
+
 function mapPrismaBusinessStatus(status: BusinessStatus): EdenRepoBusinessRecord["status"] {
   if (status === BusinessStatus.PUBLISHED) {
     return "published";
@@ -135,4 +168,28 @@ function mapPrismaPipelineStatus(status: PipelineStatus): EdenRepoPipelineStatus
   }
 
   return "draft";
+}
+
+function mapPrismaRole(role: EdenRole): EdenRepoRole {
+  if (role === EdenRole.OWNER) {
+    return "owner";
+  }
+
+  if (role === EdenRole.BUSINESS) {
+    return "business";
+  }
+
+  return "consumer";
+}
+
+function mapPrismaUserStatus(status: UserStatus): EdenRepoUserStatus {
+  if (status === UserStatus.REVIEW) {
+    return "review";
+  }
+
+  if (status === UserStatus.FROZEN) {
+    return "frozen";
+  }
+
+  return "active";
 }
