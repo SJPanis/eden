@@ -110,7 +110,7 @@ What exists now:
 - `modules/core/session/auth-provider-adapter.ts`
   - provider-session cookie contract plus parser/serializer for provider-style claims
 - `modules/core/session/prisma-cookie-auth-provider-adapter.ts`
-  - first auth provider adapter, mapping provider-style session claims to persisted users before the Prisma identity adapter runs
+  - first auth provider adapter, resolving persisted provider-account mappings before falling back to compatibility lookups
 - `modules/core/session/prisma-auth-identity-adapter.ts`
   - first real identity adapter, reading persisted users and `BusinessMember` relationships from Prisma
 
@@ -119,6 +119,7 @@ Current safety notes:
 - UI pages and guards still consume the same session shape they already used
 - mock fallback remains authoritative if no persisted auth identity is available
 - the mock session switcher still works and now seeds development-only provider-style claims for adapter testing
+- persisted provider-account mappings can now be stored in Prisma through the `AuthProviderAccount` model
 - persisted auth memberships now come from Prisma-backed `BusinessMember` relationships, with owned businesses added as owner claims when needed
 - older local auth cookies that still store a raw user id are accepted temporarily through a compatibility parser inside the provider adapter
 
@@ -142,6 +143,7 @@ Useful option:
 The sync is idempotent and currently upserts:
 
 - users needed for business ownership relationships
+- development provider-account mappings for canonical users
 - businesses
 - owner business memberships
 - services

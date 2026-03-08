@@ -61,6 +61,11 @@ type CanonicalSyncPayload = {
     summary: string;
     edenBalanceCredits: number;
   }>;
+  authProviderAccounts: Array<{
+    provider: string;
+    providerSubject: string;
+    userId: string;
+  }>;
   businesses: Array<{
     id: string;
     ownerUserId: string;
@@ -127,7 +132,7 @@ async function main() {
   const payload = buildCanonicalSyncPayload(marketplaceData);
 
   console.info(
-    `[eden-canonical-sync] Prepared ${payload.users.length} users, ${payload.businesses.length} businesses, ${payload.memberships.length} memberships, ${payload.services.length} services, and ${payload.pipelineRecords.length} pipeline records.`,
+    `[eden-canonical-sync] Prepared ${payload.users.length} users, ${payload.authProviderAccounts.length} provider accounts, ${payload.businesses.length} businesses, ${payload.memberships.length} memberships, ${payload.services.length} services, and ${payload.pipelineRecords.length} pipeline records.`,
   );
 
   if (options.dryRun) {
@@ -171,6 +176,25 @@ async function main() {
             status: user.status,
             summary: user.summary,
             edenBalanceCredits: user.edenBalanceCredits,
+          },
+        });
+      }
+
+      for (const providerAccount of payload.authProviderAccounts) {
+        await transaction.authProviderAccount.upsert({
+          where: {
+            provider_providerSubject: {
+              provider: providerAccount.provider,
+              providerSubject: providerAccount.providerSubject,
+            },
+          },
+          update: {
+            userId: providerAccount.userId,
+          },
+          create: {
+            provider: providerAccount.provider,
+            providerSubject: providerAccount.providerSubject,
+            userId: providerAccount.userId,
           },
         });
       }
@@ -347,6 +371,11 @@ function buildCanonicalSyncPayload(
       status: toPrismaUserStatus(user.status),
       summary: user.summary,
       edenBalanceCredits: user.edenBalanceCredits,
+    })),
+    authProviderAccounts: marketplaceData.users.map((user) => ({
+      provider: "eden-dev-session-switcher",
+      providerSubject: `eden-dev:${user.username}`,
+      userId: user.id,
     })),
     businesses: marketplaceData.businesses.map((business) => ({
       id: business.id,

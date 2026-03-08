@@ -35,37 +35,73 @@ export function createPrismaCookieAuthProviderAdapter(
         } satisfies EdenResolvedAuthProviderSession;
       }
 
-      const user =
-        (parsed.username
-          ? await prisma.user.findUnique({
-              where: {
-                username: parsed.username,
-              },
-              select: providerUserSelect,
-            })
-          : null) ??
-        (parsed.subject.startsWith("eden-dev:")
-          ? await prisma.user.findUnique({
-              where: {
-                username: parsed.subject.replace(/^eden-dev:/, ""),
-              },
-              select: providerUserSelect,
-            })
-          : null);
+      const providerAccount = await prisma.authProviderAccount.findFirst({
+        where: {
+          provider: parsed.provider,
+          providerSubject: parsed.subject,
+        },
+        select: {
+          user: {
+            select: providerUserSelect,
+          },
+        },
+      });
 
-      if (!user) {
+      if (providerAccount?.user) {
+        return {
+          provider: parsed.provider,
+          subject: parsed.subject,
+          sessionKey: providerAccount.user.id,
+          diagnostics: {
+            usedLegacySessionKeyFallback: false,
+            note: `Provider ${parsed.provider} resolved subject ${parsed.subject} through persisted provider-account mapping for @${providerAccount.user.username}.`,
+          },
+        } satisfies EdenResolvedAuthProviderSession;
+      }
+
+      const fallbackUser = await resolveProviderFallbackUser(prisma, parsed);
+
+      if (!fallbackUser) {
         return null;
       }
 
       return {
         provider: parsed.provider,
         subject: parsed.subject,
-        sessionKey: user.id,
+        sessionKey: fallbackUser.id,
         diagnostics: {
           usedLegacySessionKeyFallback: false,
-          note: `Provider ${parsed.provider} mapped subject ${parsed.subject} to @${user.username}.`,
+          note: `Provider ${parsed.provider} resolved subject ${parsed.subject} through compatibility fallback for @${fallbackUser.username}.`,
         },
       } satisfies EdenResolvedAuthProviderSession;
     },
   };
+}
+
+async function resolveProviderFallbackUser(
+  prisma: EdenPrismaClient,
+  parsed: {
+    provider: string;
+    subject: string;
+    username?: string;
+  },
+) {
+  return (
+    (parsed.username
+      ? await prisma.user.findUnique({
+          where: {
+            username: parsed.username,
+          },
+          select: providerUserSelect,
+        })
+      : null) ??
+    (parsed.subject.startsWith("eden-dev:")
+      ? await prisma.user.findUnique({
+          where: {
+            username: parsed.subject.replace(/^eden-dev:/, ""),
+          },
+          select: providerUserSelect,
+        })
+      : null)
+  );
 }
