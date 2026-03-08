@@ -100,7 +100,7 @@ export async function tryPersistentBuilderLoopRead<T>(
 
   try {
     const result = await callback();
-    logBuilderLoopReadSuccess(operation, mode);
+    logBuilderLoopReadSuccess(operation, mode, result);
     return result;
   } catch (error) {
     logBuilderLoopReadFailure(operation, error, mode);
@@ -116,13 +116,21 @@ export async function tryPersistentBuilderLoopRead<T>(
 function logBuilderLoopReadSuccess(
   operation: EdenBuilderLoopReadOperation,
   mode: EdenBuilderLoopReadMode,
+  result: unknown,
 ) {
   if (process.env.EDEN_LOG_HYBRID_READS !== "true") {
     return;
   }
 
+  const outcome =
+    result == null
+      ? "completed without a persistent match; mock fallback may still be used"
+      : Array.isArray(result) && result.length === 0
+        ? "completed with an empty persistent result; mock fallback may still be used"
+        : "completed with persistent data";
+
   console.info(
-    `[eden-builder-read] ${mode} persistent read completed: ${operation}`,
+    `[eden-builder-read] ${mode} persistent read ${outcome}: ${operation}`,
   );
 }
 

@@ -6,6 +6,13 @@ import {
   getUserById,
   users,
 } from "@/modules/core/mock-data";
+import type {
+  EdenAuthSessionMode,
+  EdenSessionAccessProfile,
+  EdenSessionAuthSource,
+  EdenSessionBusinessMembership,
+  EdenSessionResolver,
+} from "@/modules/core/session/auth-runtime";
 
 export type EdenMockSession = {
   role: EdenRole;
@@ -18,6 +25,13 @@ export type EdenMockSession = {
     edenBalanceCredits: number;
     businessIds: string[];
     initials: string;
+  };
+  access: EdenSessionAccessProfile;
+  auth: {
+    mode: EdenAuthSessionMode;
+    source: EdenSessionAuthSource;
+    resolver: EdenSessionResolver;
+    sessionKey: string | null;
   };
 };
 
@@ -66,14 +80,32 @@ export const mockSessionOptions: EdenMockSessionOption[] = users
     description: `${roleMeta[user.role].label} - ${toTitleCase(user.status)}`,
   }));
 
-export function resolveMockSession(userId?: string | null): EdenMockSession {
+type ResolveMockSessionOptions = {
+  auth?: Partial<EdenMockSession["auth"]>;
+  businessIds?: string[];
+  memberships?: EdenSessionBusinessMembership[];
+};
+
+type EdenCompatibilitySessionUser = {
+  id: string;
+  username: string;
+  displayName: string;
+  role: EdenRole;
+  status: string;
+  edenBalanceCredits: number;
+  businessIds: string[];
+};
+
+export function resolveMockSession(
+  userId?: string | null,
+  options: ResolveMockSessionOptions = {},
+): EdenMockSession {
   const fallbackUser = getUserById(defaultConsumerUserId);
   const resolvedUser = getUserById(userId ?? defaultConsumerUserId) ?? fallbackUser;
 
   if (!resolvedUser) {
-    return {
-      role: "consumer",
-      user: {
+    return createCompatibilitySession(
+      {
         id: defaultConsumerUserId,
         username: "consumer",
         displayName: "Consumer User",
@@ -81,22 +113,73 @@ export function resolveMockSession(userId?: string | null): EdenMockSession {
         status: "active",
         edenBalanceCredits: 0,
         businessIds: [],
-        initials: "CU",
       },
-    };
+      {
+        auth: {
+          source: "mock",
+          resolver: "default_fallback",
+          sessionKey: null,
+          ...options.auth,
+        },
+        memberships: options.memberships,
+      },
+    );
   }
 
-  return {
-    role: resolvedUser.role,
-    user: {
+  return createCompatibilitySession(
+    {
       id: resolvedUser.id,
       username: resolvedUser.username,
       displayName: resolvedUser.displayName,
       role: resolvedUser.role,
       status: resolvedUser.status,
       edenBalanceCredits: resolvedUser.edenBalanceCredits,
-      businessIds: resolvedUser.businessIds,
-      initials: getInitials(resolvedUser.displayName),
+      businessIds: options.businessIds ?? resolvedUser.businessIds,
+    },
+    {
+      auth: {
+        source: "mock",
+        resolver: userId ? "mock_cookie" : "default_fallback",
+        sessionKey: userId ?? null,
+        ...options.auth,
+      },
+      memberships: options.memberships,
+    },
+  );
+}
+
+export function createCompatibilitySession(
+  user: EdenCompatibilitySessionUser,
+  options: {
+    auth?: Partial<EdenMockSession["auth"]>;
+    memberships?: EdenSessionBusinessMembership[];
+  } = {},
+): EdenMockSession {
+  const memberships =
+    options.memberships ?? buildSessionMemberships(user.businessIds, options.auth?.source ?? "mock");
+
+  return {
+    role: user.role,
+    user: {
+      id: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      role: user.role,
+      status: user.status,
+      edenBalanceCredits: user.edenBalanceCredits,
+      businessIds: user.businessIds,
+      initials: getInitials(user.displayName),
+    },
+    access: {
+      platformRole: user.role,
+      memberships,
+    },
+    auth: {
+      mode: "mock_only",
+      source: "mock",
+      resolver: "default_fallback",
+      sessionKey: null,
+      ...options.auth,
     },
   };
 }
@@ -141,6 +224,17 @@ function getInitials(displayName: string) {
   const words = displayName.split(/\s+/).filter(Boolean);
   const firstTwoWords = words.slice(0, 2);
   return firstTwoWords.map((word) => word.charAt(0).toUpperCase()).join("");
+}
+
+function buildSessionMemberships(
+  businessIds: string[],
+  source: EdenSessionAuthSource,
+): EdenSessionBusinessMembership[] {
+  return businessIds.map((businessId) => ({
+    businessId,
+    businessRole: "owner",
+    source,
+  }));
 }
 
 function toTitleCase(input: string) {

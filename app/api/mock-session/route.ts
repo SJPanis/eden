@@ -4,6 +4,10 @@ import {
   resolveMockSession,
 } from "@/modules/core/session/mock-session";
 import {
+  persistentSessionCookieName,
+  resolveAuthSessionMode,
+} from "@/modules/core/session/auth-runtime";
+import {
   getSanitizedMockOnboardingProfile,
   mockOnboardingCookieName,
   type EdenMockOnboardingProfile,
@@ -36,7 +40,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const session = resolveMockSession(requestBody.userId ?? onboardingProfile?.selectedUserId);
+  const session = resolveMockSession(
+    requestBody.userId ?? onboardingProfile?.selectedUserId,
+    {
+      auth: {
+        mode: resolveAuthSessionMode(),
+        source: "mock",
+        resolver: "mock_cookie",
+        sessionKey: requestBody.userId ?? onboardingProfile?.selectedUserId ?? null,
+      },
+    },
+  );
   const response = NextResponse.json({
     ok: true,
     role: session.role,
@@ -44,6 +58,13 @@ export async function POST(request: Request) {
   });
 
   response.cookies.set(mockSessionCookieName, session.user.id, mockSessionCookieOptions);
+  // This development-only bridge keeps the current session switcher useful while the real
+  // auth resolver is introduced behind the existing session boundary.
+  response.cookies.set(
+    persistentSessionCookieName,
+    session.user.id,
+    mockSessionCookieOptions,
+  );
 
   if (onboardingProfile) {
     response.cookies.set(

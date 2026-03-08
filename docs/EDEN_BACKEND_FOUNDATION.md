@@ -89,6 +89,35 @@ Current read-mode seam:
 
 Set `EDEN_LOG_HYBRID_READS="true"` to log successful persistent read operations during migration testing.
 
+## Auth Session Boundary
+
+The current mock session and route-guard behavior remain active, but the server-side session boundary now has a first migration seam for future real auth.
+
+Current auth-session mode seam:
+
+- `mock_only`
+- `hybrid`
+- future `real_only`
+
+What exists now:
+
+- `modules/core/session/server.ts`
+  - central server session resolver and access guard boundary
+- `modules/core/session/auth-runtime.ts`
+  - auth mode, persistent cookie name, and debug logging seam
+- `modules/core/session/persistent-session-server.ts`
+  - development-only persistent compatibility resolver that can map a persisted user into the current session shape
+
+Current safety notes:
+
+- UI pages and guards still consume the same session shape they already used
+- mock fallback remains authoritative if no persisted auth identity is available
+- the mock session switcher still works and also seeds the compatibility auth cookie for migration testing
+- business memberships are currently ownership-derived in the compatibility resolver and should later be replaced with `BusinessMember`-backed claims during the real auth cutover
+
+Set `EDEN_AUTH_SESSION_MODE="hybrid"` to exercise the new server-side resolver seam without removing mock fallback.
+Set `EDEN_LOG_AUTH_SESSION_RESOLUTION="true"` to log whether server sessions resolved through the persistent compatibility path or fell back to mock cookies.
+
 ## Canonical Marketplace Sync
 
 For hybrid Prisma read testing, a development-only sync script can populate PostgreSQL with the current canonical marketplace records from the shared mock dataset.
@@ -109,3 +138,25 @@ The sync is idempotent and currently upserts:
 - owner business memberships
 - services
 - pipeline records used for release visibility and marketplace testing
+
+## Hybrid Read Divergence Verification
+
+For development-only verification against intentionally diverged PostgreSQL records, use:
+
+1. `npm run db:sync:canonical-marketplace`
+2. `npm run db:diverge:hybrid-read`
+3. `npm run db:verify:hybrid-read`
+
+Useful option:
+
+- `npm run db:diverge:hybrid-read -- --dry-run`
+
+This flow keeps the mock dataset unchanged and only mutates PostgreSQL so the existing hybrid read path can be checked safely.
+
+Reset the database view back to canonical values by re-running:
+
+- `npm run db:sync:canonical-marketplace`
+
+Reference:
+
+- `docs/EDEN_HYBRID_READ_VERIFICATION.md`

@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:sync:canonical-marketplace": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sync-canonical-marketplace.ts",
+    "db:diverge:hybrid-read": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/apply-hybrid-read-divergence.ts",
+    "db:verify:hybrid-read": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-hybrid-read-divergence.ts",
     "prisma:format": "prisma format",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate"
