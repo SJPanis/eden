@@ -21,6 +21,7 @@ import {
   mockOnboardingCookieName,
   parseMockOnboardingCookie,
 } from "@/modules/core/session/mock-onboarding";
+import { serializeAuthProviderSessionCookie } from "@/modules/core/session/auth-provider-adapter";
 import { resolvePersistentCompatibilitySession } from "@/modules/core/session/persistent-session-server";
 
 const mockSessionCookieOptions = {
@@ -107,7 +108,15 @@ export async function persistMockSession(userId: string) {
   const cookieStore = await cookies();
 
   cookieStore.set(mockSessionCookieName, session.user.id, mockSessionCookieOptions);
-  cookieStore.set(persistentSessionCookieName, session.user.id, mockSessionCookieOptions);
+  cookieStore.set(
+    persistentSessionCookieName,
+    serializeAuthProviderSessionCookie({
+      provider: "eden-dev-session-switcher",
+      subject: `eden-dev:${session.user.username}`,
+      username: session.user.username,
+    }),
+    mockSessionCookieOptions,
+  );
 
   return session;
 }

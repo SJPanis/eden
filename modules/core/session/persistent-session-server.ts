@@ -12,26 +12,41 @@ import {
   withSessionAuthDebug,
 } from "@/modules/core/session/mock-session";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { createPrismaCookieAuthProviderAdapter } from "@/modules/core/session/prisma-cookie-auth-provider-adapter";
 import { createPrismaAuthIdentityAdapter } from "@/modules/core/session/prisma-auth-identity-adapter";
 
 export async function resolvePersistentCompatibilitySession(
-  sessionKey: string | null | undefined,
+  providerCookieValue: string | null | undefined,
   mode: EdenAuthSessionMode,
 ): Promise<EdenMockSession | null> {
-  if (!sessionKey) {
+  if (!providerCookieValue) {
     return null;
   }
 
   try {
-    const adapter = createPrismaAuthIdentityAdapter(getPrismaClient());
-    const identity = await adapter.resolveIdentity(sessionKey);
+    const prisma = getPrismaClient();
+    const providerAdapter = createPrismaCookieAuthProviderAdapter(prisma);
+    const providerSession = await providerAdapter.resolveProviderSession(providerCookieValue);
+
+    if (!providerSession) {
+      logSessionResolution(
+        mode,
+        "persistent",
+        "persistent_fallback",
+        "No provider-backed auth session was found for the current request.",
+      );
+      return null;
+    }
+
+    const identityAdapter = createPrismaAuthIdentityAdapter(prisma);
+    const identity = await identityAdapter.resolveIdentity(providerSession.sessionKey);
 
     if (!identity) {
       logSessionResolution(
         mode,
         "persistent",
         "persistent_fallback",
-        `No persisted identity was found for ${sessionKey}.`,
+        `Provider ${providerSession.provider} resolved a session key, but no persisted identity was found for ${providerSession.sessionKey}.`,
       );
       return null;
     }
@@ -63,8 +78,8 @@ export async function resolvePersistentCompatibilitySession(
           usedOwnedBusinessFallbackClaims: identity.diagnostics.usedOwnedBusinessFallbackClaims,
           note:
             identity.diagnostics.ownerFallbackMembershipCount > 0
-              ? `Used ${identity.diagnostics.ownerFallbackMembershipCount} owned-business fallback claim(s) alongside ${identity.diagnostics.explicitMembershipCount} explicit membership(s).`
-              : `Resolved ${identity.diagnostics.explicitMembershipCount} explicit persistent membership(s).`,
+              ? `${providerSession.diagnostics.note} Used ${identity.diagnostics.ownerFallbackMembershipCount} owned-business fallback claim(s) alongside ${identity.diagnostics.explicitMembershipCount} explicit membership(s).`
+              : `${providerSession.diagnostics.note} Resolved ${identity.diagnostics.explicitMembershipCount} explicit persistent membership(s).`,
         })
       : session;
 
@@ -72,7 +87,7 @@ export async function resolvePersistentCompatibilitySession(
       mode,
       "persistent",
       identity.resolver,
-      `Resolved persisted identity for ${identity.user.username}.`,
+      `Resolved persisted identity for ${identity.user.username} via provider ${providerSession.provider}.`,
     );
     logResolvedSessionSnapshot({
       mode,
@@ -81,7 +96,7 @@ export async function resolvePersistentCompatibilitySession(
       role: identity.platformRole,
       memberships: identity.memberships,
       usedOwnedBusinessFallbackClaims: identity.diagnostics.usedOwnedBusinessFallbackClaims,
-      detail: `Resolved persisted identity for ${identity.user.username}.`,
+      detail: `${providerSession.diagnostics.note} Resolved persisted identity for ${identity.user.username}.`,
     });
 
     return resolvedSession;
@@ -93,7 +108,7 @@ export async function resolvePersistentCompatibilitySession(
       mode,
       "persistent",
       "persistent_fallback",
-      `Persistent auth identity adapter failed for ${sessionKey}. ${message}`,
+      `Persistent auth adapter chain failed. ${message}`,
     );
     return null;
   }

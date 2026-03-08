@@ -28,6 +28,8 @@ export type EdenSessionDebugSnapshot = {
   note?: string;
 };
 
+// The cookie name is kept stable for local migration continuity, but it now stores
+// serialized provider-style session claims instead of a raw internal user id.
 export const persistentSessionCookieName = "eden_v1_auth_user_id";
 
 const allowedAuthSessionModes = new Set<EdenAuthSessionMode>([

@@ -7,6 +7,7 @@ import {
   persistentSessionCookieName,
   resolveAuthSessionMode,
 } from "@/modules/core/session/auth-runtime";
+import { serializeAuthProviderSessionCookie } from "@/modules/core/session/auth-provider-adapter";
 import {
   getSanitizedMockOnboardingProfile,
   mockOnboardingCookieName,
@@ -59,10 +60,14 @@ export async function POST(request: Request) {
 
   response.cookies.set(mockSessionCookieName, session.user.id, mockSessionCookieOptions);
   // This development-only identity seed keeps the current session switcher useful while the
-  // auth runtime resolves persisted identities through the real adapter boundary.
+  // auth runtime resolves provider-style claims through the real provider and identity adapters.
   response.cookies.set(
     persistentSessionCookieName,
-    session.user.id,
+    serializeAuthProviderSessionCookie({
+      provider: "eden-dev-session-switcher",
+      subject: `eden-dev:${session.user.username}`,
+      username: session.user.username,
+    }),
     mockSessionCookieOptions,
   );
 
