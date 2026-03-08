@@ -46,6 +46,17 @@ export function createPrismaCreditsTopUpPaymentRepo(
       return payment ? mapCreditsTopUpPayment(payment) : null;
     },
 
+    async listAll(options = {}) {
+      const payments = await prisma.creditsTopUpPayment.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: options.limit ?? undefined,
+      });
+
+      return payments.map(mapCreditsTopUpPayment);
+    },
+
     async listSettled(options = {}) {
       const payments = await prisma.creditsTopUpPayment.findMany({
         where: {

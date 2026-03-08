@@ -197,6 +197,8 @@ What exists now:
   - server-only Stripe client singleton
 - `modules/core/payments/credits-topup-payment-service.ts`
   - persistent top-up payment service that maps settled Stripe sessions into the existing wallet transaction shape
+- `modules/core/services/payment-inspection-service.ts`
+  - owner-facing payment inspection summary and recent top-up reconciliation feed
 - `modules/core/repos/credits-topup-payment-repo.ts`
   - payment-ledger repository contract
 - `modules/core/repos/prisma-credits-topup-payment-repo.ts`
@@ -225,6 +227,7 @@ Current safety notes:
 - the Stripe webhook is the authoritative settlement path and maps settled payments back into Eden's existing wallet transaction architecture
 - the browser return confirmation UX is preserved, but it now reads settlement status instead of mutating wallet cookies directly
 - settled top-ups are merged into server-side wallet reads, so existing wallet history and receipt surfaces can stay unchanged
+- owner control-room payment visibility now reads the same persistent top-up records for reconciliation across pending, settled, failed, and canceled states
 - this slice still does not add subscriptions or builder payouts yet
 
 Required env for the Stripe-backed path:

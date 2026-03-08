@@ -10,6 +10,7 @@ import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
 import {
   loadOwnerDashboardData,
+  loadOwnerCreditsTopUpMetrics,
   loadOwnerServiceUsageMetrics,
 } from "@/modules/core/services";
 import { OwnerDashboardPanel } from "@/ui/owner/owner-dashboard";
@@ -25,7 +26,7 @@ export default async function OwnerPage() {
     getMockCreatedBusiness(),
   ]);
   const simulationBusinessId = getSimulationTargetBusinessId(session.role, session.user.id);
-  const [dashboardData, usageMetrics] = await Promise.all([
+  const [dashboardData, usageMetrics, paymentMetrics] = await Promise.all([
     loadOwnerDashboardData({
       createdBusiness,
       workspaceServices,
@@ -35,6 +36,9 @@ export default async function OwnerPage() {
       pipelineRecords,
       createdBusiness,
       workspaceServices,
+    }),
+    loadOwnerCreditsTopUpMetrics({
+      limit: 10,
     }),
   ]);
 
@@ -54,6 +58,7 @@ export default async function OwnerPage() {
       businessCatalog={dashboardData.businessCatalog}
       serviceCatalog={dashboardData.serviceCatalog}
       usageMetrics={usageMetrics}
+      paymentMetrics={paymentMetrics}
     />
   );
 }

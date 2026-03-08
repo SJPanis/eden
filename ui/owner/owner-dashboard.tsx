@@ -156,6 +156,31 @@ type OwnerDashboardPanelProps = {
       pricingRuleLabel: string;
     };
   };
+  paymentMetrics: {
+    source: "persistent" | "mock_fallback";
+    totalPayments: number;
+    pendingCount: number;
+    settledCount: number;
+    failedCount: number;
+    canceledCount: number;
+    totalCreditsSettled: number;
+    totalSettledAmountCents: number;
+    recentPayments: Array<{
+      id: string;
+      provider: string;
+      providerLabel: string;
+      providerSessionId: string;
+      providerPaymentIntentId?: string | null;
+      userId?: string | null;
+      creditsAmount: number;
+      amountCents: number;
+      currency: string;
+      status: "pending" | "settled" | "failed" | "canceled";
+      createdAtLabel: string;
+      settledAtLabel?: string | null;
+      failureReason?: string | null;
+    }>;
+  };
 };
 
 type CreditActivity = {
@@ -250,6 +275,19 @@ function getCreditDirectionClasses(direction: CreditActivity["direction"]) {
   return "bg-sky-100 text-sky-700";
 }
 
+function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "canceled") {
+  if (status === "settled") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "pending") return "border-amber-200 bg-amber-50 text-amber-700";
+  return "border-rose-200 bg-rose-50 text-rose-700";
+}
+
+function formatMoneyAmount(amountCents: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amountCents / 100);
+}
+
 function getServicePricingDisplay(input: {
   pricingModel?: string | null;
   pricePerUse?: number | null;
@@ -293,6 +331,7 @@ export function OwnerDashboardPanel({
   businessCatalog,
   serviceCatalog,
   usageMetrics,
+  paymentMetrics,
 }: OwnerDashboardPanelProps) {
   const users = watchedUsers;
   const businesses = watchedBusinesses;
@@ -306,6 +345,14 @@ export function OwnerDashboardPanel({
     businessId ? businessLookup.get(businessId) ?? null : null;
   const getCatalogServiceById = (serviceId?: string | null) =>
     serviceId ? serviceLookup.get(serviceId) ?? null : null;
+  const getUserDisplayLabel = (userId?: string | null) => {
+    if (!userId) {
+      return "Unlinked user";
+    }
+
+    const user = getCatalogUserById(userId);
+    return user ? `${user.displayName} (@${user.username})` : `Unknown user (${userId})`;
+  };
   const scopedBusinessIds = businesses.map((business) => business.id);
   const creditFlow = getCreditFlowSummary(simulatedTransactions);
   const simulationBusiness = simulationBusinessId
@@ -528,6 +575,35 @@ export function OwnerDashboardPanel({
       label: "Net movement",
       value: `${creditFlow.net >= 0 ? "+" : "-"}${formatCredits(Math.abs(creditFlow.net))}`,
       detail: "Net mock balance movement after inflow, usage, and owner-side adjustments.",
+    },
+  ];
+  const paymentSummaryCards = [
+    {
+      id: "payments-pending",
+      label: "Pending top-ups",
+      value: `${paymentMetrics.pendingCount}`,
+      detail: "Checkout sessions created but not yet settled by Stripe webhook delivery.",
+    },
+    {
+      id: "payments-settled",
+      label: "Settled top-ups",
+      value: `${paymentMetrics.settledCount}`,
+      detail: "Payment records authoritatively settled through the Stripe webhook path.",
+    },
+    {
+      id: "payments-needs-review",
+      label: "Failed or canceled",
+      value: `${paymentMetrics.failedCount + paymentMetrics.canceledCount}`,
+      detail: "Top-ups that did not settle and may need owner review or retry guidance.",
+    },
+    {
+      id: "payments-credits",
+      label: "Credits settled",
+      value: formatCredits(paymentMetrics.totalCreditsSettled),
+      detail: `${formatMoneyAmount(
+        paymentMetrics.totalSettledAmountCents,
+        "usd",
+      )} processed through the persistent top-up ledger.`,
     },
   ];
   const adminSummaryStrip = [
@@ -1239,6 +1315,120 @@ export function OwnerDashboardPanel({
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                        Payment reconciliation
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-eden-muted">
+                        Persistent credits top-up records from the Stripe-backed settlement path.
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                      {paymentMetrics.source === "persistent"
+                        ? "Persistent payment ledger"
+                        : "Fallback empty state"}
+                    </span>
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {paymentSummaryCards.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          {item.label}
+                        </p>
+                        <p className="mt-2 text-lg font-semibold text-eden-ink">{item.value}</p>
+                        <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                      Recent top-up payments
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      Owner inspection of pending, settled, failed, and canceled Eden Credits top-ups.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                    {paymentMetrics.totalPayments} records
+                  </span>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {paymentMetrics.recentPayments.length ? (
+                    paymentMetrics.recentPayments.map((payment) => (
+                      <div
+                        key={payment.id}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {payment.providerLabel}
+                              </p>
+                              <span
+                                className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getPaymentStatusClasses(
+                                  payment.status,
+                                )}`}
+                              >
+                                {payment.status}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              {getUserDisplayLabel(payment.userId)}
+                            </p>
+                            <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
+                              <p className="break-all">
+                                Session: <span className="font-mono">{payment.providerSessionId}</span>
+                              </p>
+                              {payment.providerPaymentIntentId ? (
+                                <p className="break-all">
+                                  Payment intent:{" "}
+                                  <span className="font-mono">{payment.providerPaymentIntentId}</span>
+                                </p>
+                              ) : null}
+                              <p>
+                                Created: {payment.createdAtLabel}
+                                {payment.settledAtLabel
+                                  ? ` | Settled: ${payment.settledAtLabel}`
+                                  : ""}
+                              </p>
+                              {payment.failureReason ? (
+                                <p>Reason: {payment.failureReason}</p>
+                              ) : null}
+                            </div>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {formatCredits(payment.creditsAmount)}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              {formatMoneyAmount(payment.amountCents, payment.currency)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      No persistent top-up payment records are available yet. Once Stripe-backed
+                      checkout sessions are created, the webhook settlement feed will appear here.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
