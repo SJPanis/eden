@@ -3,11 +3,26 @@ import "server-only";
 export const edenAuthJsProviderClaim = "provider";
 export const edenAuthJsProviderSubjectClaim = "providerSubject";
 export const edenAuthJsUsernameClaim = "username";
+export const edenAuthJsCredentialsProviderId = "credentials";
 
 export function shouldAttemptAuthJsProviderResolution(
   input = process.env.EDEN_ENABLE_AUTHJS_PROVIDER_ADAPTER,
 ) {
   return input === "true";
+}
+
+export function shouldEnableAuthJsCredentialsProvider(
+  input = process.env.EDEN_ENABLE_AUTHJS_CREDENTIALS_PROVIDER,
+) {
+  if (input === "true") {
+    return true;
+  }
+
+  if (input === "false") {
+    return false;
+  }
+
+  return process.env.NODE_ENV !== "production";
 }
 
 export function resolveAuthJsSecret() {
