@@ -11,10 +11,9 @@ import {
   parseMockWorkspaceServicesCookie,
 } from "@/modules/core/business/mock-workspace-services";
 import {
-  mockTransactionsCookieName,
-  parseMockTransactionsCookie,
   resolveBusinessContext,
 } from "@/modules/core/credits/mock-credits";
+import { getWalletTransactionState } from "@/modules/core/credits/server";
 import {
   mockPipelineCookieName,
   mockPipelineEventsCookieName,
@@ -100,9 +99,9 @@ export async function POST(request: Request) {
       { status: 404 },
     );
   }
-  const simulatedTransactions = parseMockTransactionsCookie(
-    cookieStore.get(mockTransactionsCookieName)?.value,
-  );
+  const {
+    effectiveTransactions: simulatedTransactions,
+  } = await getWalletTransactionState();
   const currentRecords = parseMockPipelineCookie(cookieStore.get(mockPipelineCookieName)?.value);
   const currentEvents = parseMockPipelineEventsCookie(
     cookieStore.get(mockPipelineEventsCookieName)?.value,

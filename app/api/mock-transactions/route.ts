@@ -15,10 +15,10 @@ import {
   getUserCreditsBalance,
   getSimulationTargetBusinessId,
   mockTransactionsCookieName,
-  parseMockTransactionsCookie,
   serializeMockTransactionsCookie,
   type EdenMockSimulationAction,
 } from "@/modules/core/credits/mock-credits";
+import { getWalletTransactionState } from "@/modules/core/credits/server";
 import {
   getBusinessPipelineSnapshot,
   mockPipelineCookieName,
@@ -69,9 +69,10 @@ export async function POST(request: Request) {
   const createdBusiness = getMockCreatedBusinessState(
     parseMockCreatedBusinessCookie(cookieStore.get(mockCreatedBusinessCookieName)?.value),
   );
-  const currentTransactions = parseMockTransactionsCookie(
-    cookieStore.get(mockTransactionsCookieName)?.value,
-  );
+  const {
+    cookieTransactions,
+    effectiveTransactions: currentTransactions,
+  } = await getWalletTransactionState();
   const targetBusinessId = getSimulationTargetBusinessId(
     session.role,
     session.user.id,
@@ -162,6 +163,7 @@ export async function POST(request: Request) {
     );
   }
 
+  const nextCookieTransactions = [nextTransaction, ...cookieTransactions].slice(0, 40);
   const nextTransactions = [nextTransaction, ...currentTransactions].slice(0, 40);
   const nextUserBalanceCredits = getUserCreditsBalance(
     session.user.id,
@@ -195,7 +197,7 @@ export async function POST(request: Request) {
 
   response.cookies.set(
     mockTransactionsCookieName,
-    serializeMockTransactionsCookie(nextTransactions),
+    serializeMockTransactionsCookie(nextCookieTransactions),
     mockTransactionsCookieOptions,
   );
 

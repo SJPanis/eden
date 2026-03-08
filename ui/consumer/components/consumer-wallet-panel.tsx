@@ -45,6 +45,7 @@ export function ConsumerWalletPanel({
   const searchParams = useSearchParams();
   const [receipt, setReceipt] = useState<EdenWalletTopUpReceipt | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
   const [activeTopUpAction, setActiveTopUpAction] = useState<"mock" | "payment" | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -71,6 +72,7 @@ export function ConsumerWalletPanel({
 
     if (topUpReturnState.status === "cancelled") {
       setReceipt(null);
+      setNotice(null);
       setError(getTopUpCancellationMessage(topUpConfig.mode));
       router.replace(cleanReturnPath, { scroll: false });
       return;
@@ -90,6 +92,7 @@ export function ConsumerWalletPanel({
     void (async () => {
       setActiveTopUpAction("payment");
       setError(null);
+      setNotice(null);
 
       try {
         const payload = await confirmPaymentBackedCreditsTopUp(topUpSessionId);
@@ -98,11 +101,26 @@ export function ConsumerWalletPanel({
           return;
         }
 
-        setReceipt(buildPaymentTopUpReceipt(payload, displayBalanceCredits));
+        if (payload.status === "settled") {
+          setReceipt(buildPaymentTopUpReceipt(payload, displayBalanceCredits));
+          startTransition(() => {
+            router.refresh();
+          });
+        } else if (payload.status === "processing") {
+          setReceipt(null);
+          setNotice(
+            payload.message ??
+              "Payment submitted. Eden is waiting for Stripe webhook settlement before credits are added.",
+          );
+        } else {
+          setReceipt(null);
+          setError(
+            payload.message ??
+              "Stripe did not settle this top-up. No Eden Credits were added.",
+          );
+        }
+
         router.replace(cleanReturnPath, { scroll: false });
-        startTransition(() => {
-          router.refresh();
-        });
       } catch (requestError) {
         if (!isActive) {
           return;
@@ -144,6 +162,7 @@ export function ConsumerWalletPanel({
 
     setActiveTopUpAction("mock");
     setError(null);
+    setNotice(null);
 
     try {
       const response = await fetch("/api/mock-transactions", {
@@ -202,6 +221,7 @@ export function ConsumerWalletPanel({
 
     setActiveTopUpAction("payment");
     setError(null);
+    setNotice(null);
 
     try {
       await startPaymentBackedCreditsTopUp(cleanReturnPath);
@@ -316,6 +336,12 @@ export function ConsumerWalletPanel({
       {error ? (
         <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700">
           {error}
+        </div>
+      ) : null}
+
+      {notice ? (
+        <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
+          {notice}
         </div>
       ) : null}
 

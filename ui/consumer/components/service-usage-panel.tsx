@@ -84,6 +84,7 @@ export function ServiceUsagePanel({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [activity, setActivity] = useState<ActivityState | null>(null);
   const [activeAction, setActiveAction] = useState<"usage" | "topup" | "payment_topup" | null>(null);
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
@@ -150,6 +151,7 @@ export function ServiceUsagePanel({
 
     if (topUpReturnState.status === "cancelled") {
       setActivity(null);
+      setNotice(null);
       setError(getTopUpCancellationMessage(topUpConfig.mode));
       router.replace(cleanReturnPath, { scroll: false });
       return;
@@ -169,6 +171,7 @@ export function ServiceUsagePanel({
     void (async () => {
       setActiveAction("payment_topup");
       setError(null);
+      setNotice(null);
 
       try {
         const payload = await confirmPaymentBackedCreditsTopUp(topUpSessionId);
@@ -177,22 +180,37 @@ export function ServiceUsagePanel({
           return;
         }
 
-        const receipt = buildPaymentTopUpReceipt(payload, displayBalanceCredits);
-        setActivity({
-          kind: "topup",
-          amountCredits: receipt.amountCredits,
-          amountLabel: receipt.amountLabel,
-          previousBalanceCredits: receipt.previousBalanceCredits,
-          nextBalanceCredits: receipt.nextBalanceCredits,
-          title: receipt.title,
-          timestamp: receipt.timestamp,
-          detail: receipt.detail,
-          source: receipt.source,
-        });
+        if (payload.status === "settled") {
+          const receipt = buildPaymentTopUpReceipt(payload, displayBalanceCredits);
+          setActivity({
+            kind: "topup",
+            amountCredits: receipt.amountCredits,
+            amountLabel: receipt.amountLabel,
+            previousBalanceCredits: receipt.previousBalanceCredits,
+            nextBalanceCredits: receipt.nextBalanceCredits,
+            title: receipt.title,
+            timestamp: receipt.timestamp,
+            detail: receipt.detail,
+            source: receipt.source,
+          });
+          startTransition(() => {
+            router.refresh();
+          });
+        } else if (payload.status === "processing") {
+          setActivity(null);
+          setNotice(
+            payload.message ??
+              "Payment submitted. Eden is waiting for Stripe webhook settlement before credits are added.",
+          );
+        } else {
+          setActivity(null);
+          setError(
+            payload.message ??
+              "Stripe did not settle this top-up. No Eden Credits were added.",
+          );
+        }
+
         router.replace(cleanReturnPath, { scroll: false });
-        startTransition(() => {
-          router.refresh();
-        });
       } catch (requestError) {
         if (!isActive) {
           return;
@@ -242,6 +260,7 @@ export function ServiceUsagePanel({
 
     setActiveAction("usage");
     setError(null);
+    setNotice(null);
     setActivity(null);
 
     try {
@@ -312,6 +331,7 @@ export function ServiceUsagePanel({
 
     setActiveAction("topup");
     setError(null);
+    setNotice(null);
 
     try {
       const response = await fetch("/api/mock-transactions", {
@@ -376,6 +396,7 @@ export function ServiceUsagePanel({
 
     setActiveAction("payment_topup");
     setError(null);
+    setNotice(null);
 
     try {
       await startPaymentBackedCreditsTopUp(cleanReturnPath);
@@ -519,6 +540,12 @@ export function ServiceUsagePanel({
       {error ? (
         <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700">
           {error}
+        </div>
+      ) : null}
+
+      {notice ? (
+        <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
+          {notice}
         </div>
       ) : null}
 

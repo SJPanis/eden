@@ -195,12 +195,22 @@ What exists now:
   - shared mode and offer runtime for credits top-ups
 - `modules/core/payments/stripe-client.ts`
   - server-only Stripe client singleton
+- `modules/core/payments/credits-topup-payment-service.ts`
+  - persistent top-up payment service that maps settled Stripe sessions into the existing wallet transaction shape
+- `modules/core/repos/credits-topup-payment-repo.ts`
+  - payment-ledger repository contract
+- `modules/core/repos/prisma-credits-topup-payment-repo.ts`
+  - Prisma-backed persistent payment/top-up record implementation
 - `modules/core/payments/stripe-topup-service.ts`
-  - Checkout-session creation and return-based settlement back into the existing credits transaction cookie
+  - Checkout-session creation plus verified Stripe webhook handling for top-up settlement
+- `modules/core/credits/server.ts`
+  - server wallet-transaction loader that merges cookie-backed mock transactions with settled persistent top-up records
 - `app/api/credits/top-up/checkout/route.ts`
   - creates a one-time Stripe Checkout session for a fixed Eden Credits offer
 - `app/api/credits/top-up/confirm/route.ts`
-  - confirms a successful Checkout session and appends a credits top-up transaction through the existing wallet ledger path
+  - non-authoritative browser return confirmation that reads persistent settlement status
+- `app/api/stripe/webhook/route.ts`
+  - verified Stripe webhook endpoint that authoritatively settles successful top-ups
 
 Current top-up mode seam:
 
@@ -211,9 +221,11 @@ Current top-up mode seam:
 Current safety notes:
 
 - mock wallet behavior remains available in `mock_only` and `hybrid`
-- payment-backed top-ups currently settle on return from Checkout, so the credits mutation still stays inside the existing browser-local transaction architecture
-- duplicate return confirmations are prevented within the current wallet ledger by using a deterministic top-up transaction id per Checkout session
-- this slice does not add subscriptions, external payouts, or a persistent payment ledger yet
+- Checkout creation now persists a pending payment record in Prisma
+- the Stripe webhook is the authoritative settlement path and maps settled payments back into Eden's existing wallet transaction architecture
+- the browser return confirmation UX is preserved, but it now reads settlement status instead of mutating wallet cookies directly
+- settled top-ups are merged into server-side wallet reads, so existing wallet history and receipt surfaces can stay unchanged
+- this slice still does not add subscriptions or builder payouts yet
 
 Required env for the Stripe-backed path:
 
@@ -226,3 +238,9 @@ Required env for the Stripe-backed path:
 - `EDEN_STRIPE_TOPUP_CURRENCY`
 - `NEXT_PUBLIC_EDEN_STRIPE_TOPUP_CURRENCY`
 - `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+Local Stripe verification note:
+
+- point Stripe webhooks at `/api/stripe/webhook`
+- for local development, use a Stripe CLI forwarder that provides the `whsec_...` signing secret for `STRIPE_WEBHOOK_SECRET`

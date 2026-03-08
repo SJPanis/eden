@@ -2,27 +2,17 @@ import "server-only";
 
 import type Stripe from "stripe";
 import {
-  buildPaymentTopUpTransaction,
-  getUserCreditsBalance,
-  mockTransactionsCookieName,
-  parseMockTransactionsCookie,
-  serializeMockTransactionsCookie,
-} from "@/modules/core/credits/mock-credits";
-import { formatCredits } from "@/modules/core/mock-data";
+  persistPendingCreditsTopUpPayment,
+  settleCreditsTopUpPaymentFromCheckoutSession,
+  markCreditsTopUpPaymentCanceled,
+  markCreditsTopUpPaymentFailed,
+} from "@/modules/core/payments/credits-topup-payment-service";
 import {
-  formatCurrencyAmount,
   getCreditsTopUpOffer,
   isPaymentBackedCreditsTopUpEnabled,
   resolveCreditsTopUpMode,
 } from "@/modules/core/payments/payment-runtime";
 import { getStripeClient } from "@/modules/core/payments/stripe-client";
-
-export const creditsTopUpCookieOptions = {
-  httpOnly: true,
-  maxAge: 60 * 60 * 24 * 30,
-  path: "/",
-  sameSite: "lax" as const,
-};
 
 export type EdenCreditsCheckoutSession = {
   checkoutUrl: string;
@@ -30,18 +20,7 @@ export type EdenCreditsCheckoutSession = {
   amountCents: number;
   currency: string;
   providerLabel: string;
-};
-
-export type EdenConfirmedCreditsTopUp = {
-  nextTransactions: ReturnType<typeof parseMockTransactionsCookie>;
-  transaction: ReturnType<typeof buildPaymentTopUpTransaction>;
-  creditsAdded: number;
-  previousBalanceCredits: number;
-  nextBalanceCredits: number;
-  amountCents: number;
-  currency: string;
-  providerLabel: string;
-  alreadyApplied: boolean;
+  sessionId: string;
 };
 
 export async function createCreditsTopUpCheckoutSession(input: {
@@ -94,91 +73,61 @@ export async function createCreditsTopUpCheckoutSession(input: {
     throw new Error("Stripe Checkout session did not return a redirect URL.");
   }
 
+  await persistPendingCreditsTopUpPayment({
+    provider: "stripe",
+    providerSessionId: session.id,
+    providerPaymentIntentId:
+      typeof session.payment_intent === "string" ? session.payment_intent : null,
+    userId: input.userId,
+    creditsAmount: offer.creditsAmount,
+    amountCents: offer.amountCents,
+    currency: offer.currency,
+  });
+
   return {
     checkoutUrl: session.url,
     creditsAmount: offer.creditsAmount,
     amountCents: offer.amountCents,
     currency: offer.currency,
     providerLabel: offer.providerLabel,
+    sessionId: session.id,
   } satisfies EdenCreditsCheckoutSession;
 }
 
-export async function confirmCreditsTopUpCheckout(input: {
-  sessionId: string;
-  userId: string;
-  currentTransactions: ReturnType<typeof parseMockTransactionsCookie>;
+export function constructStripeWebhookEvent(input: {
+  payload: string;
+  signature: string;
 }) {
-  ensurePaymentBackedTopUpEnabled();
-
   const stripe = requireStripeClient();
-  const session = await stripe.checkout.sessions.retrieve(input.sessionId);
-  const previousBalanceCredits = getUserCreditsBalance(
-    input.userId,
-    input.currentTransactions,
-  );
-  const existingTransaction = input.currentTransactions.find(
-    (transaction) => transaction.id === buildPaymentTransactionId(input.sessionId),
-  );
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
 
-  validateCheckoutSession(session, input.userId);
-
-  const creditsAdded = getCreditsAmountFromSession(session);
-  const amountCents = session.amount_total ?? getCreditsTopUpOffer().amountCents;
-  const currency = (session.currency ?? getCreditsTopUpOffer().currency).toLowerCase();
-
-  if (existingTransaction) {
-    return {
-      nextTransactions: input.currentTransactions,
-      transaction: existingTransaction,
-      creditsAdded,
-      previousBalanceCredits,
-      nextBalanceCredits: previousBalanceCredits,
-      amountCents,
-      currency,
-      providerLabel: "Stripe Checkout",
-      alreadyApplied: true,
-    } satisfies EdenConfirmedCreditsTopUp;
+  if (!webhookSecret) {
+    throw new Error(
+      "Stripe webhook verification is not configured. Set STRIPE_WEBHOOK_SECRET to enable webhook settlement.",
+    );
   }
 
-  const transaction = buildPaymentTopUpTransaction({
-    sessionId: input.sessionId,
-    userId: input.userId,
-    creditsAmount: creditsAdded,
-    amountCents,
-    currency,
-    providerLabel: "Stripe Checkout",
-    timestampLabel: formatTopUpTimestamp(session),
-  });
-  const nextTransactions = [transaction, ...input.currentTransactions].slice(0, 40);
-  const nextBalanceCredits = getUserCreditsBalance(input.userId, nextTransactions);
-
-  return {
-    nextTransactions,
-    transaction,
-    creditsAdded,
-    previousBalanceCredits,
-    nextBalanceCredits,
-    amountCents,
-    currency,
-    providerLabel: "Stripe Checkout",
-    alreadyApplied: false,
-  } satisfies EdenConfirmedCreditsTopUp;
+  return stripe.webhooks.constructEvent(
+    input.payload,
+    input.signature,
+    webhookSecret,
+  );
 }
 
-export function getCreditsTopUpCookieValue(transactions: ReturnType<typeof parseMockTransactionsCookie>) {
-  return serializeMockTransactionsCookie(transactions);
-}
-
-export function getCreditsTopUpCookieName() {
-  return mockTransactionsCookieName;
-}
-
-export function getCreditsTopUpSuccessMessage(input: {
-  creditsAmount: number;
-  amountCents: number;
-  currency: string;
-}) {
-  return `${formatCurrencyAmount(input.amountCents, input.currency)} settled for ${formatCredits(input.creditsAmount)}.`;
+export async function handleStripeTopUpWebhookEvent(event: Stripe.Event) {
+  switch (event.type) {
+    case "checkout.session.completed":
+      return handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+    case "checkout.session.expired":
+      return handleCheckoutSessionExpired(event.data.object as Stripe.Checkout.Session);
+    case "checkout.session.async_payment_failed":
+      return handleCheckoutSessionAsyncFailed(event.data.object as Stripe.Checkout.Session);
+    default:
+      return {
+        handled: false,
+        status: "ignored" as const,
+      };
+  }
 }
 
 function buildReturnUrl(
@@ -220,7 +169,44 @@ function ensurePaymentBackedTopUpEnabled() {
   }
 }
 
-function validateCheckoutSession(session: Stripe.Checkout.Session, userId: string) {
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  validateCompletedCheckoutSession(session);
+  const payment = await settleCreditsTopUpPaymentFromCheckoutSession(session);
+
+  return {
+    handled: true,
+    status: "settled" as const,
+    providerSessionId: payment.providerSessionId,
+  };
+}
+
+async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
+  await markCreditsTopUpPaymentCanceled({
+    providerSessionId: session.id,
+    failureReason: "Stripe Checkout session expired before payment completed.",
+  });
+
+  return {
+    handled: true,
+    status: "canceled" as const,
+    providerSessionId: session.id,
+  };
+}
+
+async function handleCheckoutSessionAsyncFailed(session: Stripe.Checkout.Session) {
+  await markCreditsTopUpPaymentFailed({
+    providerSessionId: session.id,
+    failureReason: "Stripe reported an asynchronous payment failure for this checkout session.",
+  });
+
+  return {
+    handled: true,
+    status: "failed" as const,
+    providerSessionId: session.id,
+  };
+}
+
+function validateCompletedCheckoutSession(session: Stripe.Checkout.Session) {
   if (session.mode !== "payment") {
     throw new Error("This checkout session is not a one-time payment.");
   }
@@ -228,38 +214,4 @@ function validateCheckoutSession(session: Stripe.Checkout.Session, userId: strin
   if (session.payment_status !== "paid") {
     throw new Error("The checkout session has not completed payment.");
   }
-
-  const sessionUserId = session.metadata?.edenUserId;
-
-  if (sessionUserId && sessionUserId !== userId) {
-    throw new Error("This checkout session belongs to a different Eden user.");
-  }
-}
-
-function getCreditsAmountFromSession(session: Stripe.Checkout.Session) {
-  const rawCredits = session.metadata?.edenTopUpCredits;
-  const parsedCredits = rawCredits ? Number.parseInt(rawCredits, 10) : NaN;
-
-  if (Number.isFinite(parsedCredits) && parsedCredits > 0) {
-    return parsedCredits;
-  }
-
-  return getCreditsTopUpOffer().creditsAmount;
-}
-
-function formatTopUpTimestamp(session: Stripe.Checkout.Session) {
-  if (!session.created) {
-    return "Just now";
-  }
-
-  return new Date(session.created * 1000).toLocaleString([], {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function buildPaymentTransactionId(sessionId: string) {
-  return `payment-topup-${sessionId}`;
 }

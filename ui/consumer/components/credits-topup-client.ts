@@ -32,6 +32,7 @@ export type EdenTopUpCheckoutResponse = {
 
 export type EdenTopUpConfirmationResponse = {
   ok?: boolean;
+  status?: "settled" | "processing" | "failed" | "canceled";
   alreadyApplied?: boolean;
   transactionTitle?: string;
   transactionTimestamp?: string;
@@ -42,6 +43,7 @@ export type EdenTopUpConfirmationResponse = {
   nextBalanceCredits?: number;
   providerLabel?: string;
   settlementSummary?: string;
+  message?: string;
   error?: string;
 };
 

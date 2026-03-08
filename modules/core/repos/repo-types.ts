@@ -3,6 +3,11 @@ export type EdenRepoUserStatus = "active" | "review" | "frozen";
 export type EdenRepoBusinessStatus = "draft" | "testing" | "published";
 export type EdenRepoPipelineStatus = "draft" | "testing" | "ready" | "published";
 export type EdenRepoBusinessVisibility = "Private preview" | "Internal testing" | "Published";
+export type EdenRepoCreditsTopUpPaymentStatus =
+  | "pending"
+  | "settled"
+  | "failed"
+  | "canceled";
 
 export interface EdenRepoUserRecord {
   id: string;
@@ -94,6 +99,22 @@ export interface EdenRepoServiceUsageRecord {
 export interface EdenRepoServiceUsageSummary {
   totalUsageEvents: number;
   totalCreditsUsed: number;
+}
+
+export interface EdenRepoCreditsTopUpPaymentRecord {
+  id: string;
+  provider: string;
+  providerSessionId: string;
+  providerPaymentIntentId?: string | null;
+  userId?: string | null;
+  creditsAmount: number;
+  amountCents: number;
+  currency: string;
+  status: EdenRepoCreditsTopUpPaymentStatus;
+  failureReason?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  settledAt?: Date | null;
 }
 
 export interface EdenDiscoverySnapshotRecord {

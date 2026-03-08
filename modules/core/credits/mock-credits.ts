@@ -70,6 +70,25 @@ export function serializeMockTransactionsCookie(simulatedTransactions: EdenMockT
   return JSON.stringify(simulatedTransactions);
 }
 
+export function mergeWalletTransactions(
+  cookieTransactions: EdenMockTransaction[] = [],
+  persistedTransactions: EdenMockTransaction[] = [],
+) {
+  const seenTransactionIds = new Set<string>();
+  const mergedTransactions: EdenMockTransaction[] = [];
+
+  for (const transaction of [...cookieTransactions, ...persistedTransactions]) {
+    if (seenTransactionIds.has(transaction.id)) {
+      continue;
+    }
+
+    seenTransactionIds.add(transaction.id);
+    mergedTransactions.push(transaction);
+  }
+
+  return mergedTransactions;
+}
+
 export function getEffectiveTransactions(simulatedTransactions: EdenMockTransaction[] = []) {
   return [...simulatedTransactions, ...transactions];
 }
@@ -465,7 +484,7 @@ export function buildSimulationTransaction(options: {
 
 export function buildPaymentTopUpTransaction(input: {
   sessionId: string;
-  userId: string;
+  userId?: string | null;
   creditsAmount: number;
   amountCents: number;
   currency: string;
@@ -474,7 +493,7 @@ export function buildPaymentTopUpTransaction(input: {
 }): EdenMockTransaction {
   return {
     id: `payment-topup-${input.sessionId}`,
-    userId: input.userId,
+    userId: input.userId ?? undefined,
     title: `${input.providerLabel} top-up settled`,
     amountLabel: `+${input.creditsAmount} credits`,
     creditsDelta: input.creditsAmount,

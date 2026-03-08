@@ -1,16 +1,7 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import {
-  getCreditsTopUpCookieName,
-  getCreditsTopUpCookieValue,
-  getCreditsTopUpSuccessMessage,
-  creditsTopUpCookieOptions,
-  confirmCreditsTopUpCheckout,
-} from "@/modules/core/payments/stripe-topup-service";
+import { getWalletTransactionState } from "@/modules/core/credits/server";
+import { loadCreditsTopUpConfirmationResult } from "@/modules/core/payments/credits-topup-payment-service";
 import { getServerSession } from "@/modules/core/session/server";
-import {
-  parseMockTransactionsCookie,
-} from "@/modules/core/credits/mock-credits";
 
 export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => ({}))) as {
@@ -28,46 +19,42 @@ export async function POST(request: Request) {
     );
   }
 
-  const cookieStore = await cookies();
   const session = await getServerSession();
-  const currentTransactions = parseMockTransactionsCookie(
-    cookieStore.get(getCreditsTopUpCookieName())?.value,
-  );
+  const { effectiveTransactions } = await getWalletTransactionState();
 
   try {
-    const confirmedTopUp = await confirmCreditsTopUpCheckout({
-      sessionId,
+    const confirmation = await loadCreditsTopUpConfirmationResult({
+      providerSessionId: sessionId,
       userId: session.user.id,
-      currentTransactions,
-    });
-    const response = NextResponse.json({
-      ok: true,
-      alreadyApplied: confirmedTopUp.alreadyApplied,
-      transactionId: confirmedTopUp.transaction.id,
-      transactionTitle: confirmedTopUp.transaction.title,
-      transactionTimestamp: confirmedTopUp.transaction.timestamp,
-      amountLabel: confirmedTopUp.transaction.amountLabel,
-      creditsDelta: confirmedTopUp.transaction.creditsDelta,
-      creditsUsed: confirmedTopUp.creditsAdded,
-      previousBalanceCredits: confirmedTopUp.previousBalanceCredits,
-      nextBalanceCredits: confirmedTopUp.nextBalanceCredits,
-      providerLabel: confirmedTopUp.providerLabel,
-      settlementSummary: getCreditsTopUpSuccessMessage({
-        creditsAmount: confirmedTopUp.creditsAdded,
-        amountCents: confirmedTopUp.amountCents,
-        currency: confirmedTopUp.currency,
-      }),
+      currentTransactions: effectiveTransactions,
     });
 
-    if (!confirmedTopUp.alreadyApplied) {
-      response.cookies.set(
-        getCreditsTopUpCookieName(),
-        getCreditsTopUpCookieValue(confirmedTopUp.nextTransactions),
-        creditsTopUpCookieOptions,
-      );
+    if (confirmation.status !== "settled") {
+      return NextResponse.json({
+        ok: true,
+        status: confirmation.status,
+        providerLabel:
+          confirmation.payment?.provider === "stripe"
+            ? "Stripe Checkout"
+            : (confirmation.payment?.provider ?? "Stripe Checkout"),
+        message: confirmation.message,
+      });
     }
 
-    return response;
+    return NextResponse.json({
+      ok: true,
+      status: confirmation.status,
+      transactionId: confirmation.transaction.id,
+      transactionTitle: confirmation.transaction.title,
+      transactionTimestamp: confirmation.transaction.timestamp,
+      amountLabel: confirmation.transaction.amountLabel,
+      creditsUsed: confirmation.creditsAdded,
+      creditsDelta: confirmation.transaction.creditsDelta,
+      previousBalanceCredits: confirmation.previousBalanceCredits,
+      nextBalanceCredits: confirmation.nextBalanceCredits,
+      providerLabel: confirmation.providerLabel,
+      settlementSummary: confirmation.settlementSummary,
+    });
   } catch (error) {
     return NextResponse.json(
       {

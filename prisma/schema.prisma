@@ -44,6 +44,13 @@ enum PipelineStatus {
   PUBLISHED
 }
 
+enum CreditsTopUpPaymentStatus {
+  PENDING
+  SETTLED
+  FAILED
+  CANCELED
+}
+
 model User {
   id                  String           @id @default(cuid())
   username            String           @unique
@@ -58,6 +65,7 @@ model User {
   businessMemberships BusinessMember[]
   authProviderAccounts AuthProviderAccount[]
   serviceUsages       ServiceUsage[]
+  creditsTopUpPayments CreditsTopUpPayment[]
 }
 
 model AuthProviderAccount {
@@ -161,6 +169,27 @@ model ServiceUsage {
   @@index([serviceId, createdAt])
   @@index([userId, createdAt])
   @@index([usageType])
+}
+
+model CreditsTopUpPayment {
+  id                      String                   @id @default(cuid())
+  provider                String
+  providerSessionId       String                   @unique
+  providerPaymentIntentId String?
+  userId                  String?
+  creditsAmount           Int
+  amountCents             Int
+  currency                String
+  status                  CreditsTopUpPaymentStatus @default(PENDING)
+  failureReason           String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  settledAt               DateTime?
+  user                    User?                    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([provider, createdAt])
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
 }
 
 model PipelineRecord {
