@@ -37,6 +37,7 @@ import type {
   EdenMockUser,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
+import type { EdenBusinessPayoutAccountingSummary } from "@/modules/core/services/payout-accounting-service";
 import { formatServicePricingLabel } from "@/modules/core/services/service-pricing";
 import { BusinessAiAssistantPanel } from "@/ui/business/components/business-ai-assistant-panel";
 import { MockServiceBuilder } from "@/ui/business/components/mock-service-builder";
@@ -177,6 +178,7 @@ type BusinessDashboardPanelProps = {
   createdBusiness?: EdenMockCreatedBusinessState | null;
   workspaceServices?: EdenMockWorkspaceServiceState[];
   usageMetrics: BusinessUsageMetrics;
+  payoutAccounting: EdenBusinessPayoutAccountingSummary;
 };
 
 const workspaceNav = [
@@ -337,6 +339,7 @@ export function BusinessDashboardPanel({
   createdBusiness,
   workspaceServices = [],
   usageMetrics,
+  payoutAccounting,
 }: BusinessDashboardPanelProps) {
   const [releaseEventFilter, setReleaseEventFilter] = useState<ReleaseEventFilter>("all");
   const projects = getProjectsByBusinessId(activeBusinessId, createdBusiness, workspaceServices);
@@ -639,6 +642,44 @@ export function BusinessDashboardPanel({
         },
       ]
     : [];
+  const payoutAccountingItems = [
+    {
+      id: "payout-total-earned",
+      label: "Total earned",
+      value: formatCredits(payoutAccounting.totalEarnedCredits),
+      detail: "Builder-side earnings accrued from priced service usage across this workspace.",
+    },
+    {
+      id: "payout-unpaid",
+      label: "Unpaid earnings",
+      value: formatCredits(payoutAccounting.unpaidEarningsCredits),
+      detail: "Mock builder liability still owed because no real payout settlement exists yet.",
+    },
+    {
+      id: "payout-ready",
+      label: "Payout-ready",
+      value: formatCredits(payoutAccounting.payoutReadyCredits),
+      detail: "Accrued earnings available after the current placeholder reserve holdback.",
+    },
+    {
+      id: "payout-fee-share",
+      label: "Eden fee share",
+      value: formatCredits(payoutAccounting.edenFeeShareCredits),
+      detail: "Platform share derived from the same pricing-based usage accounting.",
+    },
+    {
+      id: "payout-holdback",
+      label: "Reserve holdback",
+      value: formatCredits(payoutAccounting.holdbackCredits),
+      detail: "Mock reserve held back until real payout rails and settlement events exist.",
+    },
+    {
+      id: "payout-paid-out",
+      label: "Paid out",
+      value: formatCredits(payoutAccounting.paidOutCredits),
+      detail: "Placeholder settled payout total. This stays at zero until payout settlement is implemented.",
+    },
+  ];
   const settingsItems: SettingItem[] = businessProfile
     ? [
         {
@@ -1543,6 +1584,80 @@ export function BusinessDashboardPanel({
                     </span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                      Builder payout accounting
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      {payoutAccounting.accountingRuleLabel}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                    {payoutAccounting.payoutStatusLabel}
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {payoutAccountingItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-eden-edge bg-white p-3"
+                    >
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        {item.label}
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                      <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Payout-ready services
+                </p>
+                <div className="mt-4 space-y-3">
+                  {payoutAccounting.perService.length ? (
+                    payoutAccounting.perService.slice(0, 4).map((service) => (
+                      <div
+                        key={service.serviceId}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">{service.serviceTitle}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              Unpaid earnings: {formatCredits(service.unpaidEarningsCredits)}
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {formatCredits(service.payoutReadyCredits)}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">Payout-ready</p>
+                            <p className="mt-2 text-xs text-eden-muted">
+                              Holdback: {formatCredits(service.holdbackCredits)}
+                            </p>
+                            <p className="mt-2 text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Service-level payout accounting will appear here once the active business records priced usage.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

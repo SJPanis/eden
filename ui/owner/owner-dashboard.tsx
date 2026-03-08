@@ -47,6 +47,7 @@ import type {
   EdenMockUserStatus,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
+import type { EdenOwnerPayoutAccountingSummary } from "@/modules/core/services/payout-accounting-service";
 import { formatServicePricingLabel } from "@/modules/core/services/service-pricing";
 import { ControlRoomSection } from "@/ui/owner/components/control-room-section";
 
@@ -181,6 +182,7 @@ type OwnerDashboardPanelProps = {
       failureReason?: string | null;
     }>;
   };
+  payoutAccounting: EdenOwnerPayoutAccountingSummary;
 };
 
 type CreditActivity = {
@@ -332,6 +334,7 @@ export function OwnerDashboardPanel({
   serviceCatalog,
   usageMetrics,
   paymentMetrics,
+  payoutAccounting,
 }: OwnerDashboardPanelProps) {
   const users = watchedUsers;
   const businesses = watchedBusinesses;
@@ -604,6 +607,38 @@ export function OwnerDashboardPanel({
         paymentMetrics.totalSettledAmountCents,
         "usd",
       )} processed through the persistent top-up ledger.`,
+    },
+  ];
+  const payoutSummaryCards = [
+    {
+      id: "payout-liability",
+      label: "Total builder liability",
+      value: formatCredits(payoutAccounting.totalBuilderLiabilityCredits),
+      detail: "Current unpaid builder earnings liability across tracked priced service usage.",
+    },
+    {
+      id: "payout-ready",
+      label: "Payout-ready total",
+      value: formatCredits(payoutAccounting.totalPayoutReadyCredits),
+      detail: "Accrued earnings available after the current placeholder reserve holdback.",
+    },
+    {
+      id: "payout-fee-share",
+      label: "Eden fee share",
+      value: formatCredits(payoutAccounting.edenFeeShareCredits),
+      detail: "Platform share derived from the same pricing-based earnings calculation.",
+    },
+    {
+      id: "payout-holdback",
+      label: "Reserve holdback",
+      value: formatCredits(payoutAccounting.holdbackCredits),
+      detail: "Mock reserve held before payout rails and settlement accounting are implemented.",
+    },
+    {
+      id: "payout-paid-out",
+      label: "Paid out",
+      value: formatCredits(payoutAccounting.paidOutCredits),
+      detail: "Placeholder paid-out total. This remains zero until real payout settlement exists.",
     },
   ];
   const adminSummaryStrip = [
@@ -1431,6 +1466,35 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
             </div>
+            <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Builder payout accounting
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    {payoutAccounting.accountingRuleLabel}
+                  </p>
+                </div>
+                <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                  {payoutAccounting.payoutStatusLabel}
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                {payoutSummaryCards.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-eden-edge bg-white p-3"
+                  >
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      {item.label}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
               <div className="space-y-4">
                 <div className="rounded-2xl border border-eden-edge bg-white p-4">
@@ -1519,11 +1583,11 @@ export function OwnerDashboardPanel({
 
               <div className="rounded-2xl border border-eden-edge bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Top businesses by usage
+                  Top earning businesses
                 </p>
                 <div className="mt-4 space-y-3">
-                  {usageMetrics.topBusinesses.length ? (
-                    usageMetrics.topBusinesses.map((business) => (
+                  {payoutAccounting.topEarningBusinesses.length ? (
+                    payoutAccounting.topEarningBusinesses.map((business) => (
                       <div
                         key={business.businessId}
                         className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
@@ -1537,14 +1601,17 @@ export function OwnerDashboardPanel({
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
                               {business.usageCount} runs | {formatCredits(business.totalCreditsUsed)} used
                             </p>
+                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              Unpaid earnings: {formatCredits(business.unpaidEarningsCredits)}
+                            </p>
                           </div>
                           <div className="text-left md:text-right">
                             <p className="text-sm font-semibold text-eden-ink">
-                              {formatCredits(business.monetization.estimatedBuilderEarningsCredits)}
+                              {formatCredits(business.payoutReadyCredits)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">Builder earnings</p>
+                            <p className="mt-1 text-xs text-eden-muted">Payout-ready</p>
                             <p className="mt-2 text-xs text-eden-muted">
-                              Gross: {formatCredits(business.monetization.estimatedGrossCredits)}
+                              Eden fee share: {formatCredits(business.edenFeeShareCredits)}
                             </p>
                             <p className="mt-2 text-xs text-eden-muted">{business.lastUsedAtLabel}</p>
                           </div>
@@ -1553,7 +1620,7 @@ export function OwnerDashboardPanel({
                     ))
                   ) : (
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                      Business usage rankings will appear here after the platform records mocked service activity.
+                      Earning rankings will appear here after the platform records priced service usage.
                     </div>
                   )}
                 </div>

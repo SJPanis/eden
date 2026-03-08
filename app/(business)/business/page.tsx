@@ -13,6 +13,7 @@ import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pi
 import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
 import {
+  buildBusinessPayoutAccountingSummary,
   loadBusinessServiceUsageMetrics,
   loadBusinessWorkspaceOverview,
   loadDiscoverySnapshot,
@@ -66,6 +67,7 @@ export default async function BusinessPage() {
       workspaceServices,
     }),
   ]);
+  const payoutAccounting = buildBusinessPayoutAccountingSummary(usageMetrics);
   const scopedAssistantHistory = getMockBusinessAssistantHistoryForBusiness(
     activeBusinessId,
     assistantHistory,
@@ -85,6 +87,7 @@ export default async function BusinessPage() {
       workspaceServices={workspaceServices}
       assistantHistory={scopedAssistantHistory}
       usageMetrics={usageMetrics}
+      payoutAccounting={payoutAccounting}
     />
   );
 }

@@ -199,6 +199,8 @@ What exists now:
   - persistent top-up payment service that maps settled Stripe sessions into the existing wallet transaction shape
 - `modules/core/services/payment-inspection-service.ts`
   - owner-facing payment inspection summary and recent top-up reconciliation feed
+- `modules/core/services/payout-accounting-service.ts`
+  - derived builder payout/accounting summaries built from priced usage analytics
 - `modules/core/repos/credits-topup-payment-repo.ts`
   - payment-ledger repository contract
 - `modules/core/repos/prisma-credits-topup-payment-repo.ts`
@@ -229,6 +231,24 @@ Current safety notes:
 - settled top-ups are merged into server-side wallet reads, so existing wallet history and receipt surfaces can stay unchanged
 - owner control-room payment visibility now reads the same persistent top-up records for reconciliation across pending, settled, failed, and canceled states
 - this slice still does not add subscriptions or builder payouts yet
+
+## Builder Payout Accounting Slice
+
+The business and owner layers now expose a mock payout/accounting foundation on top of the existing pricing-aware `ServiceUsage` analytics.
+
+What exists now:
+
+- builder earnings accrual from priced usage
+- unpaid earnings visibility
+- payout-ready balance using a placeholder reserve holdback
+- Eden fee-share visibility beside builder liability
+- top earning business summaries in the owner control room
+
+Current safety notes:
+
+- payout accounting is fully derived from the current usage and pricing data
+- no payout rails or settled payout records exist yet
+- paid-out totals remain placeholder zeros until real payout settlement is introduced
 
 Required env for the Stripe-backed path:
 

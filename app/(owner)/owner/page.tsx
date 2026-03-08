@@ -9,6 +9,7 @@ import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pi
 import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
 import {
+  buildOwnerPayoutAccountingSummary,
   loadOwnerDashboardData,
   loadOwnerCreditsTopUpMetrics,
   loadOwnerServiceUsageMetrics,
@@ -41,6 +42,7 @@ export default async function OwnerPage() {
       limit: 10,
     }),
   ]);
+  const payoutAccounting = buildOwnerPayoutAccountingSummary(usageMetrics);
 
   return (
     <OwnerDashboardPanel
@@ -59,6 +61,7 @@ export default async function OwnerPage() {
       serviceCatalog={dashboardData.serviceCatalog}
       usageMetrics={usageMetrics}
       paymentMetrics={paymentMetrics}
+      payoutAccounting={payoutAccounting}
     />
   );
 }
