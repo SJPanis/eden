@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -47,6 +47,7 @@ import type {
   EdenMockUserStatus,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
+import { formatServicePricingLabel } from "@/modules/core/services/service-pricing";
 import { ControlRoomSection } from "@/ui/owner/components/control-room-section";
 
 type OwnerDashboardPanelProps = {
@@ -63,6 +64,98 @@ type OwnerDashboardPanelProps = {
   userCatalog: EdenMockUser[];
   businessCatalog: EdenMockBusiness[];
   serviceCatalog: EdenMockService[];
+  usageMetrics: {
+    totalUsageEvents: number;
+    totalCreditsUsed: number;
+    source: "persistent" | "mock_fallback";
+    topServices: Array<{
+      serviceId: string;
+      serviceTitle: string;
+      businessId: string;
+      businessName: string;
+      usageCount: number;
+      totalCreditsUsed: number;
+      lastUsedAtLabel: string;
+      pricingModel?: string | null;
+      pricePerUseCredits?: number | null;
+      pricingUnit?: string | null;
+      monetization: {
+        estimatedGrossCredits: number;
+        estimatedPlatformEarningsCredits: number;
+        estimatedBuilderEarningsCredits: number;
+        pricingRuleLabel: string;
+      };
+    }>;
+    topBusinesses: Array<{
+      businessId: string;
+      businessName: string;
+      usageCount: number;
+      totalCreditsUsed: number;
+      topServiceTitle: string;
+      lastUsedAtLabel: string;
+      monetization: {
+        estimatedGrossCredits: number;
+        estimatedPlatformEarningsCredits: number;
+        estimatedBuilderEarningsCredits: number;
+        pricingRuleLabel: string;
+      };
+    }>;
+    topUsers: Array<{
+      userId?: string | null;
+      userDisplayName: string;
+      username?: string | null;
+      isAnonymousUser: boolean;
+      usageCount: number;
+      totalCreditsUsed: number;
+      usageSharePercent: number;
+      topServiceTitle: string;
+      lastUsedAtLabel: string;
+      projectedCustomerValueCredits: number;
+      perService: Array<{
+        serviceId: string;
+        serviceTitle: string;
+        businessId: string;
+        businessName: string;
+        usageCount: number;
+        totalCreditsUsed: number;
+        lastUsedAtLabel: string;
+        projectedCustomerValueCredits: number;
+      }>;
+      monetization: {
+        estimatedGrossCredits: number;
+        estimatedPlatformEarningsCredits: number;
+        estimatedBuilderEarningsCredits: number;
+        pricingRuleLabel: string;
+      };
+    }>;
+    recentUserActivity: Array<{
+      id: string;
+      serviceId: string;
+      serviceTitle: string;
+      businessId: string;
+      businessName: string;
+      userId?: string | null;
+      userDisplayName: string;
+      username?: string | null;
+      usageType: string;
+      creditsUsed: number;
+      estimatedGrossCredits: number;
+      timestampLabel: string;
+      source: "persistent" | "mock_fallback";
+    }>;
+    userConcentration: {
+      distinctUsers: number;
+      anonymousUsageEvents: number;
+      topUserSharePercent: number;
+      topThreeUsersSharePercent: number;
+    };
+    monetization: {
+      estimatedGrossCredits: number;
+      estimatedPlatformEarningsCredits: number;
+      estimatedBuilderEarningsCredits: number;
+      pricingRuleLabel: string;
+    };
+  };
 };
 
 type CreditActivity = {
@@ -157,6 +250,26 @@ function getCreditDirectionClasses(direction: CreditActivity["direction"]) {
   return "bg-sky-100 text-sky-700";
 }
 
+function getServicePricingDisplay(input: {
+  pricingModel?: string | null;
+  pricePerUse?: number | null;
+  pricingType?: string | null;
+  pricingUnit?: string | null;
+}) {
+  return formatServicePricingLabel(
+    {
+      pricingModel: input.pricingModel,
+      pricePerUse: input.pricePerUse,
+      pricingType: input.pricingType,
+      pricingUnit: input.pricingUnit,
+    },
+    {
+      fallbackLabel: input.pricingModel ?? "Not priced yet",
+      includePricingModel: Boolean(input.pricingModel),
+    },
+  );
+}
+
 function getFallbackReleaseStatus(status: string) {
   const normalized = status.toLowerCase();
   if (normalized.includes("publish")) return "published" as const;
@@ -179,6 +292,7 @@ export function OwnerDashboardPanel({
   userCatalog,
   businessCatalog,
   serviceCatalog,
+  usageMetrics,
 }: OwnerDashboardPanelProps) {
   const users = watchedUsers;
   const businesses = watchedBusinesses;
@@ -334,6 +448,36 @@ export function OwnerDashboardPanel({
       detail: maintenanceMode
         ? "The owner layer has enabled a mock maintenance banner across the platform shell."
         : "Mock aggregate platform health across routing, ledger, publish, and agent systems.",
+    },
+    {
+      id: "overview-usage-events",
+      label: "Tracked service runs",
+      value: `${usageMetrics.totalUsageEvents}`,
+      detail:
+        usageMetrics.source === "persistent"
+          ? "Persisted ServiceUsage rows recorded through the current mock execution boundary."
+          : "Fallback count derived from the shared mock usage ledger until persistent rows are available.",
+    },
+    {
+      id: "overview-usage-credits",
+      label: "Usage credits tracked",
+      value: formatCredits(usageMetrics.totalCreditsUsed),
+      detail:
+        usageMetrics.source === "persistent"
+          ? "Credits attached to persisted service usage events for early monetization reporting."
+          : "Credits estimated from usage transactions while Prisma-backed usage records are unavailable.",
+    },
+    {
+      id: "overview-platform-earnings",
+      label: "Estimated Eden earnings",
+      value: formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits),
+      detail: "Platform fee projection derived from stored per-use service pricing where available.",
+    },
+    {
+      id: "overview-builder-earnings",
+      label: "Estimated builder earnings",
+      value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
+      detail: "Builder net earnings projection after the Eden fee share using current service pricing.",
     },
   ];
   const releaseSummaryCards = [
@@ -1097,6 +1241,277 @@ export function OwnerDashboardPanel({
                 ))}
               </div>
             </div>
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Usage earnings snapshot
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    {usageMetrics.monetization.pricingRuleLabel}
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Tracked runs</p>
+                      <p className="mt-2 text-lg font-semibold text-eden-ink">{usageMetrics.totalUsageEvents}</p>
+                    </div>
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Usage credits</p>
+                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                        {formatCredits(usageMetrics.totalCreditsUsed)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Eden earnings</p>
+                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                        {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Builder earnings</p>
+                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                        {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Top services by usage
+                  </p>
+                  <div className="mt-4 space-y-3">
+                    {usageMetrics.topServices.length ? (
+                      usageMetrics.topServices.map((service) => (
+                        <div
+                          key={service.serviceId}
+                          className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        >
+                          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                            <div>
+                              <p className="text-sm font-semibold text-eden-ink">{service.serviceTitle}</p>
+                              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                                {service.businessName}
+                              </p>
+                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
+                              </p>
+                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                Current rate:{" "}
+                                {getServicePricingDisplay({
+                                  pricingModel: service.pricingModel,
+                                  pricePerUse: service.pricePerUseCredits,
+                                  pricingUnit: service.pricingUnit,
+                                })}
+                              </p>
+                            </div>
+                            <div className="text-left md:text-right">
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {formatCredits(service.monetization.estimatedPlatformEarningsCredits)}
+                              </p>
+                              <p className="mt-1 text-xs text-eden-muted">Eden fee share</p>
+                              <p className="mt-2 text-xs text-eden-muted">
+                                Gross: {formatCredits(service.monetization.estimatedGrossCredits)}
+                              </p>
+                              <p className="mt-2 text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                        No service usage has been tracked yet. The leaderboard will populate after mocked service runs are recorded.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Top businesses by usage
+                </p>
+                <div className="mt-4 space-y-3">
+                  {usageMetrics.topBusinesses.length ? (
+                    usageMetrics.topBusinesses.map((business) => (
+                      <div
+                        key={business.businessId}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">{business.businessName}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              Top service: {business.topServiceTitle}
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              {business.usageCount} runs | {formatCredits(business.totalCreditsUsed)} used
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {formatCredits(business.monetization.estimatedBuilderEarningsCredits)}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">Builder earnings</p>
+                            <p className="mt-2 text-xs text-eden-muted">
+                              Gross: {formatCredits(business.monetization.estimatedGrossCredits)}
+                            </p>
+                            <p className="mt-2 text-xs text-eden-muted">{business.lastUsedAtLabel}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Business usage rankings will appear here after the platform records mocked service activity.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Top users by platform usage
+                </p>
+                <div className="mt-4 space-y-3">
+                  {usageMetrics.topUsers.length ? (
+                    usageMetrics.topUsers.map((user) => (
+                      <div
+                        key={user.userId ?? `guest-${user.userDisplayName}`}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {user.userDisplayName}
+                              </p>
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                                {user.isAnonymousUser
+                                  ? "Guest"
+                                  : user.username
+                                    ? `@${user.username}`
+                                    : "User"}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              {user.usageCount} runs across {user.perService.length} service
+                              {user.perService.length === 1 ? "" : "s"}.
+                            </p>
+                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              Top service: {user.topServiceTitle}
+                            </p>
+                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              Estimated customer value:{" "}
+                              {formatCredits(user.projectedCustomerValueCredits)}
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {user.usageSharePercent}% of tracked runs
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              Builder earnings:{" "}
+                              {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}
+                            </p>
+                            <p className="mt-2 text-xs text-eden-muted">{user.lastUsedAtLabel}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      User rankings will populate after platform usage events are recorded.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Usage concentration by user
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        Top user share
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                        {usageMetrics.userConcentration.topUserSharePercent}%
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        Top 3 users
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                        {usageMetrics.userConcentration.topThreeUsersSharePercent}%
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        User buckets
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                        {usageMetrics.userConcentration.distinctUsers}
+                      </p>
+                      <p className="mt-1 text-xs text-eden-muted">
+                        {usageMetrics.userConcentration.anonymousUsageEvents} guest events
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Recent user activity
+                  </p>
+                  <div className="mt-4 space-y-3">
+                    {usageMetrics.recentUserActivity.length ? (
+                      usageMetrics.recentUserActivity.map((event) => (
+                        <div
+                          key={event.id}
+                          className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm font-semibold text-eden-ink">
+                                  {event.userDisplayName}
+                                </p>
+                                <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                                  {event.username ? `@${event.username}` : "Guest wallet"}
+                                </span>
+                              </div>
+                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                Used {event.serviceTitle} from {event.businessName}.
+                              </p>
+                              <p className="mt-1 text-xs text-eden-muted">
+                                Value: {formatCredits(event.estimatedGrossCredits)} | Charge:{" "}
+                                {formatCredits(event.creditsUsed)}
+                              </p>
+                            </div>
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                              {event.source === "persistent" ? "Persistent" : "Mock fallback"}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            {event.timestampLabel}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                        Recent user activity will appear here after service usage is recorded.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="mt-4">
               <MockTransactionControls
                 businessId={simulationBusinessId}
@@ -1274,4 +1689,6 @@ export function OwnerDashboardPanel({
     </div>
   );
 }
+
+
 

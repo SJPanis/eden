@@ -161,6 +161,10 @@ export function getMockCreatedBusinessState(
     summary: `A session-created service shell for ${record.targetAudience.toLowerCase()} with ${getMonetizationSummary(record.monetizationModel)}.`,
     status: "Draft",
     tags: record.tags,
+    pricingModel: record.monetizationModel,
+    pricePerUse: null,
+    pricingType: null,
+    pricingUnit: "credits",
   };
 
   const project: EdenMockProject = {

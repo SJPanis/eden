@@ -8,6 +8,8 @@ export * from "@/modules/core/repos/prisma-client";
 export * from "@/modules/core/repos/prisma-discovery-repo";
 export * from "@/modules/core/repos/prisma-read-mappers";
 export * from "@/modules/core/repos/prisma-service-repo";
+export * from "@/modules/core/repos/prisma-service-usage-repo";
 export * from "@/modules/core/repos/repo-types";
 export * from "@/modules/core/repos/service-repo";
+export * from "@/modules/core/repos/service-usage-repo";
 export * from "@/modules/core/repos/user-repo";

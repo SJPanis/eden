@@ -57,6 +57,7 @@ model User {
   ownedBusinesses     Business[]       @relation("BusinessOwner")
   businessMemberships BusinessMember[]
   authProviderAccounts AuthProviderAccount[]
+  serviceUsages       ServiceUsage[]
 }
 
 model AuthProviderAccount {
@@ -129,6 +130,9 @@ model Service {
   summary              String?
   status               PipelineStatus   @default(DRAFT)
   pricingModel         String?
+  pricePerUse          Int?
+  pricingType          String?
+  pricingUnit          String?
   automationSummary    String?
   publishedAt          DateTime?
   createdAt            DateTime         @default(now())
@@ -137,10 +141,26 @@ model Service {
   featuredInBusinesses Business[]       @relation("FeaturedService")
   pipelineRecords      PipelineRecord[]
   pipelineEvents       PipelineEvent[]
+  serviceUsages        ServiceUsage[]
 
   @@index([businessId])
   @@index([status])
   @@index([category])
+}
+
+model ServiceUsage {
+  id          String   @id @default(cuid())
+  serviceId   String
+  userId      String?
+  usageType   String
+  creditsUsed Int
+  createdAt   DateTime @default(now())
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([serviceId, createdAt])
+  @@index([userId, createdAt])
+  @@index([usageType])
 }
 
 model PipelineRecord {

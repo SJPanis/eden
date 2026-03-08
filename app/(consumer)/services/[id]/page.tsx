@@ -3,6 +3,10 @@ import { getMockAdminState } from "@/modules/core/admin/server";
 import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
 import { DetailPlaceholderPanel } from "@/modules/core/components/detail-placeholder-panel";
+import {
+  getRecentUserTransactionHistory,
+  getUserCreditsBalance,
+} from "@/modules/core/credits/mock-credits";
 import { getSimulatedTransactions } from "@/modules/core/credits/server";
 import {
   formatPipelineTimestamp,
@@ -16,11 +20,17 @@ import {
   defaultServiceId,
 } from "@/modules/core/mock-data";
 import {
+  formatServicePricingLabel,
+  resolveServicePricing,
+} from "@/modules/core/services/service-pricing";
+import {
   loadBusinessById,
   loadDiscoveryBusinessForService,
   loadDiscoveryServiceById,
   loadServiceById,
 } from "@/modules/core/services";
+import { getServerSession } from "@/modules/core/session/server";
+import { ServiceUsagePanel } from "@/ui/consumer/components/service-usage-panel";
 
 type SearchValue = string | string[] | undefined;
 
@@ -81,7 +91,8 @@ export default async function ServiceDetailPage({
 }: ServiceDetailPageProps) {
   const { id } = await params;
   const resolvedSearchParams = await searchParams;
-  const [simulatedTransactions, pipelineRecords, pipelineEvents, adminState, createdBusiness, workspaceServices] = await Promise.all([
+  const [session, simulatedTransactions, pipelineRecords, pipelineEvents, adminState, createdBusiness, workspaceServices] = await Promise.all([
+    getServerSession(),
     getSimulatedTransactions(),
     getMockPipelineRecords(),
     getMockPipelineEvents(),
@@ -156,6 +167,43 @@ export default async function ServiceDetailPage({
   const displayStatus = businessFrozen ? "Business Frozen" : status;
   const displayTags =
     businessFrozen && !tags.includes("Owner Hold") ? [...tags, "Owner Hold"] : tags;
+  const pricing = resolveServicePricing({
+    pricePerUse: service?.pricePerUse,
+    pricingType: service?.pricingType,
+    pricingUnit: service?.pricingUnit,
+    pricingModel: service?.pricingModel,
+  });
+  const pricingLabel = formatServicePricingLabel(
+    {
+      pricePerUse: service?.pricePerUse,
+      pricingType: service?.pricingType,
+      pricingUnit: service?.pricingUnit,
+      pricingModel: service?.pricingModel,
+    },
+    {
+      fallbackLabel: service?.pricingModel
+        ? `${service.pricingModel} pricing placeholder`
+        : "Pricing placeholder pending",
+      includePricingModel: true,
+    },
+  );
+  const pricingUnitLabel =
+    pricing.pricingType === "per_session"
+      ? `${pricing.pricingUnit} per session`
+      : `${pricing.pricingUnit} per use`;
+  const currentUserBalanceCredits = getUserCreditsBalance(
+    session.user.id,
+    simulatedTransactions,
+  );
+  const recentTransactions = getRecentUserTransactionHistory(
+    {
+      userId: session.user.id,
+      limit: 6,
+    },
+    simulatedTransactions,
+    createdBusiness,
+    workspaceServices,
+  );
 
   return (
     <DetailPlaceholderPanel
@@ -169,6 +217,11 @@ export default async function ServiceDetailPage({
       metadata={[
         { label: "Category", value: category },
         { label: "Business", value: businessName },
+        { label: "Price per use", value: pricingLabel },
+        {
+          label: "Pricing unit",
+          value: pricing.hasStoredPrice ? pricingUnitLabel : "Mock fallback usage rate",
+        },
         { label: "Admin State", value: businessFrozen ? "Business frozen" : "Active" },
         { label: "Status Source", value: service?.status ?? "Route override" },
         {
@@ -187,74 +240,97 @@ export default async function ServiceDetailPage({
       note={
         businessFrozen
           ? "All content on this page is mocked. The linked business is currently under a local owner freeze overlay."
-          : "All content on this page is mocked. The route exists to connect Eden's consumer, business, and owner layers before any backend detail models are introduced."
+          : "All content on this page is mocked. Service pricing and usage events are local-development placeholders that stay aligned with Eden's analytics layer."
       }
     >
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
-            Current Release State
-          </p>
-          <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-            {businessFrozen ? (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm leading-6 text-rose-700">
-                The linked business is under a mocked owner freeze hold. Release state remains
-                visible for inspection.
-              </div>
-            ) : null}
-            <p className="text-sm font-semibold text-eden-ink">{service?.title ?? title}</p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
-              {pipelineSnapshot?.lastActionLabel ??
-                "This service is currently using its shared mock-data release state."}
+      <div className="space-y-5">
+        <ServiceUsagePanel
+          serviceId={service?.id ?? null}
+          businessId={business?.id ?? businessId}
+          serviceTitle={service?.title ?? title}
+          summary={summary}
+          currentBalanceCredits={currentUserBalanceCredits}
+          recentTransactions={recentTransactions}
+          pricePerUse={service?.pricePerUse ?? null}
+          pricingType={service?.pricingType ?? null}
+          pricingUnit={service?.pricingUnit ?? null}
+          pricingModel={service?.pricingModel ?? null}
+          disabled={businessFrozen || !service}
+          disabledReason={
+            businessFrozen
+              ? "This service is currently under a mocked owner freeze through its linked business."
+              : !service
+                ? "This route is still using a placeholder service shell. A canonical service record is required before usage can be recorded."
+                : undefined
+          }
+        />
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
+              Current Release State
             </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Readiness</p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {pipelineSnapshot?.readinessPercent ?? "N/A"}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Updated</p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {pipelineSnapshot?.updatedAtLabel ?? "Shared mock data"}
-                </p>
+            <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+              {businessFrozen ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm leading-6 text-rose-700">
+                  The linked business is under a mocked owner freeze hold. Release state remains
+                  visible for inspection.
+                </div>
+              ) : null}
+              <p className="text-sm font-semibold text-eden-ink">{service?.title ?? title}</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                {pipelineSnapshot?.lastActionLabel ??
+                  "This service is currently using its shared mock-data release state."}
+              </p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Readiness</p>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    {pipelineSnapshot?.readinessPercent ?? "N/A"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Updated</p>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    {pipelineSnapshot?.updatedAtLabel ?? "Shared mock data"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
-            Recent Transition History
-          </p>
-          <div className="mt-4 space-y-3">
-            {recentEvents.length ? (
-              recentEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-eden-ink">
-                        {getPipelineStatusLabel(event.previousStatus)} to{" "}
-                        {getPipelineStatusLabel(event.newStatus)}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">{event.detail}</p>
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
+              Recent Transition History
+            </p>
+            <div className="mt-4 space-y-3">
+              {recentEvents.length ? (
+                recentEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="rounded-2xl border border-eden-edge bg-white p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-eden-ink">
+                          {getPipelineStatusLabel(event.previousStatus)} to{" "}
+                          {getPipelineStatusLabel(event.newStatus)}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-eden-muted">{event.detail}</p>
+                      </div>
+                      <span className="text-xs text-eden-muted">{event.actor}</span>
                     </div>
-                    <span className="text-xs text-eden-muted">{event.actor}</span>
+                    <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      {formatPipelineTimestamp(event.timestamp)}
+                    </p>
                   </div>
-                  <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
-                    {formatPipelineTimestamp(event.timestamp)}
-                  </p>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
+                  No mocked service transitions have been recorded yet.
                 </div>
-              ))
-            ) : (
-              <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
-                No mocked service transitions have been recorded yet.
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

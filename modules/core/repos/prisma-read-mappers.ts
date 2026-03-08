@@ -46,6 +46,9 @@ export const prismaServiceSelect = {
   summary: true,
   status: true,
   pricingModel: true,
+  pricePerUse: true,
+  pricingType: true,
+  pricingUnit: true,
   automationSummary: true,
   publishedAt: true,
 } satisfies Prisma.ServiceSelect;
@@ -109,6 +112,9 @@ export function mapPrismaServiceToRepoRecord(
     summary: service.summary,
     status: mapPrismaPipelineStatus(service.status),
     pricingModel: service.pricingModel,
+    pricePerUse: service.pricePerUse,
+    pricingType: service.pricingType,
+    pricingUnit: service.pricingUnit,
     automationSummary: service.automationSummary,
     publishedAt: service.publishedAt,
   };

@@ -3,6 +3,12 @@ import type {
   EdenMockProject,
   EdenMockService,
 } from "@/modules/core/mock-data/platform-types";
+import {
+  defaultServicePricingType,
+  defaultServicePricingUnit,
+  formatServicePricingLabel,
+  normalizePricePerUse,
+} from "@/modules/core/services/service-pricing";
 
 export type EdenMockWorkspaceServiceInput = {
   name: string;
@@ -10,6 +16,9 @@ export type EdenMockWorkspaceServiceInput = {
   category: string;
   tags: string[];
   pricingModel?: string;
+  pricePerUse?: number;
+  pricingType?: string;
+  pricingUnit?: string;
   automationDescription?: string;
 };
 
@@ -25,6 +34,9 @@ export type EdenMockWorkspaceServiceRecord = {
   category: string;
   tags: string[];
   pricingModel?: string;
+  pricePerUse?: number;
+  pricingType?: string;
+  pricingUnit?: string;
   automationDescription?: string;
 };
 
@@ -68,7 +80,10 @@ export function getSanitizedMockWorkspaceServiceInput(
   const description = input.description?.trim() ?? "";
   const category = input.category?.trim() ?? "";
   const pricingModel = input.pricingModel?.trim() ?? "";
+  const pricingType = input.pricingType?.trim() ?? "";
+  const pricingUnit = input.pricingUnit?.trim() ?? "";
   const automationDescription = input.automationDescription?.trim() ?? "";
+  const pricePerUse = normalizePricePerUse(input.pricePerUse);
   const tags = Array.from(
     new Set(
       (input.tags ?? [])
@@ -87,6 +102,9 @@ export function getSanitizedMockWorkspaceServiceInput(
     category,
     tags,
     pricingModel: pricingModel || undefined,
+    pricePerUse: pricePerUse ?? undefined,
+    pricingType: pricePerUse ? pricingType || defaultServicePricingType : undefined,
+    pricingUnit: pricePerUse ? pricingUnit || defaultServicePricingUnit : undefined,
     automationDescription: automationDescription || undefined,
   } satisfies EdenMockWorkspaceServiceInput;
 }
@@ -115,6 +133,9 @@ export function buildMockWorkspaceServiceRecord(
     category: input.category,
     tags: input.tags,
     pricingModel: input.pricingModel,
+    pricePerUse: input.pricePerUse,
+    pricingType: input.pricingType,
+    pricingUnit: input.pricingUnit,
     automationDescription: input.automationDescription,
   } satisfies EdenMockWorkspaceServiceRecord;
 }
@@ -143,9 +164,20 @@ export function getMockWorkspaceServiceStates(
 export function getMockWorkspaceServiceState(
   record: EdenMockWorkspaceServiceRecord,
 ) {
-  const pricingSummary = record.pricingModel
-    ? `${record.pricingModel.toLowerCase()} pricing placeholders`
-    : "placeholder pricing options";
+  const pricingSummary = formatServicePricingLabel(
+    {
+      pricePerUse: record.pricePerUse,
+      pricingType: record.pricingType,
+      pricingUnit: record.pricingUnit,
+      pricingModel: record.pricingModel,
+    },
+    {
+      fallbackLabel: record.pricingModel
+        ? `${record.pricingModel.toLowerCase()} pricing placeholders`
+        : "placeholder pricing options",
+      includePricingModel: true,
+    },
+  );
   const automationSummary = record.automationDescription
     ? ` AI layer: ${record.automationDescription}`
     : "";
@@ -158,6 +190,11 @@ export function getMockWorkspaceServiceState(
     summary: `A local service-builder draft with ${pricingSummary} for ${record.category.toLowerCase()} discovery.`,
     status: "Draft",
     tags: record.tags,
+    pricingModel: record.pricingModel,
+    pricePerUse: record.pricePerUse ?? null,
+    pricingType: record.pricingType,
+    pricingUnit: record.pricingUnit,
+    automationSummary: record.automationDescription,
   };
   const project: EdenMockProject = {
     id: record.projectId,
@@ -226,6 +263,12 @@ function isMockWorkspaceServiceRecord(
     candidate.tags.every((tag) => typeof tag === "string") &&
     (typeof candidate.pricingModel === "string" ||
       typeof candidate.pricingModel === "undefined") &&
+    (typeof candidate.pricePerUse === "number" ||
+      typeof candidate.pricePerUse === "undefined") &&
+    (typeof candidate.pricingType === "string" ||
+      typeof candidate.pricingType === "undefined") &&
+    (typeof candidate.pricingUnit === "string" ||
+      typeof candidate.pricingUnit === "undefined") &&
     (typeof candidate.automationDescription === "string" ||
       typeof candidate.automationDescription === "undefined")
   );

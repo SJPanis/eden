@@ -6,14 +6,31 @@ import {
   parseMockCreatedBusinessCookie,
 } from "@/modules/core/business/mock-created-business";
 import {
+  getMockWorkspaceServiceStates,
+  mockWorkspaceServicesCookieName,
+  parseMockWorkspaceServicesCookie,
+} from "@/modules/core/business/mock-workspace-services";
+import {
   buildSimulationTransaction,
+  getUserCreditsBalance,
   getSimulationTargetBusinessId,
   mockTransactionsCookieName,
   parseMockTransactionsCookie,
   serializeMockTransactionsCookie,
   type EdenMockSimulationAction,
 } from "@/modules/core/credits/mock-credits";
+import {
+  getBusinessPipelineSnapshot,
+  mockPipelineCookieName,
+  parseMockPipelineCookie,
+} from "@/modules/core/pipeline/mock-pipeline";
 import { mockSessionCookieName, resolveMockSession } from "@/modules/core/session/mock-session";
+import { resolveServicePricing } from "@/modules/core/services/service-pricing";
+import {
+  loadDiscoveryServiceById,
+  loadServiceById,
+  recordServiceUsageEvent,
+} from "@/modules/core/services";
 
 const mockTransactionsCookieOptions = {
   httpOnly: true,
@@ -33,6 +50,7 @@ export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => ({}))) as {
     action?: EdenMockSimulationAction;
     businessId?: string;
+    serviceId?: string;
   };
   const requestedAction = requestBody.action;
 
@@ -60,17 +78,119 @@ export async function POST(request: Request) {
     requestBody.businessId,
     createdBusiness,
   );
+  const previousUserBalanceCredits = getUserCreditsBalance(
+    session.user.id,
+    currentTransactions,
+  );
+  let resolvedServiceId: string | undefined;
+  let resolvedService:
+    | Awaited<ReturnType<typeof loadDiscoveryServiceById>>
+    | Awaited<ReturnType<typeof loadServiceById>>
+    | null = null;
+  let resolvedUsagePriceCredits: number | null = null;
+
+  if (requestedAction === "simulate_service_usage") {
+    const workspaceServices = getMockWorkspaceServiceStates(
+      parseMockWorkspaceServicesCookie(
+        cookieStore.get(mockWorkspaceServicesCookieName)?.value,
+      ),
+    );
+    const pipelineRecords = parseMockPipelineCookie(
+      cookieStore.get(mockPipelineCookieName)?.value,
+    );
+    const pipelineSnapshot = targetBusinessId
+      ? getBusinessPipelineSnapshot(
+          {
+            businessId: targetBusinessId,
+            userId: session.user.id,
+          },
+          currentTransactions,
+          pipelineRecords,
+          createdBusiness,
+          workspaceServices,
+        )
+      : null;
+    resolvedServiceId = requestBody.serviceId ?? pipelineSnapshot?.serviceId;
+
+    if (resolvedServiceId) {
+      resolvedService =
+        (await loadDiscoveryServiceById(resolvedServiceId, {
+          pipelineRecords,
+          createdBusiness,
+          workspaceServices,
+        })) ??
+        (await loadServiceById(resolvedServiceId, {
+          createdBusiness,
+          workspaceServices,
+        }));
+      resolvedUsagePriceCredits = resolveServicePricing({
+        pricePerUse: resolvedService?.pricePerUse,
+        pricingType: resolvedService?.pricingType,
+        pricingUnit: resolvedService?.pricingUnit,
+        pricingModel: resolvedService?.pricingModel,
+      }).pricePerUseCredits;
+    }
+  }
+
   const nextTransaction = buildSimulationTransaction({
     action: requestedAction,
     userId: session.user.id,
     businessId: targetBusinessId,
     transactionIndex: currentTransactions.length + 1,
     createdBusiness,
+    serviceUsagePriceCredits: resolvedUsagePriceCredits,
+    serviceUsageId: resolvedService?.id,
+    serviceUsageTitle: resolvedService?.title,
   });
+  const requiredCredits = Math.abs(nextTransaction.creditsDelta);
+
+  if (
+    requestedAction === "simulate_service_usage" &&
+    previousUserBalanceCredits < requiredCredits
+  ) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Insufficient Eden Credits for this service run.",
+        insufficientBalance: true,
+        requiredCredits,
+        currentBalanceCredits: previousUserBalanceCredits,
+        nextBalanceCredits: previousUserBalanceCredits,
+        serviceId: resolvedServiceId,
+      },
+      { status: 409 },
+    );
+  }
+
   const nextTransactions = [nextTransaction, ...currentTransactions].slice(0, 40);
+  const nextUserBalanceCredits = getUserCreditsBalance(
+    session.user.id,
+    nextTransactions,
+  );
+
+  if (requestedAction === "simulate_service_usage") {
+    if (resolvedServiceId) {
+      await recordServiceUsageEvent({
+        serviceId: resolvedServiceId,
+        userId: session.user.id,
+        usageType: "simulate_service_usage",
+        creditsUsed: Math.abs(nextTransaction.creditsDelta),
+      });
+    }
+  }
+
   const response = NextResponse.json({
     ok: true,
+    action: requestedAction,
     transactionId: nextTransaction.id,
+    transactionTitle: nextTransaction.title,
+    transactionTimestamp: nextTransaction.timestamp,
+    amountLabel: nextTransaction.amountLabel,
+    creditsUsed: Math.abs(nextTransaction.creditsDelta),
+    creditsDelta: nextTransaction.creditsDelta,
+    requiredCredits,
+    previousBalanceCredits: previousUserBalanceCredits,
+    nextBalanceCredits: nextUserBalanceCredits,
   });
 
   response.cookies.set(

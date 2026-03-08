@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -37,6 +37,7 @@ import type {
   EdenMockUser,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
+import { formatServicePricingLabel } from "@/modules/core/services/service-pricing";
 import { BusinessAiAssistantPanel } from "@/ui/business/components/business-ai-assistant-panel";
 import { MockServiceBuilder } from "@/ui/business/components/mock-service-builder";
 import {
@@ -57,6 +58,94 @@ type BillingUsageItem = {
   label: string;
   value: string;
   detail: string;
+};
+
+type BusinessUsageMetrics = {
+  totalUsageEvents: number;
+  totalCreditsUsed: number;
+  source: "persistent" | "mock_fallback";
+  perService: Array<{
+    serviceId: string;
+    serviceTitle: string;
+    businessId: string;
+    businessName: string;
+      usageCount: number;
+      totalCreditsUsed: number;
+      lastUsedAtLabel: string;
+      pricingModel?: string | null;
+      pricePerUseCredits?: number | null;
+      pricingUnit?: string | null;
+      monetization: {
+        estimatedGrossCredits: number;
+        estimatedPlatformEarningsCredits: number;
+        estimatedBuilderEarningsCredits: number;
+        pricingRuleLabel: string;
+    };
+  }>;
+  recentUsageEvents: Array<{
+    id: string;
+    serviceId: string;
+    serviceTitle: string;
+    businessId: string;
+    businessName: string;
+    userId?: string | null;
+    userDisplayName: string;
+    username?: string | null;
+    usageType: string;
+    creditsUsed: number;
+    estimatedGrossCredits: number;
+    timestampLabel: string;
+    source: "persistent" | "mock_fallback";
+  }>;
+  topCustomers: Array<{
+    userId?: string | null;
+    userDisplayName: string;
+    username?: string | null;
+    isAnonymousUser: boolean;
+    usageCount: number;
+    totalCreditsUsed: number;
+    usageSharePercent: number;
+    topServiceTitle: string;
+    lastUsedAtLabel: string;
+    projectedCustomerValueCredits: number;
+    perService: Array<{
+      serviceId: string;
+      serviceTitle: string;
+      businessId: string;
+      businessName: string;
+      usageCount: number;
+      totalCreditsUsed: number;
+      lastUsedAtLabel: string;
+      projectedCustomerValueCredits: number;
+    }>;
+    monetization: {
+      estimatedGrossCredits: number;
+      estimatedPlatformEarningsCredits: number;
+      estimatedBuilderEarningsCredits: number;
+      pricingRuleLabel: string;
+    };
+  }>;
+  recentCustomerActivity: Array<{
+    id: string;
+    serviceId: string;
+    serviceTitle: string;
+    businessId: string;
+    businessName: string;
+    userId?: string | null;
+    userDisplayName: string;
+    username?: string | null;
+    usageType: string;
+    creditsUsed: number;
+    estimatedGrossCredits: number;
+    timestampLabel: string;
+    source: "persistent" | "mock_fallback";
+  }>;
+  monetization: {
+    estimatedGrossCredits: number;
+    estimatedPlatformEarningsCredits: number;
+    estimatedBuilderEarningsCredits: number;
+    pricingRuleLabel: string;
+  };
 };
 
 type SettingItem = {
@@ -87,6 +176,7 @@ type BusinessDashboardPanelProps = {
   businessOwner: EdenMockUser | null;
   createdBusiness?: EdenMockCreatedBusinessState | null;
   workspaceServices?: EdenMockWorkspaceServiceState[];
+  usageMetrics: BusinessUsageMetrics;
 };
 
 const workspaceNav = [
@@ -196,6 +286,26 @@ function getTransactionDirectionClasses(direction: EdenMockTransaction["directio
   return "bg-sky-100 text-sky-700";
 }
 
+function getServicePricingDisplay(input: {
+  pricingModel?: string | null;
+  pricePerUse?: number | null;
+  pricingType?: string | null;
+  pricingUnit?: string | null;
+}) {
+  return formatServicePricingLabel(
+    {
+      pricingModel: input.pricingModel,
+      pricePerUse: input.pricePerUse,
+      pricingType: input.pricingType,
+      pricingUnit: input.pricingUnit,
+    },
+    {
+      fallbackLabel: input.pricingModel ?? "Not priced yet",
+      includePricingModel: Boolean(input.pricingModel),
+    },
+  );
+}
+
 function getFallbackReleaseStatus(status: string) {
   const normalized = status.toLowerCase();
 
@@ -226,6 +336,7 @@ export function BusinessDashboardPanel({
   businessOwner,
   createdBusiness,
   workspaceServices = [],
+  usageMetrics,
 }: BusinessDashboardPanelProps) {
   const [releaseEventFilter, setReleaseEventFilter] = useState<ReleaseEventFilter>("all");
   const projects = getProjectsByBusinessId(activeBusinessId, createdBusiness, workspaceServices);
@@ -260,10 +371,12 @@ export function BusinessDashboardPanel({
     getFallbackReleaseStatus(
       pipelineSnapshot?.service?.status ?? businessProfile?.status ?? "draft",
     );
+  const activeService =
+    pipelineSnapshot?.service ?? workspaceService?.service ?? createdBusiness?.service ?? null;
   const draftDefaultCategory =
-    pipelineSnapshot?.service?.category ?? workspaceService?.record.category ?? businessProfile?.category ?? "Productivity";
+    activeService?.category ?? workspaceService?.record.category ?? businessProfile?.category ?? "Productivity";
   const draftDefaultTagsSignature = (
-    pipelineSnapshot?.service?.tags ??
+    activeService?.tags ??
     workspaceService?.record.tags ??
     businessProfile?.tags ??
     []
@@ -272,6 +385,22 @@ export function BusinessDashboardPanel({
   const initialServiceDraftForm = createEmptyServiceDraftFormValues(
     draftDefaultCategory,
     draftDefaultTagsSignature ? draftDefaultTagsSignature.split("|||") : [],
+    {
+      name: activeService?.title ?? workspaceService?.record.name ?? "",
+      description: activeService?.description ?? workspaceService?.record.description ?? "",
+      category: activeService?.category ?? workspaceService?.record.category ?? draftDefaultCategory,
+      tagsInput: draftDefaultTagsSignature ? draftDefaultTagsSignature.split("|||").join(", ") : "",
+      pricingModel:
+        activeService?.pricingModel ?? workspaceService?.record.pricingModel ?? "",
+      pricePerUse:
+        workspaceService?.record.pricePerUse?.toString() ??
+        activeService?.pricePerUse?.toString() ??
+        "",
+      automationDescription:
+        workspaceService?.record.automationDescription ??
+        activeService?.automationSummary ??
+        "",
+    },
   );
   const [draftState, setDraftState] = useState<{
     seedKey: string;
@@ -445,6 +574,16 @@ export function BusinessDashboardPanel({
         },
       ]
     : [];
+  const activeServicePricingLabel = getServicePricingDisplay({
+    pricingModel:
+      workspaceService?.record.pricingModel ?? activeService?.pricingModel ?? null,
+    pricePerUse:
+      workspaceService?.record.pricePerUse ?? activeService?.pricePerUse ?? null,
+    pricingType:
+      workspaceService?.record.pricingType ?? activeService?.pricingType ?? null,
+    pricingUnit:
+      workspaceService?.record.pricingUnit ?? activeService?.pricingUnit ?? null,
+  });
   const billingUsage: BillingUsageItem[] = businessProfile
     ? [
         {
@@ -467,6 +606,33 @@ export function BusinessDashboardPanel({
         },
         {
           id: "billing-usage-04",
+          label: "Active service pricing",
+          value: activeServicePricingLabel,
+          detail: "Current monetization setting on the active service target. Adjust it in the Service Builder to change earnings projections.",
+        },
+        {
+          id: "billing-usage-05",
+          label: "Tracked service runs",
+          value: `${usageMetrics.totalUsageEvents}`,
+          detail:
+            usageMetrics.source === "persistent"
+              ? "Persisted ServiceUsage rows tied to this business workspace."
+              : "Fallback count derived from the local mock usage ledger for this workspace.",
+        },
+        {
+          id: "billing-usage-06",
+          label: "Estimated builder earnings",
+          value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
+          detail: "Estimated builder share derived from the active services' stored per-use pricing.",
+        },
+        {
+          id: "billing-usage-07",
+          label: "Estimated Eden fee share",
+          value: formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits),
+          detail: "Estimated Eden platform share derived from stored service pricing, not real charging.",
+        },
+        {
+          id: "billing-usage-08",
           label: "Hosting cost",
           value: billingSnapshot?.hostingCostLabel ?? "$18/mo",
           detail: "Placeholder hosting estimate for staging, delivery, and analytics surfaces.",
@@ -529,6 +695,7 @@ export function BusinessDashboardPanel({
           ? patch.suggestedTags.join(", ")
           : serviceDraftForm.tagsInput,
         pricingModel: patch.pricingModel ?? serviceDraftForm.pricingModel,
+        pricePerUse: serviceDraftForm.pricePerUse,
         automationDescription:
           patch.automationSummary ?? serviceDraftForm.automationDescription,
       },
@@ -907,10 +1074,13 @@ export function BusinessDashboardPanel({
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-eden-edge bg-white p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                        Pricing placeholder
+                        Current pricing
                       </p>
                       <p className="mt-2 text-sm font-semibold text-eden-ink">
-                        {workspaceService?.record.pricingModel ?? "Not set yet"}
+                        {activeServicePricingLabel}
+                      </p>
+                      <p className="mt-2 text-xs leading-5 text-eden-muted">
+                        Update the numeric rate in the Service Builder form to change monetization analytics.
                       </p>
                     </div>
                     <div className="rounded-2xl border border-eden-edge bg-white p-3">
@@ -1413,6 +1583,240 @@ export function BusinessDashboardPanel({
               </div>
             </div>
 
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(300px,0.94fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Per-service usage
+                </p>
+                <div className="mt-4 space-y-3">
+                  {usageMetrics.perService.length ? (
+                    usageMetrics.perService.map((service) => (
+                      <div
+                        key={service.serviceId}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">{service.serviceTitle}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              Current rate:{" "}
+                              {getServicePricingDisplay({
+                                pricingModel: service.pricingModel,
+                                pricePerUse: service.pricePerUseCredits,
+                                pricingUnit: service.pricingUnit,
+                              })}
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              Estimated builder earnings:{" "}
+                              {formatCredits(service.monetization.estimatedBuilderEarningsCredits)}.
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {formatCredits(service.monetization.estimatedPlatformEarningsCredits)}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">Eden fee share</p>
+                            <p className="mt-2 text-xs text-eden-muted">
+                              Gross: {formatCredits(service.monetization.estimatedGrossCredits)}
+                            </p>
+                            <p className="mt-2 text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      No service usage has been tracked for this workspace yet. Use the mock transaction controls to simulate service usage and populate this view.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Recent usage events
+                  </p>
+                  <div className="mt-4 space-y-3">
+                    {usageMetrics.recentUsageEvents.length ? (
+                      usageMetrics.recentUsageEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-eden-ink">{event.serviceTitle}</p>
+                              <p className="mt-1 text-sm leading-6 text-eden-muted">
+                                {formatCredits(event.creditsUsed)} used through {event.usageType.replace(/_/g, " ")}.
+                              </p>
+                              <p className="mt-1 text-xs text-eden-muted">
+                                Gross estimate: {formatCredits(event.estimatedGrossCredits)}
+                              </p>
+                            </div>
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                              {event.source === "persistent" ? "Persistent" : "Mock fallback"}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            {event.timestampLabel}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                        Usage events will appear here after the active service is run through the mocked execution flow.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Monetization-ready projection
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    {usageMetrics.monetization.pricingRuleLabel}
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Estimated gross</p>
+                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                        {formatCredits(usageMetrics.monetization.estimatedGrossCredits)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Builder keeps</p>
+                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                        {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Eden fee share</p>
+                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                        {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Top customers by usage
+                </p>
+                <div className="mt-4 space-y-3">
+                  {usageMetrics.topCustomers.length ? (
+                    usageMetrics.topCustomers.map((customer) => (
+                      <div
+                        key={customer.userId ?? `guest-${customer.userDisplayName}`}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {customer.userDisplayName}
+                              </p>
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                                {customer.isAnonymousUser
+                                  ? "Guest"
+                                  : customer.username
+                                    ? `@${customer.username}`
+                                    : "Customer"}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              {customer.usageCount} runs across {customer.perService.length} service
+                              {customer.perService.length === 1 ? "" : "s"}.
+                            </p>
+                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              Top service: {customer.topServiceTitle}
+                            </p>
+                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              Estimated customer value:{" "}
+                              {formatCredits(customer.projectedCustomerValueCredits)}
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {customer.usageSharePercent}% of tracked runs
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              Builder earnings:{" "}
+                              {formatCredits(
+                                customer.monetization.estimatedBuilderEarningsCredits,
+                              )}
+                            </p>
+                            <p className="mt-2 text-xs text-eden-muted">
+                              {customer.lastUsedAtLabel}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Customer usage rankings will populate after tracked service runs are recorded
+                      for this workspace.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Recent customer activity
+                </p>
+                <div className="mt-4 space-y-3">
+                  {usageMetrics.recentCustomerActivity.length ? (
+                    usageMetrics.recentCustomerActivity.map((event) => (
+                      <div
+                        key={event.id}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {event.userDisplayName}
+                              </p>
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                                {event.username ? `@${event.username}` : "Guest wallet"}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              Used {event.serviceTitle} for {formatCredits(event.creditsUsed)}.
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              Estimated customer value:{" "}
+                              {formatCredits(event.estimatedGrossCredits)}
+                            </p>
+                          </div>
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                            {event.source === "persistent" ? "Persistent" : "Mock fallback"}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          {event.timestampLabel}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Recent customer activity appears here once the active business records
+                      service usage events.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="mt-4">
               <MockTransactionControls
                 businessId={activeBusinessId}
@@ -1528,4 +1932,7 @@ export function BusinessWorkspaceStarterPanel({
     </motion.section>
   );
 }
+
+
+
 

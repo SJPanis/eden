@@ -100,6 +100,9 @@ export function createPrismaBuilderLoopWriteRepo(
             summary: buildServiceSummary(input),
             status: PipelineStatus.DRAFT,
             pricingModel: input.pricingModel,
+            pricePerUse: input.pricePerUse,
+            pricingType: input.pricingType,
+            pricingUnit: input.pricingUnit,
             automationSummary: input.automationDescription,
             publishedAt: null,
             updatedAt: new Date(input.updatedAt),
@@ -114,6 +117,9 @@ export function createPrismaBuilderLoopWriteRepo(
             summary: buildServiceSummary(input),
             status: PipelineStatus.DRAFT,
             pricingModel: input.pricingModel,
+            pricePerUse: input.pricePerUse,
+            pricingType: input.pricingType,
+            pricingUnit: input.pricingUnit,
             automationSummary: input.automationDescription,
             createdAt: new Date(input.createdAt),
             updatedAt: new Date(input.updatedAt),
@@ -248,9 +254,12 @@ function buildBusinessTagline(input: EdenPersistentBusinessWrite) {
 }
 
 function buildServiceSummary(input: EdenPersistentServiceDraftWrite) {
-  const pricingSummary = input.pricingModel
-    ? `${input.pricingModel.toLowerCase()} pricing placeholders`
-    : "placeholder pricing options";
+  const pricingSummary =
+    typeof input.pricePerUse === "number" && input.pricePerUse > 0
+      ? `${input.pricePerUse.toLocaleString()} ${input.pricingUnit ?? "credits"} per use`
+      : input.pricingModel
+        ? `${input.pricingModel.toLowerCase()} pricing placeholders`
+        : "placeholder pricing options";
 
   return `A persisted service-builder draft with ${pricingSummary} for ${input.category.toLowerCase()} discovery.`;
 }

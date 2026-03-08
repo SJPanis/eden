@@ -4,20 +4,23 @@ export type ServiceDraftFormValues = {
   category: string;
   tagsInput: string;
   pricingModel: string;
+  pricePerUse: string;
   automationDescription: string;
 };
 
 export function createEmptyServiceDraftFormValues(
   defaultCategory: string,
   defaultTags: string[],
+  seed: Partial<ServiceDraftFormValues> = {},
 ): ServiceDraftFormValues {
   return {
-    name: "",
-    description: "",
-    category: defaultCategory,
-    tagsInput: defaultTags.join(", "),
-    pricingModel: "",
-    automationDescription: "",
+    name: seed.name ?? "",
+    description: seed.description ?? "",
+    category: seed.category ?? defaultCategory,
+    tagsInput: seed.tagsInput ?? defaultTags.join(", "),
+    pricingModel: seed.pricingModel ?? "",
+    pricePerUse: seed.pricePerUse ?? "",
+    automationDescription: seed.automationDescription ?? "",
   };
 }
 

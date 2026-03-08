@@ -50,6 +50,11 @@ export function mapRepoServiceToMockService(
       `A persisted Eden service draft for ${service.category.toLowerCase()} discovery.`,
     status: formatRepoPipelineStatus(service.status),
     tags: service.tags,
+    pricingModel: service.pricingModel ?? undefined,
+    pricePerUse: service.pricePerUse ?? null,
+    pricingType: service.pricingType ?? null,
+    pricingUnit: service.pricingUnit ?? null,
+    automationSummary: service.automationSummary ?? null,
   };
 }
 

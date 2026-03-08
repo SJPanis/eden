@@ -48,6 +48,11 @@ type CanonicalMarketplaceData = {
     summary: string;
     status: string;
     tags: string[];
+    pricingModel?: string;
+    pricePerUse?: number | null;
+    pricingType?: string | null;
+    pricingUnit?: string | null;
+    automationSummary?: string | null;
   }>;
 };
 
@@ -101,6 +106,9 @@ type CanonicalSyncPayload = {
     summary: string;
     status: PipelineStatus;
     pricingModel: string | null;
+    pricePerUse: number | null;
+    pricingType: string | null;
+    pricingUnit: string | null;
     automationSummary: string | null;
     publishedAt: Date | null;
   }>;
@@ -271,6 +279,9 @@ async function main() {
             summary: service.summary,
             status: service.status,
             pricingModel: service.pricingModel,
+            pricePerUse: service.pricePerUse,
+            pricingType: service.pricingType,
+            pricingUnit: service.pricingUnit,
             automationSummary: service.automationSummary,
             publishedAt: service.publishedAt,
           },
@@ -284,6 +295,9 @@ async function main() {
             summary: service.summary,
             status: service.status,
             pricingModel: service.pricingModel,
+            pricePerUse: service.pricePerUse,
+            pricingType: service.pricingType,
+            pricingUnit: service.pricingUnit,
             automationSummary: service.automationSummary,
             publishedAt: service.publishedAt,
           },
@@ -412,8 +426,11 @@ function buildCanonicalSyncPayload(
         description: service.description,
         summary: service.summary,
         status,
-        pricingModel: null,
-        automationSummary: null,
+        pricingModel: service.pricingModel ?? null,
+        pricePerUse: service.pricePerUse ?? null,
+        pricingType: service.pricingType ?? null,
+        pricingUnit: service.pricingUnit ?? null,
+        automationSummary: service.automationSummary ?? null,
         publishedAt:
           status === PipelineStatus.PUBLISHED
             ? buildStableTimestamp(index + 1, 15)

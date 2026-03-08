@@ -104,6 +104,9 @@ export type EdenPersistentServiceDraftWrite = {
   category: string;
   tags: string[];
   pricingModel?: string;
+  pricePerUse?: number;
+  pricingType?: string;
+  pricingUnit?: string;
   automationDescription?: string;
   createdAt: string;
   updatedAt: string;

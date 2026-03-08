@@ -13,6 +13,7 @@ import { getMockPipelineEvents, getMockPipelineRecords } from "@/modules/core/pi
 import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
 import {
+  loadBusinessServiceUsageMetrics,
   loadBusinessWorkspaceOverview,
   loadDiscoverySnapshot,
 } from "@/modules/core/services";
@@ -48,13 +49,19 @@ export default async function BusinessPage() {
     return <BusinessWorkspaceStarterPanel session={session} />;
   }
 
-  const [discoverySnapshot, workspaceOverview] = await Promise.all([
+  const [discoverySnapshot, workspaceOverview, usageMetrics] = await Promise.all([
     loadDiscoverySnapshot({
       pipelineRecords,
       createdBusiness,
       workspaceServices,
     }),
     loadBusinessWorkspaceOverview(activeBusinessId, {
+      createdBusiness,
+      workspaceServices,
+    }),
+    loadBusinessServiceUsageMetrics(activeBusinessId, {
+      simulatedTransactions,
+      pipelineRecords,
       createdBusiness,
       workspaceServices,
     }),
@@ -77,6 +84,7 @@ export default async function BusinessPage() {
       createdBusiness={createdBusiness}
       workspaceServices={workspaceServices}
       assistantHistory={scopedAssistantHistory}
+      usageMetrics={usageMetrics}
     />
   );
 }

@@ -78,6 +78,7 @@ export function MockServiceBuilder({
       category: response.draft.category,
       tagsInput: response.draft.suggestedTags.join(", "),
       pricingModel: response.draft.pricingModel,
+      pricePerUse: formValues.pricePerUse,
       automationDescription: response.draft.automationSummary,
     });
     setAppliedVariantId(variant.id);
@@ -153,6 +154,11 @@ export function MockServiceBuilder({
           category: formValues.category,
           tags,
           pricingModel: formValues.pricingModel || undefined,
+          pricePerUse: formValues.pricePerUse.trim()
+            ? Number.parseInt(formValues.pricePerUse.trim(), 10)
+            : undefined,
+          pricingType: formValues.pricePerUse.trim() ? "per_use" : undefined,
+          pricingUnit: formValues.pricePerUse.trim() ? "credits" : undefined,
           automationDescription: formValues.automationDescription || undefined,
         }),
       })
@@ -519,6 +525,26 @@ export function MockServiceBuilder({
                     </option>
                   ))}
                 </select>
+              </Field>
+
+              <Field
+                label="Price per use"
+                hint="Optional stored monetization value used for usage analytics and earnings projections."
+              >
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={formValues.pricePerUse}
+                  onChange={(event) =>
+                    onFormValuesChange({
+                      ...formValues,
+                      pricePerUse: event.target.value,
+                    })
+                  }
+                  placeholder="120"
+                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                />
               </Field>
 
               <Field

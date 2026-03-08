@@ -44,6 +44,9 @@ export interface EdenRepoServiceRecord {
   summary?: string | null;
   status: EdenRepoPipelineStatus;
   pricingModel?: string | null;
+  pricePerUse?: number | null;
+  pricingType?: string | null;
+  pricingUnit?: string | null;
   automationSummary?: string | null;
   publishedAt?: Date | null;
 }
@@ -70,6 +73,27 @@ export interface EdenRepoPipelineEventRecord {
   actorLabel: string;
   detail?: string | null;
   occurredAt: Date;
+}
+
+export interface EdenRepoServiceUsageRecord {
+  id: string;
+  serviceId: string;
+  serviceTitle: string;
+  businessId: string;
+  businessName: string;
+  userId?: string | null;
+  usageType: string;
+  creditsUsed: number;
+  servicePricingModel?: string | null;
+  servicePricePerUse?: number | null;
+  servicePricingType?: string | null;
+  servicePricingUnit?: string | null;
+  createdAt: Date;
+}
+
+export interface EdenRepoServiceUsageSummary {
+  totalUsageEvents: number;
+  totalCreditsUsed: number;
 }
 
 export interface EdenDiscoverySnapshotRecord {

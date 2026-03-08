@@ -208,6 +208,10 @@ export const services: EdenMockService[] = [
       "Placeholder service detail for a guided focus-planning experience that helps users convert intent into momentum.",
     status: "Testing",
     tags: ["Productivity", "Planning", "Focus"],
+    pricingModel: "Eden Credits",
+    pricePerUse: 95,
+    pricingType: "per_use",
+    pricingUnit: "credits",
   },
   {
     id: "service-02",
@@ -219,6 +223,10 @@ export const services: EdenMockService[] = [
       "Placeholder service detail for a guided reset experience with calm routines, recovery prompts, and simple next actions.",
     status: "Published",
     tags: ["Wellness", "Recovery", "Guided care"],
+    pricingModel: "Eden Credits",
+    pricePerUse: 70,
+    pricingType: "per_use",
+    pricingUnit: "credits",
   },
   {
     id: "service-03",
@@ -230,6 +238,10 @@ export const services: EdenMockService[] = [
       "Placeholder learning service focused on short, practical skill blocks and milestone-based builder guidance.",
     status: "Published",
     tags: ["Learning", "Creator", "Sprint"],
+    pricingModel: "Eden Credits",
+    pricePerUse: 135,
+    pricingType: "per_use",
+    pricingUnit: "credits",
   },
   {
     id: "service-04",
@@ -241,6 +253,10 @@ export const services: EdenMockService[] = [
       "Placeholder service detail for a home setup support experience with systems planning and household optimization.",
     status: "Draft",
     tags: ["Home", "Setup", "Operations"],
+    pricingModel: "Eden Credits",
+    pricePerUse: 160,
+    pricingType: "per_use",
+    pricingUnit: "credits",
   },
   {
     id: "service-05",
@@ -252,6 +268,10 @@ export const services: EdenMockService[] = [
       "Placeholder service bundle for recovery routines, pacing recommendations, and follow-up habit support.",
     status: "Published",
     tags: ["Wellness", "Bundle", "Recovery"],
+    pricingModel: "Eden Credits",
+    pricePerUse: 110,
+    pricingType: "per_use",
+    pricingUnit: "credits",
   },
 ];
 
@@ -334,6 +354,7 @@ export const transactions: EdenMockTransaction[] = [
   {
     id: "transaction-02",
     userId: "user-01",
+    serviceId: "service-01",
     title: "Consumer discovery usage settled",
     amountLabel: "-680 credits",
     creditsDelta: -680,

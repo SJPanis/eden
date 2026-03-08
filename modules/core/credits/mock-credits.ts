@@ -3,12 +3,14 @@ import {
   businessFeeSummary,
   formatCredits,
   getBusinessById,
+  getServiceById,
   getUserById,
   transactions,
   type EdenMockFeeSummaryItem,
   type EdenMockTransaction,
 } from "@/modules/core/mock-data";
 import type { EdenMockCreatedBusinessState } from "@/modules/core/business/mock-created-business";
+import type { EdenMockWorkspaceServiceState } from "@/modules/core/business/mock-workspace-services";
 
 export type EdenMockSimulationAction =
   | "add_credits"
@@ -36,6 +38,12 @@ export type EdenBusinessBillingSnapshot = {
   summary: EdenCreditsSummary;
   feeBreakdown: EdenMockFeeSummaryItem[];
   hostingCostLabel: string;
+};
+
+export type EdenConsumerTransactionHistoryItem = EdenMockTransaction & {
+  resultingBalanceCredits: number;
+  relatedServiceName?: string;
+  relatedServiceHref?: string;
 };
 
 export const mockTransactionsCookieName = "eden_v1_mock_transactions";
@@ -100,6 +108,42 @@ export function getRecentTransactions(
       : getEffectiveTransactions(simulatedTransactions);
 
   return scopedTransactions.slice(0, limit);
+}
+
+export function getRecentUserTransactionHistory(
+  options: {
+    userId: string;
+    limit?: number;
+  },
+  simulatedTransactions: EdenMockTransaction[] = [],
+  createdBusiness?: EdenMockCreatedBusinessState | null,
+  workspaceServices: EdenMockWorkspaceServiceState[] = [],
+) {
+  const scopedTransactions = getRecentTransactions(
+    {
+      userId: options.userId,
+      limit: options.limit ?? 6,
+    },
+    simulatedTransactions,
+  );
+  let runningBalance = getUserCreditsBalance(options.userId, simulatedTransactions);
+
+  return scopedTransactions.map((transaction) => {
+    const historyItem: EdenConsumerTransactionHistoryItem = {
+      ...transaction,
+      resultingBalanceCredits: runningBalance,
+      relatedServiceName: transaction.serviceId
+        ? getServiceById(transaction.serviceId, createdBusiness, workspaceServices)?.title
+        : undefined,
+      relatedServiceHref:
+        transaction.kind === "usage" && transaction.serviceId
+          ? `/services/${transaction.serviceId}`
+          : undefined,
+    };
+
+    runningBalance -= transaction.creditsDelta;
+    return historyItem;
+  });
 }
 
 export function getCreditsSummary(
@@ -313,8 +357,20 @@ export function buildSimulationTransaction(options: {
   businessId?: string;
   transactionIndex: number;
   createdBusiness?: EdenMockCreatedBusinessState | null;
+  serviceUsagePriceCredits?: number | null;
+  serviceUsageId?: string | null;
+  serviceUsageTitle?: string | null;
 }): EdenMockTransaction {
-  const { action, userId, businessId, transactionIndex, createdBusiness } = options;
+  const {
+    action,
+    userId,
+    businessId,
+    transactionIndex,
+    createdBusiness,
+    serviceUsagePriceCredits,
+    serviceUsageId,
+    serviceUsageTitle,
+  } = options;
   const prefix = `simulation-${transactionIndex}`;
   const scope =
     businessId && getBusinessById(businessId, createdBusiness)
@@ -374,17 +430,34 @@ export function buildSimulationTransaction(options: {
     };
   }
 
+  const usageCredits =
+    typeof serviceUsagePriceCredits === "number" && serviceUsagePriceCredits > 0
+      ? Math.round(serviceUsagePriceCredits)
+      : businessId
+        ? 60
+        : 40;
+  const usageTitle = serviceUsageTitle?.trim() || undefined;
+
   return {
     id: `${prefix}-usage`,
     ...scope,
-    title: businessId ? "Service usage settled" : "Discovery usage settled",
-    amountLabel: businessId ? "-60 credits" : "-40 credits",
-    creditsDelta: businessId ? -60 : -40,
+    serviceId: serviceUsageId ?? undefined,
+    title: usageTitle
+      ? `${usageTitle} usage settled`
+      : businessId
+        ? "Service usage settled"
+        : "Discovery usage settled",
+    amountLabel: `-${usageCredits} credits`,
+    creditsDelta: -usageCredits,
     direction: "outflow",
     kind: "usage",
-    detail: businessId
-      ? "A placeholder service usage event was posted against the active workspace."
-      : "A placeholder discovery usage event was posted against the active user wallet.",
+    detail: usageTitle
+      ? businessId
+        ? `A mock ${usageTitle} run was recorded against the active workspace at the current service rate.`
+        : `A mock ${usageTitle} run was recorded against the active user wallet at the current service rate.`
+      : businessId
+        ? "A placeholder service usage event was posted against the active workspace."
+        : "A placeholder discovery usage event was posted against the active user wallet.",
     timestamp: "Just now",
     simulated: true,
   };
@@ -412,6 +485,7 @@ function isMockTransactionRecord(value: unknown): value is EdenMockTransaction {
   const candidate = value as Partial<EdenMockTransaction>;
   return (
     typeof candidate.id === "string" &&
+    (typeof candidate.serviceId === "string" || typeof candidate.serviceId === "undefined") &&
     typeof candidate.title === "string" &&
     typeof candidate.amountLabel === "string" &&
     typeof candidate.creditsDelta === "number" &&

@@ -57,6 +57,11 @@ export interface EdenMockService {
   summary: string;
   status: string;
   tags: string[];
+  pricingModel?: string;
+  pricePerUse?: number | null;
+  pricingType?: string | null;
+  pricingUnit?: string | null;
+  automationSummary?: string | null;
 }
 
 export interface EdenMockProject {
@@ -75,6 +80,7 @@ export interface EdenMockTransaction {
   id: string;
   businessId?: string;
   userId?: string;
+  serviceId?: string;
   title: string;
   amountLabel: string;
   creditsDelta: number;

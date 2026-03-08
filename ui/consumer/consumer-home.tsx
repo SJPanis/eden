@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { createEdenAgent } from "@/modules/eden-ai/eden-agent";
+import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
 import type {
   EdenAgentResponse,
   EdenBusinessResult,
@@ -22,6 +23,7 @@ import { AskEdenIdeaResultCard } from "@/ui/consumer/components/ask-eden-idea-re
 import { AskEdenServiceResultCard } from "@/ui/consumer/components/ask-eden-service-result-card";
 import { BusinessCard } from "@/ui/consumer/components/business-card";
 import { CategoryCard } from "@/ui/consumer/components/category-card";
+import { ConsumerWalletPanel } from "@/ui/consumer/components/consumer-wallet-panel";
 import { DiscoveryRail } from "@/ui/consumer/components/discovery-rail";
 import { ServiceCard } from "@/ui/consumer/components/service-card";
 
@@ -44,6 +46,8 @@ type ConsumerBusinessRailItem = {
 type ConsumerHomePanelProps = {
   session: EdenMockSession;
   discoverySnapshot: EdenDiscoverySnapshot;
+  currentBalanceCredits: number;
+  recentWalletTransactions: EdenConsumerTransactionHistoryItem[];
 };
 
 type EdenResultLane = "service" | "business" | "idea";
@@ -355,6 +359,8 @@ function getSelectedResultDetails(
 export function ConsumerHomePanel({
   session,
   discoverySnapshot,
+  currentBalanceCredits,
+  recentWalletTransactions,
 }: ConsumerHomePanelProps) {
   const router = useRouter();
   const activeUser = getUserById(session.user.id);
@@ -505,6 +511,18 @@ export function ConsumerHomePanel({
           onToggleSaved={() => setSavedOnly((value) => !value)}
         />
       </div>
+
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={sectionVariants}
+        transition={{ duration: 0.3, ease: "easeOut", delay: 0.02 }}
+      >
+        <ConsumerWalletPanel
+          currentBalanceCredits={currentBalanceCredits}
+          recentTransactions={recentWalletTransactions}
+        />
+      </motion.section>
 
       <motion.section
           initial="hidden"
