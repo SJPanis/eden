@@ -8,70 +8,70 @@ import {
   createCompatibilitySession,
   type EdenMockSession,
 } from "@/modules/core/session/mock-session";
-import { loadBusinessesForOwner } from "@/modules/core/services/business-service";
-import { loadUserById } from "@/modules/core/services/user-service";
+import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { createPrismaAuthIdentityAdapter } from "@/modules/core/session/prisma-auth-identity-adapter";
 
 export async function resolvePersistentCompatibilitySession(
-  userId: string | null | undefined,
+  sessionKey: string | null | undefined,
   mode: EdenAuthSessionMode,
 ): Promise<EdenMockSession | null> {
-  if (!userId) {
+  if (!sessionKey) {
     return null;
   }
 
-  const user = await loadUserById(userId);
+  try {
+    const adapter = createPrismaAuthIdentityAdapter(getPrismaClient());
+    const identity = await adapter.resolveIdentity(sessionKey);
 
-  if (!user) {
+    if (!identity) {
+      logSessionResolution(
+        mode,
+        "persistent",
+        "persistent_fallback",
+        `No persisted identity was found for ${sessionKey}.`,
+      );
+      return null;
+    }
+
+    const session = createCompatibilitySession(
+      {
+        id: identity.user.id,
+        username: identity.user.username,
+        displayName: identity.user.displayName,
+        role: identity.platformRole,
+        status: identity.user.status,
+        edenBalanceCredits: identity.user.edenBalanceCredits,
+        businessIds: identity.user.businessIds,
+      },
+      {
+        auth: {
+          mode,
+          source: "persistent",
+          resolver: identity.resolver,
+          sessionKey: identity.sessionKey,
+        },
+        memberships: identity.memberships,
+      },
+    );
+
+    logSessionResolution(
+      mode,
+      "persistent",
+      identity.resolver,
+      `Resolved persisted identity for ${identity.user.username}.`,
+    );
+
+    return session;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown persistent auth adapter failure";
+
     logSessionResolution(
       mode,
       "persistent",
       "persistent_fallback",
-      `No persisted user was found for ${userId}.`,
+      `Persistent auth identity adapter failed for ${sessionKey}. ${message}`,
     );
     return null;
   }
-
-  // TODO: Replace ownership-derived memberships with BusinessMember-backed session claims
-  // once the real auth and membership repository layers are introduced.
-  const ownedBusinesses = await loadBusinessesForOwner(user.id);
-  const businessIds = Array.from(
-    new Set([
-      ...user.businessIds,
-      ...ownedBusinesses.map((business) => business.id),
-    ]),
-  );
-  const session = createCompatibilitySession(
-    {
-      id: user.id,
-      username: user.username,
-      displayName: user.displayName,
-      role: user.role,
-      status: user.status,
-      edenBalanceCredits: user.edenBalanceCredits,
-      businessIds,
-    },
-    {
-      auth: {
-        mode,
-        source: "persistent",
-        resolver: "persistent_cookie",
-        sessionKey: userId,
-      },
-      memberships: ownedBusinesses.map((business) => ({
-        businessId: business.id,
-        businessRole: "owner" as const,
-        source: "persistent" as const,
-      })),
-    },
-  );
-
-  logSessionResolution(
-    mode,
-    "persistent",
-    "persistent_cookie",
-    `Resolved persisted compatibility session for ${user.username}.`,
-  );
-
-  return session;
 }
-

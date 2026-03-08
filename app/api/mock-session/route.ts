@@ -58,8 +58,8 @@ export async function POST(request: Request) {
   });
 
   response.cookies.set(mockSessionCookieName, session.user.id, mockSessionCookieOptions);
-  // This development-only bridge keeps the current session switcher useful while the real
-  // auth resolver is introduced behind the existing session boundary.
+  // This development-only identity seed keeps the current session switcher useful while the
+  // auth runtime resolves persisted identities through the real adapter boundary.
   response.cookies.set(
     persistentSessionCookieName,
     session.user.id,

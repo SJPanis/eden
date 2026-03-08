@@ -5,7 +5,7 @@ export type EdenSessionBusinessRole = "owner" | "admin" | "editor" | "member";
 export type EdenSessionAuthSource = "mock" | "persistent";
 export type EdenSessionResolver =
   | "mock_cookie"
-  | "persistent_cookie"
+  | "prisma_identity_adapter"
   | "default_fallback"
   | "persistent_fallback";
 
@@ -58,4 +58,3 @@ export function logSessionResolution(
     `[eden-auth-session] ${mode} resolved ${source} session via ${resolver}: ${detail}`,
   );
 }
-

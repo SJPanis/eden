@@ -106,14 +106,16 @@ What exists now:
 - `modules/core/session/auth-runtime.ts`
   - auth mode, persistent cookie name, and debug logging seam
 - `modules/core/session/persistent-session-server.ts`
-  - development-only persistent compatibility resolver that can map a persisted user into the current session shape
+  - server-side persistent session resolver that maps adapter-backed identity claims into the current session shape
+- `modules/core/session/prisma-auth-identity-adapter.ts`
+  - first real identity adapter, reading persisted users and `BusinessMember` relationships from Prisma
 
 Current safety notes:
 
 - UI pages and guards still consume the same session shape they already used
 - mock fallback remains authoritative if no persisted auth identity is available
-- the mock session switcher still works and also seeds the compatibility auth cookie for migration testing
-- business memberships are currently ownership-derived in the compatibility resolver and should later be replaced with `BusinessMember`-backed claims during the real auth cutover
+- the mock session switcher still works and seeds a development-only identity cookie for adapter testing
+- persisted auth memberships now come from Prisma-backed `BusinessMember` relationships, with owned businesses added as owner claims when needed
 
 Set `EDEN_AUTH_SESSION_MODE="hybrid"` to exercise the new server-side resolver seam without removing mock fallback.
 Set `EDEN_LOG_AUTH_SESSION_RESOLUTION="true"` to log whether server sessions resolved through the persistent compatibility path or fell back to mock cookies.
