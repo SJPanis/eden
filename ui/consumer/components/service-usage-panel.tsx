@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
 import {
   formatServicePricingLabel,
@@ -13,6 +13,15 @@ import {
   WalletActivityFilters,
   type WalletActivityFilter,
 } from "@/ui/consumer/components/wallet-activity-filters";
+import {
+  buildCreditsTopUpReturnPath,
+  buildPaymentTopUpReceipt,
+  confirmPaymentBackedCreditsTopUp,
+  getCreditsTopUpClientConfig,
+  getTopUpCancellationMessage,
+  readCreditsTopUpReturnState,
+  startPaymentBackedCreditsTopUp,
+} from "@/ui/consumer/components/credits-topup-client";
 
 type ServiceUsagePanelProps = {
   serviceId?: string | null;
@@ -53,6 +62,8 @@ type ActivityState = {
   nextBalanceCredits: number;
   title: string;
   timestamp: string;
+  detail: string;
+  source: "mock" | "payment" | "usage";
 };
 
 export function ServiceUsagePanel({
@@ -70,11 +81,22 @@ export function ServiceUsagePanel({
   disabledReason,
 }: ServiceUsagePanelProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [activity, setActivity] = useState<ActivityState | null>(null);
-  const [activeAction, setActiveAction] = useState<"usage" | "topup" | null>(null);
+  const [activeAction, setActiveAction] = useState<"usage" | "topup" | "payment_topup" | null>(null);
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
   const [isPending, startTransition] = useTransition();
+  const topUpConfig = useMemo(() => getCreditsTopUpClientConfig(), []);
+  const cleanReturnPath = useMemo(
+    () => buildCreditsTopUpReturnPath(pathname, searchParams),
+    [pathname, searchParams],
+  );
+  const topUpReturnState = useMemo(
+    () => readCreditsTopUpReturnState(searchParams),
+    [searchParams],
+  );
 
   const pricing = useMemo(
     () =>
@@ -120,6 +142,90 @@ export function ServiceUsagePanel({
     () => filterWalletTransactions(recentTransactions, activityFilter),
     [activityFilter, recentTransactions],
   );
+
+  useEffect(() => {
+    if (!topUpConfig.paymentEnabled) {
+      return;
+    }
+
+    if (topUpReturnState.status === "cancelled") {
+      setActivity(null);
+      setError(getTopUpCancellationMessage(topUpConfig.mode));
+      router.replace(cleanReturnPath, { scroll: false });
+      return;
+    }
+
+    if (
+      topUpReturnState.status !== "success" ||
+      topUpReturnState.provider !== "stripe" ||
+      !topUpReturnState.sessionId
+    ) {
+      return;
+    }
+
+    const topUpSessionId = topUpReturnState.sessionId;
+    let isActive = true;
+
+    void (async () => {
+      setActiveAction("payment_topup");
+      setError(null);
+
+      try {
+        const payload = await confirmPaymentBackedCreditsTopUp(topUpSessionId);
+
+        if (!isActive) {
+          return;
+        }
+
+        const receipt = buildPaymentTopUpReceipt(payload, displayBalanceCredits);
+        setActivity({
+          kind: "topup",
+          amountCredits: receipt.amountCredits,
+          amountLabel: receipt.amountLabel,
+          previousBalanceCredits: receipt.previousBalanceCredits,
+          nextBalanceCredits: receipt.nextBalanceCredits,
+          title: receipt.title,
+          timestamp: receipt.timestamp,
+          detail: receipt.detail,
+          source: receipt.source,
+        });
+        router.replace(cleanReturnPath, { scroll: false });
+        startTransition(() => {
+          router.refresh();
+        });
+      } catch (requestError) {
+        if (!isActive) {
+          return;
+        }
+
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Unable to confirm the payment-backed top-up.",
+        );
+        router.replace(cleanReturnPath, { scroll: false });
+      } finally {
+        if (isActive) {
+          setActiveAction(null);
+        }
+      }
+    })();
+
+    return () => {
+      isActive = false;
+    };
+  }, [
+    cleanReturnPath,
+    displayBalanceCredits,
+    router,
+    searchParams,
+    startTransition,
+    topUpConfig.mode,
+    topUpConfig.paymentEnabled,
+    topUpReturnState.provider,
+    topUpReturnState.sessionId,
+    topUpReturnState.status,
+  ]);
 
   async function handleUseService() {
     if (!serviceId || disabled || activeAction || isPending) {
@@ -182,6 +288,8 @@ export function ServiceUsagePanel({
         nextBalanceCredits,
         title: payload.transactionTitle ?? `${serviceTitle} usage settled`,
         timestamp: payload.transactionTimestamp ?? "Just now",
+        detail: `Service charge posted for ${serviceTitle}.`,
+        source: "usage",
       });
       startTransition(() => {
         router.refresh();
@@ -244,6 +352,8 @@ export function ServiceUsagePanel({
         nextBalanceCredits,
         title: payload.transactionTitle ?? "Wallet credits top-up",
         timestamp: payload.transactionTimestamp ?? "Just now",
+        detail: "Mock Eden Credits top-up posted to the active wallet.",
+        source: "mock",
       });
       startTransition(() => {
         router.refresh();
@@ -255,6 +365,26 @@ export function ServiceUsagePanel({
           : "Unable to add mocked Eden Credits.",
       );
     } finally {
+      setActiveAction(null);
+    }
+  }
+
+  async function handleStartPaymentTopUp() {
+    if (activeAction || isPending) {
+      return;
+    }
+
+    setActiveAction("payment_topup");
+    setError(null);
+
+    try {
+      await startPaymentBackedCreditsTopUp(cleanReturnPath);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to start the payment-backed credits top-up.",
+      );
       setActiveAction(null);
     }
   }
@@ -284,14 +414,32 @@ export function ServiceUsagePanel({
           >
             {activeAction === "usage" ? "Recording Usage..." : actionLabel}
           </button>
-          <button
-            type="button"
-            onClick={handleAddCredits}
-            disabled={!!activeAction || isPending}
-            className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm font-semibold text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {activeAction === "topup" ? "Adding Credits..." : "Add 250 Credits"}
-          </button>
+          {topUpConfig.paymentEnabled ? (
+            <button
+              type="button"
+              onClick={handleStartPaymentTopUp}
+              disabled={!!activeAction || isPending}
+              className="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
+            >
+              {activeAction === "payment_topup"
+                ? "Opening Checkout..."
+                : topUpConfig.paymentLabel}
+            </button>
+          ) : null}
+          {topUpConfig.mockEnabled ? (
+            <button
+              type="button"
+              onClick={handleAddCredits}
+              disabled={!!activeAction || isPending}
+              className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm font-semibold text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {activeAction === "topup"
+                ? "Adding Credits..."
+                : topUpConfig.paymentEnabled
+                  ? "Add 250 Credits (Mock)"
+                  : "Add 250 Credits"}
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -325,8 +473,9 @@ export function ServiceUsagePanel({
       </div>
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 text-sm leading-6 text-eden-muted">
-        No real payment is charged yet. Eden only records a mocked transaction and a persistent
-        service-usage event for analytics.
+        {topUpConfig.paymentEnabled
+          ? "Service usage still settles through Eden Credits first. Wallet top-ups can use Stripe Checkout in this environment, while usage continues to record through the existing credits and ServiceUsage paths."
+          : "No real payment is charged yet. Eden only records a mocked transaction and a persistent service-usage event for analytics."}
       </div>
 
       {!hasSufficientBalance ? (
@@ -350,11 +499,7 @@ export function ServiceUsagePanel({
           <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div className="rounded-2xl border border-emerald-200 bg-white/80 p-4">
               <p className="text-sm font-semibold text-emerald-900">{activity.title}</p>
-              <p className="mt-2 text-sm text-emerald-800">
-                {activity.kind === "usage"
-                  ? `Service charge posted for ${serviceTitle}.`
-                  : "Mock Eden Credits top-up posted to the active wallet."}
-              </p>
+              <p className="mt-2 text-sm text-emerald-800">{activity.detail}</p>
               <p className="mt-3 text-xs uppercase tracking-[0.12em] text-emerald-700">
                 {activity.timestamp}
               </p>

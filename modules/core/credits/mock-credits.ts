@@ -463,6 +463,32 @@ export function buildSimulationTransaction(options: {
   };
 }
 
+export function buildPaymentTopUpTransaction(input: {
+  sessionId: string;
+  userId: string;
+  creditsAmount: number;
+  amountCents: number;
+  currency: string;
+  providerLabel: string;
+  timestampLabel?: string;
+}): EdenMockTransaction {
+  return {
+    id: `payment-topup-${input.sessionId}`,
+    userId: input.userId,
+    title: `${input.providerLabel} top-up settled`,
+    amountLabel: `+${input.creditsAmount} credits`,
+    creditsDelta: input.creditsAmount,
+    direction: "inflow",
+    kind: "wallet",
+    detail: `${input.providerLabel} completed a one-time ${formatMoneyFromCents(
+      input.amountCents,
+      input.currency,
+    )} payment for ${formatCredits(input.creditsAmount)}.`,
+    timestamp: input.timestampLabel ?? "Just now",
+    simulated: false,
+  };
+}
+
 function getCreditsFromAmountLabel(amountLabel: string) {
   const normalized = amountLabel.toLowerCase();
   if (!normalized.includes("credit")) {
@@ -475,6 +501,13 @@ function getCreditsFromAmountLabel(amountLabel: string) {
   }
 
   return Math.abs(Number.parseFloat(match[0].replace(/,/g, "")));
+}
+
+function formatMoneyFromCents(amountCents: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amountCents / 100);
 }
 
 function isMockTransactionRecord(value: unknown): value is EdenMockTransaction {

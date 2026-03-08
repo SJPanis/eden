@@ -184,3 +184,45 @@ Reset the database view back to canonical values by re-running:
 Reference:
 
 - `docs/EDEN_HYBRID_READ_VERIFICATION.md`
+
+## Credits Top-Up Payment Slice
+
+The consumer wallet now has a first real payment-backed top-up seam layered onto the existing mocked credits architecture.
+
+What exists now:
+
+- `modules/core/payments/payment-runtime.ts`
+  - shared mode and offer runtime for credits top-ups
+- `modules/core/payments/stripe-client.ts`
+  - server-only Stripe client singleton
+- `modules/core/payments/stripe-topup-service.ts`
+  - Checkout-session creation and return-based settlement back into the existing credits transaction cookie
+- `app/api/credits/top-up/checkout/route.ts`
+  - creates a one-time Stripe Checkout session for a fixed Eden Credits offer
+- `app/api/credits/top-up/confirm/route.ts`
+  - confirms a successful Checkout session and appends a credits top-up transaction through the existing wallet ledger path
+
+Current top-up mode seam:
+
+- `mock_only`
+- `hybrid`
+- `payment_only`
+
+Current safety notes:
+
+- mock wallet behavior remains available in `mock_only` and `hybrid`
+- payment-backed top-ups currently settle on return from Checkout, so the credits mutation still stays inside the existing browser-local transaction architecture
+- duplicate return confirmations are prevented within the current wallet ledger by using a deterministic top-up transaction id per Checkout session
+- this slice does not add subscriptions, external payouts, or a persistent payment ledger yet
+
+Required env for the Stripe-backed path:
+
+- `EDEN_CREDITS_TOPUP_MODE`
+- `NEXT_PUBLIC_EDEN_CREDITS_TOPUP_MODE`
+- `EDEN_STRIPE_TOPUP_CREDITS`
+- `NEXT_PUBLIC_EDEN_STRIPE_TOPUP_CREDITS`
+- `EDEN_STRIPE_TOPUP_AMOUNT_CENTS`
+- `NEXT_PUBLIC_EDEN_STRIPE_TOPUP_AMOUNT_CENTS`
+- `EDEN_STRIPE_TOPUP_CURRENCY`
+- `NEXT_PUBLIC_EDEN_STRIPE_TOPUP_CURRENCY`
+- `STRIPE_SECRET_KEY`
