@@ -212,15 +212,23 @@ What exists now:
 - `modules/core/repos/prisma-payout-settlement-repo.ts`
   - Prisma-backed payout settlement/history implementation
 - `modules/core/payments/stripe-topup-service.ts`
-  - Checkout-session creation plus verified Stripe webhook handling for top-up settlement
+  - package-aware Checkout-session creation plus verified Stripe webhook handling for top-up settlement
+- `modules/core/services/payment-event-log-service.ts`
+  - best-effort persistent payment lifecycle and webhook event logging
+- `modules/core/repos/payment-event-log-repo.ts`
+  - payment lifecycle event log repository contract
+- `modules/core/repos/prisma-payment-event-log-repo.ts`
+  - Prisma-backed payment/webhook event log implementation
 - `modules/core/credits/server.ts`
   - server wallet-transaction loader that merges cookie-backed mock transactions with settled persistent top-up records
 - `app/api/credits/top-up/checkout/route.ts`
-  - creates a one-time Stripe Checkout session for a fixed Eden Credits offer
+  - creates a one-time Stripe Checkout session for the selected Eden Credits package
 - `app/api/credits/top-up/confirm/route.ts`
   - non-authoritative browser return confirmation that reads persistent settlement status
 - `app/api/stripe/webhook/route.ts`
   - verified Stripe webhook endpoint that authoritatively settles successful top-ups
+- `app/(owner)/owner/payments/[paymentId]/page.tsx`
+  - owner-facing payment drill-down route for payment summary, related user, lifecycle events, and settlement audit visibility
 
 Current top-up mode seam:
 
@@ -233,6 +241,7 @@ Current safety notes:
 - mock wallet behavior remains available in `mock_only` and `hybrid`
 - Checkout creation now persists a pending payment record in Prisma
 - the Stripe webhook is the authoritative settlement path and maps settled payments back into Eden's existing wallet transaction architecture
+- checkout creation, webhook receipt, settlement, skipped duplicate settlement, and settlement failures now write best-effort persistent payment event logs for owner inspection
 - the browser return confirmation UX is preserved, but it now reads settlement status instead of mutating wallet cookies directly
 - settled top-ups are merged into server-side wallet reads, so existing wallet history and receipt surfaces can stay unchanged
 - owner control-room payment visibility now reads the same persistent top-up records for reconciliation across pending, settled, failed, and canceled states

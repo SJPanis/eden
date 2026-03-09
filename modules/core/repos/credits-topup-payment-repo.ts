@@ -1,6 +1,7 @@
 import type { EdenRepoCreditsTopUpPaymentRecord } from "@/modules/core/repos/repo-types";
 
 export interface CreditsTopUpPaymentRepo {
+  findById(id: string): Promise<EdenRepoCreditsTopUpPaymentRecord | null>;
   upsertPending(input: {
     provider: string;
     providerSessionId: string;

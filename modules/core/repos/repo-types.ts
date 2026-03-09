@@ -8,6 +8,11 @@ export type EdenRepoCreditsTopUpPaymentStatus =
   | "settled"
   | "failed"
   | "canceled";
+export type EdenRepoPaymentEventLogStatus =
+  | "info"
+  | "success"
+  | "skipped"
+  | "failed";
 export type EdenRepoPayoutSettlementStatus =
   | "pending"
   | "settled"
@@ -119,6 +124,18 @@ export interface EdenRepoCreditsTopUpPaymentRecord {
   createdAt: Date;
   updatedAt: Date;
   settledAt?: Date | null;
+}
+
+export interface EdenRepoPaymentEventLogRecord {
+  id: string;
+  provider: string;
+  eventType: string;
+  providerEventId?: string | null;
+  creditsTopUpPaymentId?: string | null;
+  providerSessionId?: string | null;
+  metadata?: Record<string, string | number | boolean | null> | null;
+  status: EdenRepoPaymentEventLogStatus;
+  createdAt: Date;
 }
 
 export interface EdenRepoPayoutSettlementRecord {

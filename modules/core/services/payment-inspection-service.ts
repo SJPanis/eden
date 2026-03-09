@@ -1,10 +1,15 @@
 import "server-only";
 
+import { loadRecentPaymentEventLogs } from "@/modules/core/services/payment-event-log-service";
+import { getCreditsTopUpPackages } from "@/modules/core/payments/payment-runtime";
 import { createPrismaCreditsTopUpPaymentRepo } from "@/modules/core/repos/prisma-credits-topup-payment-repo";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { loadUserById } from "@/modules/core/services/user-service";
 import type {
   EdenRepoCreditsTopUpPaymentRecord,
   EdenRepoCreditsTopUpPaymentStatus,
+  EdenRepoPaymentEventLogRecord,
+  EdenRepoPaymentEventLogStatus,
 } from "@/modules/core/repos/repo-types";
 
 export type EdenOwnerCreditsTopUpInspectionItem = {
@@ -33,6 +38,45 @@ export type EdenOwnerCreditsTopUpMetrics = {
   totalCreditsSettled: number;
   totalSettledAmountCents: number;
   recentPayments: EdenOwnerCreditsTopUpInspectionItem[];
+  paymentEventLogsSource: "persistent" | "mock_fallback";
+  recentEventLogCount: number;
+  recentEventLogs: Array<{
+    id: string;
+    provider: string;
+    eventType: string;
+    eventTypeLabel: string;
+    providerEventId?: string | null;
+    providerSessionId?: string | null;
+    creditsTopUpPaymentId?: string | null;
+    status: EdenRepoPaymentEventLogStatus;
+    createdAtLabel: string;
+    metadataSummary: string[];
+  }>;
+};
+
+export type EdenOwnerCreditsTopUpPaymentDetail = {
+  source: "persistent";
+  payment: EdenOwnerCreditsTopUpInspectionItem;
+  relatedUser: Awaited<ReturnType<typeof loadUserById>> | null;
+  packageInfo: {
+    id?: string | null;
+    title: string;
+    detail?: string | null;
+    chargeLabel?: string | null;
+  } | null;
+  settlementResultLabel: string;
+  recentEventLogs: Array<{
+    id: string;
+    provider: string;
+    eventType: string;
+    eventTypeLabel: string;
+    providerEventId?: string | null;
+    providerSessionId?: string | null;
+    creditsTopUpPaymentId?: string | null;
+    status: EdenRepoPaymentEventLogStatus;
+    createdAtLabel: string;
+    metadataSummary: string[];
+  }>;
 };
 
 export async function loadOwnerCreditsTopUpMetrics(options: {
@@ -40,11 +84,17 @@ export async function loadOwnerCreditsTopUpMetrics(options: {
 } = {}): Promise<EdenOwnerCreditsTopUpMetrics> {
   try {
     const repo = createPrismaCreditsTopUpPaymentRepo(getPrismaClient());
-    const payments = await repo.listAll({
-      limit: options.limit ?? 10,
-    });
+    const [payments, eventLogs] = await Promise.all([
+      repo.listAll({
+        limit: options.limit ?? 10,
+      }),
+      loadRecentPaymentEventLogs({
+        limit: options.limit ?? 10,
+        provider: "stripe",
+      }),
+    ]);
 
-    return buildOwnerCreditsTopUpMetrics(payments);
+    return buildOwnerCreditsTopUpMetrics(payments, eventLogs);
   } catch (error) {
     logPaymentInspectionFailure("load_owner_credits_topup_metrics", error);
 
@@ -58,12 +108,50 @@ export async function loadOwnerCreditsTopUpMetrics(options: {
       totalCreditsSettled: 0,
       totalSettledAmountCents: 0,
       recentPayments: [],
+      paymentEventLogsSource: "mock_fallback",
+      recentEventLogCount: 0,
+      recentEventLogs: [],
     };
+  }
+}
+
+export async function loadOwnerCreditsTopUpPaymentDetail(
+  paymentId: string,
+): Promise<EdenOwnerCreditsTopUpPaymentDetail | null> {
+  try {
+    const repo = createPrismaCreditsTopUpPaymentRepo(getPrismaClient());
+    const payment = await repo.findById(paymentId);
+
+    if (!payment) {
+      return null;
+    }
+
+    const [relatedUser, eventLogs] = await Promise.all([
+      payment.userId ? loadUserById(payment.userId) : Promise.resolve(null),
+      loadRecentPaymentEventLogs({
+        limit: 20,
+        provider: payment.provider,
+        creditsTopUpPaymentId: payment.id,
+      }),
+    ]);
+
+    return {
+      source: "persistent",
+      payment: mapPaymentToInspectionItem(payment),
+      relatedUser,
+      packageInfo: resolvePaymentPackageInfo(payment, eventLogs),
+      settlementResultLabel: resolveSettlementResultLabel(payment, eventLogs),
+      recentEventLogs: eventLogs.map(mapPaymentEventLogToInspectionItem),
+    };
+  } catch (error) {
+    logPaymentInspectionFailure("load_owner_credits_topup_payment_detail", error);
+    return null;
   }
 }
 
 function buildOwnerCreditsTopUpMetrics(
   payments: EdenRepoCreditsTopUpPaymentRecord[],
+  eventLogs: EdenRepoPaymentEventLogRecord[],
 ): EdenOwnerCreditsTopUpMetrics {
   const summary = payments.reduce(
     (accumulator, payment) => {
@@ -97,23 +185,47 @@ function buildOwnerCreditsTopUpMetrics(
   return {
     source: "persistent",
     ...summary,
-    recentPayments: payments.map((payment) => ({
-      id: payment.id,
-      provider: payment.provider,
-      providerLabel: getProviderLabel(payment.provider),
-      providerSessionId: payment.providerSessionId,
-      providerPaymentIntentId: payment.providerPaymentIntentId,
-      userId: payment.userId,
-      creditsAmount: payment.creditsAmount,
-      amountCents: payment.amountCents,
-      currency: payment.currency,
-      status: payment.status,
-      createdAtLabel: formatInspectionTimestamp(payment.createdAt),
-      settledAtLabel: payment.settledAt
-        ? formatInspectionTimestamp(payment.settledAt)
-        : null,
-      failureReason: payment.failureReason,
-    })),
+    recentPayments: payments.map(mapPaymentToInspectionItem),
+    paymentEventLogsSource: "persistent",
+    recentEventLogCount: eventLogs.length,
+    recentEventLogs: eventLogs.map(mapPaymentEventLogToInspectionItem),
+  };
+}
+
+function mapPaymentToInspectionItem(
+  payment: EdenRepoCreditsTopUpPaymentRecord,
+): EdenOwnerCreditsTopUpInspectionItem {
+  return {
+    id: payment.id,
+    provider: payment.provider,
+    providerLabel: getProviderLabel(payment.provider),
+    providerSessionId: payment.providerSessionId,
+    providerPaymentIntentId: payment.providerPaymentIntentId,
+    userId: payment.userId,
+    creditsAmount: payment.creditsAmount,
+    amountCents: payment.amountCents,
+    currency: payment.currency,
+    status: payment.status,
+    createdAtLabel: formatInspectionTimestamp(payment.createdAt),
+    settledAtLabel: payment.settledAt
+      ? formatInspectionTimestamp(payment.settledAt)
+      : null,
+    failureReason: payment.failureReason,
+  };
+}
+
+function mapPaymentEventLogToInspectionItem(eventLog: EdenRepoPaymentEventLogRecord) {
+  return {
+    id: eventLog.id,
+    provider: eventLog.provider,
+    eventType: eventLog.eventType,
+    eventTypeLabel: formatPaymentEventTypeLabel(eventLog.eventType),
+    providerEventId: eventLog.providerEventId,
+    providerSessionId: eventLog.providerSessionId,
+    creditsTopUpPaymentId: eventLog.creditsTopUpPaymentId,
+    status: eventLog.status,
+    createdAtLabel: formatInspectionTimestamp(eventLog.createdAt),
+    metadataSummary: buildPaymentEventMetadataSummary(eventLog),
   };
 }
 
@@ -128,6 +240,129 @@ function formatInspectionTimestamp(timestamp: Date) {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function formatPaymentEventTypeLabel(eventType: string) {
+  return eventType
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
+function buildPaymentEventMetadataSummary(eventLog: EdenRepoPaymentEventLogRecord) {
+  const metadata = eventLog.metadata ?? {};
+  const summary: string[] = [];
+
+  if (metadata.eventType) {
+    summary.push(`Stripe type: ${metadata.eventType}`);
+  }
+
+  if (metadata.checkoutStatus) {
+    summary.push(`Checkout: ${metadata.checkoutStatus}`);
+  }
+
+  if (metadata.creditsAmount) {
+    summary.push(`Credits: ${metadata.creditsAmount}`);
+  }
+
+  if (metadata.amountCents && metadata.currency) {
+    summary.push(
+      `Amount: ${formatMoneyAmount(Number(metadata.amountCents), String(metadata.currency))}`,
+    );
+  }
+
+  if (metadata.reason) {
+    summary.push(`Reason: ${metadata.reason}`);
+  }
+
+  if (metadata.settlementResult) {
+    summary.push(`Settlement: ${metadata.settlementResult}`);
+  }
+
+  return summary.slice(0, 3);
+}
+
+function resolvePaymentPackageInfo(
+  payment: EdenRepoCreditsTopUpPaymentRecord,
+  eventLogs: EdenRepoPaymentEventLogRecord[],
+) {
+  const packageId = eventLogs.find((eventLog) => {
+    const metadata = eventLog.metadata ?? {};
+    return typeof metadata.packageId === "string" && metadata.packageId.length > 0;
+  })?.metadata?.packageId;
+  const availablePackages = getCreditsTopUpPackages();
+
+  if (typeof packageId === "string") {
+    const matchedPackage = availablePackages.find((pkg) => pkg.id === packageId);
+
+    if (matchedPackage) {
+      return {
+        id: matchedPackage.id,
+        title: matchedPackage.title,
+        detail: matchedPackage.detail,
+        chargeLabel: matchedPackage.chargeLabel,
+      };
+    }
+  }
+
+  const inferredPackage = availablePackages.find(
+    (pkg) =>
+      pkg.creditsAmount === payment.creditsAmount &&
+      pkg.amountCents === payment.amountCents &&
+      pkg.currency === payment.currency,
+  );
+
+  if (inferredPackage) {
+    return {
+      id: inferredPackage.id,
+      title: inferredPackage.title,
+      detail: inferredPackage.detail,
+      chargeLabel: inferredPackage.chargeLabel,
+    };
+  }
+
+  return {
+    id: null,
+    title: `${payment.creditsAmount.toLocaleString()} credits`,
+    detail: "Derived from the persisted payment record.",
+    chargeLabel: formatMoneyAmount(payment.amountCents, payment.currency),
+  };
+}
+
+function resolveSettlementResultLabel(
+  payment: EdenRepoCreditsTopUpPaymentRecord,
+  eventLogs: EdenRepoPaymentEventLogRecord[],
+) {
+  const settlementMetadata = eventLogs.find((eventLog) => {
+    const metadata = eventLog.metadata ?? {};
+    return typeof metadata.settlementResult === "string" && metadata.settlementResult.length > 0;
+  })?.metadata?.settlementResult;
+
+  if (typeof settlementMetadata === "string") {
+    return formatPaymentEventTypeLabel(settlementMetadata);
+  }
+
+  if (payment.status === "settled") {
+    return "Settled";
+  }
+
+  if (payment.status === "failed") {
+    return "Settlement failed";
+  }
+
+  if (payment.status === "canceled") {
+    return "Canceled before settlement";
+  }
+
+  return "Awaiting webhook settlement";
+}
+
+function formatMoneyAmount(amountCents: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amountCents / 100);
 }
 
 function logPaymentInspectionFailure(operation: string, error: unknown) {

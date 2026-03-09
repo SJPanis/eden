@@ -150,10 +150,18 @@ export async function settleCreditsTopUpPaymentFromCheckoutSession(
   session: Stripe.Checkout.Session,
 ) {
   const repo = createPrismaCreditsTopUpPaymentRepo(getPrismaClient());
+  const existingPayment = await repo.findByProviderSessionId(session.id);
   const paymentIntentId =
     typeof session.payment_intent === "string" ? session.payment_intent : null;
 
-  return repo.markSettled({
+  if (existingPayment?.status === "settled") {
+    return {
+      payment: existingPayment,
+      settlementResult: "already_settled" as const,
+    };
+  }
+
+  const payment = await repo.markSettled({
     providerSessionId: session.id,
     providerPaymentIntentId: paymentIntentId,
     userId: session.metadata?.edenUserId ?? null,
@@ -162,6 +170,11 @@ export async function settleCreditsTopUpPaymentFromCheckoutSession(
     currency: getCurrencyFromSession(session),
     settledAt: new Date(),
   });
+
+  return {
+    payment,
+    settlementResult: "settled" as const,
+  };
 }
 
 export async function markCreditsTopUpPaymentCanceled(input: {

@@ -6,6 +6,16 @@ export function createPrismaCreditsTopUpPaymentRepo(
   prisma: EdenPrismaClient,
 ): CreditsTopUpPaymentRepo {
   return {
+    async findById(id) {
+      const payment = await prisma.creditsTopUpPayment.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      return payment ? mapCreditsTopUpPayment(payment) : null;
+    },
+
     async upsertPending(input) {
       const payment = await prisma.creditsTopUpPayment.upsert({
         where: {

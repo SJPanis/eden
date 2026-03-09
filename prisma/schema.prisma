@@ -51,6 +51,13 @@ enum CreditsTopUpPaymentStatus {
   CANCELED
 }
 
+enum PaymentEventLogStatus {
+  INFO
+  SUCCESS
+  SKIPPED
+  FAILED
+}
+
 enum PayoutSettlementStatus {
   PENDING
   SETTLED
@@ -193,10 +200,31 @@ model CreditsTopUpPayment {
   updatedAt               DateTime                 @updatedAt
   settledAt               DateTime?
   user                    User?                    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  paymentEventLogs        PaymentEventLog[]
 
   @@index([provider, createdAt])
   @@index([status, createdAt])
   @@index([userId, createdAt])
+}
+
+model PaymentEventLog {
+  id                  String                @id @default(cuid())
+  provider            String
+  eventType           String
+  providerEventId     String?
+  creditsTopUpPaymentId String?
+  providerSessionId   String?
+  metadata            Json?
+  status              PaymentEventLogStatus @default(INFO)
+  createdAt           DateTime              @default(now())
+  creditsTopUpPayment CreditsTopUpPayment?  @relation(fields: [creditsTopUpPaymentId], references: [id], onDelete: SetNull)
+
+  @@index([provider, createdAt])
+  @@index([eventType, createdAt])
+  @@index([providerEventId])
+  @@index([providerSessionId, createdAt])
+  @@index([creditsTopUpPaymentId, createdAt])
+  @@index([status, createdAt])
 }
 
 model PayoutSettlement {

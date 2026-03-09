@@ -7,6 +7,7 @@ import {
   markCreditsTopUpPaymentCanceled,
   markCreditsTopUpPaymentFailed,
 } from "@/modules/core/payments/credits-topup-payment-service";
+import { recordPaymentEventLog } from "@/modules/core/services/payment-event-log-service";
 import {
   isPaymentBackedCreditsTopUpEnabled,
   resolveCreditsTopUpPackage,
@@ -75,7 +76,7 @@ export async function createCreditsTopUpCheckoutSession(input: {
     throw new Error("Stripe Checkout session did not return a redirect URL.");
   }
 
-  await persistPendingCreditsTopUpPayment({
+  const payment = await persistPendingCreditsTopUpPayment({
     provider: "stripe",
     providerSessionId: session.id,
     providerPaymentIntentId:
@@ -84,6 +85,20 @@ export async function createCreditsTopUpCheckoutSession(input: {
     creditsAmount: selectedPackage.creditsAmount,
     amountCents: selectedPackage.amountCents,
     currency: selectedPackage.currency,
+  });
+  await recordPaymentEventLog({
+    provider: "stripe",
+    eventType: "checkout_session_created",
+    creditsTopUpPaymentId: payment.id,
+    providerSessionId: session.id,
+    status: "success",
+    metadata: {
+      packageId: selectedPackage.id,
+      creditsAmount: selectedPackage.creditsAmount,
+      amountCents: selectedPackage.amountCents,
+      currency: selectedPackage.currency,
+      username: input.username,
+    },
   });
 
   return {
@@ -117,13 +132,41 @@ export function constructStripeWebhookEvent(input: {
 }
 
 export async function handleStripeTopUpWebhookEvent(event: Stripe.Event) {
+  const checkoutSession = getCheckoutSessionFromStripeEvent(event);
+  await recordPaymentEventLog({
+    provider: "stripe",
+    eventType: "webhook_received",
+    providerEventId: event.id,
+    providerSessionId: checkoutSession?.id ?? null,
+    status: "info",
+    metadata: {
+      eventType: event.type,
+      livemode: event.livemode,
+      checkoutStatus:
+        typeof checkoutSession?.status === "string" ? checkoutSession.status : null,
+      paymentStatus:
+        typeof checkoutSession?.payment_status === "string"
+          ? checkoutSession.payment_status
+          : null,
+    },
+  });
+
   switch (event.type) {
     case "checkout.session.completed":
-      return handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+      return handleCheckoutSessionCompleted(
+        event.data.object as Stripe.Checkout.Session,
+        event.id,
+      );
     case "checkout.session.expired":
-      return handleCheckoutSessionExpired(event.data.object as Stripe.Checkout.Session);
+      return handleCheckoutSessionExpired(
+        event.data.object as Stripe.Checkout.Session,
+        event.id,
+      );
     case "checkout.session.async_payment_failed":
-      return handleCheckoutSessionAsyncFailed(event.data.object as Stripe.Checkout.Session);
+      return handleCheckoutSessionAsyncFailed(
+        event.data.object as Stripe.Checkout.Session,
+        event.id,
+      );
     default:
       return {
         handled: false,
@@ -171,21 +214,86 @@ function ensurePaymentBackedTopUpEnabled() {
   }
 }
 
-async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-  validateCompletedCheckoutSession(session);
-  const payment = await settleCreditsTopUpPaymentFromCheckoutSession(session);
+async function handleCheckoutSessionCompleted(
+  session: Stripe.Checkout.Session,
+  providerEventId?: string,
+) {
+  try {
+    validateCompletedCheckoutSession(session);
+    const settlement = await settleCreditsTopUpPaymentFromCheckoutSession(session);
+    const settledEventType =
+      settlement.settlementResult === "already_settled"
+        ? "settlement_skipped_already_settled"
+        : "checkout_session_settled";
 
-  return {
-    handled: true,
-    status: "settled" as const,
-    providerSessionId: payment.providerSessionId,
-  };
+    await recordPaymentEventLog({
+      provider: "stripe",
+      eventType: settledEventType,
+      providerEventId: providerEventId ?? null,
+      creditsTopUpPaymentId: settlement.payment.id,
+      providerSessionId: settlement.payment.providerSessionId,
+      status:
+        settlement.settlementResult === "already_settled" ? "skipped" : "success",
+      metadata: {
+        settlementResult: settlement.settlementResult,
+        checkoutStatus:
+          typeof session.status === "string" ? session.status : null,
+        paymentStatus:
+          typeof session.payment_status === "string" ? session.payment_status : null,
+        creditsAmount: settlement.payment.creditsAmount,
+        amountCents: settlement.payment.amountCents,
+        currency: settlement.payment.currency,
+      },
+    });
+
+    return {
+      handled: true,
+      status:
+        settlement.settlementResult === "already_settled"
+          ? ("already_settled" as const)
+          : ("settled" as const),
+      providerSessionId: settlement.payment.providerSessionId,
+    };
+  } catch (error) {
+    await recordPaymentEventLog({
+      provider: "stripe",
+      eventType: "checkout_session_settlement_failed",
+      providerEventId: providerEventId ?? null,
+      providerSessionId: session.id,
+      status: "failed",
+      metadata: {
+        checkoutStatus:
+          typeof session.status === "string" ? session.status : null,
+        paymentStatus:
+          typeof session.payment_status === "string" ? session.payment_status : null,
+        reason: error instanceof Error ? error.message : "Unknown settlement error",
+      },
+    });
+    throw error;
+  }
 }
 
-async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
+async function handleCheckoutSessionExpired(
+  session: Stripe.Checkout.Session,
+  providerEventId?: string,
+) {
   await markCreditsTopUpPaymentCanceled({
     providerSessionId: session.id,
     failureReason: "Stripe Checkout session expired before payment completed.",
+  });
+  await recordPaymentEventLog({
+    provider: "stripe",
+    eventType: "checkout_session_expired",
+    providerEventId: providerEventId ?? null,
+    providerSessionId: session.id,
+    status: "skipped",
+    metadata: {
+      checkoutStatus:
+        typeof session.status === "string" ? session.status : null,
+      paymentStatus:
+        typeof session.payment_status === "string" ? session.payment_status : null,
+      reason: "Stripe Checkout session expired before payment completed.",
+    },
   });
 
   return {
@@ -195,10 +303,27 @@ async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
   };
 }
 
-async function handleCheckoutSessionAsyncFailed(session: Stripe.Checkout.Session) {
+async function handleCheckoutSessionAsyncFailed(
+  session: Stripe.Checkout.Session,
+  providerEventId?: string,
+) {
   await markCreditsTopUpPaymentFailed({
     providerSessionId: session.id,
     failureReason: "Stripe reported an asynchronous payment failure for this checkout session.",
+  });
+  await recordPaymentEventLog({
+    provider: "stripe",
+    eventType: "checkout_session_async_payment_failed",
+    providerEventId: providerEventId ?? null,
+    providerSessionId: session.id,
+    status: "failed",
+    metadata: {
+      checkoutStatus:
+        typeof session.status === "string" ? session.status : null,
+      paymentStatus:
+        typeof session.payment_status === "string" ? session.payment_status : null,
+      reason: "Stripe reported an asynchronous payment failure for this checkout session.",
+    },
   });
 
   return {
@@ -216,4 +341,12 @@ function validateCompletedCheckoutSession(session: Stripe.Checkout.Session) {
   if (session.payment_status !== "paid") {
     throw new Error("The checkout session has not completed payment.");
   }
+}
+
+function getCheckoutSessionFromStripeEvent(event: Stripe.Event) {
+  if (!event.type.startsWith("checkout.session.")) {
+    return null;
+  }
+
+  return event.data.object as Stripe.Checkout.Session;
 }

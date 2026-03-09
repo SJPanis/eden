@@ -182,6 +182,20 @@ type OwnerDashboardPanelProps = {
       settledAtLabel?: string | null;
       failureReason?: string | null;
     }>;
+    paymentEventLogsSource: "persistent" | "mock_fallback";
+    recentEventLogCount: number;
+    recentEventLogs: Array<{
+      id: string;
+      provider: string;
+      eventType: string;
+      eventTypeLabel: string;
+      providerEventId?: string | null;
+      providerSessionId?: string | null;
+      creditsTopUpPaymentId?: string | null;
+      status: "info" | "success" | "skipped" | "failed";
+      createdAtLabel: string;
+      metadataSummary: string[];
+    }>;
   };
   payoutAccounting: EdenOwnerPayoutAccountingSummary;
 };
@@ -282,6 +296,15 @@ function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "can
   if (status === "settled") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "pending") return "border-amber-200 bg-amber-50 text-amber-700";
   return "border-rose-200 bg-rose-50 text-rose-700";
+}
+
+function getPaymentEventStatusClasses(
+  status: "info" | "success" | "skipped" | "failed",
+) {
+  if (status === "success") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "skipped") return "border-slate-200 bg-slate-100 text-slate-700";
+  if (status === "failed") return "border-rose-200 bg-rose-50 text-rose-700";
+  return "border-sky-200 bg-sky-50 text-sky-700";
 }
 
 function getPayoutSettlementStatusClasses(
@@ -1478,6 +1501,14 @@ export function OwnerDashboardPanel({
                                 <p>Reason: {payment.failureReason}</p>
                               ) : null}
                             </div>
+                            <div className="mt-3">
+                              <Link
+                                href={`/owner/payments/${payment.id}`}
+                                className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                              >
+                                Open payment detail
+                              </Link>
+                            </div>
                           </div>
                           <div className="text-left md:text-right">
                             <p className="text-sm font-semibold text-eden-ink">
@@ -1497,6 +1528,107 @@ export function OwnerDashboardPanel({
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Payment lifecycle events
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    Best-effort persistent event logs for Stripe checkout creation, webhook receipt,
+                    settlement, skipped duplicate settlement, and settlement failures.
+                  </p>
+                </div>
+                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  {paymentMetrics.paymentEventLogsSource === "persistent"
+                    ? `${paymentMetrics.recentEventLogCount} recent events`
+                    : "Fallback empty state"}
+                </span>
+              </div>
+              <div className="mt-4 space-y-3">
+                {paymentMetrics.recentEventLogs.length ? (
+                  paymentMetrics.recentEventLogs.map((eventLog) => (
+                    <div
+                      key={eventLog.id}
+                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {eventLog.eventTypeLabel}
+                            </p>
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getPaymentEventStatusClasses(
+                                eventLog.status,
+                              )}`}
+                            >
+                              {eventLog.status}
+                            </span>
+                          </div>
+                          <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
+                            <p>Provider: {eventLog.provider}</p>
+                            {eventLog.providerEventId ? (
+                              <p className="break-all">
+                                Event: <span className="font-mono">{eventLog.providerEventId}</span>
+                              </p>
+                            ) : null}
+                            {eventLog.providerSessionId ? (
+                              <p className="break-all">
+                                Session:{" "}
+                                <span className="font-mono">{eventLog.providerSessionId}</span>
+                              </p>
+                            ) : null}
+                          {eventLog.creditsTopUpPaymentId ? (
+                            <p className="break-all">
+                              Payment record:{" "}
+                              <span className="font-mono">{eventLog.creditsTopUpPaymentId}</span>
+                            </p>
+                          ) : null}
+                        </div>
+                        {eventLog.metadataSummary.length ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                              {eventLog.metadataSummary.map((summaryLine) => (
+                                <span
+                                  key={`${eventLog.id}-${summaryLine}`}
+                                  className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted"
+                                >
+                                  {summaryLine}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null}
+                          {eventLog.creditsTopUpPaymentId ? (
+                            <div className="mt-3">
+                              <Link
+                                href={`/owner/payments/${eventLog.creditsTopUpPaymentId}`}
+                                className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                              >
+                                Open payment detail
+                              </Link>
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className="text-left md:text-right">
+                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            Logged
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                            {eventLog.createdAtLabel}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    No persistent payment lifecycle events are available yet. Once Stripe checkout
+                    and webhook events occur, the owner layer will surface the recorded lifecycle
+                    trail here.
+                  </div>
+                )}
               </div>
             </div>
             <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
