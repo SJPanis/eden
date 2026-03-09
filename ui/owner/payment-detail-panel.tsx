@@ -172,7 +172,7 @@ export function OwnerPaymentDetailPanel({
                   Status
                 </p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {payment.status}
+                  {formatPaymentStatus(payment.status)}
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-white p-3">

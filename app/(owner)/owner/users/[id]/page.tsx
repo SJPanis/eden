@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   isBusinessFrozen,
   isUserFrozen,
@@ -22,6 +21,7 @@ import {
   loadOwnerCreditsTopUpPaymentsForUser,
   loadUserById,
 } from "@/modules/core/services";
+import { OwnerUserPaymentHistoryPanel } from "@/ui/owner/components/owner-user-payment-history-panel";
 
 type OwnerUserInspectionPageProps = {
   params: Promise<{ id: string }>;
@@ -37,26 +37,6 @@ function toTitleCase(input: string) {
 
 function formatPaymentStatus(status: string) {
   return toTitleCase(status);
-}
-
-function getPaymentStatusClasses(status: string) {
-  if (status === "settled") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  if (status === "pending") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
-  }
-
-  if (status === "failed") {
-    return "border-rose-200 bg-rose-50 text-rose-700";
-  }
-
-  return "border-slate-200 bg-slate-100 text-slate-700";
-}
-
-function getOwnerActionLinkClasses() {
-  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
 }
 
 export default async function OwnerUserInspectionPage({
@@ -329,96 +309,10 @@ export default async function OwnerUserInspectionPage({
       </div>
 
       <div className="mt-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
-          Payments
-        </p>
-        <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-eden-ink">
-                User top-up history
-              </p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Persistent top-up history for this inspected user, linked back into the owner payment drill-down route.
-              </p>
-            </div>
-            <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-              {paymentHistory.source === "persistent"
-                ? `${paymentHistory.payments.length} payment rows`
-                : "Fallback empty state"}
-            </span>
-          </div>
-          <div className="mt-4 space-y-3">
-            {paymentHistory.payments.length ? (
-              paymentHistory.payments.map((payment) => (
-                <div
-                  key={payment.id}
-                  className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4"
-                >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm font-semibold text-eden-ink">
-                          {payment.providerLabel}
-                        </p>
-                        <span
-                          className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getPaymentStatusClasses(
-                            payment.status,
-                          )}`}
-                        >
-                          {formatPaymentStatus(payment.status)}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">
-                        {payment.packageInfo?.title ?? "Top-up package unavailable"} |{" "}
-                        {payment.packageInfo?.chargeLabel ??
-                          `${payment.creditsAmount} credits`}
-                      </p>
-                      <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
-                        <p className="break-all">
-                          Session: <span className="font-mono">{payment.providerSessionId}</span>
-                        </p>
-                        {payment.providerPaymentIntentId ? (
-                          <p className="break-all">
-                            Payment intent:{" "}
-                            <span className="font-mono">{payment.providerPaymentIntentId}</span>
-                          </p>
-                        ) : null}
-                        <p>
-                          Created: {payment.createdAtLabel}
-                          {payment.settledAtLabel
-                            ? ` | Settled: ${payment.settledAtLabel}`
-                            : ""}
-                        </p>
-                        <p>Settlement: {payment.settlementResultLabel}</p>
-                      </div>
-                      <div className="mt-3">
-                        <Link
-                          href={`/owner/payments/${payment.id}`}
-                          className={getOwnerActionLinkClasses()}
-                        >
-                          View Payment
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="text-left md:text-right">
-                      <p className="text-sm font-semibold text-eden-ink">
-                        {formatCredits(payment.creditsAmount)}
-                      </p>
-                      <p className="mt-1 text-xs text-eden-muted">
-                        {payment.packageInfo?.chargeLabel ?? "Charge unavailable"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                No persistent top-up payment history is available for this user yet.
-              </div>
-            )}
-          </div>
-        </div>
+        <OwnerUserPaymentHistoryPanel
+          source={paymentHistory.source}
+          payments={paymentHistory.payments}
+        />
       </div>
     </DetailPlaceholderPanel>
   );

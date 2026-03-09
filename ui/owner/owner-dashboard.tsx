@@ -308,6 +308,22 @@ function formatPaymentStatus(status: "pending" | "settled" | "failed" | "cancele
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+function getPaymentFilterEmptyState(filter: OwnerPaymentFilter) {
+  if (filter === "pending") {
+    return "No pending top-up payments are currently recorded.";
+  }
+
+  if (filter === "settled") {
+    return "No settled top-up payments are currently recorded.";
+  }
+
+  if (filter === "failed_or_canceled") {
+    return "No failed or canceled top-up payments are currently recorded.";
+  }
+
+  return "No persistent top-up payment records are available yet. Once Stripe-backed checkout sessions are created, the webhook settlement feed will appear here.";
+}
+
 function getPaymentEventStatusClasses(
   status: "info" | "success" | "skipped" | "failed",
 ) {
@@ -335,6 +351,22 @@ function getOwnerReconciliationActionClasses() {
 
 function formatPayoutSettlementStatus(status: "pending" | "settled" | "canceled") {
   return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function getPayoutFilterEmptyState(filter: OwnerPayoutFilter) {
+  if (filter === "pending") {
+    return "No pending payout settlement rows are currently recorded.";
+  }
+
+  if (filter === "settled") {
+    return "No settled payout rows are currently recorded.";
+  }
+
+  if (filter === "failed_or_canceled") {
+    return "No failed or canceled payout rows are currently recorded.";
+  }
+
+  return "No payout settlement records exist yet. Use the internal payout action below to create persistent payout history without enabling real payout rails.";
 }
 
 function formatMoneyAmount(amountCents: number, currency: string) {
@@ -1625,8 +1657,8 @@ export function OwnerDashboardPanel({
                   ) : (
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
                       {paymentMetrics.recentPayments.length
-                        ? "No payment rows match the current filter."
-                        : "No persistent top-up payment records are available yet. Once Stripe-backed checkout sessions are created, the webhook settlement feed will appear here."}
+                        ? getPaymentFilterEmptyState(paymentFilter)
+                        : getPaymentFilterEmptyState("all")}
                     </div>
                   )}
                 </div>
@@ -1836,8 +1868,8 @@ export function OwnerDashboardPanel({
                   ) : (
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
                       {payoutAccounting.payoutHistory.length
-                        ? "No payout settlement rows match the current filter."
-                        : "No payout settlement records exist yet. Use the internal payout action below to create persistent payout history without enabling real payout rails."}
+                        ? getPayoutFilterEmptyState(payoutFilter)
+                        : getPayoutFilterEmptyState("all")}
                     </div>
                   )}
                 </div>

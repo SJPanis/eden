@@ -231,6 +231,8 @@ What exists now:
   - owner-facing payment drill-down route with a compact payment summary strip, related user context, lifecycle events, and settlement audit visibility
 - `app/(owner)/owner/users/[id]/page.tsx`
   - owner user inspection now includes a compact payment summary strip plus linked persistent top-up history rows that drill back into the payment detail route
+- `ui/owner/components/owner-reconciliation-filters.tsx`
+  - shared lightweight filter tabs with count badges used across owner money-ops surfaces
 
 Current top-up mode seam:
 

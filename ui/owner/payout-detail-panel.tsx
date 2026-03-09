@@ -39,6 +39,22 @@ function formatSettlementStatus(status: "pending" | "settled" | "canceled") {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+function getPayoutFilterEmptyState(filter: OwnerPayoutFilter) {
+  if (filter === "pending") {
+    return "No pending payout settlement rows are currently recorded for this business.";
+  }
+
+  if (filter === "settled") {
+    return "No settled payout rows are currently recorded for this business.";
+  }
+
+  if (filter === "failed_or_canceled") {
+    return "No failed or canceled payout rows are currently recorded for this business.";
+  }
+
+  return "No payout settlement rows exist for this business yet.";
+}
+
 function resolveStatusTone(payoutAccounting: EdenBusinessPayoutAccountingSummary) {
   if (payoutAccounting.statusOverview.pendingCount > 0) {
     return "warning" as const;
@@ -454,8 +470,8 @@ export function OwnerPayoutDetailPanel({
                 ) : (
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
                     {payoutAccounting.payoutHistory.length
-                      ? "No payout settlement rows match the current filter."
-                      : "No payout settlement rows exist for this business yet."}
+                      ? getPayoutFilterEmptyState(payoutFilter)
+                      : getPayoutFilterEmptyState("all")}
                   </div>
                 )}
               </div>
