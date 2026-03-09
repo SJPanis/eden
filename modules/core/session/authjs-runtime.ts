@@ -8,7 +8,15 @@ export const edenAuthJsCredentialsProviderId = "credentials";
 export function shouldAttemptAuthJsProviderResolution(
   input = process.env.EDEN_ENABLE_AUTHJS_PROVIDER_ADAPTER,
 ) {
-  return input === "true";
+  if (input === "true") {
+    return true;
+  }
+
+  if (input === "false") {
+    return false;
+  }
+
+  return Boolean(resolveAuthJsSecret());
 }
 
 export function shouldEnableAuthJsCredentialsProvider(

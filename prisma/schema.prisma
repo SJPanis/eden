@@ -176,6 +176,9 @@ model ServiceUsage {
   userId      String?
   usageType   String
   creditsUsed Int
+  grossCredits Int?
+  platformFeeCredits Int?
+  builderEarningsCredits Int?
   createdAt   DateTime @default(now())
   service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)

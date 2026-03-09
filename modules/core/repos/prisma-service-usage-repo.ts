@@ -1,5 +1,6 @@
 import type { ServiceUsageRepo } from "@/modules/core/repos/service-usage-repo";
 import type { EdenPrismaClient } from "@/modules/core/repos/prisma-client";
+import { buildUsageSettlementSnapshot } from "@/modules/core/services/service-pricing";
 
 export function createPrismaServiceUsageRepo(
   prisma: EdenPrismaClient,
@@ -12,6 +13,10 @@ export function createPrismaServiceUsageRepo(
         },
         select: {
           id: true,
+          pricingModel: true,
+          pricePerUse: true,
+          pricingType: true,
+          pricingUnit: true,
         },
       });
 
@@ -29,12 +34,26 @@ export function createPrismaServiceUsageRepo(
             },
           })
         : null;
+      const settlementSnapshot = buildUsageSettlementSnapshot(
+        {
+          pricePerUse: service.pricePerUse,
+          pricingType: service.pricingType,
+          pricingUnit: service.pricingUnit,
+          pricingModel: service.pricingModel,
+        },
+        input.creditsUsed,
+      );
       const usage = await prisma.serviceUsage.create({
         data: {
           serviceId: input.serviceId,
           userId: user?.id ?? null,
           usageType: input.usageType,
           creditsUsed: input.creditsUsed,
+          grossCredits: input.grossCredits ?? settlementSnapshot.grossCredits,
+          platformFeeCredits:
+            input.platformFeeCredits ?? settlementSnapshot.platformFeeCredits,
+          builderEarningsCredits:
+            input.builderEarningsCredits ?? settlementSnapshot.builderEarningsCredits,
           createdAt: input.createdAt ?? new Date(),
         },
         include: {
@@ -65,6 +84,9 @@ export function createPrismaServiceUsageRepo(
         userId: usage.userId,
         usageType: usage.usageType,
         creditsUsed: usage.creditsUsed,
+        grossCredits: usage.grossCredits,
+        platformFeeCredits: usage.platformFeeCredits,
+        builderEarningsCredits: usage.builderEarningsCredits,
         servicePricingModel: usage.service.pricingModel,
         servicePricePerUse: usage.service.pricePerUse,
         servicePricingType: usage.service.pricingType,
@@ -106,6 +128,9 @@ export function createPrismaServiceUsageRepo(
         userId: usage.userId,
         usageType: usage.usageType,
         creditsUsed: usage.creditsUsed,
+        grossCredits: usage.grossCredits,
+        platformFeeCredits: usage.platformFeeCredits,
+        builderEarningsCredits: usage.builderEarningsCredits,
         servicePricingModel: usage.service.pricingModel,
         servicePricePerUse: usage.service.pricePerUse,
         servicePricingType: usage.service.pricingType,

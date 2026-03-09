@@ -15,6 +15,7 @@ import type { EdenReadServiceOptions } from "@/modules/core/services/read-servic
 import { loadServiceCatalog } from "@/modules/core/services/service-catalog-service";
 import { loadUserCatalog } from "@/modules/core/services/user-service";
 import {
+  buildUsageSettlementSnapshot,
   calculatePlatformFeeCredits,
   edenPlatformFeeRate,
   resolveUsageGrossCredits,
@@ -42,6 +43,8 @@ export type EdenServiceUsageEvent = {
   usageType: string;
   creditsUsed: number;
   estimatedGrossCredits: number;
+  platformFeeCredits: number;
+  builderEarningsCredits: number;
   timestampLabel: string;
   source: EdenServiceUsageSource;
 };
@@ -143,6 +146,9 @@ type EdenResolvedUsageRecord = {
   isAnonymousUser: boolean;
   usageType: string;
   creditsUsed: number;
+  grossCredits?: number | null;
+  platformFeeCredits?: number | null;
+  builderEarningsCredits?: number | null;
   pricingModel?: string | null;
   pricePerUseCredits?: number | null;
   pricingType?: string | null;
@@ -156,6 +162,9 @@ export async function recordServiceUsageEvent(input: {
   userId?: string | null;
   usageType: EdenServiceUsageType;
   creditsUsed: number;
+  grossCredits?: number | null;
+  platformFeeCredits?: number | null;
+  builderEarningsCredits?: number | null;
   createdAt?: Date;
 }) {
   try {
@@ -395,6 +404,9 @@ function enrichPersistentUsageRecords(
       isAnonymousUser: userMeta.isAnonymousUser,
       usageType: record.usageType,
       creditsUsed: record.creditsUsed,
+      grossCredits: record.grossCredits ?? null,
+      platformFeeCredits: record.platformFeeCredits ?? null,
+      builderEarningsCredits: record.builderEarningsCredits ?? null,
       pricingModel: service?.pricingModel ?? record.servicePricingModel,
       pricePerUseCredits: service?.pricePerUse ?? record.servicePricePerUse ?? null,
       pricingType: service?.pricingType ?? record.servicePricingType ?? null,
@@ -444,6 +456,15 @@ function buildFallbackUsageRecords(
     }
 
     const userMeta = resolveUsageUserMeta(transaction.userId, userLookup);
+    const settlementSnapshot = buildUsageSettlementSnapshot(
+      {
+        pricePerUse: service.pricePerUse,
+        pricingType: service.pricingType,
+        pricingUnit: service.pricingUnit,
+        pricingModel: service.pricingModel,
+      },
+      Math.abs(transaction.creditsDelta),
+    );
 
     return [
       {
@@ -458,6 +479,9 @@ function buildFallbackUsageRecords(
         isAnonymousUser: userMeta.isAnonymousUser,
         usageType: "simulate_service_usage",
         creditsUsed: Math.abs(transaction.creditsDelta),
+        grossCredits: settlementSnapshot.grossCredits,
+        platformFeeCredits: settlementSnapshot.platformFeeCredits,
+        builderEarningsCredits: settlementSnapshot.builderEarningsCredits,
         pricingModel: service.pricingModel,
         pricePerUseCredits: service.pricePerUse ?? null,
         pricingType: service.pricingType ?? null,
@@ -715,24 +739,40 @@ function buildMonetizationProjection(
   const estimatedGrossCredits = records.reduce(
     (total, record) =>
       total +
-      resolveUsageGrossCredits(
-        {
-          pricePerUse: record.pricePerUseCredits,
-          pricingType: record.pricingType,
-          pricingUnit: record.pricingUnit,
-          pricingModel: record.pricingModel,
-        },
-        record.creditsUsed,
-      ),
+      (record.grossCredits ??
+        resolveUsageGrossCredits(
+          {
+            pricePerUse: record.pricePerUseCredits,
+            pricingType: record.pricingType,
+            pricingUnit: record.pricingUnit,
+            pricingModel: record.pricingModel,
+          },
+          record.creditsUsed,
+        )),
+    0,
+  );
+  const estimatedPlatformEarningsCredits = records.reduce(
+    (total, record) =>
+      total +
+      (record.platformFeeCredits ??
+        calculatePlatformFeeCredits(
+          record.grossCredits ??
+            resolveUsageGrossCredits(
+              {
+                pricePerUse: record.pricePerUseCredits,
+                pricingType: record.pricingType,
+                pricingUnit: record.pricingUnit,
+                pricingModel: record.pricingModel,
+              },
+              record.creditsUsed,
+            ),
+          edenPlatformFeeRate,
+        )),
     0,
   );
   const missingStoredPricingCount = records.filter(
     (record) => record.pricePerUseCredits === null || record.pricePerUseCredits === undefined,
   ).length;
-  const estimatedPlatformEarningsCredits = calculatePlatformFeeCredits(
-    estimatedGrossCredits,
-    edenPlatformFeeRate,
-  );
   const pricingRuleLabel =
     missingStoredPricingCount > 0
       ? `Gross earnings use each service's current stored per-use price when available. Eden keeps a 15% fee share. ${missingStoredPricingCount} tracked run${missingStoredPricingCount === 1 ? "" : "s"} currently fall back to the recorded usage credits because a service price has not been set yet.`
@@ -759,15 +799,58 @@ function mapUsageRecordToEvent(record: EdenResolvedUsageRecord): EdenServiceUsag
     username: record.username,
     usageType: record.usageType,
     creditsUsed: record.creditsUsed,
-    estimatedGrossCredits: resolveUsageGrossCredits(
-      {
-        pricePerUse: record.pricePerUseCredits,
-        pricingType: record.pricingType,
-        pricingUnit: record.pricingUnit,
-        pricingModel: record.pricingModel,
-      },
-      record.creditsUsed,
-    ),
+    estimatedGrossCredits:
+      record.grossCredits ??
+      resolveUsageGrossCredits(
+        {
+          pricePerUse: record.pricePerUseCredits,
+          pricingType: record.pricingType,
+          pricingUnit: record.pricingUnit,
+          pricingModel: record.pricingModel,
+        },
+        record.creditsUsed,
+      ),
+    platformFeeCredits:
+      record.platformFeeCredits ??
+      calculatePlatformFeeCredits(
+        record.grossCredits ??
+          resolveUsageGrossCredits(
+            {
+              pricePerUse: record.pricePerUseCredits,
+              pricingType: record.pricingType,
+              pricingUnit: record.pricingUnit,
+              pricingModel: record.pricingModel,
+            },
+            record.creditsUsed,
+          ),
+        edenPlatformFeeRate,
+      ),
+    builderEarningsCredits:
+      record.builderEarningsCredits ??
+      ((record.grossCredits ??
+        resolveUsageGrossCredits(
+          {
+            pricePerUse: record.pricePerUseCredits,
+            pricingType: record.pricingType,
+            pricingUnit: record.pricingUnit,
+            pricingModel: record.pricingModel,
+          },
+          record.creditsUsed,
+        )) -
+        (record.platformFeeCredits ??
+          calculatePlatformFeeCredits(
+            record.grossCredits ??
+              resolveUsageGrossCredits(
+                {
+                  pricePerUse: record.pricePerUseCredits,
+                  pricingType: record.pricingType,
+                  pricingUnit: record.pricingUnit,
+                  pricingModel: record.pricingModel,
+                },
+                record.creditsUsed,
+              ),
+            edenPlatformFeeRate,
+          ))),
     timestampLabel: formatUsageTimestamp(record.createdAt),
     source: record.source,
   };

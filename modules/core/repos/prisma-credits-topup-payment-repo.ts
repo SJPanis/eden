@@ -127,6 +127,10 @@ export function createPrismaCreditsTopUpPaymentRepo(
         return null;
       }
 
+      if (existing.status === "SETTLED") {
+        return mapCreditsTopUpPayment(existing);
+      }
+
       const payment = await prisma.creditsTopUpPayment.update({
         where: {
           providerSessionId: input.providerSessionId,
@@ -149,6 +153,10 @@ export function createPrismaCreditsTopUpPaymentRepo(
 
       if (!existing) {
         return null;
+      }
+
+      if (existing.status === "SETTLED") {
+        return mapCreditsTopUpPayment(existing);
       }
 
       const payment = await prisma.creditsTopUpPayment.update({

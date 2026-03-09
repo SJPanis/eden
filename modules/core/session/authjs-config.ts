@@ -6,6 +6,10 @@ import type { JWT } from "next-auth/jwt";
 import type { NextAuthOptions } from "next-auth";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 import {
+  edenAuthJsPlatformRoleClaim,
+  resolveAuthorizedPlatformRole,
+} from "@/modules/core/session/access-control";
+import {
   edenAuthJsCredentialsProviderId,
   edenAuthJsProviderClaim,
   edenAuthJsProviderSubjectClaim,
@@ -18,6 +22,7 @@ type EdenAuthJsJwt = JWT & {
   [edenAuthJsProviderClaim]?: string;
   [edenAuthJsProviderSubjectClaim]?: string;
   [edenAuthJsUsernameClaim]?: string;
+  [edenAuthJsPlatformRoleClaim]?: "consumer" | "business" | "owner";
 };
 
 type EdenAuthJsSignInUser = User & {
@@ -90,6 +95,20 @@ export function buildEdenAuthJsOptions(): NextAuthOptions {
 
         if (username) {
           nextToken[edenAuthJsUsernameClaim] = username;
+        }
+
+        const platformRole = await resolvePersistedPlatformRole({
+          userId:
+            typeof signInUser?.id === "string"
+              ? signInUser.id
+              : typeof nextToken.sub === "string"
+                ? nextToken.sub
+                : null,
+          username,
+        });
+
+        if (platformRole) {
+          nextToken[edenAuthJsPlatformRoleClaim] = platformRole;
         }
 
         return nextToken;
@@ -206,4 +225,54 @@ function extractProfileUsername(profile: unknown) {
   }
 
   return null;
+}
+
+async function resolvePersistedPlatformRole(input: {
+  userId: string | null;
+  username: string | null;
+}) {
+  if (!input.userId && !input.username) {
+    return null;
+  }
+
+  const userSelect = {
+    username: true,
+    role: true,
+    businessMemberships: {
+      select: {
+        businessId: true,
+      },
+    },
+    ownedBusinesses: {
+      select: {
+        id: true,
+      },
+    },
+  } as const;
+  const user = input.userId
+    ? await getPrismaClient().user.findUnique({
+        where: {
+          id: input.userId,
+        },
+        select: userSelect,
+      })
+    : input.username
+      ? await getPrismaClient().user.findUnique({
+          where: {
+            username: input.username,
+          },
+          select: userSelect,
+        })
+      : null;
+
+  if (!user) {
+    return null;
+  }
+
+  return resolveAuthorizedPlatformRole({
+    storedRole: user.role,
+    username: user.username,
+    businessMembershipCount: user.businessMemberships.length,
+    ownedBusinessCount: user.ownedBusinesses.length,
+  });
 }

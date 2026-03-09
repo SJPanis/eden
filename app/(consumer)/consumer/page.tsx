@@ -7,12 +7,13 @@ import {
 } from "@/modules/core/credits/mock-credits";
 import { getSimulatedTransactions } from "@/modules/core/credits/server";
 import { getMockPipelineRecords } from "@/modules/core/pipeline/server";
-import { getMockSession } from "@/modules/core/session/server";
+import { layerAccessRules } from "@/modules/core/session/mock-session";
+import { requireMockAccess } from "@/modules/core/session/server";
 import { loadDiscoverySnapshot } from "@/modules/core/services";
 
 export default async function ConsumerPage() {
   const [session, simulatedTransactions, pipelineRecords, createdBusiness, workspaceServices] = await Promise.all([
-    getMockSession(),
+    requireMockAccess(layerAccessRules.consumer ?? [], "/consumer"),
     getSimulatedTransactions(),
     getMockPipelineRecords(),
     getMockCreatedBusiness(),

@@ -9,6 +9,9 @@ export interface ServiceUsageRepo {
     userId?: string | null;
     usageType: string;
     creditsUsed: number;
+    grossCredits?: number | null;
+    platformFeeCredits?: number | null;
+    builderEarningsCredits?: number | null;
     createdAt?: Date;
   }): Promise<EdenRepoServiceUsageRecord | null>;
   listAll(): Promise<EdenRepoServiceUsageRecord[]>;

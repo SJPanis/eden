@@ -93,4 +93,31 @@ export function calculatePlatformFeeCredits(
   return Math.round(estimatedGrossCredits * feeRate);
 }
 
+export function calculateBuilderEarningsCredits(
+  estimatedGrossCredits: number,
+  feeRate = edenPlatformFeeRate,
+) {
+  return Math.max(
+    estimatedGrossCredits - calculatePlatformFeeCredits(estimatedGrossCredits, feeRate),
+    0,
+  );
+}
+
+export function buildUsageSettlementSnapshot(
+  pricing: EdenServicePricingInput,
+  fallbackCreditsUsed: number,
+) {
+  const grossCredits = resolveUsageGrossCredits(pricing, fallbackCreditsUsed);
+  const platformFeeCredits = calculatePlatformFeeCredits(grossCredits, edenPlatformFeeRate);
+
+  return {
+    grossCredits,
+    platformFeeCredits,
+    builderEarningsCredits: calculateBuilderEarningsCredits(
+      grossCredits,
+      edenPlatformFeeRate,
+    ),
+  };
+}
+
 

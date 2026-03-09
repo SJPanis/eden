@@ -1,16 +1,22 @@
+import { redirect } from "next/navigation";
 import { getMockAdminState } from "@/modules/core/admin/server";
 import { EdenEntryPanel } from "@/ui/entry/eden-entry-panel";
+import { getCanonicalRouteForRole } from "@/modules/core/session/access-control";
 import {
   getMockOnboardingProfile,
-  getMockSession,
+  getServerSession,
 } from "@/modules/core/session/server";
 
 export default async function Home() {
   const [session, adminState, onboardingProfile] = await Promise.all([
-    getMockSession(),
+    getServerSession(),
     getMockAdminState(),
     getMockOnboardingProfile(),
   ]);
+
+  if (session.auth.source === "persistent") {
+    redirect(getCanonicalRouteForRole(session.role));
+  }
 
   return (
     <EdenEntryPanel

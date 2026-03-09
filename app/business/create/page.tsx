@@ -3,7 +3,8 @@ import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getSimulatedTransactions } from "@/modules/core/credits/server";
 import { resolveBusinessContext } from "@/modules/core/credits/mock-credits";
 import { RoleShell } from "@/modules/core/layout/role-shell";
-import { getMockSession } from "@/modules/core/session/server";
+import { layerAccessRules } from "@/modules/core/session/mock-session";
+import { requireMockAccess } from "@/modules/core/session/server";
 import { BusinessCreationFlow } from "@/ui/business/business-creation-flow";
 
 type BusinessCreationPageProps = {
@@ -18,7 +19,7 @@ export default async function BusinessCreationPage({
   searchParams,
 }: BusinessCreationPageProps) {
   const [session, simulatedTransactions, adminState, createdBusiness, resolvedSearchParams] = await Promise.all([
-    getMockSession(),
+    requireMockAccess(layerAccessRules.business ?? [], "/business/create"),
     getSimulatedTransactions(),
     getMockAdminState(),
     getMockCreatedBusiness(),

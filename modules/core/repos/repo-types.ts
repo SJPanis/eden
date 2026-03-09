@@ -98,6 +98,9 @@ export interface EdenRepoServiceUsageRecord {
   userId?: string | null;
   usageType: string;
   creditsUsed: number;
+  grossCredits?: number | null;
+  platformFeeCredits?: number | null;
+  builderEarningsCredits?: number | null;
   servicePricingModel?: string | null;
   servicePricePerUse?: number | null;
   servicePricingType?: string | null;

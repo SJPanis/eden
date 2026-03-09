@@ -1,7 +1,8 @@
 import "server-only";
 
-import type { BusinessMemberRole, EdenRole, UserStatus } from "@prisma/client";
+import type { BusinessMemberRole, UserStatus } from "@prisma/client";
 import type { EdenPrismaClient } from "@/modules/core/repos/prisma-client";
+import { resolveAuthorizedPlatformRole } from "@/modules/core/session/access-control";
 import type {
   EdenAuthIdentity,
   EdenAuthIdentityAdapter,
@@ -63,7 +64,12 @@ export function createPrismaAuthIdentityAdapter(
       return {
         sessionKey,
         resolver: "prisma_identity_adapter",
-        platformRole: formatPlatformRole(user.role),
+        platformRole: resolveAuthorizedPlatformRole({
+          storedRole: user.role,
+          username: user.username,
+          businessMembershipCount: explicitMemberships.length,
+          ownedBusinessCount: user.ownedBusinesses.length,
+        }),
         diagnostics: {
           usedOwnedBusinessFallbackClaims: ownerMemberships.length > 0,
           explicitMembershipCount: explicitMemberships.length,
@@ -81,18 +87,6 @@ export function createPrismaAuthIdentityAdapter(
       } satisfies EdenAuthIdentity;
     },
   };
-}
-
-function formatPlatformRole(role: EdenRole) {
-  if (role === "OWNER") {
-    return "owner" as const;
-  }
-
-  if (role === "BUSINESS") {
-    return "business" as const;
-  }
-
-  return "consumer" as const;
 }
 
 function formatUserStatus(status: UserStatus) {

@@ -103,6 +103,8 @@ type BusinessUsageMetrics = {
     usageType: string;
     creditsUsed: number;
     estimatedGrossCredits: number;
+    platformFeeCredits: number;
+    builderEarningsCredits: number;
     timestampLabel: string;
     source: "persistent" | "mock_fallback";
   }>;
@@ -146,6 +148,8 @@ type BusinessUsageMetrics = {
     usageType: string;
     creditsUsed: number;
     estimatedGrossCredits: number;
+    platformFeeCredits: number;
+    builderEarningsCredits: number;
     timestampLabel: string;
     source: "persistent" | "mock_fallback";
   }>;
@@ -2385,6 +2389,10 @@ export function BusinessDashboardPanel({
                               <p className="mt-1 text-xs text-eden-muted">
                                 Gross estimate: {formatCredits(event.estimatedGrossCredits)}
                               </p>
+                              <p className="mt-1 text-xs text-eden-muted">
+                                Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
+                                {formatCredits(event.platformFeeCredits)}
+                              </p>
                             </div>
                             <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
                               {event.source === "persistent" ? "Persistent" : "Mock fallback"}
@@ -2666,6 +2674,10 @@ export function BusinessDashboardPanel({
                             <p className="mt-1 text-xs text-eden-muted">
                               Estimated customer value:{" "}
                               {formatCredits(event.estimatedGrossCredits)}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
+                              {formatCredits(event.platformFeeCredits)}
                             </p>
                           </div>
                           <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">

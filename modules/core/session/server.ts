@@ -18,6 +18,11 @@ import {
   withSessionAuthDebug,
 } from "@/modules/core/session/mock-session";
 import {
+  buildAuthSignInPath,
+  getCanonicalRouteForRole,
+  shouldEnforceProtectedRouteAuth,
+} from "@/modules/core/session/access-control";
+import {
   mockOnboardingCookieName,
   parseMockOnboardingCookie,
 } from "@/modules/core/session/mock-onboarding";
@@ -128,9 +133,18 @@ export async function requireMockAccess(allowedRoles: EdenRole[], targetPath: st
 
 export async function requireAccess(allowedRoles: EdenRole[], targetPath: string) {
   const session = await getServerSession();
+  const enforceProtectedAuth = shouldEnforceProtectedRouteAuth();
+
+  if (enforceProtectedAuth && session.auth.source !== "persistent") {
+    redirect(buildAuthSignInPath(targetPath));
+  }
 
   if (!canAccessRoles(session.role, allowedRoles)) {
-    redirect(buildForbiddenHref(targetPath, allowedRoles));
+    redirect(
+      enforceProtectedAuth
+        ? getCanonicalRouteForRole(session.role)
+        : buildForbiddenHref(targetPath, allowedRoles),
+    );
   }
 
   return session;

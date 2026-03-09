@@ -25,7 +25,10 @@ import {
   parseMockPipelineCookie,
 } from "@/modules/core/pipeline/mock-pipeline";
 import { mockSessionCookieName, resolveMockSession } from "@/modules/core/session/mock-session";
-import { resolveServicePricing } from "@/modules/core/services/service-pricing";
+import {
+  buildUsageSettlementSnapshot,
+  resolveServicePricing,
+} from "@/modules/core/services/service-pricing";
 import { resolveCreditsTopUpPackage } from "@/modules/core/payments/payment-runtime";
 import {
   loadDiscoveryServiceById,
@@ -91,6 +94,9 @@ export async function POST(request: Request) {
     | Awaited<ReturnType<typeof loadServiceById>>
     | null = null;
   let resolvedUsagePriceCredits: number | null = null;
+  let resolvedUsageSettlement:
+    | ReturnType<typeof buildUsageSettlementSnapshot>
+    | null = null;
   const selectedTopUpPackage =
     requestedAction === "add_credits"
       ? resolveCreditsTopUpPackage(requestBody.packageId)
@@ -154,6 +160,17 @@ export async function POST(request: Request) {
     serviceUsageTitle: resolvedService?.title,
   });
   const requiredCredits = Math.abs(nextTransaction.creditsDelta);
+  if (requestedAction === "simulate_service_usage" && resolvedService) {
+    resolvedUsageSettlement = buildUsageSettlementSnapshot(
+      {
+        pricePerUse: resolvedService.pricePerUse,
+        pricingType: resolvedService.pricingType,
+        pricingUnit: resolvedService.pricingUnit,
+        pricingModel: resolvedService.pricingModel,
+      },
+      requiredCredits,
+    );
+  }
 
   if (
     requestedAction === "simulate_service_usage" &&
@@ -187,6 +204,11 @@ export async function POST(request: Request) {
         userId: session.user.id,
         usageType: "simulate_service_usage",
         creditsUsed: Math.abs(nextTransaction.creditsDelta),
+        grossCredits: resolvedUsageSettlement?.grossCredits ?? Math.abs(nextTransaction.creditsDelta),
+        platformFeeCredits: resolvedUsageSettlement?.platformFeeCredits ?? 0,
+        builderEarningsCredits:
+          resolvedUsageSettlement?.builderEarningsCredits ??
+          Math.abs(nextTransaction.creditsDelta),
       });
     }
   }
@@ -200,6 +222,9 @@ export async function POST(request: Request) {
     amountLabel: nextTransaction.amountLabel,
     creditsUsed: Math.abs(nextTransaction.creditsDelta),
     creditsDelta: nextTransaction.creditsDelta,
+    grossCredits: resolvedUsageSettlement?.grossCredits ?? null,
+    platformFeeCredits: resolvedUsageSettlement?.platformFeeCredits ?? null,
+    builderEarningsCredits: resolvedUsageSettlement?.builderEarningsCredits ?? null,
     requiredCredits,
     previousBalanceCredits: previousUserBalanceCredits,
     nextBalanceCredits: nextUserBalanceCredits,
