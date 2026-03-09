@@ -16,6 +16,7 @@ export interface CreditsTopUpPaymentRepo {
   ): Promise<EdenRepoCreditsTopUpPaymentRecord | null>;
   listAll(options?: {
     limit?: number;
+    userId?: string | null;
   }): Promise<EdenRepoCreditsTopUpPaymentRecord[]>;
   listSettled(options?: {
     userId?: string | null;

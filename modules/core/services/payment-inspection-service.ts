@@ -81,6 +81,16 @@ export type EdenOwnerCreditsTopUpPaymentDetail = {
   }>;
 };
 
+export type EdenOwnerUserCreditsTopUpHistoryItem = EdenOwnerCreditsTopUpInspectionItem & {
+  packageInfo: {
+    id?: string | null;
+    title: string;
+    detail?: string | null;
+    chargeLabel?: string | null;
+  } | null;
+  settlementResultLabel: string;
+};
+
 export async function loadOwnerCreditsTopUpMetrics(options: {
   limit?: number;
 } = {}): Promise<EdenOwnerCreditsTopUpMetrics> {
@@ -150,6 +160,51 @@ export async function loadOwnerCreditsTopUpPaymentDetail(
   } catch (error) {
     logPaymentInspectionFailure("load_owner_credits_topup_payment_detail", error);
     return null;
+  }
+}
+
+export async function loadOwnerCreditsTopUpPaymentsForUser(
+  userId: string,
+  options: {
+    limit?: number;
+  } = {},
+): Promise<{
+  source: "persistent" | "mock_fallback";
+  payments: EdenOwnerUserCreditsTopUpHistoryItem[];
+}> {
+  try {
+    const repo = createPrismaCreditsTopUpPaymentRepo(getPrismaClient());
+    const payments = await repo.listAll({
+      userId,
+      limit: options.limit ?? 12,
+    });
+
+    const paymentsWithContext = await Promise.all(
+      payments.map(async (payment) => {
+        const eventLogs = await loadRecentPaymentEventLogs({
+          limit: 10,
+          provider: payment.provider,
+          creditsTopUpPaymentId: payment.id,
+        });
+
+        return {
+          ...mapPaymentToInspectionItem(payment),
+          packageInfo: resolvePaymentPackageInfo(payment, eventLogs),
+          settlementResultLabel: resolveSettlementResultLabel(payment, eventLogs),
+        } satisfies EdenOwnerUserCreditsTopUpHistoryItem;
+      }),
+    );
+
+    return {
+      source: "persistent",
+      payments: paymentsWithContext,
+    };
+  } catch (error) {
+    logPaymentInspectionFailure("load_owner_credits_topup_payments_for_user", error);
+    return {
+      source: "mock_fallback",
+      payments: [],
+    };
   }
 }
 

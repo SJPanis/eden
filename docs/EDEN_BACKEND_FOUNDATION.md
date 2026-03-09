@@ -229,6 +229,8 @@ What exists now:
   - verified Stripe webhook endpoint that authoritatively settles successful top-ups
 - `app/(owner)/owner/payments/[paymentId]/page.tsx`
   - owner-facing payment drill-down route for payment summary, related user, lifecycle events, and settlement audit visibility
+- `app/(owner)/owner/users/[id]/page.tsx`
+  - owner user inspection now includes a compact payment summary strip plus linked persistent top-up history rows that drill back into the payment detail route
 
 Current top-up mode seam:
 

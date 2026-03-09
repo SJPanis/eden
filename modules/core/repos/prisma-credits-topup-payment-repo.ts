@@ -58,6 +58,9 @@ export function createPrismaCreditsTopUpPaymentRepo(
 
     async listAll(options = {}) {
       const payments = await prisma.creditsTopUpPayment.findMany({
+        where: {
+          ...(options.userId ? { userId: options.userId } : {}),
+        },
         orderBy: {
           createdAt: "desc",
         },
