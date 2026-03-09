@@ -1,21 +1,65 @@
+import Link from "next/link";
+
 type ServiceCardProps = {
   title: string;
   provider: string;
   category: string;
+  availabilityLabel: string;
+  pricingLabel: string;
+  trustLabel: string;
+  launchBadgeLabel: string;
+  href: string;
   saved?: boolean;
 };
 
-export function ServiceCard({ title, provider, category, saved = false }: ServiceCardProps) {
+export function ServiceCard({
+  title,
+  provider,
+  category,
+  availabilityLabel,
+  pricingLabel,
+  trustLabel,
+  launchBadgeLabel,
+  href,
+  saved = false,
+}: ServiceCardProps) {
   return (
-    <article className="eden-shell min-h-[164px] min-w-[248px] snap-start p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Service</p>
-      <h3 className="mt-2 text-base font-semibold text-eden-ink">{title}</h3>
+    <article className="eden-shell min-h-[228px] min-w-[272px] snap-start p-4">
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+          Service
+        </p>
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+          {launchBadgeLabel}
+        </span>
+      </div>
+
+      <h3 className="mt-3 text-base font-semibold text-eden-ink">{title}</h3>
       <p className="mt-1 text-sm text-eden-muted">{provider}</p>
-      <div className="mt-4 flex items-center justify-between">
+
+      <div className="mt-4 flex flex-wrap gap-2">
         <span className="rounded-full bg-eden-accent-soft px-2.5 py-1 text-xs text-eden-ink">
           {category}
         </span>
-        <span className="text-xs text-eden-muted">{saved ? "Saved" : "Discover"}</span>
+        <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-xs text-eden-muted">
+          {availabilityLabel}
+        </span>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-eden-edge bg-white/82 p-3">
+        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Visible pricing</p>
+        <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
+        <p className="mt-2 text-xs leading-5 text-eden-muted">{trustLabel}</p>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <span className="text-xs text-eden-muted">{saved ? "Saved" : "Ready to use"}</span>
+        <Link
+          href={href}
+          className="inline-flex rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+        >
+          View Service
+        </Link>
       </div>
     </article>
   );

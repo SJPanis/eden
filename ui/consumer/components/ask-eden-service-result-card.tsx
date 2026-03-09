@@ -2,6 +2,10 @@ import type { EdenServiceResult } from "@/modules/eden-ai/eden-types";
 
 type AskEdenServiceResultCardProps = {
   service: EdenServiceResult;
+  availabilityLabel: string;
+  pricingLabel: string;
+  trustLabel: string;
+  launchBadgeLabel: string;
   isSelected: boolean;
   onSelect: () => void;
   onAction: () => void;
@@ -9,6 +13,10 @@ type AskEdenServiceResultCardProps = {
 
 export function AskEdenServiceResultCard({
   service,
+  availabilityLabel,
+  pricingLabel,
+  trustLabel,
+  launchBadgeLabel,
   isSelected,
   onSelect,
   onAction,
@@ -40,13 +48,30 @@ export function AskEdenServiceResultCard({
         </div>
         <span
           className={`rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${
-            isSelected ? "bg-eden-ink text-white" : "bg-eden-bg text-eden-muted"
+            isSelected ? "bg-eden-ink text-white" : "bg-emerald-50 text-emerald-700"
           }`}
         >
-          {isSelected ? "Selected" : "Service"}
+          {isSelected ? "Selected" : launchBadgeLabel}
         </span>
       </div>
-      <p className="mt-2 text-xs leading-5 text-eden-muted">{service.description}</p>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-eden-muted">
+          {availabilityLabel}
+        </span>
+        <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-eden-muted">
+          Credits run
+        </span>
+      </div>
+
+      <p className="mt-3 text-xs leading-5 text-eden-muted">{service.description}</p>
+
+      <div className="mt-3 rounded-2xl border border-eden-edge bg-white/80 p-3">
+        <p className="text-[10px] uppercase tracking-[0.14em] text-eden-muted">Visible pricing</p>
+        <p className="mt-2 text-xs font-semibold text-eden-ink">{pricingLabel}</p>
+        <p className="mt-2 text-xs leading-5 text-eden-muted">{trustLabel}</p>
+      </div>
+
       <button
         type="button"
         onClick={(event) => {

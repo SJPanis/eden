@@ -19,6 +19,10 @@ import {
   getUserById,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
+import {
+  formatServicePricingLabel,
+  resolveServicePricing,
+} from "@/modules/core/services/service-pricing";
 import { AskEdenBusinessResultCard } from "@/ui/consumer/components/ask-eden-business-result-card";
 import { AskEdenIdeaResultCard } from "@/ui/consumer/components/ask-eden-idea-result-card";
 import { AskEdenServiceResultCard } from "@/ui/consumer/components/ask-eden-service-result-card";
@@ -34,6 +38,11 @@ type ConsumerServiceRailItem = {
   provider: string;
   category: string;
   saved: boolean;
+  availabilityLabel: string;
+  pricingLabel: string;
+  trustLabel: string;
+  launchBadgeLabel: string;
+  href: string;
 };
 
 type ConsumerBusinessRailItem = {
@@ -169,19 +178,124 @@ function toTitleCase(input: string) {
     .join(" ");
 }
 
-function buildServiceDetailHref(
-  service: EdenServiceResult,
+function getConsumerServiceLaunchDetails(input: {
+  category: string;
+  status?: string | null;
+  pricePerUse?: number | null;
+  pricingType?: string | null;
+  pricingUnit?: string | null;
+  pricingModel?: string | null;
+}) {
+  const normalizedStatus = (input.status ?? "").toLowerCase();
+  const pricing = resolveServicePricing({
+    pricePerUse: input.pricePerUse,
+    pricingType: input.pricingType,
+    pricingUnit: input.pricingUnit,
+    pricingModel: input.pricingModel,
+  });
+  const pricingLabel = formatServicePricingLabel(
+    {
+      pricePerUse: input.pricePerUse,
+      pricingType: input.pricingType,
+      pricingUnit: input.pricingUnit,
+      pricingModel: input.pricingModel,
+    },
+    {
+      fallbackLabel: input.pricingModel
+        ? `${input.pricingModel} pricing placeholder`
+        : "Pricing placeholder pending",
+      includePricingModel: true,
+    },
+  );
+  const availabilityLabel = normalizedStatus.includes("publish")
+    ? "Published"
+    : normalizedStatus.includes("ready")
+      ? "Ready"
+      : normalizedStatus.includes("testing")
+        ? "Testing"
+        : "Preview";
+  const launchBadgeLabel =
+    availabilityLabel === "Published" && pricing.hasStoredPrice
+      ? "Published and priced"
+      : availabilityLabel === "Published"
+        ? "Published"
+        : pricing.hasStoredPrice
+          ? "Priced preview"
+          : "Preview";
+  const trustLabel = pricing.hasStoredPrice
+    ? "Credits only | no hidden checkout"
+    : "Credits only | mock fallback price";
+
+  return {
+    availabilityLabel,
+    pricingLabel,
+    launchBadgeLabel,
+    trustLabel,
+    pricing,
+  };
+}
+
+function getLinkedDiscoveryService(
   discoverySnapshot: EdenDiscoverySnapshot,
+  serviceId: string,
 ) {
-  const linkedService =
-    discoverySnapshot.serviceCatalog.find((item) => item.id === service.id) ??
+  return (
+    discoverySnapshot.serviceCatalog.find((item) => item.id === serviceId) ??
+    discoverySnapshot.marketplaceServices.find((item) => item.id === serviceId) ??
     discoverySnapshot.marketplaceServices[0] ??
     discoverySnapshot.serviceCatalog[0] ??
-    null;
-  const linkedBusiness = linkedService
-    ? discoverySnapshot.businessCatalog.find((business) => business.id === linkedService.businessId) ??
+    null
+  );
+}
+
+function getLinkedDiscoveryBusiness(
+  discoverySnapshot: EdenDiscoverySnapshot,
+  businessId?: string | null,
+) {
+  if (businessId) {
+    return (
+      discoverySnapshot.businessCatalog.find((item) => item.id === businessId) ??
+      discoverySnapshot.marketplaceBusinesses.find((item) => item.id === businessId) ??
       null
-    : discoverySnapshot.marketplaceBusinesses[0] ?? discoverySnapshot.businessCatalog[0] ?? null;
+    );
+  }
+
+  return (
+    discoverySnapshot.marketplaceBusinesses[0] ??
+    discoverySnapshot.businessCatalog[0] ??
+    null
+  );
+}
+
+function getConsumerServiceDiscoveryState(
+  service: Pick<EdenServiceResult, "id" | "title" | "category" | "description">,
+  discoverySnapshot: EdenDiscoverySnapshot,
+) {
+  const linkedService = getLinkedDiscoveryService(discoverySnapshot, service.id);
+  const linkedBusiness = getLinkedDiscoveryBusiness(discoverySnapshot, linkedService?.businessId);
+  const launchDetails = getConsumerServiceLaunchDetails({
+    category: linkedService?.category ?? service.category,
+    status: linkedService?.status,
+    pricePerUse: linkedService?.pricePerUse,
+    pricingType: linkedService?.pricingType,
+    pricingUnit: linkedService?.pricingUnit,
+    pricingModel: linkedService?.pricingModel,
+  });
+
+  return {
+    linkedService,
+    linkedBusiness,
+    launchDetails,
+    href: buildServiceDetailHref(service, discoverySnapshot),
+  };
+}
+
+function buildServiceDetailHref(
+  service: Pick<EdenServiceResult, "id" | "title" | "category" | "description">,
+  discoverySnapshot: EdenDiscoverySnapshot,
+) {
+  const linkedService = getLinkedDiscoveryService(discoverySnapshot, service.id);
+  const linkedBusiness = getLinkedDiscoveryBusiness(discoverySnapshot, linkedService?.businessId);
   const routeId = linkedService?.id ?? service.id;
   const category = linkedService?.category ?? service.category;
   const status = linkedService?.status ?? "Standby";
@@ -264,15 +378,10 @@ function getSelectedServiceDetails(
   service: EdenServiceResult,
   discoverySnapshot: EdenDiscoverySnapshot,
 ): SelectedResultDetails {
-  const linkedService =
-    discoverySnapshot.serviceCatalog.find((item) => item.id === service.id) ??
-    discoverySnapshot.marketplaceServices[0] ??
-    discoverySnapshot.serviceCatalog[0] ??
-    null;
-  const linkedBusiness = linkedService
-    ? discoverySnapshot.businessCatalog.find((business) => business.id === linkedService.businessId) ??
-      null
-    : discoverySnapshot.marketplaceBusinesses[0] ?? discoverySnapshot.businessCatalog[0] ?? null;
+  const { href, launchDetails, linkedBusiness, linkedService } = getConsumerServiceDiscoveryState(
+    service,
+    discoverySnapshot,
+  );
 
   return {
     lane: "service",
@@ -280,12 +389,17 @@ function getSelectedServiceDetails(
     id: service.id,
     title: service.title,
     description: linkedService?.summary ?? service.description,
-    eyebrow: `${linkedService?.category ?? service.category} service`,
-    chips: linkedService?.tags ?? [service.category],
+    eyebrow: `${launchDetails.availabilityLabel} ${linkedService?.category ?? service.category} service`,
+    chips: [
+      launchDetails.launchBadgeLabel,
+      launchDetails.pricingLabel,
+      "Credits only",
+      ...(linkedService?.tags ?? [service.category]),
+    ].slice(0, 5),
     actionLabel: "View Service",
-    href: buildServiceDetailHref(service, discoverySnapshot),
+    href,
     supportingText:
-      `This canonical service route keeps Ask Eden aligned with ${linkedBusiness?.name ?? "the wider Eden platform"} while the AI adapter stays mocked.`,
+      `This canonical service route keeps Ask Eden aligned with ${linkedBusiness?.name ?? "the wider Eden platform"}: ${launchDetails.availabilityLabel.toLowerCase()} service, visible pricing, and Eden Credits-only usage with no hidden checkout during runs.`,
   };
 }
 
@@ -421,16 +535,27 @@ export function ConsumerHomePanel({
     () =>
       discoverySnapshot.marketplaceServices
         .map((service) => {
-          const business =
-            discoverySnapshot.businessCatalog.find((item) => item.id === service.businessId) ??
-            null;
+          const { href, launchDetails, linkedBusiness } = getConsumerServiceDiscoveryState(
+            {
+              id: service.id,
+              title: service.title,
+              category: service.category,
+              description: service.summary,
+            },
+            discoverySnapshot,
+          );
 
           return {
             id: service.id,
             title: service.title,
-            provider: business?.name ?? "Connected Business",
+            provider: linkedBusiness?.name ?? "Connected Business",
             category: service.category,
             saved: savedServiceIds.has(service.id),
+            availabilityLabel: launchDetails.availabilityLabel,
+            pricingLabel: launchDetails.pricingLabel,
+            trustLabel: launchDetails.trustLabel,
+            launchBadgeLabel: launchDetails.launchBadgeLabel,
+            href,
           };
         })
         .filter((service) =>
@@ -718,24 +843,42 @@ export function ConsumerHomePanel({
                         transition={{ staggerChildren: 0.08, delayChildren: 0.04 }}
                         className="mt-3 space-y-2"
                       >
-                        {latestTurn.response.outputs.recommendedServices.map((service) => (
-                          <motion.div key={service.id} variants={responseCardVariants}>
-                            <AskEdenServiceResultCard
-                              service={service}
-                              isSelected={
-                                selectedResult?.lane === "service" && selectedResult.id === service.id
-                              }
-                              onSelect={() => handleSelectResult("service", service.id, service.title)}
-                              onAction={() =>
-                                handleResultAction(
-                                  "View Service",
-                                  service.title,
-                                  buildServiceDetailHref(service, discoverySnapshot),
-                                )
-                              }
-                            />
-                          </motion.div>
-                        ))}
+                        {latestTurn.response.outputs.recommendedServices.map((service) => {
+                          const serviceDiscoveryState = getConsumerServiceDiscoveryState(
+                            service,
+                            discoverySnapshot,
+                          );
+
+                          return (
+                            <motion.div key={service.id} variants={responseCardVariants}>
+                              <AskEdenServiceResultCard
+                                service={service}
+                                availabilityLabel={
+                                  serviceDiscoveryState.launchDetails.availabilityLabel
+                                }
+                                pricingLabel={serviceDiscoveryState.launchDetails.pricingLabel}
+                                launchBadgeLabel={
+                                  serviceDiscoveryState.launchDetails.launchBadgeLabel
+                                }
+                                trustLabel={serviceDiscoveryState.launchDetails.trustLabel}
+                                isSelected={
+                                  selectedResult?.lane === "service" &&
+                                  selectedResult.id === service.id
+                                }
+                                onSelect={() =>
+                                  handleSelectResult("service", service.id, service.title)
+                                }
+                                onAction={() =>
+                                  handleResultAction(
+                                    "View Service",
+                                    service.title,
+                                    serviceDiscoveryState.href,
+                                  )
+                                }
+                              />
+                            </motion.div>
+                          );
+                        })}
                       </motion.div>
                     </section>
 
@@ -1001,6 +1144,11 @@ export function ConsumerHomePanel({
                       provider={service.provider}
                       category={service.category}
                       saved={service.saved}
+                      availabilityLabel={service.availabilityLabel}
+                      pricingLabel={service.pricingLabel}
+                      trustLabel={service.trustLabel}
+                      launchBadgeLabel={service.launchBadgeLabel}
+                      href={service.href}
                     />
                   </motion.div>
                 ))}
