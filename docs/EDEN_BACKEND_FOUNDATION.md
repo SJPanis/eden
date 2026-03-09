@@ -258,6 +258,7 @@ What exists now:
 - builder earnings accrual from priced usage
 - persistent payout settlement history per business
 - adjusted unpaid earnings visibility after settled payout records
+- owner payout detail now includes a compact summary strip above the full settlement history and payout breakdown
 - payout-ready balance using the current internal reserve holdback
 - Eden fee-share visibility beside builder liability
 - top earning business summaries in the owner control room

@@ -59,6 +59,8 @@ export function OwnerPayoutDetailPanel({
   businessOwner,
   payoutAccounting,
 }: OwnerPayoutDetailPanelProps) {
+  const latestSettlement = payoutAccounting.payoutHistory[0] ?? null;
+
   return (
     <div className="space-y-5">
       <DetailPlaceholderPanel
@@ -104,6 +106,92 @@ export function OwnerPayoutDetailPanel({
           transition={{ duration: 0.28, ease: "easeOut" }}
           className="space-y-4"
         >
+          <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Payout Summary Strip
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Compact owner reconciliation summary for this business before the full payout breakdown and settlement history below.
+                </p>
+              </div>
+              <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                {payoutAccounting.payoutStatusLabel}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-8">
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Business
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {businessProfile.name}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Total earned
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {formatCredits(payoutAccounting.totalEarnedCredits)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Unpaid
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {formatCredits(payoutAccounting.unpaidEarningsCredits)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Payout-ready
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {formatCredits(payoutAccounting.payoutReadyCredits)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Paid out
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {formatCredits(payoutAccounting.paidOutCredits)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Holdback
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {formatCredits(payoutAccounting.holdbackCredits)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Latest settlement
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {latestSettlement
+                    ? formatSettlementStatus(latestSettlement.status)
+                    : "No settlements"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Latest timestamp
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {latestSettlement?.settledAtLabel ??
+                    latestSettlement?.createdAtLabel ??
+                    "Not available"}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
             <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
               <div className="flex items-start justify-between gap-3">
