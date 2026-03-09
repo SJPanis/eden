@@ -251,6 +251,7 @@ What exists now:
 - Eden fee-share visibility beside builder liability
 - top earning business summaries in the owner control room
 - owner-triggered internal payout settlement recording through `app/api/mock-payout-settlements/route.ts`
+- owner business-level payout reconciliation route at `app/(owner)/owner/payouts/[businessId]/page.tsx`
 
 Current safety notes:
 

@@ -1040,6 +1040,20 @@ export function OwnerDashboardPanel({
                       </p>
                     </div>
                     <div className="mt-3">
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        <Link
+                          href={`/owner/payouts/${entry.business.id}`}
+                          className="rounded-xl border border-eden-edge bg-white px-3 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                        >
+                          Open Payout Detail
+                        </Link>
+                        <Link
+                          href={`/businesses/${entry.business.id}`}
+                          className="rounded-xl border border-eden-edge bg-eden-bg px-3 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                        >
+                          Open Business
+                        </Link>
+                      </div>
                       <MockAdminActionButton
                         action={entry.isFrozen ? "unfreeze_business" : "freeze_business"}
                         businessId={entry.business.id}
@@ -1765,7 +1779,13 @@ export function OwnerDashboardPanel({
                           </div>
                         </div>
                         {business.payoutReadyCredits > 0 ? (
-                          <div className="mt-3">
+                          <div className="mt-3 space-y-2">
+                            <Link
+                              href={`/owner/payouts/${business.businessId}`}
+                              className="block rounded-2xl border border-eden-edge bg-white px-3 py-3 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                            >
+                              Open payout detail
+                            </Link>
                             <MockPayoutSettlementButton
                               businessId={business.businessId}
                               amountCredits={business.payoutReadyCredits}
@@ -1778,7 +1798,16 @@ export function OwnerDashboardPanel({
                               className="w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
                             />
                           </div>
-                        ) : null}
+                        ) : (
+                          <div className="mt-3">
+                            <Link
+                              href={`/owner/payouts/${business.businessId}`}
+                              className="block rounded-2xl border border-eden-edge bg-white px-3 py-3 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                            >
+                              Open payout detail
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     ))
                   ) : (
