@@ -323,13 +323,19 @@ export default async function ServiceDetailPage({
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                <p className="text-sm font-semibold text-eden-ink">2. Top up only if needed</p>
+                <p className="text-sm font-semibold text-eden-ink">2. Compare balance to price</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Add credits through the wallet flow if your balance is low. No hidden payment happens when you press use.
+                  Match the visible service price against your current Eden Wallet balance before you decide to run.
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                <p className="text-sm font-semibold text-eden-ink">3. Run the service</p>
+                <p className="text-sm font-semibold text-eden-ink">3. Add credits only if needed</p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Add credits through the wallet flow if your balance is low. No hidden payment happens when you press run.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                <p className="text-sm font-semibold text-eden-ink">4. Run the service</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   A successful run deducts the visible credits amount, records usage, and updates the wallet history immediately.
                 </p>

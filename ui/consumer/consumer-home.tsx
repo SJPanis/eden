@@ -396,7 +396,7 @@ function getSelectedServiceDetails(
       "Credits only",
       ...(linkedService?.tags ?? [service.category]),
     ].slice(0, 5),
-    actionLabel: "View Service",
+    actionLabel: "Open Service",
     href,
     supportingText:
       `This canonical service route keeps Ask Eden aligned with ${linkedBusiness?.name ?? "the wider Eden platform"}: ${launchDetails.availabilityLabel.toLowerCase()} service, visible pricing, and Eden Credits-only usage with no hidden checkout during runs.`,
@@ -530,6 +530,82 @@ export function ConsumerHomePanel({
     ],
     [currentBalanceCredits, discoverySnapshot.marketplaceServices.length],
   );
+  const consumerJourneySteps = useMemo(
+    () => [
+      {
+        id: "consumer-step-open",
+        label: "1. Open a published service",
+        detail:
+          "Use marketplace cards or Ask Eden results to open a service with visible availability and pricing.",
+      },
+      {
+        id: "consumer-step-compare",
+        label: "2. Compare price to your wallet",
+        detail:
+          "Check the Eden Credits price against your current balance before you decide to run the service.",
+      },
+      {
+        id: "consumer-step-topup",
+        label: "3. Add credits only if needed",
+        detail:
+          "Top up through the wallet if your balance is too low. Checkout appears only during this explicit step.",
+      },
+      {
+        id: "consumer-step-run",
+        label: "4. Run with visible credits pricing",
+        detail:
+          "A successful run deducts only the shown wallet amount and records the service usage immediately.",
+      },
+    ],
+    [],
+  );
+  const consumerNextStepSummary = useMemo(() => {
+    const pricedMarketplaceServices = discoverySnapshot.marketplaceServices
+      .map((service) => ({
+        service,
+        pricing: resolveServicePricing({
+          pricePerUse: service.pricePerUse,
+          pricingType: service.pricingType,
+          pricingUnit: service.pricingUnit,
+          pricingModel: service.pricingModel,
+        }),
+      }))
+      .filter((entry) => entry.pricing.pricePerUseCredits !== null)
+      .sort(
+        (left, right) =>
+          (left.pricing.pricePerUseCredits ?? Number.MAX_SAFE_INTEGER) -
+          (right.pricing.pricePerUseCredits ?? Number.MAX_SAFE_INTEGER),
+      );
+    const lowestPricedService = pricedMarketplaceServices[0] ?? null;
+
+    if (!lowestPricedService) {
+      return {
+        title: "Open a service to preview the first run flow",
+        detail:
+          "Published marketplace services still use fallback pricing in this environment, so the wallet and service detail screens explain the credits flow step by step.",
+        cue: "Open Service from the marketplace",
+      };
+    }
+
+    if (
+      lowestPricedService.pricing.pricePerUseCredits !== null &&
+      currentBalanceCredits >= lowestPricedService.pricing.pricePerUseCredits
+    ) {
+      return {
+        title: "You can run a published service now",
+        detail: `${lowestPricedService.service.title} is already within your wallet balance. Open the service, confirm the visible price, and run it through Eden Credits.`,
+        cue: "Open Service and run with visible pricing",
+      };
+    }
+
+    return {
+      title: "Top up before your first service run",
+      detail: `${lowestPricedService.service.title} is the lowest-priced published service right now, and it still needs ${formatCredits(
+        lowestPricedService.pricing.pricePerUseCredits ?? 0,
+      )}. Add credits in Eden Wallet first, then open the service and run it at the visible price.`,
+      cue: "Add credits in Eden Wallet, then open a service",
+    };
+  }, [currentBalanceCredits, discoverySnapshot.marketplaceServices]);
 
   const recommendedServices = useMemo<ConsumerServiceRailItem[]>(
     () =>
@@ -716,6 +792,49 @@ export function ConsumerHomePanel({
             </div>
           ))}
         </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+          <div className="rounded-2xl border border-eden-edge bg-white/92 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  First-time sequence
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Follow the same loop everywhere in Eden: open a service, compare visible price to wallet balance, top up only if needed, then run.
+                </p>
+              </div>
+              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                Same flow in cards, detail, and wallet
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {consumerJourneySteps.map((step) => (
+                <div key={step.id} className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                  <p className="text-sm font-semibold text-eden-ink">{step.label}</p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">{step.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.52),rgba(255,255,255,0.98))] p-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+              Next step right now
+            </p>
+            <p className="mt-3 text-base font-semibold text-eden-ink">
+              {consumerNextStepSummary.title}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-eden-muted">
+              {consumerNextStepSummary.detail}
+            </p>
+            <div className="mt-4 rounded-2xl border border-eden-edge bg-white/92 p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Recommended action</p>
+              <p className="mt-2 text-sm font-semibold text-eden-ink">
+                {consumerNextStepSummary.cue}
+              </p>
+            </div>
+          </div>
+        </div>
       </motion.section>
 
       <motion.section
@@ -828,7 +947,7 @@ export function ConsumerHomePanel({
                             Recommended services
                           </h3>
                           <p className="mt-1 text-xs text-eden-muted">
-                            Click a service card to inspect the mocked service flow.
+                            Open a service card to inspect published state, visible pricing, and the credits-only run flow.
                           </p>
                         </div>
                         <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
@@ -870,7 +989,7 @@ export function ConsumerHomePanel({
                                 }
                                 onAction={() =>
                                   handleResultAction(
-                                    "View Service",
+                                    "Open Service",
                                     service.title,
                                     serviceDiscoveryState.href,
                                   )
@@ -1127,7 +1246,7 @@ export function ConsumerHomePanel({
           >
             <DiscoveryRail
               title="Recommended Services"
-              subtitle="Curated picks based on current interests and saved signals."
+              subtitle="Published services with visible Eden Credits pricing and no hidden checkout during runs."
               hasItems={recommendedServices.length > 0}
               emptyMessage="No services match the current filters yet."
             >

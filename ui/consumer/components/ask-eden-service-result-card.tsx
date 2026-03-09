@@ -60,7 +60,7 @@ export function AskEdenServiceResultCard({
           {availabilityLabel}
         </span>
         <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-eden-muted">
-          Credits run
+          Credits-only run
         </span>
       </div>
 
@@ -81,7 +81,7 @@ export function AskEdenServiceResultCard({
         }}
         className="mt-4 inline-flex items-center rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
       >
-        View Service
+        Open Service
       </button>
     </article>
   );

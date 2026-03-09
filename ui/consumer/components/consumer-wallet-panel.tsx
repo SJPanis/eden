@@ -324,6 +324,64 @@ export function ConsumerWalletPanel({
         onSelect={setSelectedPackageId}
       />
 
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                First-time wallet flow
+              </p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                Add credits here first, then open a service and compare its visible price to your wallet before you run it.
+              </p>
+            </div>
+            <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              Add credits only when needed
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+              <p className="text-sm font-semibold text-eden-ink">1. Pick a package</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                Choose the amount of Eden Credits you want to add to the wallet.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+              <p className="text-sm font-semibold text-eden-ink">2. Add credits</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                Use checkout or mock top-up. Credits appear only after the settlement flow completes.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+              <p className="text-sm font-semibold text-eden-ink">3. Open a service</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                Service cards and detail pages show the exact visible price before any run happens.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.42),rgba(255,255,255,0.98))] p-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+            Current wallet position
+          </p>
+          <p className="mt-3 text-base font-semibold text-eden-ink">
+            {formatCreditsValue(displayBalanceCredits)} ready for service runs
+          </p>
+          <p className="mt-2 text-sm leading-6 text-eden-muted">
+            After you add credits here, open a service card and confirm the visible Eden Credits price before you run it.
+          </p>
+          <div className="mt-4 rounded-2xl border border-eden-edge bg-white/92 p-3">
+            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Next action</p>
+            <p className="mt-2 text-sm font-semibold text-eden-ink">
+              {displayBalanceCredits > 0
+                ? "Open Service from the marketplace"
+                : "Add credits, then open a service"}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-5 grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Current Balance</p>
@@ -473,7 +531,7 @@ export function ConsumerWalletPanel({
                   href={latestVisibleTransaction.relatedServiceHref}
                   className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
                 >
-                  View Related Service
+                  Open Related Service
                 </Link>
               </div>
             ) : null}
@@ -552,7 +610,7 @@ export function ConsumerWalletPanel({
                       href={transaction.relatedServiceHref}
                       className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
                     >
-                      View Related Service
+                      Open Related Service
                     </Link>
                   </div>
                 ) : null}

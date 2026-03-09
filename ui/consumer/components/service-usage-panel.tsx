@@ -156,9 +156,10 @@ export function ServiceUsagePanel({
     [selectedPackageId],
   );
   const hasSufficientBalance = displayBalanceCredits >= requiredCredits;
+  const balanceShortfall = Math.max(requiredCredits - displayBalanceCredits, 0);
   const actionLabel = pricing.hasStoredPrice
-    ? `Use Service for ${pricing.pricePerUseCredits?.toLocaleString()} ${pricing.pricingUnit}`
-    : "Use Service";
+    ? `Run Service for ${pricing.pricePerUseCredits?.toLocaleString()} ${pricing.pricingUnit}`
+    : "Run Service";
   const filteredTransactions = useMemo(
     () => filterWalletTransactions(recentTransactions, activityFilter),
     [activityFilter, recentTransactions],
@@ -179,6 +180,28 @@ export function ServiceUsagePanel({
     (disabled
       ? "This service is not currently available for a consumer run."
       : "This service can be run immediately through the Eden Credits wallet flow.");
+  const runDecisionSummary = disabled
+    ? {
+        toneClass: "border-amber-200 bg-amber-50",
+        title: "Service run unavailable",
+        detail:
+          disabledReason ??
+          "This service cannot be run from the current route state.",
+        cue: "Review availability first",
+      }
+    : hasSufficientBalance
+      ? {
+          toneClass: "border-emerald-200 bg-emerald-50",
+          title: "Ready to run with visible pricing",
+          detail: `Press Run Service to deduct ${formatCreditsValue(requiredCredits)} from your Eden Wallet and record usage for ${serviceTitle}.`,
+          cue: "Open run flow now",
+        }
+      : {
+          toneClass: "border-amber-200 bg-amber-50",
+          title: "Top up before you run",
+          detail: `This service needs ${formatCreditsValue(requiredCredits)}. Your wallet is short by ${formatCreditsValue(balanceShortfall)}.`,
+          cue: `Add ${selectedPackage.title} first, then run at the visible price.`,
+        };
 
   useEffect(() => {
     if (!topUpConfig.paymentEnabled) {
@@ -479,7 +502,7 @@ export function ServiceUsagePanel({
           <button
             type="button"
             onClick={handleUseService}
-            disabled={!serviceId || disabled || !!activeAction || isPending}
+            disabled={!serviceId || disabled || !!activeAction || isPending || !hasSufficientBalance}
             className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
           >
             {activeAction === "usage" ? "Recording Usage..." : actionLabel}
@@ -518,6 +541,70 @@ export function ServiceUsagePanel({
         selectedPackageId={selectedPackageId}
         onSelect={setSelectedPackageId}
       />
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                First-time run flow
+              </p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                The same decision sequence applies every time: check the visible price, compare it to your wallet, add credits only if needed, then run the service.
+              </p>
+            </div>
+            <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              Price first, then run
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+              <p className="text-sm font-semibold text-eden-ink">1. Check price</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                {pricingLabel} is the exact Eden Credits amount used for the run.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+              <p className="text-sm font-semibold text-eden-ink">2. Compare wallet</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                Current balance is {formatCreditsValue(displayBalanceCredits)} and required price is {formatCreditsValue(requiredCredits)}.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+              <p className="text-sm font-semibold text-eden-ink">3. Top up only if needed</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                Checkout appears only during Add Credits. Service runs never trigger a hidden payment.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={`rounded-2xl border p-4 ${runDecisionSummary.toneClass}`}>
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+            Run decision
+          </p>
+          <p className="mt-3 text-base font-semibold text-eden-ink">{runDecisionSummary.title}</p>
+          <p className="mt-2 text-sm leading-6 text-eden-muted">{runDecisionSummary.detail}</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-eden-edge bg-white/90 p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Wallet balance</p>
+              <p className="mt-2 text-sm font-semibold text-eden-ink">
+                {formatCreditsValue(displayBalanceCredits)}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-eden-edge bg-white/90 p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Required price</p>
+              <p className="mt-2 text-sm font-semibold text-eden-ink">
+                {formatCreditsValue(requiredCredits)}
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 rounded-2xl border border-eden-edge bg-white/90 p-3">
+            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Next action</p>
+            <p className="mt-2 text-sm font-semibold text-eden-ink">{runDecisionSummary.cue}</p>
+          </div>
+        </div>
+      </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
@@ -597,8 +684,7 @@ export function ServiceUsagePanel({
 
       {!hasSufficientBalance ? (
         <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
-          Your Eden Credits balance is below the required service price. Add mocked credits to
-          continue this internal wallet flow.
+          Your Eden Credits balance is below the required service price. Add credits first, then return to the visible Run Service action to complete the credits-only flow.
         </div>
       ) : null}
 
@@ -731,7 +817,7 @@ export function ServiceUsagePanel({
                   href={latestVisibleTransaction.relatedServiceHref}
                   className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
                 >
-                  View Related Service
+                  Open Related Service
                 </Link>
               </div>
             ) : null}
@@ -810,7 +896,7 @@ export function ServiceUsagePanel({
                       href={transaction.relatedServiceHref}
                       className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
                     >
-                      View Related Service
+                      Open Related Service
                     </Link>
                   </div>
                 ) : null}
