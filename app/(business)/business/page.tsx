@@ -67,7 +67,10 @@ export default async function BusinessPage() {
       workspaceServices,
     }),
   ]);
-  const payoutAccounting = buildBusinessPayoutAccountingSummary(usageMetrics);
+  const payoutAccounting = await buildBusinessPayoutAccountingSummary(usageMetrics, {
+    createdBusiness,
+    workspaceServices,
+  });
   const scopedAssistantHistory = getMockBusinessAssistantHistoryForBusiness(
     activeBusinessId,
     assistantHistory,

@@ -16,6 +16,7 @@ import {
 } from "@/modules/core/credits/mock-credits";
 import { MockResetControls } from "@/modules/core/components/mock-reset-controls";
 import { MockTransactionControls } from "@/modules/core/credits/mock-transaction-controls";
+import { MockPayoutSettlementButton } from "@/modules/core/payments/mock-payout-settlement-button";
 import {
   formatPipelineTimestamp,
   getBusinessPipelineSnapshot,
@@ -281,6 +282,18 @@ function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "can
   if (status === "settled") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "pending") return "border-amber-200 bg-amber-50 text-amber-700";
   return "border-rose-200 bg-rose-50 text-rose-700";
+}
+
+function getPayoutSettlementStatusClasses(
+  status: "pending" | "settled" | "canceled",
+) {
+  if (status === "settled") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "pending") return "border-amber-200 bg-amber-50 text-amber-700";
+  return "border-slate-200 bg-slate-100 text-slate-700";
+}
+
+function formatPayoutSettlementStatus(status: "pending" | "settled" | "canceled") {
+  return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 function formatMoneyAmount(amountCents: number, currency: string) {
@@ -614,13 +627,19 @@ export function OwnerDashboardPanel({
       id: "payout-liability",
       label: "Total builder liability",
       value: formatCredits(payoutAccounting.totalBuilderLiabilityCredits),
-      detail: "Current unpaid builder earnings liability across tracked priced service usage.",
+      detail: "Current unpaid builder earnings liability after persistent payout settlements are applied.",
     },
     {
       id: "payout-ready",
       label: "Payout-ready total",
       value: formatCredits(payoutAccounting.totalPayoutReadyCredits),
-      detail: "Accrued earnings available after the current placeholder reserve holdback.",
+      detail: "Accrued earnings available after the current internal reserve holdback.",
+    },
+    {
+      id: "payout-pending",
+      label: "Pending settlements",
+      value: formatCredits(payoutAccounting.pendingSettlementCredits),
+      detail: "Internal payout records queued but not yet marked as settled.",
     },
     {
       id: "payout-fee-share",
@@ -632,13 +651,13 @@ export function OwnerDashboardPanel({
       id: "payout-holdback",
       label: "Reserve holdback",
       value: formatCredits(payoutAccounting.holdbackCredits),
-      detail: "Mock reserve held before payout rails and settlement accounting are implemented.",
+      detail: "Internal reserve held before earnings become payout-ready.",
     },
     {
       id: "payout-paid-out",
       label: "Paid out",
       value: formatCredits(payoutAccounting.paidOutCredits),
-      detail: "Placeholder paid-out total. This remains zero until real payout settlement exists.",
+      detail: "Persistent payout settlement total already marked as paid out.",
     },
   ];
   const adminSummaryStrip = [
@@ -1480,7 +1499,7 @@ export function OwnerDashboardPanel({
                   {payoutAccounting.payoutStatusLabel}
                 </span>
               </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
                 {payoutSummaryCards.map((item) => (
                   <div
                     key={item.id}
@@ -1493,6 +1512,129 @@ export function OwnerDashboardPanel({
                     <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                      Payout history
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      Recent persistent payout settlement records used to reconcile builder liability and paid-out balances.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                    {payoutAccounting.historySource === "persistent"
+                      ? "Persistent records"
+                      : "No persistent records"}
+                  </span>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {payoutAccounting.payoutHistory.length ? (
+                    payoutAccounting.payoutHistory.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {item.businessName}
+                              </p>
+                              <span
+                                className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getPayoutSettlementStatusClasses(
+                                  item.status,
+                                )}`}
+                              >
+                                {formatPayoutSettlementStatus(item.status)}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              {formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              {item.notes ?? "Internal settlement note not provided."}
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-semibold text-eden-ink">{item.createdAtLabel}</p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              {item.settledAtLabel
+                                ? `Settled ${item.settledAtLabel}`
+                                : "Awaiting settlement"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      No payout settlement records exist yet. Use the internal payout action below to create persistent payout history without enabling real payout rails.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Payout status overview
+                </p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Settled payouts
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      {payoutAccounting.statusOverview.settledCount}
+                    </p>
+                    <p className="mt-1 text-xs text-eden-muted">
+                      {formatCredits(
+                        payoutAccounting.statusOverview.settledSettlementCredits,
+                      )} recorded as paid
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Pending payouts
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      {payoutAccounting.statusOverview.pendingCount}
+                    </p>
+                    <p className="mt-1 text-xs text-eden-muted">
+                      {formatCredits(
+                        payoutAccounting.statusOverview.pendingSettlementCredits,
+                      )} still queued
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Canceled payouts
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      {payoutAccounting.statusOverview.canceledCount}
+                    </p>
+                    <p className="mt-1 text-xs text-eden-muted">
+                      {formatCredits(
+                        payoutAccounting.statusOverview.canceledSettlementCredits,
+                      )} removed from queue
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Current state
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      {payoutAccounting.payoutStatusLabel}
+                    </p>
+                    <p className="mt-1 text-xs text-eden-muted">
+                      Liability {formatCredits(payoutAccounting.totalBuilderLiabilityCredits)} | Ready{" "}
+                      {formatCredits(payoutAccounting.totalPayoutReadyCredits)}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
@@ -1604,6 +1746,12 @@ export function OwnerDashboardPanel({
                             <p className="mt-1 text-sm leading-6 text-eden-muted">
                               Unpaid earnings: {formatCredits(business.unpaidEarningsCredits)}
                             </p>
+                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              Paid out: {formatCredits(business.paidOutCredits)}
+                              {business.pendingSettlementCredits > 0
+                                ? ` | Pending ${formatCredits(business.pendingSettlementCredits)}`
+                                : ""}
+                            </p>
                           </div>
                           <div className="text-left md:text-right">
                             <p className="text-sm font-semibold text-eden-ink">
@@ -1616,6 +1764,21 @@ export function OwnerDashboardPanel({
                             <p className="mt-2 text-xs text-eden-muted">{business.lastUsedAtLabel}</p>
                           </div>
                         </div>
+                        {business.payoutReadyCredits > 0 ? (
+                          <div className="mt-3">
+                            <MockPayoutSettlementButton
+                              businessId={business.businessId}
+                              amountCredits={business.payoutReadyCredits}
+                              label="Record mock payout settlement"
+                              detail={`Mark ${formatCredits(
+                                business.payoutReadyCredits,
+                              )} as paid out for ${business.businessName}. This only writes an internal settlement record.`}
+                              reference={`owner-payout-${business.businessId}`}
+                              notes={`Owner control-room settlement for ${business.businessName}`}
+                              className="w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
+                            />
+                          </div>
+                        ) : null}
                       </div>
                     ))
                   ) : (

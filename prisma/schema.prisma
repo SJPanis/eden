@@ -51,6 +51,12 @@ enum CreditsTopUpPaymentStatus {
   CANCELED
 }
 
+enum PayoutSettlementStatus {
+  PENDING
+  SETTLED
+  CANCELED
+}
+
 model User {
   id                  String           @id @default(cuid())
   username            String           @unique
@@ -107,6 +113,7 @@ model Business {
   featuredService         Service?           @relation("FeaturedService", fields: [featuredServiceId], references: [id], onDelete: SetNull)
   pipelineRecords         PipelineRecord[]
   pipelineEvents          PipelineEvent[]
+  payoutSettlements       PayoutSettlement[]
 
   @@index([ownerUserId])
   @@index([status])
@@ -190,6 +197,22 @@ model CreditsTopUpPayment {
   @@index([provider, createdAt])
   @@index([status, createdAt])
   @@index([userId, createdAt])
+}
+
+model PayoutSettlement {
+  id        String                  @id @default(cuid())
+  businessId String
+  amountCredits Int
+  status    PayoutSettlementStatus  @default(SETTLED)
+  reference String?
+  notes     String?
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+  settledAt DateTime?
+  business  Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, createdAt])
+  @@index([status, createdAt])
 }
 
 model PipelineRecord {

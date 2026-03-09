@@ -200,11 +200,17 @@ What exists now:
 - `modules/core/services/payment-inspection-service.ts`
   - owner-facing payment inspection summary and recent top-up reconciliation feed
 - `modules/core/services/payout-accounting-service.ts`
-  - derived builder payout/accounting summaries built from priced usage analytics
+  - adjusted builder payout/accounting summaries built from priced usage analytics plus persistent payout settlements
+- `modules/core/services/payout-settlement-service.ts`
+  - persistent payout settlement history loading plus internal settlement recording
 - `modules/core/repos/credits-topup-payment-repo.ts`
   - payment-ledger repository contract
 - `modules/core/repos/prisma-credits-topup-payment-repo.ts`
   - Prisma-backed persistent payment/top-up record implementation
+- `modules/core/repos/payout-settlement-repo.ts`
+  - payout settlement repository contract
+- `modules/core/repos/prisma-payout-settlement-repo.ts`
+  - Prisma-backed payout settlement/history implementation
 - `modules/core/payments/stripe-topup-service.ts`
   - Checkout-session creation plus verified Stripe webhook handling for top-up settlement
 - `modules/core/credits/server.ts`
@@ -239,16 +245,19 @@ The business and owner layers now expose a mock payout/accounting foundation on 
 What exists now:
 
 - builder earnings accrual from priced usage
-- unpaid earnings visibility
-- payout-ready balance using a placeholder reserve holdback
+- persistent payout settlement history per business
+- adjusted unpaid earnings visibility after settled payout records
+- payout-ready balance using the current internal reserve holdback
 - Eden fee-share visibility beside builder liability
 - top earning business summaries in the owner control room
+- owner-triggered internal payout settlement recording through `app/api/mock-payout-settlements/route.ts`
 
 Current safety notes:
 
-- payout accounting is fully derived from the current usage and pricing data
-- no payout rails or settled payout records exist yet
-- paid-out totals remain placeholder zeros until real payout settlement is introduced
+- payout accounting remains derived from the current usage and pricing data
+- persistent payout settlement records now reduce paid-out, unpaid, and payout-ready balances
+- actual payout rails are still not implemented; the owner settlement action is internal-only and only records payout history
+- there is still no Stripe Connect or external builder payout execution in this slice
 
 Required env for the Stripe-backed path:
 

@@ -42,7 +42,10 @@ export default async function OwnerPage() {
       limit: 10,
     }),
   ]);
-  const payoutAccounting = buildOwnerPayoutAccountingSummary(usageMetrics);
+  const payoutAccounting = await buildOwnerPayoutAccountingSummary(usageMetrics, {
+    createdBusiness,
+    workspaceServices,
+  });
 
   return (
     <OwnerDashboardPanel

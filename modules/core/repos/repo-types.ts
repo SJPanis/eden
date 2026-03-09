@@ -8,6 +8,10 @@ export type EdenRepoCreditsTopUpPaymentStatus =
   | "settled"
   | "failed"
   | "canceled";
+export type EdenRepoPayoutSettlementStatus =
+  | "pending"
+  | "settled"
+  | "canceled";
 
 export interface EdenRepoUserRecord {
   id: string;
@@ -112,6 +116,18 @@ export interface EdenRepoCreditsTopUpPaymentRecord {
   currency: string;
   status: EdenRepoCreditsTopUpPaymentStatus;
   failureReason?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  settledAt?: Date | null;
+}
+
+export interface EdenRepoPayoutSettlementRecord {
+  id: string;
+  businessId: string;
+  amountCredits: number;
+  status: EdenRepoPayoutSettlementStatus;
+  reference?: string | null;
+  notes?: string | null;
   createdAt: Date;
   updatedAt: Date;
   settledAt?: Date | null;
