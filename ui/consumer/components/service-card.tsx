@@ -8,6 +8,9 @@ type ServiceCardProps = {
   pricingLabel: string;
   trustLabel: string;
   launchBadgeLabel: string;
+  affordabilityLabel: string;
+  affordabilityHint: string;
+  affordabilityTone: "ready" | "warning" | "neutral";
   href: string;
   saved?: boolean;
 };
@@ -20,6 +23,9 @@ export function ServiceCard({
   pricingLabel,
   trustLabel,
   launchBadgeLabel,
+  affordabilityLabel,
+  affordabilityHint,
+  affordabilityTone,
   href,
   saved = false,
 }: ServiceCardProps) {
@@ -50,6 +56,20 @@ export function ServiceCard({
         <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Visible pricing</p>
         <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
         <p className="mt-2 text-xs leading-5 text-eden-muted">{trustLabel}</p>
+        <div
+          className={`mt-3 rounded-2xl border px-3 py-2 ${
+            affordabilityTone === "ready"
+              ? "border-emerald-200 bg-emerald-50"
+              : affordabilityTone === "warning"
+                ? "border-amber-200 bg-amber-50"
+                : "border-eden-edge bg-eden-bg/60"
+          }`}
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-muted">
+            {affordabilityLabel}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-eden-muted">{affordabilityHint}</p>
+        </div>
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">

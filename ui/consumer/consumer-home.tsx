@@ -42,6 +42,9 @@ type ConsumerServiceRailItem = {
   pricingLabel: string;
   trustLabel: string;
   launchBadgeLabel: string;
+  affordabilityLabel: string;
+  affordabilityHint: string;
+  affordabilityTone: "ready" | "warning" | "neutral";
   href: string;
 };
 
@@ -84,6 +87,14 @@ type SelectedResultDetails = {
   actionLabel: string;
   href: string;
   supportingText: string;
+  guidanceTitle?: string;
+  guidanceDetail?: string;
+  guidanceTone?: "ready" | "warning" | "neutral";
+  guidanceCards?: Array<{
+    label: string;
+    value: string;
+    detail: string;
+  }>;
 };
 
 const edenAgent = createEdenAgent();
@@ -235,6 +246,38 @@ function getConsumerServiceLaunchDetails(input: {
   };
 }
 
+function getConsumerServiceAffordabilityDetails(
+  pricePerUseCredits: number | null,
+  currentBalanceCredits: number,
+) {
+  if (pricePerUseCredits === null) {
+    return {
+      label: "Wallet check on detail page",
+      hint: "Open the service to confirm the current visible run price before you decide.",
+      tone: "neutral" as const,
+      nextStep: "Open Service to confirm the current run price",
+    };
+  }
+
+  if (currentBalanceCredits >= pricePerUseCredits) {
+    return {
+      label: "Enough credits",
+      hint: `Your wallet already covers one run at ${formatCredits(pricePerUseCredits)}.`,
+      tone: "ready" as const,
+      nextStep: "Open Service and run with visible pricing",
+    };
+  }
+
+  const shortfall = pricePerUseCredits - currentBalanceCredits;
+
+  return {
+    label: "Needs top-up",
+    hint: `Short by ${formatCredits(shortfall)} before the first run.`,
+    tone: "warning" as const,
+    nextStep: "Add credits, then open the service",
+  };
+}
+
 function getLinkedDiscoveryService(
   discoverySnapshot: EdenDiscoverySnapshot,
   serviceId: string,
@@ -270,6 +313,7 @@ function getLinkedDiscoveryBusiness(
 function getConsumerServiceDiscoveryState(
   service: Pick<EdenServiceResult, "id" | "title" | "category" | "description">,
   discoverySnapshot: EdenDiscoverySnapshot,
+  currentBalanceCredits: number,
 ) {
   const linkedService = getLinkedDiscoveryService(discoverySnapshot, service.id);
   const linkedBusiness = getLinkedDiscoveryBusiness(discoverySnapshot, linkedService?.businessId);
@@ -281,11 +325,16 @@ function getConsumerServiceDiscoveryState(
     pricingUnit: linkedService?.pricingUnit,
     pricingModel: linkedService?.pricingModel,
   });
+  const affordability = getConsumerServiceAffordabilityDetails(
+    launchDetails.pricing.pricePerUseCredits,
+    currentBalanceCredits,
+  );
 
   return {
     linkedService,
     linkedBusiness,
     launchDetails,
+    affordability,
     href: buildServiceDetailHref(service, discoverySnapshot),
   };
 }
@@ -377,10 +426,12 @@ function getDefaultSelectedResult(response: EdenAgentResponse): SelectedResult |
 function getSelectedServiceDetails(
   service: EdenServiceResult,
   discoverySnapshot: EdenDiscoverySnapshot,
+  currentBalanceCredits: number,
 ): SelectedResultDetails {
-  const { href, launchDetails, linkedBusiness, linkedService } = getConsumerServiceDiscoveryState(
+  const { href, launchDetails, linkedBusiness, linkedService, affordability } = getConsumerServiceDiscoveryState(
     service,
     discoverySnapshot,
+    currentBalanceCredits,
   );
 
   return {
@@ -393,13 +444,52 @@ function getSelectedServiceDetails(
     chips: [
       launchDetails.launchBadgeLabel,
       launchDetails.pricingLabel,
+      affordability.label,
       "Credits only",
       ...(linkedService?.tags ?? [service.category]),
     ].slice(0, 5),
     actionLabel: "Open Service",
     href,
     supportingText:
-      `This canonical service route keeps Ask Eden aligned with ${linkedBusiness?.name ?? "the wider Eden platform"}: ${launchDetails.availabilityLabel.toLowerCase()} service, visible pricing, and Eden Credits-only usage with no hidden checkout during runs.`,
+      `This canonical service route keeps Ask Eden aligned with ${linkedBusiness?.name ?? "the wider Eden platform"}: ${launchDetails.availabilityLabel.toLowerCase()} service, visible pricing, and Eden Credits-only usage with no hidden checkout during runs. ${affordability.hint}`,
+    guidanceTitle:
+      affordability.tone === "ready"
+        ? "You can open and run this service now"
+        : affordability.tone === "warning"
+          ? "Top up before your first run"
+          : "Open the service to confirm the run price",
+    guidanceDetail:
+      affordability.tone === "ready"
+        ? `${service.title} is already within your current wallet balance, so the next step is to open the service and confirm the visible price before you run it.`
+        : affordability.tone === "warning"
+          ? `${service.title} is published and priced, but your wallet is not yet high enough for one run. Add credits first, then reopen the service and run it at the visible price.`
+          : `${service.title} still needs a final visible pricing confirmation on the service detail route before the wallet decision becomes explicit.`,
+    guidanceTone: affordability.tone,
+    guidanceCards: [
+      {
+        label: "Availability",
+        value: launchDetails.availabilityLabel,
+        detail: "Discovery stays aligned with the live publish state shown on the service route.",
+      },
+      {
+        label: "Visible price",
+        value: launchDetails.pricingLabel,
+        detail: "The same Eden Credits price is shown before the service run begins.",
+      },
+      {
+        label: "Wallet position",
+        value:
+          affordability.tone === "warning"
+            ? affordability.hint
+            : `${formatCredits(currentBalanceCredits)} available right now.`,
+        detail: "Affordability is checked against your current Eden Wallet balance.",
+      },
+      {
+        label: "Next step",
+        value: affordability.nextStep,
+        detail: "No hidden checkout happens during the run itself.",
+      },
+    ],
   };
 }
 
@@ -452,6 +542,7 @@ function getSelectedResultDetails(
   response: EdenAgentResponse,
   selection: SelectedResult | null,
   discoverySnapshot: EdenDiscoverySnapshot,
+  currentBalanceCredits: number,
 ): SelectedResultDetails | null {
   if (!selection) {
     return null;
@@ -459,7 +550,7 @@ function getSelectedResultDetails(
 
   if (selection.lane === "service") {
     const service = response.outputs.recommendedServices.find((item) => item.id === selection.id);
-    return service ? getSelectedServiceDetails(service, discoverySnapshot) : null;
+    return service ? getSelectedServiceDetails(service, discoverySnapshot, currentBalanceCredits) : null;
   }
 
   if (selection.lane === "business") {
@@ -497,9 +588,14 @@ export function ConsumerHomePanel({
   const selectedResultDetails = useMemo(
     () =>
       latestTurn
-        ? getSelectedResultDetails(latestTurn.response, selectedResult, discoverySnapshot)
+        ? getSelectedResultDetails(
+            latestTurn.response,
+            selectedResult,
+            discoverySnapshot,
+            currentBalanceCredits,
+          )
         : null,
-    [discoverySnapshot, latestTurn, selectedResult],
+    [currentBalanceCredits, discoverySnapshot, latestTurn, selectedResult],
   );
   const consumerLaunchClarityCards = useMemo(
     () => [
@@ -611,7 +707,7 @@ export function ConsumerHomePanel({
     () =>
       discoverySnapshot.marketplaceServices
         .map((service) => {
-          const { href, launchDetails, linkedBusiness } = getConsumerServiceDiscoveryState(
+          const { href, launchDetails, linkedBusiness, affordability } = getConsumerServiceDiscoveryState(
             {
               id: service.id,
               title: service.title,
@@ -619,6 +715,7 @@ export function ConsumerHomePanel({
               description: service.summary,
             },
             discoverySnapshot,
+            currentBalanceCredits,
           );
 
           return {
@@ -631,13 +728,16 @@ export function ConsumerHomePanel({
             pricingLabel: launchDetails.pricingLabel,
             trustLabel: launchDetails.trustLabel,
             launchBadgeLabel: launchDetails.launchBadgeLabel,
+            affordabilityLabel: affordability.label,
+            affordabilityHint: affordability.hint,
+            affordabilityTone: affordability.tone,
             href,
           };
         })
         .filter((service) =>
           includesSearchTerm([service.title, service.provider, service.category], normalizedQuery),
         ),
-    [discoverySnapshot, normalizedQuery, savedServiceIds],
+    [currentBalanceCredits, discoverySnapshot, normalizedQuery, savedServiceIds],
   );
 
   const trendingBusinesses = useMemo<ConsumerBusinessRailItem[]>(
@@ -966,6 +1066,7 @@ export function ConsumerHomePanel({
                           const serviceDiscoveryState = getConsumerServiceDiscoveryState(
                             service,
                             discoverySnapshot,
+                            currentBalanceCredits,
                           );
 
                           return (
@@ -980,6 +1081,9 @@ export function ConsumerHomePanel({
                                   serviceDiscoveryState.launchDetails.launchBadgeLabel
                                 }
                                 trustLabel={serviceDiscoveryState.launchDetails.trustLabel}
+                                affordabilityLabel={serviceDiscoveryState.affordability.label}
+                                affordabilityHint={serviceDiscoveryState.affordability.hint}
+                                affordabilityTone={serviceDiscoveryState.affordability.tone}
                                 isSelected={
                                   selectedResult?.lane === "service" &&
                                   selectedResult.id === service.id
@@ -1173,6 +1277,47 @@ export function ConsumerHomePanel({
                               </div>
 
                               <div className="grid gap-3">
+                                {selectedResultDetails.guidanceTitle ? (
+                                  <div
+                                    className={`rounded-2xl border p-4 ${
+                                      selectedResultDetails.guidanceTone === "ready"
+                                        ? "border-emerald-200 bg-emerald-50/70"
+                                        : selectedResultDetails.guidanceTone === "warning"
+                                          ? "border-amber-200 bg-amber-50/70"
+                                          : "border-eden-edge bg-white/88"
+                                    }`}
+                                  >
+                                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                                      Next step
+                                    </p>
+                                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                                      {selectedResultDetails.guidanceTitle}
+                                    </p>
+                                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                      {selectedResultDetails.guidanceDetail}
+                                    </p>
+                                    {selectedResultDetails.guidanceCards?.length ? (
+                                      <div className="mt-4 grid gap-3">
+                                        {selectedResultDetails.guidanceCards.map((card) => (
+                                          <div
+                                            key={`${selectedResultDetails.id}-${card.label}`}
+                                            className="rounded-2xl border border-eden-edge bg-white/90 p-3"
+                                          >
+                                            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                                              {card.label}
+                                            </p>
+                                            <p className="mt-2 text-sm font-semibold text-eden-ink">
+                                              {card.value}
+                                            </p>
+                                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                              {card.detail}
+                                            </p>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                ) : null}
                                 <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                     What this unlocks
@@ -1267,6 +1412,9 @@ export function ConsumerHomePanel({
                       pricingLabel={service.pricingLabel}
                       trustLabel={service.trustLabel}
                       launchBadgeLabel={service.launchBadgeLabel}
+                      affordabilityLabel={service.affordabilityLabel}
+                      affordabilityHint={service.affordabilityHint}
+                      affordabilityTone={service.affordabilityTone}
                       href={service.href}
                     />
                   </motion.div>
