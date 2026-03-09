@@ -95,6 +95,10 @@ function getPayoutSummaryStatusClasses(
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
+function getOwnerActionLinkClasses() {
+  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
+}
+
 export function OwnerPayoutDetailPanel({
   businessProfile,
   businessOwner,
@@ -135,6 +139,55 @@ export function OwnerPayoutDetailPanel({
       }),
     [payoutAccounting.payoutHistory, payoutFilter],
   );
+  const payoutSummaryCards = [
+    {
+      id: "payout-summary-business",
+      label: "Business",
+      value: businessProfile.name,
+      detail: businessOwner ? `Owner ${businessOwner.displayName}` : "Owner unavailable",
+    },
+    {
+      id: "payout-summary-earned",
+      label: "Total earned",
+      value: formatCredits(payoutAccounting.totalEarnedCredits),
+      detail: `Eden fee share ${formatCredits(payoutAccounting.edenFeeShareCredits)}.`,
+    },
+    {
+      id: "payout-summary-unpaid",
+      label: "Unpaid total",
+      value: formatCredits(payoutAccounting.unpaidEarningsCredits),
+      detail: `${formatCredits(payoutAccounting.pendingSettlementCredits)} pending settlement credits.`,
+    },
+    {
+      id: "payout-summary-ready",
+      label: "Payout-ready",
+      value: formatCredits(payoutAccounting.payoutReadyCredits),
+      detail: `${formatCredits(payoutAccounting.holdbackCredits)} currently held back.`,
+    },
+    {
+      id: "payout-summary-paid",
+      label: "Paid out",
+      value: formatCredits(payoutAccounting.paidOutCredits),
+      detail: `${payoutAccounting.statusOverview.settledCount} settled row${
+        payoutAccounting.statusOverview.settledCount === 1 ? "" : "s"
+      } recorded.`,
+    },
+    {
+      id: "payout-summary-latest",
+      label: "Latest settlement",
+      value: latestSettlement
+        ? formatSettlementStatus(latestSettlement.status)
+        : "No settlements",
+      detail:
+        latestSettlement?.settledAtLabel ??
+        latestSettlement?.createdAtLabel ??
+        "No settlement timestamp recorded.",
+      badge: latestSettlement ? formatSettlementStatus(latestSettlement.status) : null,
+      badgeClasses: latestSettlement
+        ? getSettlementStatusClasses(latestSettlement.status)
+        : null,
+    },
+  ];
 
   return (
     <div className="space-y-5">
@@ -185,10 +238,10 @@ export function OwnerPayoutDetailPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Payout Summary
+                  Payout Operational Summary
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Compact owner reconciliation summary for this business before the full payout breakdown and settlement history below.
+                  Compact owner reconciliation header for this business before the full payout breakdown and settlement history below.
                 </p>
               </div>
               <span
@@ -199,75 +252,42 @@ export function OwnerPayoutDetailPanel({
                 {payoutAccounting.payoutStatusLabel}
               </span>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-8">
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Business
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {businessProfile.name}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Total earned
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {formatCredits(payoutAccounting.totalEarnedCredits)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Unpaid
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {formatCredits(payoutAccounting.unpaidEarningsCredits)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Payout-ready
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {formatCredits(payoutAccounting.payoutReadyCredits)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Paid out
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {formatCredits(payoutAccounting.paidOutCredits)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Holdback
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {formatCredits(payoutAccounting.holdbackCredits)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Latest settlement
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {latestSettlement
-                    ? formatSettlementStatus(latestSettlement.status)
-                    : "No settlements"}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Latest timestamp
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {latestSettlement?.settledAtLabel ??
-                    latestSettlement?.createdAtLabel ??
-                    "Not available"}
-                </p>
-              </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+              {payoutSummaryCards.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-eden-edge bg-white p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      {item.label}
+                    </p>
+                    {"badge" in item && item.badge && item.badgeClasses ? (
+                      <span
+                        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${item.badgeClasses}`}
+                      >
+                        {item.badge}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href="/owner#transaction-flow"
+                className={getOwnerActionLinkClasses()}
+              >
+                View Payout Feed
+              </Link>
+              <Link
+                href={`/businesses/${businessProfile.id}`}
+                className={getOwnerActionLinkClasses()}
+              >
+                View Business
+              </Link>
             </div>
           </div>
 
@@ -356,9 +376,9 @@ export function OwnerPayoutDetailPanel({
                 </div>
                 <Link
                   href="/owner#transaction-flow"
-                  className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                  className={getOwnerActionLinkClasses()}
                 >
-                  Back to accounting
+                  View Payout Feed
                 </Link>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">

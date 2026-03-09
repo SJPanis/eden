@@ -1305,7 +1305,7 @@ export function OwnerDashboardPanel({
                           href={`/owner/payouts/${entry.business.id}`}
                           className="rounded-xl border border-eden-edge bg-white px-3 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
                         >
-                          Open Payout Detail
+                          View Payout
                         </Link>
                         <Link
                           href={`/businesses/${entry.business.id}`}
@@ -1967,7 +1967,7 @@ export function OwnerDashboardPanel({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Payment Summary
+                    Payment Operational Summary
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
                     Compact owner reconciliation view of the persistent top-up ledger before the detailed payment and lifecycle feeds below.

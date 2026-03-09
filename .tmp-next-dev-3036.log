@@ -1,0 +1,16 @@
+▲ Next.js 16.1.6 (webpack)
+- Local:         http://localhost:3036
+- Network:       http://192.168.86.28:3036
+- Environments: .env
+
+✓ Starting...
+✓ Ready in 1169ms
+[eden-auth-session] hybrid resolved mock session via default_fallback: Persistent auth is not yet authoritative, so the server session fell back to the mock cookie path.
+[eden-auth-session] hybrid session snapshot source=mock resolver=default_fallback role=consumer memberships=[none] ownerFallbackClaims=false: Resolved through mock fallback because no persistent identity was available.
+ GET / 200 in 1549ms (compile: 1366ms, render: 183ms)
+[eden-auth-session] hybrid resolved mock session via default_fallback: Persistent auth is not yet authoritative, so the server session fell back to the mock cookie path.
+[eden-auth-session] hybrid session snapshot source=mock resolver=default_fallback role=consumer memberships=[none] ownerFallbackClaims=false: Resolved through mock fallback because no persistent identity was available.
+ GET / 200 in 32ms (compile: 4ms, render: 28ms)
+[eden-auth-session] hybrid resolved mock session via default_fallback: Persistent auth is not yet authoritative, so the server session fell back to the mock cookie path.
+[eden-auth-session] hybrid session snapshot source=mock resolver=default_fallback role=consumer memberships=[none] ownerFallbackClaims=false: Resolved through mock fallback because no persistent identity was available.
+ GET / 200 in 29ms (compile: 8ms, render: 21ms)

@@ -87,6 +87,52 @@ export function OwnerPaymentDetailPanel({
 }: OwnerPaymentDetailPanelProps) {
   const { payment, relatedUser, packageInfo, settlementResultLabel, recentEventLogs } =
     paymentDetail;
+  const paymentSummaryCards = [
+    {
+      id: "payment-summary-status",
+      label: "Payment status",
+      value: formatPaymentStatus(payment.status),
+      detail: `Settlement state: ${settlementResultLabel}`,
+      badge: formatPaymentStatus(payment.status),
+      badgeClasses: getPaymentStatusClasses(payment.status),
+    },
+    {
+      id: "payment-summary-credits",
+      label: "Credits amount",
+      value: formatCredits(payment.creditsAmount),
+      detail: formatMoneyAmount(payment.amountCents, payment.currency),
+    },
+    {
+      id: "payment-summary-package",
+      label: "Package or offer",
+      value: packageInfo?.title ?? "Not available",
+      detail: packageInfo?.chargeLabel ?? "No package charge label recorded.",
+    },
+    {
+      id: "payment-summary-user",
+      label: "Related user",
+      value: relatedUser
+        ? `${relatedUser.displayName} (@${relatedUser.username})`
+        : payment.userId
+          ? `Unknown user (${payment.userId})`
+          : "No linked user",
+      detail: relatedUser
+        ? "Use Inspect Related User for the owner wallet context."
+        : "No durable user link was resolved for this payment.",
+    },
+    {
+      id: "payment-summary-created",
+      label: "Created",
+      value: payment.createdAtLabel,
+      detail: payment.providerLabel,
+    },
+    {
+      id: "payment-summary-settled",
+      label: "Settled",
+      value: payment.settledAtLabel ?? "Awaiting settlement",
+      detail: payment.failureReason ?? "No failure reason recorded.",
+    },
+  ];
 
   return (
     <div className="space-y-5">
@@ -151,11 +197,10 @@ export function OwnerPaymentDetailPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Payment Summary
+                  Payment Operational Summary
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Compact owner reconciliation view of the current payment before the full provider
-                  references and event timeline below.
+                  Compact owner reconciliation header for the current payment before the full provider references and event timeline below.
                 </p>
               </div>
               <span
@@ -167,66 +212,43 @@ export function OwnerPaymentDetailPanel({
               </span>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Status
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {formatPaymentStatus(payment.status)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Credits amount
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {formatCredits(payment.creditsAmount)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Package or offer
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {packageInfo?.title ?? "Not available"}
-                </p>
-                <p className="mt-1 text-xs text-eden-muted">
-                  {packageInfo?.chargeLabel ?? "No recorded offer"}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Related user
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {relatedUser
-                    ? `${relatedUser.displayName} (@${relatedUser.username})`
-                    : payment.userId
-                      ? `Unknown user (${payment.userId})`
-                      : "No linked user"}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Settlement result
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {settlementResultLabel}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Timestamps
-                </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {payment.createdAtLabel}
-                </p>
-                <p className="mt-1 text-xs text-eden-muted">
-                  {payment.settledAtLabel
-                    ? `Settled ${payment.settledAtLabel}`
-                    : "Awaiting settlement"}
-                </p>
-              </div>
+              {paymentSummaryCards.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-eden-edge bg-white p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      {item.label}
+                    </p>
+                    {"badge" in item && item.badge && item.badgeClasses ? (
+                      <span
+                        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${item.badgeClasses}`}
+                      >
+                        {item.badge}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {relatedUser ? (
+                <Link
+                  href={`/owner/users/${relatedUser.id}`}
+                  className={getOwnerActionLinkClasses()}
+                >
+                  Inspect Related User
+                </Link>
+              ) : null}
+              <Link
+                href="/owner#transaction-flow"
+                className={getOwnerActionLinkClasses()}
+              >
+                View Payment Feed
+              </Link>
             </div>
           </div>
 
@@ -235,7 +257,7 @@ export function OwnerPaymentDetailPanel({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Payment summary
+                    Payment Financial Summary
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
                     Current top-up state with related wallet credits, selected package when known,
@@ -305,9 +327,9 @@ export function OwnerPaymentDetailPanel({
                 </div>
                 <Link
                   href="/owner#transaction-flow"
-                  className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                  className={getOwnerActionLinkClasses()}
                 >
-                  Back to payments
+                  View Payment Feed
                 </Link>
               </div>
               <div className="mt-4 space-y-3">
