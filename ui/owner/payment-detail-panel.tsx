@@ -135,6 +135,89 @@ export function OwnerPaymentDetailPanel({
           transition={{ duration: 0.28, ease: "easeOut" }}
           className="space-y-4"
         >
+          <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Payment Summary Strip
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Compact owner reconciliation view of the current payment before the full provider
+                  references and event timeline below.
+                </p>
+              </div>
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${getPaymentStatusClasses(
+                  payment.status,
+                )}`}
+              >
+                {payment.status}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Status
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {payment.status}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Credits amount
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {formatCredits(payment.creditsAmount)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Package or offer
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {packageInfo?.title ?? "Not available"}
+                </p>
+                <p className="mt-1 text-xs text-eden-muted">
+                  {packageInfo?.chargeLabel ?? "No recorded offer"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Related user
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {relatedUser
+                    ? `${relatedUser.displayName} (@${relatedUser.username})`
+                    : payment.userId
+                      ? `Unknown user (${payment.userId})`
+                      : "No linked user"}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Settlement result
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {settlementResultLabel}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Timestamps
+                </p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {payment.createdAtLabel}
+                </p>
+                <p className="mt-1 text-xs text-eden-muted">
+                  {payment.settledAtLabel
+                    ? `Settled ${payment.settledAtLabel}`
+                    : "Awaiting settlement"}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
             <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
               <div className="flex items-start justify-between gap-3">
