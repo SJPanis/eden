@@ -42,7 +42,11 @@ import {
   formatServicePricingLabel,
   resolveServicePricing,
 } from "@/modules/core/services/service-pricing";
-import { getServiceAffordabilityDetails } from "@/ui/consumer/components/service-affordability-shared";
+import {
+  edenLaunchLabels,
+  getLaunchAvailabilityLabel,
+  getServiceAffordabilityDetails,
+} from "@/ui/consumer/components/service-affordability-shared";
 import { BusinessAiAssistantPanel } from "@/ui/business/components/business-ai-assistant-panel";
 import { MockServiceBuilder } from "@/ui/business/components/mock-service-builder";
 import {
@@ -633,14 +637,7 @@ export function BusinessDashboardPanel({
     activeServicePricing.pricePerUseCredits,
     consumerWalletContextCredits,
   );
-  const consumerLaunchStateLabel =
-    releaseStatus === "published"
-      ? "Published and available"
-      : releaseStatus === "ready"
-        ? "Ready, not live yet"
-        : releaseStatus === "testing"
-          ? "Testing only"
-          : "Draft only";
+  const consumerLaunchStateLabel = getLaunchAvailabilityLabel(releaseStatus);
   const consumerLaunchStateDetail =
     releaseStatus === "published"
       ? "Consumers can discover this service now in the marketplace and Ask Eden."
@@ -651,11 +648,7 @@ export function BusinessDashboardPanel({
           : "Consumers cannot see this service until you move it beyond draft.";
   const consumerReadinessValue =
     releaseStatus === "published"
-      ? consumerAffordability.tone === "ready"
-        ? "Ready to run"
-        : consumerAffordability.tone === "warning"
-          ? "Top-up likely first"
-          : "Price check on detail"
+      ? consumerAffordability.label
       : "Preview only";
   const consumerReadinessDetail =
     releaseStatus === "published"
@@ -691,7 +684,7 @@ export function BusinessDashboardPanel({
     },
     {
       id: "launch-summary-consumer",
-      label: "Consumer readiness",
+      label: edenLaunchLabels.consumerReadiness,
       value: consumerReadinessValue,
       detail: consumerReadinessDetail,
     },
@@ -706,9 +699,9 @@ export function BusinessDashboardPanel({
     {
       id: "launch-summary-wallet",
       label: "Consumer billing path",
-      value: "Eden Credits only",
+      value: edenLaunchLabels.creditsOnlyBilling,
       detail: activeServicePricing.hasStoredPrice
-        ? `Each run deducts the visible price from the consumer wallet. No hidden checkout happens during service use.`
+        ? `Each run deducts the visible price from the consumer wallet. ${edenLaunchLabels.noHiddenCheckout}`
         : "Wallet charging is ready, but the final per-use price should be set before launch.",
     },
   ];
@@ -721,10 +714,10 @@ export function BusinessDashboardPanel({
     },
     {
       id: "consumer-launch-pricing",
-      label: "Visible pricing",
+      label: edenLaunchLabels.visiblePricing,
       value: activeServicePricing.hasStoredPrice ? activeServicePricingLabel : "Price needs review",
       detail: activeServicePricing.hasStoredPrice
-        ? "Consumers see the exact Eden Credits price before they run. No hidden checkout happens during service use."
+        ? `Consumers see the exact Eden Credits price before they run. ${edenLaunchLabels.noHiddenCheckout}`
         : "Add a visible Eden Credits price so the consumer decision stays explicit.",
     },
     {
@@ -1396,7 +1389,7 @@ export function BusinessDashboardPanel({
                       )}`}
                     >
                       <p className="text-xs uppercase tracking-[0.12em] text-current/80">
-                        Consumer readiness
+                        {edenLaunchLabels.consumerReadiness}
                       </p>
                       <p className="mt-2 text-sm font-semibold">
                         {releaseStatus === "published"
@@ -1516,7 +1509,7 @@ export function BusinessDashboardPanel({
                   )}`}
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-current/80">
-                    Consumer-facing readiness
+                    {edenLaunchLabels.consumerReadiness}
                   </p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     {consumerLaunchPreviewCards.map((item) => (
@@ -1889,7 +1882,7 @@ export function BusinessDashboardPanel({
                     </p>
                     <p className="mt-2 text-sm leading-6 text-current/80">
                       {releaseStatus === "published"
-                        ? `${consumerAffordability.hint} No hidden checkout happens during service use.`
+                        ? `${consumerAffordability.hint} ${edenLaunchLabels.noHiddenCheckout}`
                         : "Consumers will see the same visible-price, credits-only guidance after this service is published."}
                     </p>
                   </div>

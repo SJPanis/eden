@@ -30,7 +30,13 @@ import { BusinessCard } from "@/ui/consumer/components/business-card";
 import { CategoryCard } from "@/ui/consumer/components/category-card";
 import { ConsumerWalletPanel } from "@/ui/consumer/components/consumer-wallet-panel";
 import { DiscoveryRail } from "@/ui/consumer/components/discovery-rail";
-import { getServiceAffordabilityDetails } from "@/ui/consumer/components/service-affordability-shared";
+import {
+  edenLaunchLabels,
+  getCreditsOnlyTrustLabel,
+  getLaunchAvailabilityLabel,
+  getLaunchBadgeLabel,
+  getServiceAffordabilityDetails,
+} from "@/ui/consumer/components/service-affordability-shared";
 import { ServiceCard } from "@/ui/consumer/components/service-card";
 
 type ConsumerServiceRailItem = {
@@ -219,24 +225,9 @@ function getConsumerServiceLaunchDetails(input: {
       includePricingModel: true,
     },
   );
-  const availabilityLabel = normalizedStatus.includes("publish")
-    ? "Published"
-    : normalizedStatus.includes("ready")
-      ? "Ready"
-      : normalizedStatus.includes("testing")
-        ? "Testing"
-        : "Preview";
-  const launchBadgeLabel =
-    availabilityLabel === "Published" && pricing.hasStoredPrice
-      ? "Published and priced"
-      : availabilityLabel === "Published"
-        ? "Published"
-        : pricing.hasStoredPrice
-          ? "Priced preview"
-          : "Preview";
-  const trustLabel = pricing.hasStoredPrice
-    ? "Credits only | no hidden checkout"
-    : "Credits only | mock fallback price";
+  const availabilityLabel = getLaunchAvailabilityLabel(normalizedStatus);
+  const launchBadgeLabel = getLaunchBadgeLabel(normalizedStatus, pricing.hasStoredPrice);
+  const trustLabel = getCreditsOnlyTrustLabel(pricing.hasStoredPrice);
 
   return {
     availabilityLabel,
@@ -414,13 +405,13 @@ function getSelectedServiceDetails(
       launchDetails.launchBadgeLabel,
       launchDetails.pricingLabel,
       affordability.label,
-      "Credits only",
+      edenLaunchLabels.creditsOnlyBilling,
       ...(linkedService?.tags ?? [service.category]),
     ].slice(0, 5),
-    actionLabel: "Open Service",
+    actionLabel: edenLaunchLabels.openService,
     href,
     supportingText:
-      `This canonical service route keeps Ask Eden aligned with ${linkedBusiness?.name ?? "the wider Eden platform"}: ${launchDetails.availabilityLabel.toLowerCase()} service, visible pricing, and Eden Credits-only usage with no hidden checkout during runs. ${affordability.hint}`,
+      `This canonical service route keeps Ask Eden aligned with ${linkedBusiness?.name ?? "the wider Eden platform"}: ${launchDetails.availabilityLabel.toLowerCase()}, ${edenLaunchLabels.visiblePricing.toLowerCase()}, and ${edenLaunchLabels.creditsOnlyBilling.toLowerCase()} with ${edenLaunchLabels.noHiddenCheckout.toLowerCase()} ${affordability.hint}`,
     guidanceTitle:
       affordability.tone === "ready"
         ? "You can open and run this service now"
@@ -431,7 +422,7 @@ function getSelectedServiceDetails(
       affordability.tone === "ready"
         ? `${service.title} is already within your current wallet balance, so the next step is to open the service and confirm the visible price before you run it.`
         : affordability.tone === "warning"
-          ? `${service.title} is published and priced, but your wallet is not yet high enough for one run. Add credits first, then reopen the service and run it at the visible price.`
+          ? `${service.title} is published and priced, but your wallet is not yet high enough for one run. ${edenLaunchLabels.addCredits} first, then reopen the service and ${edenLaunchLabels.runService.toLowerCase()} at the visible price.`
           : `${service.title} still needs a final visible pricing confirmation on the service detail route before the wallet decision becomes explicit.`,
     guidanceTone: affordability.tone,
     guidanceCards: [
@@ -441,7 +432,7 @@ function getSelectedServiceDetails(
         detail: "Discovery stays aligned with the live publish state shown on the service route.",
       },
       {
-        label: "Visible price",
+        label: edenLaunchLabels.visiblePricing,
         value: launchDetails.pricingLabel,
         detail: "The same Eden Credits price is shown before the service run begins.",
       },
@@ -456,7 +447,7 @@ function getSelectedServiceDetails(
       {
         label: "Next step",
         value: affordability.nextStep,
-        detail: "No hidden checkout happens during the run itself.",
+        detail: edenLaunchLabels.noHiddenCheckout,
       },
     ],
   };
@@ -576,7 +567,7 @@ export function ConsumerHomePanel({
       },
       {
         id: "consumer-launch-price",
-        label: "Transparent pricing",
+        label: edenLaunchLabels.visiblePricing,
         value: "Shown before every run",
         detail: "Each service detail page shows the exact Eden Credits price before usage begins.",
       },
@@ -588,7 +579,7 @@ export function ConsumerHomePanel({
       },
       {
         id: "consumer-launch-payments",
-        label: "No hidden checkout",
+        label: edenLaunchLabels.creditsOnlyBilling,
         value: "Top-up only",
         detail: "Checkout appears only when you explicitly add credits. Service runs deduct only the visible wallet price.",
       },
@@ -611,13 +602,13 @@ export function ConsumerHomePanel({
       },
       {
         id: "consumer-step-topup",
-        label: "3. Add credits only if needed",
+        label: "3. Add Credits only if needed",
         detail:
           "Top up through the wallet if your balance is too low. Checkout appears only during this explicit step.",
       },
       {
         id: "consumer-step-run",
-        label: "4. Run with visible credits pricing",
+        label: "4. Run Service with visible pricing",
         detail:
           "A successful run deducts only the shown wallet amount and records the service usage immediately.",
       },
@@ -645,10 +636,10 @@ export function ConsumerHomePanel({
 
     if (!lowestPricedService) {
       return {
-        title: "Open a service to preview the first run flow",
+        title: "Open Service to preview the first run flow",
         detail:
           "Published marketplace services still use fallback pricing in this environment, so the wallet and service detail screens explain the credits flow step by step.",
-        cue: "Open Service from the marketplace",
+        cue: edenLaunchLabels.openService,
       };
     }
 
@@ -659,7 +650,7 @@ export function ConsumerHomePanel({
       return {
         title: "You can run a published service now",
         detail: `${lowestPricedService.service.title} is already within your wallet balance. Open the service, confirm the visible price, and run it through Eden Credits.`,
-        cue: "Open Service and run with visible pricing",
+        cue: `${edenLaunchLabels.openService}, then ${edenLaunchLabels.runService}`,
       };
     }
 
@@ -667,8 +658,8 @@ export function ConsumerHomePanel({
       title: "Top up before your first service run",
       detail: `${lowestPricedService.service.title} is the lowest-priced published service right now, and it still needs ${formatCredits(
         lowestPricedService.pricing.pricePerUseCredits ?? 0,
-      )}. Add credits in Eden Wallet first, then open the service and run it at the visible price.`,
-      cue: "Add credits in Eden Wallet, then open a service",
+      )}. ${edenLaunchLabels.addCredits} in Eden Wallet first, then ${edenLaunchLabels.openService.toLowerCase()} and ${edenLaunchLabels.runService.toLowerCase()} at the visible price.`,
+      cue: `${edenLaunchLabels.addCredits} in Eden Wallet, then ${edenLaunchLabels.openService}`,
     };
   }, [currentBalanceCredits, discoverySnapshot.marketplaceServices]);
 
@@ -1036,7 +1027,7 @@ export function ConsumerHomePanel({
                             Recommended services
                           </h3>
                           <p className="mt-1 text-xs text-eden-muted">
-                            Open a service card to inspect published state, visible pricing, and the credits-only run flow.
+                            Open Service to inspect published state, visible pricing, and the credits-only run flow.
                           </p>
                         </div>
                         <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">

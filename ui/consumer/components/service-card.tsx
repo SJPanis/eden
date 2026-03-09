@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { edenLaunchLabels } from "@/ui/consumer/components/service-affordability-shared";
 
 type ServiceCardProps = {
   title: string;
@@ -61,7 +62,9 @@ export function ServiceCard({
       </div>
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-white/82 p-3">
-        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Visible pricing</p>
+        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+          {edenLaunchLabels.visiblePricing}
+        </p>
         <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
         <p className="mt-2 text-xs leading-5 text-eden-muted">{trustLabel}</p>
         <div
@@ -81,12 +84,14 @@ export function ServiceCard({
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <span className="text-xs text-eden-muted">{saved ? "Saved" : "Credits-only run"}</span>
+        <span className="text-xs text-eden-muted">
+          {saved ? "Saved" : edenLaunchLabels.creditsOnlyBilling}
+        </span>
         <Link
           href={href}
           className="inline-flex rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
         >
-          Open Service
+          {edenLaunchLabels.openService}
         </Link>
       </div>
     </article>

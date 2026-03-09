@@ -9,6 +9,7 @@ import {
   WalletActivityFilters,
   type WalletActivityFilter,
 } from "@/ui/consumer/components/wallet-activity-filters";
+import { edenLaunchLabels } from "@/ui/consumer/components/service-affordability-shared";
 import {
   formatWalletEventLabel,
   getWalletEventBadgeClasses,
@@ -332,11 +333,11 @@ export function ConsumerWalletPanel({
                 First-time wallet flow
               </p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Add credits here first, then open a service and compare its visible price to your wallet before you run it.
+                {edenLaunchLabels.addCredits} here first, then {edenLaunchLabels.openService.toLowerCase()} and compare its visible price to your wallet before you run it.
               </p>
             </div>
             <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-              Add credits only when needed
+              Add Credits only when needed
             </span>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -347,13 +348,13 @@ export function ConsumerWalletPanel({
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">2. Add credits</p>
+              <p className="text-sm font-semibold text-eden-ink">2. Add Credits</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
                 Use checkout or mock top-up. Credits appear only after the settlement flow completes.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">3. Open a service</p>
+              <p className="text-sm font-semibold text-eden-ink">3. Open Service</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
                 Service cards and detail pages show the exact visible price before any run happens.
               </p>
@@ -375,8 +376,8 @@ export function ConsumerWalletPanel({
             <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Next action</p>
             <p className="mt-2 text-sm font-semibold text-eden-ink">
               {displayBalanceCredits > 0
-                ? "Open Service from the marketplace"
-                : "Add credits, then open a service"}
+                ? edenLaunchLabels.openService
+                : `${edenLaunchLabels.addCredits}, then ${edenLaunchLabels.openService}`}
             </p>
           </div>
         </div>

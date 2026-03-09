@@ -9,6 +9,10 @@ import {
   resolveServicePricing,
 } from "@/modules/core/services/service-pricing";
 import {
+  edenLaunchLabels,
+  getLaunchAvailabilityLabel,
+} from "@/ui/consumer/components/service-affordability-shared";
+import {
   filterWalletTransactions,
   WalletActivityFilters,
   type WalletActivityFilter,
@@ -158,8 +162,8 @@ export function ServiceUsagePanel({
   const hasSufficientBalance = displayBalanceCredits >= requiredCredits;
   const balanceShortfall = Math.max(requiredCredits - displayBalanceCredits, 0);
   const actionLabel = pricing.hasStoredPrice
-    ? `Run Service for ${pricing.pricePerUseCredits?.toLocaleString()} ${pricing.pricingUnit}`
-    : "Run Service";
+    ? `${edenLaunchLabels.runService} for ${pricing.pricePerUseCredits?.toLocaleString()} ${pricing.pricingUnit}`
+    : edenLaunchLabels.runService;
   const filteredTransactions = useMemo(
     () => filterWalletTransactions(recentTransactions, activityFilter),
     [activityFilter, recentTransactions],
@@ -174,7 +178,8 @@ export function ServiceUsagePanel({
     [recentTransactions],
   );
   const latestVisibleTransaction = filteredTransactions[0] ?? null;
-  const serviceAvailabilityLabel = availabilityLabel ?? (disabled ? "Preview only" : "Published and available");
+  const serviceAvailabilityLabel =
+    availabilityLabel ?? (disabled ? getLaunchAvailabilityLabel("preview") : getLaunchAvailabilityLabel("published"));
   const serviceAvailabilityDetail =
     availabilityDetail ??
     (disabled
@@ -192,16 +197,16 @@ export function ServiceUsagePanel({
     : hasSufficientBalance
       ? {
           toneClass: "border-emerald-200 bg-emerald-50",
-          title: "Ready to run with visible pricing",
-          detail: `Press Run Service to deduct ${formatCreditsValue(requiredCredits)} from your Eden Wallet and record usage for ${serviceTitle}.`,
-          cue: "Open run flow now",
+          title: "Ready now with visible pricing",
+          detail: `Press ${edenLaunchLabels.runService} to deduct ${formatCreditsValue(requiredCredits)} from your Eden Wallet and record usage for ${serviceTitle}.`,
+          cue: `${edenLaunchLabels.runService} now`,
         }
-      : {
-          toneClass: "border-amber-200 bg-amber-50",
-          title: "Top up before you run",
-          detail: `This service needs ${formatCreditsValue(requiredCredits)}. Your wallet is short by ${formatCreditsValue(balanceShortfall)}.`,
-          cue: `Add ${selectedPackage.title} first, then run at the visible price.`,
-        };
+    : {
+        toneClass: "border-amber-200 bg-amber-50",
+        title: "Top up before you run",
+        detail: `This service needs ${formatCreditsValue(requiredCredits)}. Your wallet is short by ${formatCreditsValue(balanceShortfall)}.`,
+        cue: `${edenLaunchLabels.addCredits} first, then ${edenLaunchLabels.runService}.`,
+      };
 
   useEffect(() => {
     if (!topUpConfig.paymentEnabled) {
@@ -614,7 +619,9 @@ export function ServiceUsagePanel({
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">Eden Credits only</p>
+          <p className="mt-2 text-sm font-semibold text-eden-ink">
+            {edenLaunchLabels.creditsOnlyBilling}
+          </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
             Each run uses the visible credit price below. Wallet top-ups are the only time a payment-backed checkout can appear.
           </p>
@@ -684,7 +691,7 @@ export function ServiceUsagePanel({
 
       {!hasSufficientBalance ? (
         <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
-          Your Eden Credits balance is below the required service price. Add credits first, then return to the visible Run Service action to complete the credits-only flow.
+          Your Eden Credits balance is below the required service price. {edenLaunchLabels.addCredits} first, then return to the visible {edenLaunchLabels.runService} action to complete the credits-only flow.
         </div>
       ) : null}
 

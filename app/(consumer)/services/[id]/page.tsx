@@ -30,7 +30,11 @@ import {
   loadServiceById,
 } from "@/modules/core/services";
 import { getServerSession } from "@/modules/core/session/server";
-import { getServiceAffordabilityDetails } from "@/ui/consumer/components/service-affordability-shared";
+import {
+  edenLaunchLabels,
+  getLaunchAvailabilityLabel,
+  getServiceAffordabilityDetails,
+} from "@/ui/consumer/components/service-affordability-shared";
 import { ServiceUsagePanel } from "@/ui/consumer/components/service-usage-panel";
 
 type SearchValue = string | string[] | undefined;
@@ -195,10 +199,10 @@ export default async function ServiceDetailPage({
   const consumerAvailabilityLabel = businessFrozen
     ? "Temporarily unavailable"
     : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
-      ? "Published and available"
+      ? getLaunchAvailabilityLabel("published")
       : pipelineStatusOverride === "ready" || pipelineSnapshot?.status === "ready"
-        ? "Ready for launch"
-        : "Preview availability";
+        ? getLaunchAvailabilityLabel("ready")
+        : getLaunchAvailabilityLabel("preview");
   const consumerAvailabilityDetail = businessFrozen
     ? "This service is currently blocked by an owner freeze on the linked business."
     : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
@@ -259,7 +263,7 @@ export default async function ServiceDetailPage({
       note={
         businessFrozen
           ? "All content on this page is mocked. The linked business is currently under a local owner freeze overlay."
-          : "All content on this page is mocked. The price shown below is the exact Eden Credits amount used for service runs, and no hidden checkout or background payment happens during usage."
+          : `All content on this page is mocked. The price shown below is the exact Eden Credits amount used for service runs, and ${edenLaunchLabels.noHiddenCheckout.toLowerCase()}`
       }
     >
       <div className="space-y-5">
@@ -271,7 +275,7 @@ export default async function ServiceDetailPage({
                   Launch clarity
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  This service route makes the core consumer promise explicit before the run starts: availability, price, and wallet behavior are visible up front.
+                  This service route makes the core consumer promise explicit before the run starts: availability, visible pricing, and wallet behavior are visible up front.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -335,7 +339,7 @@ export default async function ServiceDetailPage({
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Visible price</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{edenLaunchLabels.visiblePricing}</p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   {pricing.hasStoredPrice
@@ -345,7 +349,7 @@ export default async function ServiceDetailPage({
               </div>
               <div className="rounded-2xl border border-eden-edge bg-white p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">Eden Credits only</p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">{edenLaunchLabels.creditsOnlyBilling}</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   Service runs deduct credits from the wallet. Stripe only appears if the user explicitly chooses to top up.
                 </p>
@@ -389,9 +393,9 @@ export default async function ServiceDetailPage({
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                <p className="text-sm font-semibold text-eden-ink">3. Add credits only if needed</p>
+                <p className="text-sm font-semibold text-eden-ink">3. Add Credits only if needed</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Add credits through the wallet flow if your balance is low. No hidden payment happens when you press run.
+                  Add Credits through the wallet flow if your balance is low. {edenLaunchLabels.noHiddenCheckout}
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">

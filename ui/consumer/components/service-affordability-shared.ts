@@ -1,5 +1,15 @@
 export type EdenServiceAffordabilityTone = "ready" | "warning" | "neutral";
 
+export const edenLaunchLabels = {
+  openService: "Open Service",
+  runService: "Run Service",
+  addCredits: "Add Credits",
+  visiblePricing: "Visible pricing",
+  creditsOnlyBilling: "Eden Credits only",
+  noHiddenCheckout: "No hidden checkout during service use.",
+  consumerReadiness: "Consumer-facing readiness",
+} as const;
+
 type EdenServiceAffordabilityDetails = {
   label: string;
   hint: string;
@@ -11,25 +21,74 @@ function formatCreditsValue(value: number) {
   return `${value.toLocaleString()} credits`;
 }
 
+export function getLaunchAvailabilityLabel(status?: string | null) {
+  const normalized = (status ?? "").toLowerCase();
+
+  if (normalized.includes("publish")) {
+    return "Published and available";
+  }
+
+  if (normalized.includes("ready")) {
+    return "Ready for launch";
+  }
+
+  if (normalized.includes("testing")) {
+    return "Testing only";
+  }
+
+  return "Preview only";
+}
+
+export function getLaunchBadgeLabel(
+  status: string | null | undefined,
+  hasStoredPrice: boolean,
+) {
+  const availabilityLabel = getLaunchAvailabilityLabel(status);
+
+  if (availabilityLabel === "Published and available" && hasStoredPrice) {
+    return "Published and priced";
+  }
+
+  if (availabilityLabel === "Published and available") {
+    return "Published";
+  }
+
+  if (availabilityLabel === "Ready for launch" && hasStoredPrice) {
+    return "Ready for launch";
+  }
+
+  if (hasStoredPrice) {
+    return "Visible pricing set";
+  }
+
+  return "Preview only";
+}
+
+export function getCreditsOnlyTrustLabel(hasStoredPrice: boolean) {
+  return hasStoredPrice
+    ? `${edenLaunchLabels.creditsOnlyBilling} | ${edenLaunchLabels.noHiddenCheckout}`
+    : `${edenLaunchLabels.creditsOnlyBilling} | visible price still pending`;
+}
+
 export function getServiceAffordabilityDetails(
   pricePerUseCredits: number | null,
   currentBalanceCredits: number,
 ): EdenServiceAffordabilityDetails {
   if (pricePerUseCredits === null) {
     return {
-      label: "Wallet check on detail page",
+      label: "Price check on detail",
       hint: "Open the service to confirm the current visible run price before you decide.",
       tone: "neutral",
-      nextStep: "Open Service to confirm the current run price",
+      nextStep: edenLaunchLabels.openService,
     };
   }
 
   if (currentBalanceCredits >= pricePerUseCredits) {
     return {
-      label: "Enough credits",
+      label: "Ready now",
       hint: `Your wallet already covers one run at ${formatCreditsValue(pricePerUseCredits)}.`,
       tone: "ready",
-      nextStep: "Open Service and run with visible pricing",
+      nextStep: `${edenLaunchLabels.openService}, then ${edenLaunchLabels.runService}`,
     };
   }
 
@@ -37,6 +96,6 @@ export function getServiceAffordabilityDetails(
     label: "Needs top-up",
     hint: `Short by ${formatCreditsValue(pricePerUseCredits - currentBalanceCredits)} before the first run.`,
     tone: "warning",
-    nextStep: "Add credits, then open the service",
+    nextStep: `${edenLaunchLabels.addCredits}, then ${edenLaunchLabels.openService}`,
   };
 }

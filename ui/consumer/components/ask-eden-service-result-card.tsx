@@ -1,4 +1,5 @@
 import type { EdenServiceResult } from "@/modules/eden-ai/eden-types";
+import { edenLaunchLabels } from "@/ui/consumer/components/service-affordability-shared";
 
 type AskEdenServiceResultCardProps = {
   service: EdenServiceResult;
@@ -70,14 +71,16 @@ export function AskEdenServiceResultCard({
           {availabilityLabel}
         </span>
         <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-eden-muted">
-          Credits-only run
+          {edenLaunchLabels.creditsOnlyBilling}
         </span>
       </div>
 
       <p className="mt-3 text-xs leading-5 text-eden-muted">{service.description}</p>
 
       <div className="mt-3 rounded-2xl border border-eden-edge bg-white/80 p-3">
-        <p className="text-[10px] uppercase tracking-[0.14em] text-eden-muted">Visible pricing</p>
+        <p className="text-[10px] uppercase tracking-[0.14em] text-eden-muted">
+          {edenLaunchLabels.visiblePricing}
+        </p>
         <p className="mt-2 text-xs font-semibold text-eden-ink">{pricingLabel}</p>
         <p className="mt-2 text-xs leading-5 text-eden-muted">{trustLabel}</p>
         <div
@@ -105,7 +108,7 @@ export function AskEdenServiceResultCard({
         }}
         className="mt-4 inline-flex items-center rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
       >
-        Open Service
+        {edenLaunchLabels.openService}
       </button>
     </article>
   );
