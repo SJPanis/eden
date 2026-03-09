@@ -42,6 +42,7 @@ import {
   formatServicePricingLabel,
   resolveServicePricing,
 } from "@/modules/core/services/service-pricing";
+import { getServiceAffordabilityDetails } from "@/ui/consumer/components/service-affordability-shared";
 import { BusinessAiAssistantPanel } from "@/ui/business/components/business-ai-assistant-panel";
 import { MockServiceBuilder } from "@/ui/business/components/mock-service-builder";
 import {
@@ -273,6 +274,18 @@ function getChecklistStateClasses(state: EdenMockChecklistState) {
   }
 
   return "bg-slate-300";
+}
+
+function getAffordabilityClasses(tone: "ready" | "warning" | "neutral") {
+  if (tone === "ready") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  }
+
+  if (tone === "warning") {
+    return "border-amber-200 bg-amber-50 text-amber-700";
+  }
+
+  return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
 function getTransactionDirectionClasses(direction: EdenMockTransaction["direction"]) {
@@ -614,6 +627,44 @@ export function BusinessDashboardPanel({
     pricingUnit: workspaceService?.record.pricingUnit ?? activeService?.pricingUnit ?? null,
     pricingModel: workspaceService?.record.pricingModel ?? activeService?.pricingModel ?? null,
   });
+  const consumerWalletContextCredits =
+    billingSnapshot?.userBalanceCredits ?? session.user.edenBalanceCredits;
+  const consumerAffordability = getServiceAffordabilityDetails(
+    activeServicePricing.pricePerUseCredits,
+    consumerWalletContextCredits,
+  );
+  const consumerLaunchStateLabel =
+    releaseStatus === "published"
+      ? "Published and available"
+      : releaseStatus === "ready"
+        ? "Ready, not live yet"
+        : releaseStatus === "testing"
+          ? "Testing only"
+          : "Draft only";
+  const consumerLaunchStateDetail =
+    releaseStatus === "published"
+      ? "Consumers can discover this service now in the marketplace and Ask Eden."
+      : releaseStatus === "ready"
+        ? "The service is one step away from consumer discovery, but it is not live yet."
+        : releaseStatus === "testing"
+          ? "Consumers cannot run it yet. Finish testing and promote it into discovery."
+          : "Consumers cannot see this service until you move it beyond draft.";
+  const consumerReadinessValue =
+    releaseStatus === "published"
+      ? consumerAffordability.tone === "ready"
+        ? "Ready to run"
+        : consumerAffordability.tone === "warning"
+          ? "Top-up likely first"
+          : "Price check on detail"
+      : "Preview only";
+  const consumerReadinessDetail =
+    releaseStatus === "published"
+      ? `${consumerAffordability.hint} Using the current wallet context of ${formatCredits(
+          consumerWalletContextCredits,
+        )}.`
+      : activeServicePricing.hasStoredPrice
+        ? `Consumers will see ${activeServicePricingLabel} before they decide. Publish the service to expose the wallet cue in discovery.`
+        : "Set a visible Eden Credits price so consumers can compare the run cost to their wallet before they decide.";
   const publishLaunchSummaryCards = [
     {
       id: "launch-summary-state",
@@ -639,6 +690,12 @@ export function BusinessDashboardPanel({
         : "Set a per-use Eden Credits price so the launch flow and earnings model are explicit.",
     },
     {
+      id: "launch-summary-consumer",
+      label: "Consumer readiness",
+      value: consumerReadinessValue,
+      detail: consumerReadinessDetail,
+    },
+    {
       id: "launch-summary-readiness",
       label: "Readiness",
       value: `${pipelineSnapshot?.readinessPercent ?? businessProfile?.publishReadinessPercent ?? 0}% ready`,
@@ -653,6 +710,42 @@ export function BusinessDashboardPanel({
       detail: activeServicePricing.hasStoredPrice
         ? `Each run deducts the visible price from the consumer wallet. No hidden checkout happens during service use.`
         : "Wallet charging is ready, but the final per-use price should be set before launch.",
+    },
+  ];
+  const consumerLaunchPreviewCards = [
+    {
+      id: "consumer-launch-state",
+      label: "Marketplace state",
+      value: consumerLaunchStateLabel,
+      detail: consumerLaunchStateDetail,
+    },
+    {
+      id: "consumer-launch-pricing",
+      label: "Visible pricing",
+      value: activeServicePricing.hasStoredPrice ? activeServicePricingLabel : "Price needs review",
+      detail: activeServicePricing.hasStoredPrice
+        ? "Consumers see the exact Eden Credits price before they run. No hidden checkout happens during service use."
+        : "Add a visible Eden Credits price so the consumer decision stays explicit.",
+    },
+    {
+      id: "consumer-launch-wallet",
+      label: "Wallet cue",
+      value: consumerAffordability.label,
+      detail: `${consumerAffordability.hint} Current wallet context: ${formatCredits(
+        consumerWalletContextCredits,
+      )}.`,
+    },
+    {
+      id: "consumer-launch-next",
+      label: "Consumer next step",
+      value:
+        releaseStatus === "published"
+          ? consumerAffordability.nextStep
+          : "Publish to expose this flow in discovery",
+      detail:
+        releaseStatus === "published"
+          ? "This is the same trust-first guidance consumers see across marketplace cards, Ask Eden, and service detail."
+          : "Once published, the marketplace will show the same price-visible, credits-only decision flow to consumers.",
     },
   ];
   const billingUsage: BillingUsageItem[] = businessProfile
@@ -1285,7 +1378,7 @@ export function BusinessDashboardPanel({
                     workspace, and will flow into consumer discovery automatically after the mocked
                     pipeline reaches `Published`.
                   </p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     <div className="rounded-2xl border border-eden-edge bg-white p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
                         Current pricing
@@ -1295,6 +1388,25 @@ export function BusinessDashboardPanel({
                       </p>
                       <p className="mt-2 text-xs leading-5 text-eden-muted">
                         Update the numeric rate in the Service Builder form to change monetization analytics.
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-2xl border p-3 ${getAffordabilityClasses(
+                        consumerAffordability.tone,
+                      )}`}
+                    >
+                      <p className="text-xs uppercase tracking-[0.12em] text-current/80">
+                        Consumer readiness
+                      </p>
+                      <p className="mt-2 text-sm font-semibold">
+                        {releaseStatus === "published"
+                          ? consumerReadinessValue
+                          : "Previewing launch clarity"}
+                      </p>
+                      <p className="mt-2 text-xs leading-5 text-current/80">
+                        {releaseStatus === "published"
+                          ? consumerAffordability.hint
+                          : "Publish the service to expose the same affordability cue and visible price in discovery."}
                       </p>
                     </div>
                     <div className="rounded-2xl border border-eden-edge bg-white p-3">
@@ -1350,7 +1462,7 @@ export function BusinessDashboardPanel({
               </div>
             }
           >
-            <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
               {publishLaunchSummaryCards.map((item) => (
                 <div
                   key={item.id}
@@ -1397,6 +1509,29 @@ export function BusinessDashboardPanel({
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
                     Next milestone: {pipelineSnapshot?.nextMilestone ?? businessProfile.nextMilestone}
                   </p>
+                </div>
+                <div
+                  className={`mt-4 rounded-2xl border p-3 ${getAffordabilityClasses(
+                    consumerAffordability.tone,
+                  )}`}
+                >
+                  <p className="text-xs uppercase tracking-[0.12em] text-current/80">
+                    Consumer-facing readiness
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {consumerLaunchPreviewCards.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-current/15 bg-white/75 p-3 text-eden-ink"
+                      >
+                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          {item.label}
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                        <p className="mt-2 text-xs leading-5 text-eden-muted">{item.detail}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1737,6 +1872,32 @@ export function BusinessDashboardPanel({
               animate="visible"
               className="grid gap-3"
             >
+              <motion.div
+                variants={childVariants}
+                className={`rounded-2xl border p-4 ${getAffordabilityClasses(
+                  consumerAffordability.tone,
+                )}`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-current/80">
+                      Consumer launch snapshot
+                    </p>
+                    <p className="mt-2 text-sm font-semibold">
+                      {consumerLaunchStateLabel} |{" "}
+                      {activeServicePricing.hasStoredPrice ? activeServicePricingLabel : "Price needs review"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-current/80">
+                      {releaseStatus === "published"
+                        ? `${consumerAffordability.hint} No hidden checkout happens during service use.`
+                        : "Consumers will see the same visible-price, credits-only guidance after this service is published."}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-current/20 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
+                    {consumerReadinessValue}
+                  </span>
+                </div>
+              </motion.div>
               {billingUsage.map((item) => (
                 <motion.div
                   key={item.id}
