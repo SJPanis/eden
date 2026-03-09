@@ -93,6 +93,21 @@ const publicHowEdenWorksSteps = [
   },
 ];
 
+const publicAudienceCards = [
+  {
+    id: "builders",
+    label: "For builders",
+    detail:
+      "Create, price, and publish services so they become published and available in Eden discovery.",
+  },
+  {
+    id: "consumers",
+    label: "For consumers",
+    detail:
+      "Explore published services, check visible pricing, add Eden Credits only if needed, and run without hidden charges during service use.",
+  },
+];
+
 function getOptionLabel(options: Array<{ id: string; label: string }>, id: string) {
   return options.find((option) => option.id === id)?.label ?? id;
 }
@@ -324,6 +339,31 @@ export function EdenEntryPanel({
                   <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-eden-edge bg-white/92 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Who Eden is for
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    Eden connects the builder side that publishes services and the consumer side
+                    that discovers and uses them.
+                  </p>
+                </div>
+                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  Builders and consumers
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {publicAudienceCards.map((item) => (
+                  <div key={item.id} className="rounded-2xl border border-eden-edge bg-eden-bg/65 p-4">
+                    <p className="text-sm font-semibold text-eden-ink">{item.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">

@@ -662,6 +662,29 @@ export function ConsumerHomePanel({
       cue: `${edenLaunchLabels.addCredits} in Eden Wallet, then ${edenLaunchLabels.openService}`,
     };
   }, [currentBalanceCredits, discoverySnapshot.marketplaceServices]);
+  const consumerHeaderSummaryCards = useMemo(
+    () => [
+      {
+        id: "header-builders",
+        label: "For builders",
+        detail:
+          "Builders publish services with visible pricing so they can appear as published and available in discovery.",
+      },
+      {
+        id: "header-consumers",
+        label: "For consumers",
+        detail:
+          "Consumers open published services, compare the visible price to their wallet, then add credits only if needed.",
+      },
+      {
+        id: "header-billing",
+        label: edenLaunchLabels.creditsOnlyBilling,
+        detail:
+          "Service runs use wallet credits only, and no hidden checkout appears during service use.",
+      },
+    ],
+    [],
+  );
 
   const recommendedServices = useMemo<ConsumerServiceRailItem[]>(
     () =>
@@ -815,13 +838,55 @@ export function ConsumerHomePanel({
 
   return (
     <div className="space-y-7">
-      <div className="flex justify-end">
-        <ConsumerTopBarActions
-          savedOnly={savedOnly}
-          savedBusinessCount={savedBusinessCount}
-          onToggleSaved={() => setSavedOnly((value) => !value)}
-        />
-      </div>
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={sectionVariants}
+        transition={{ duration: 0.3, ease: "easeOut", delay: 0.01 }}
+        className="rounded-[28px] border border-eden-edge bg-[linear-gradient(135deg,rgba(255,247,237,0.88),rgba(255,255,255,0.98),rgba(219,234,254,0.72))] p-5"
+      >
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
+              Public marketplace
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink md:text-3xl">
+              Explore published services with visible pricing.
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-eden-muted">
+              Eden connects builders who publish services with consumers who explore them, top up
+              Eden Credits only if needed, and run with no hidden charges during service use.
+            </p>
+          </div>
+          <div className="flex flex-col items-start gap-3 lg:items-end">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                Published and priced
+              </span>
+              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+                {edenLaunchLabels.visiblePricing}
+              </span>
+              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+                {edenLaunchLabels.creditsOnlyBilling}
+              </span>
+            </div>
+            <ConsumerTopBarActions
+              savedOnly={savedOnly}
+              savedBusinessCount={savedBusinessCount}
+              onToggleSaved={() => setSavedOnly((value) => !value)}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {consumerHeaderSummaryCards.map((item) => (
+            <div key={item.id} className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+            </div>
+          ))}
+        </div>
+      </motion.section>
 
       <motion.section
         initial="hidden"
