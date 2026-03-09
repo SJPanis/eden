@@ -14,6 +14,10 @@ import {
   type WalletActivityFilter,
 } from "@/ui/consumer/components/wallet-activity-filters";
 import {
+  formatWalletEventLabel,
+  getWalletEventBadgeClasses,
+} from "@/ui/consumer/components/wallet-activity-shared";
+import {
   buildTopUpCancellationMessage,
   buildTopUpFailureMessage,
   buildTopUpProcessingMessage,
@@ -155,6 +159,16 @@ export function ServiceUsagePanel({
     () => filterWalletTransactions(recentTransactions, activityFilter),
     [activityFilter, recentTransactions],
   );
+  const walletActivityCounts = useMemo(
+    () => ({
+      all: recentTransactions.length,
+      topups: recentTransactions.filter((transaction) => transaction.kind === "wallet").length,
+      service_charges: recentTransactions.filter((transaction) => transaction.kind === "usage")
+        .length,
+    }),
+    [recentTransactions],
+  );
+  const latestVisibleTransaction = filteredTransactions[0] ?? null;
 
   useEffect(() => {
     if (!topUpConfig.paymentEnabled) {
@@ -553,9 +567,18 @@ export function ServiceUsagePanel({
 
       {activity ? (
         <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-700">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-700">
-            Latest Wallet Receipt
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-700">
+              Latest Wallet Receipt
+            </p>
+            <span className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+              {activity.kind === "usage"
+                ? "Service charge"
+                : activity.source === "payment"
+                  ? "Payment-backed top-up"
+                  : "Mock top-up"}
+            </span>
+          </div>
           <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div className="rounded-2xl border border-emerald-200 bg-white/80 p-4">
               <p className="text-sm font-semibold text-emerald-900">{activity.title}</p>
@@ -607,18 +630,99 @@ export function ServiceUsagePanel({
             {filteredTransactions.length} events
           </p>
         </div>
-        <WalletActivityFilters value={activityFilter} onChange={setActivityFilter} />
+        <WalletActivityFilters
+          value={activityFilter}
+          onChange={setActivityFilter}
+          counts={walletActivityCounts}
+        />
+
+        {latestVisibleTransaction ? (
+          <div className="mt-4 rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.42),rgba(255,255,255,0.98))] p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Latest movement
+                  </p>
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getWalletEventBadgeClasses(
+                      latestVisibleTransaction.kind,
+                    )}`}
+                  >
+                    {formatWalletEventLabel(latestVisibleTransaction.kind)}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-eden-ink">
+                  {latestVisibleTransaction.title}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  {latestVisibleTransaction.relatedServiceName
+                    ? `Related service: ${latestVisibleTransaction.relatedServiceName}. ${latestVisibleTransaction.detail}`
+                    : latestVisibleTransaction.detail}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white/90 p-4 text-left md:min-w-[220px] md:text-right">
+                <p
+                  className={`text-sm font-semibold ${
+                    latestVisibleTransaction.creditsDelta >= 0
+                      ? "text-emerald-700"
+                      : "text-rose-700"
+                  }`}
+                >
+                  {latestVisibleTransaction.amountLabel}
+                </p>
+                <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  Resulting balance
+                </p>
+                <p className="mt-1 text-sm font-semibold text-eden-ink">
+                  {formatCreditsValue(latestVisibleTransaction.resultingBalanceCredits)}
+                </p>
+                <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  {latestVisibleTransaction.timestamp}
+                </p>
+              </div>
+            </div>
+            {latestVisibleTransaction.relatedServiceHref ? (
+              <div className="mt-3">
+                <Link
+                  href={latestVisibleTransaction.relatedServiceHref}
+                  className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                >
+                  View Related Service
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="mt-4 space-y-3">
           {filteredTransactions.length ? (
-            filteredTransactions.map((transaction) => (
+            filteredTransactions.map((transaction, index) => (
               <div
                 key={transaction.id}
-                className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4"
+                className={`rounded-2xl border p-4 ${
+                  index === 0
+                    ? "border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.22),rgba(255,255,255,0.96))]"
+                    : "border-eden-edge bg-eden-bg/60"
+                }`}
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-eden-ink">{transaction.title}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-semibold text-eden-ink">{transaction.title}</p>
+                      <span
+                        className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getWalletEventBadgeClasses(
+                          transaction.kind,
+                        )}`}
+                      >
+                        {formatWalletEventLabel(transaction.kind)}
+                      </span>
+                      {index === 0 ? (
+                        <span className="rounded-full border border-eden-ring bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-ink">
+                          Latest visible
+                        </span>
+                      ) : null}
+                    </div>
                     <p className="mt-2 text-sm leading-6 text-eden-muted">
                       {transaction.relatedServiceName
                         ? `Related service: ${transaction.relatedServiceName}. ${transaction.detail}`
@@ -646,17 +750,14 @@ export function ServiceUsagePanel({
                     <p className="mt-2 text-sm font-semibold text-eden-ink">
                       {formatCreditsValue(transaction.resultingBalanceCredits)}
                     </p>
+                    <p className="mt-2 text-xs text-eden-muted">After this wallet event</p>
                   </div>
                   <div className="rounded-2xl border border-eden-edge bg-white p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
                       Wallet Event
                     </p>
                     <p className="mt-2 text-sm font-semibold text-eden-ink">
-                      {transaction.kind === "wallet"
-                        ? "Top-up"
-                        : transaction.kind === "usage"
-                          ? "Service charge"
-                          : transaction.kind}
+                      {formatWalletEventLabel(transaction.kind)}
                     </p>
                   </div>
                 </div>
@@ -666,7 +767,7 @@ export function ServiceUsagePanel({
                       href={transaction.relatedServiceHref}
                       className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
                     >
-                      View Service
+                      View Related Service
                     </Link>
                   </div>
                 ) : null}

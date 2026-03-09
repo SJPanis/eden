@@ -14,6 +14,7 @@ export function CreditsTopUpPackageSelector({
   onSelect,
 }: CreditsTopUpPackageSelectorProps) {
   const selectedPackage = packages.find((pkg) => pkg.id === selectedPackageId) ?? packages[0];
+  const recommendedPackageId = packages[Math.min(1, Math.max(packages.length - 1, 0))]?.id ?? null;
   const bestValuePackageId =
     packages.length > 0
       ? [...packages]
@@ -45,6 +46,7 @@ export function CreditsTopUpPackageSelector({
           const isSelected = pkg.id === selectedPackageId;
           const creditsPerDollar = Math.round(pkg.creditsAmount / (pkg.amountCents / 100));
           const isBestValue = pkg.id === bestValuePackageId;
+          const isRecommended = pkg.id === recommendedPackageId;
           const packageLabel =
             index === 0 ? "Starter" : index === packages.length - 1 ? "High balance" : "Balanced";
 
@@ -71,6 +73,11 @@ export function CreditsTopUpPackageSelector({
                   {isBestValue ? (
                     <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
                       Best value
+                    </span>
+                  ) : null}
+                  {isRecommended ? (
+                    <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">
+                      Recommended
                     </span>
                   ) : null}
                   {isSelected ? (
@@ -105,7 +112,22 @@ export function CreditsTopUpPackageSelector({
             Ready
           </span>
         </div>
-        <p className="mt-3 text-sm leading-6 text-eden-muted">{selectedPackage.detail}</p>
+            <p className="mt-3 text-sm leading-6 text-eden-muted">{selectedPackage.detail}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {selectedPackage.id === bestValuePackageId ? (
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+              Best value package
+            </span>
+          ) : null}
+          {selectedPackage.id === recommendedPackageId ? (
+            <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">
+              Recommended for most buyers
+            </span>
+          ) : null}
+          <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-muted">
+            Selected for next top-up
+          </span>
+        </div>
       </div>
     </div>
   );

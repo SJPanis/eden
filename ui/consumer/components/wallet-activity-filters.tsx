@@ -7,6 +7,7 @@ export type WalletActivityFilter = "all" | "topups" | "service_charges";
 type WalletActivityFiltersProps = {
   value: WalletActivityFilter;
   onChange: (value: WalletActivityFilter) => void;
+  counts?: Partial<Record<WalletActivityFilter, number>>;
 };
 
 const filterOptions: Array<{
@@ -21,6 +22,7 @@ const filterOptions: Array<{
 export function WalletActivityFilters({
   value,
   onChange,
+  counts,
 }: WalletActivityFiltersProps) {
   return (
     <div className="mt-4 flex flex-wrap gap-2">
@@ -36,6 +38,17 @@ export function WalletActivityFilters({
           }`}
         >
           {option.label}
+          {typeof counts?.[option.id] === "number" ? (
+            <span
+              className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${
+                value === option.id
+                  ? "bg-white/55 text-eden-ink"
+                  : "bg-eden-bg text-eden-muted"
+              }`}
+            >
+              {counts[option.id]}
+            </span>
+          ) : null}
         </button>
       ))}
     </div>
