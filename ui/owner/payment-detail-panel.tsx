@@ -47,6 +47,10 @@ function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "can
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
+function formatPaymentStatus(status: "pending" | "settled" | "failed" | "canceled") {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 function getEventStatusClasses(status: "info" | "success" | "skipped" | "failed") {
   if (status === "success") {
     return "border-emerald-200 bg-emerald-50 text-emerald-700";
@@ -61,6 +65,14 @@ function getEventStatusClasses(status: "info" | "success" | "skipped" | "failed"
   }
 
   return "border-sky-200 bg-sky-50 text-sky-700";
+}
+
+function formatPaymentEventStatus(status: "info" | "success" | "skipped" | "failed") {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function getOwnerActionLinkClasses() {
+  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
 }
 
 function formatMoneyAmount(amountCents: number, currency: string) {
@@ -139,7 +151,7 @@ export function OwnerPaymentDetailPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Payment Summary Strip
+                  Payment Summary
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   Compact owner reconciliation view of the current payment before the full provider
@@ -151,7 +163,7 @@ export function OwnerPaymentDetailPanel({
                   payment.status,
                 )}`}
               >
-                {payment.status}
+                {formatPaymentStatus(payment.status)}
               </span>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
@@ -235,7 +247,7 @@ export function OwnerPaymentDetailPanel({
                     payment.status,
                   )}`}
                 >
-                  {payment.status}
+                  {formatPaymentStatus(payment.status)}
                 </span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -338,9 +350,9 @@ export function OwnerPaymentDetailPanel({
                     <div className="mt-3">
                       <Link
                         href={`/owner/users/${relatedUser.id}`}
-                        className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                        className={getOwnerActionLinkClasses()}
                       >
-                        Inspect user
+                        Inspect Related User
                       </Link>
                     </div>
                   ) : null}
@@ -382,7 +394,7 @@ export function OwnerPaymentDetailPanel({
                               eventLog.status,
                             )}`}
                           >
-                            {eventLog.status}
+                            {formatPaymentEventStatus(eventLog.status)}
                           </span>
                         </div>
                         <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
@@ -413,9 +425,9 @@ export function OwnerPaymentDetailPanel({
                             <div className="mt-3">
                               <Link
                                 href={`/owner/users/${eventLog.relatedUserId}`}
-                                className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                className={getOwnerActionLinkClasses()}
                               >
-                                Inspect user
+                                Inspect Related User
                               </Link>
                             </div>
                           ) : null}

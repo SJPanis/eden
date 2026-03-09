@@ -299,6 +299,10 @@ function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "can
   return "border-rose-200 bg-rose-50 text-rose-700";
 }
 
+function formatPaymentStatus(status: "pending" | "settled" | "failed" | "canceled") {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 function getPaymentEventStatusClasses(
   status: "info" | "success" | "skipped" | "failed",
 ) {
@@ -308,12 +312,20 @@ function getPaymentEventStatusClasses(
   return "border-sky-200 bg-sky-50 text-sky-700";
 }
 
+function formatPaymentEventStatus(status: "info" | "success" | "skipped" | "failed") {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 function getPayoutSettlementStatusClasses(
   status: "pending" | "settled" | "canceled",
 ) {
   if (status === "settled") return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (status === "pending") return "border-amber-200 bg-amber-50 text-amber-700";
   return "border-slate-200 bg-slate-100 text-slate-700";
+}
+
+function getOwnerReconciliationActionClasses() {
+  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
 }
 
 function formatPayoutSettlementStatus(status: "pending" | "settled" | "canceled") {
@@ -1409,42 +1421,39 @@ export function OwnerDashboardPanel({
                 ))}
               </div>
             </div>
-            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                        Payment reconciliation
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">
-                        Persistent credits top-up records from the Stripe-backed settlement path.
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-                      {paymentMetrics.source === "persistent"
-                        ? "Persistent payment ledger"
-                        : "Fallback empty state"}
-                    </span>
-                  </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {paymentSummaryCards.map((item) => (
-                      <div
-                        key={item.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
-                      >
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                          {item.label}
-                        </p>
-                        <p className="mt-2 text-lg font-semibold text-eden-ink">{item.value}</p>
-                        <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
-                      </div>
-                    ))}
-                  </div>
+            <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Payment Summary
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    Compact owner reconciliation view of the persistent top-up ledger before the detailed payment and lifecycle feeds below.
+                  </p>
                 </div>
+                <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                  {paymentMetrics.source === "persistent"
+                    ? "Persistent payment ledger"
+                    : "Fallback empty state"}
+                </span>
               </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {paymentSummaryCards.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-eden-edge bg-white p-3"
+                  >
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      {item.label}
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">{item.value}</p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1476,7 +1485,7 @@ export function OwnerDashboardPanel({
                                   payment.status,
                                 )}`}
                               >
-                                {payment.status}
+                                {formatPaymentStatus(payment.status)}
                               </span>
                             </div>
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
@@ -1486,9 +1495,9 @@ export function OwnerDashboardPanel({
                               <div className="mt-2">
                                 <Link
                                   href={`/owner/users/${payment.userId}`}
-                                  className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                  className={getOwnerReconciliationActionClasses()}
                                 >
-                                  Inspect user
+                                  Inspect Related User
                                 </Link>
                               </div>
                             ) : null}
@@ -1515,9 +1524,9 @@ export function OwnerDashboardPanel({
                             <div className="mt-3">
                               <Link
                                 href={`/owner/payments/${payment.id}`}
-                                className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                className={getOwnerReconciliationActionClasses()}
                               >
-                                Open payment detail
+                                View Payment
                               </Link>
                             </div>
                           </div>
@@ -1539,7 +1548,6 @@ export function OwnerDashboardPanel({
                     </div>
                   )}
                 </div>
-              </div>
             </div>
             <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
               <div className="flex items-start justify-between gap-3">
@@ -1576,7 +1584,7 @@ export function OwnerDashboardPanel({
                                 eventLog.status,
                               )}`}
                             >
-                              {eventLog.status}
+                              {formatPaymentEventStatus(eventLog.status)}
                             </span>
                           </div>
                           <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
@@ -1616,17 +1624,17 @@ export function OwnerDashboardPanel({
                               {eventLog.creditsTopUpPaymentId ? (
                                 <Link
                                   href={`/owner/payments/${eventLog.creditsTopUpPaymentId}`}
-                                  className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                  className={getOwnerReconciliationActionClasses()}
                                 >
-                                  Open payment detail
+                                  View Payment
                                 </Link>
                               ) : null}
                               {eventLog.relatedUserId ? (
                                 <Link
                                   href={`/owner/users/${eventLog.relatedUserId}`}
-                                  className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                  className={getOwnerReconciliationActionClasses()}
                                 >
-                                  Inspect user
+                                  Inspect Related User
                                 </Link>
                               ) : null}
                             </div>
@@ -1937,7 +1945,7 @@ export function OwnerDashboardPanel({
                               href={`/owner/payouts/${business.businessId}`}
                               className="block rounded-2xl border border-eden-edge bg-white px-3 py-3 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
                             >
-                              Open payout detail
+                              View Payout
                             </Link>
                             <MockPayoutSettlementButton
                               businessId={business.businessId}
@@ -1957,7 +1965,7 @@ export function OwnerDashboardPanel({
                               href={`/owner/payouts/${business.businessId}`}
                               className="block rounded-2xl border border-eden-edge bg-white px-3 py-3 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
                             >
-                              Open payout detail
+                              View Payout
                             </Link>
                           </div>
                         )}

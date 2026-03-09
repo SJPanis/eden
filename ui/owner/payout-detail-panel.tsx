@@ -54,6 +54,27 @@ function resolveStatusTone(payoutAccounting: EdenBusinessPayoutAccountingSummary
   return "default" as const;
 }
 
+function getPayoutSummaryStatusClasses(
+  payoutAccounting: EdenBusinessPayoutAccountingSummary,
+) {
+  if (payoutAccounting.statusOverview.pendingCount > 0) {
+    return "border-amber-200 bg-amber-50 text-amber-700";
+  }
+
+  if (
+    payoutAccounting.unpaidEarningsCredits <= 0 &&
+    payoutAccounting.paidOutCredits > 0
+  ) {
+    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  }
+
+  if (payoutAccounting.payoutReadyCredits > 0) {
+    return "border-sky-200 bg-sky-50 text-sky-700";
+  }
+
+  return "border-slate-200 bg-slate-100 text-slate-700";
+}
+
 export function OwnerPayoutDetailPanel({
   businessProfile,
   businessOwner,
@@ -110,13 +131,17 @@ export function OwnerPayoutDetailPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Payout Summary Strip
+                  Payout Summary
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   Compact owner reconciliation summary for this business before the full payout breakdown and settlement history below.
                 </p>
               </div>
-              <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${getPayoutSummaryStatusClasses(
+                  payoutAccounting,
+                )}`}
+              >
                 {payoutAccounting.payoutStatusLabel}
               </span>
             </div>
@@ -203,7 +228,11 @@ export function OwnerPayoutDetailPanel({
                     Current payout state for this business after priced usage, reserve holdback, and persistent settlement rows are reconciled.
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${getPayoutSummaryStatusClasses(
+                    payoutAccounting,
+                  )}`}
+                >
                   {payoutAccounting.payoutStatusLabel}
                 </span>
               </div>

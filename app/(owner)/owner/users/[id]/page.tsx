@@ -35,6 +35,30 @@ function toTitleCase(input: string) {
     .join(" ");
 }
 
+function formatPaymentStatus(status: string) {
+  return toTitleCase(status);
+}
+
+function getPaymentStatusClasses(status: string) {
+  if (status === "settled") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  }
+
+  if (status === "pending") {
+    return "border-amber-200 bg-amber-50 text-amber-700";
+  }
+
+  if (status === "failed") {
+    return "border-rose-200 bg-rose-50 text-rose-700";
+  }
+
+  return "border-slate-200 bg-slate-100 text-slate-700";
+}
+
+function getOwnerActionLinkClasses() {
+  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
+}
+
 export default async function OwnerUserInspectionPage({
   params,
 }: OwnerUserInspectionPageProps) {
@@ -135,7 +159,7 @@ export default async function OwnerUserInspectionPage({
         },
         {
           label: paymentHistory.payments.length
-            ? "Inspect Recent Payment"
+            ? "View Recent Payment"
             : "Review Security Controls",
           href: paymentHistory.payments.length
             ? `/owner/payments/${paymentHistory.payments[0].id}`
@@ -189,7 +213,7 @@ export default async function OwnerUserInspectionPage({
               Latest status
             </p>
             <p className="mt-2 text-sm font-semibold text-eden-ink">
-              {latestPayment ? toTitleCase(latestPayment.status) : "No payments"}
+              {latestPayment ? formatPaymentStatus(latestPayment.status) : "No payments"}
             </p>
           </div>
           <div className="rounded-2xl border border-eden-edge bg-white p-3">
@@ -338,17 +362,11 @@ export default async function OwnerUserInspectionPage({
                           {payment.providerLabel}
                         </p>
                         <span
-                          className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
-                            payment.status === "settled"
-                              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                              : payment.status === "pending"
-                                ? "border-amber-200 bg-amber-50 text-amber-700"
-                                : payment.status === "failed"
-                                  ? "border-rose-200 bg-rose-50 text-rose-700"
-                                  : "border-slate-200 bg-slate-100 text-slate-700"
-                          }`}
+                          className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getPaymentStatusClasses(
+                            payment.status,
+                          )}`}
                         >
-                          {payment.status}
+                          {formatPaymentStatus(payment.status)}
                         </span>
                       </div>
                       <p className="mt-2 text-sm leading-6 text-eden-muted">
@@ -377,9 +395,9 @@ export default async function OwnerUserInspectionPage({
                       <div className="mt-3">
                         <Link
                           href={`/owner/payments/${payment.id}`}
-                          className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                          className={getOwnerActionLinkClasses()}
                         >
-                          Open payment detail
+                          View Payment
                         </Link>
                       </div>
                     </div>
