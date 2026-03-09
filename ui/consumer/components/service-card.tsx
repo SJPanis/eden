@@ -30,7 +30,15 @@ export function ServiceCard({
   saved = false,
 }: ServiceCardProps) {
   return (
-    <article className="eden-shell min-h-[228px] min-w-[272px] snap-start p-4">
+    <article
+      className={`eden-shell min-h-[228px] min-w-[272px] snap-start p-4 ${
+        affordabilityTone === "ready"
+          ? "border-emerald-200 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))]"
+          : affordabilityTone === "warning"
+            ? "border-amber-200 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))]"
+            : ""
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
           Service

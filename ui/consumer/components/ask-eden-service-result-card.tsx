@@ -42,7 +42,11 @@ export function AskEdenServiceResultCard({
       className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-white p-3 text-left shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eden-ring/40 ${
         isSelected
           ? "border-eden-ring bg-eden-accent-soft/45 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.45)]"
-          : "border-eden-edge hover:-translate-y-0.5 hover:border-eden-ring hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+          : affordabilityTone === "ready"
+            ? "border-emerald-200 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-eden-ring hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+            : affordabilityTone === "warning"
+              ? "border-amber-200 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-eden-ring hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+              : "border-eden-edge hover:-translate-y-0.5 hover:border-eden-ring hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
       }`}
     >
       <div className="flex items-start justify-between gap-3">

@@ -30,6 +30,7 @@ import {
   loadServiceById,
 } from "@/modules/core/services";
 import { getServerSession } from "@/modules/core/session/server";
+import { getServiceAffordabilityDetails } from "@/ui/consumer/components/service-affordability-shared";
 import { ServiceUsagePanel } from "@/ui/consumer/components/service-usage-panel";
 
 type SearchValue = string | string[] | undefined;
@@ -209,6 +210,10 @@ export default async function ServiceDetailPage({
     session.user.id,
     simulatedTransactions,
   );
+  const affordability = getServiceAffordabilityDetails(
+    pricing.pricePerUseCredits,
+    currentUserBalanceCredits,
+  );
   const recentTransactions = getRecentUserTransactionHistory(
     {
       userId: session.user.id,
@@ -269,11 +274,57 @@ export default async function ServiceDetailPage({
                   This service route makes the core consumer promise explicit before the run starts: availability, price, and wallet behavior are visible up front.
                 </p>
               </div>
-              <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
-                {consumerAvailabilityLabel}
-              </span>
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                  {consumerAvailabilityLabel}
+                </span>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs ${
+                    affordability.tone === "ready"
+                      ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : affordability.tone === "warning"
+                        ? "border border-amber-200 bg-amber-50 text-amber-700"
+                        : "border border-eden-edge bg-white/90 text-eden-muted"
+                  }`}
+                >
+                  {affordability.label}
+                </span>
+              </div>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div
+              className={`mt-4 rounded-2xl border p-4 ${
+                affordability.tone === "ready"
+                  ? "border-emerald-200 bg-emerald-50/70"
+                  : affordability.tone === "warning"
+                    ? "border-amber-200 bg-amber-50/70"
+                    : "border-eden-edge bg-white/90"
+              }`}
+            >
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                Wallet affordability
+              </p>
+              <p className="mt-2 text-base font-semibold text-eden-ink">{affordability.label}</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">{affordability.hint}</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-eden-edge bg-white/90 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    Current wallet
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    {currentUserBalanceCredits.toLocaleString()} credits
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-eden-edge bg-white/90 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    Next step
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    {affordability.nextStep}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <div className="rounded-2xl border border-eden-edge bg-white p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Availability</p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">
@@ -306,6 +357,15 @@ export default async function ServiceDetailPage({
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   The wallet panel below shows the resulting balance change after each service run or top-up.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Run decision</p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {affordability.nextStep}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  This header and the usage panel below now show the same wallet-aware next step.
                 </p>
               </div>
             </div>

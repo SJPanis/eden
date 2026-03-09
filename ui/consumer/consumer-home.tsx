@@ -30,6 +30,7 @@ import { BusinessCard } from "@/ui/consumer/components/business-card";
 import { CategoryCard } from "@/ui/consumer/components/category-card";
 import { ConsumerWalletPanel } from "@/ui/consumer/components/consumer-wallet-panel";
 import { DiscoveryRail } from "@/ui/consumer/components/discovery-rail";
+import { getServiceAffordabilityDetails } from "@/ui/consumer/components/service-affordability-shared";
 import { ServiceCard } from "@/ui/consumer/components/service-card";
 
 type ConsumerServiceRailItem = {
@@ -246,38 +247,6 @@ function getConsumerServiceLaunchDetails(input: {
   };
 }
 
-function getConsumerServiceAffordabilityDetails(
-  pricePerUseCredits: number | null,
-  currentBalanceCredits: number,
-) {
-  if (pricePerUseCredits === null) {
-    return {
-      label: "Wallet check on detail page",
-      hint: "Open the service to confirm the current visible run price before you decide.",
-      tone: "neutral" as const,
-      nextStep: "Open Service to confirm the current run price",
-    };
-  }
-
-  if (currentBalanceCredits >= pricePerUseCredits) {
-    return {
-      label: "Enough credits",
-      hint: `Your wallet already covers one run at ${formatCredits(pricePerUseCredits)}.`,
-      tone: "ready" as const,
-      nextStep: "Open Service and run with visible pricing",
-    };
-  }
-
-  const shortfall = pricePerUseCredits - currentBalanceCredits;
-
-  return {
-    label: "Needs top-up",
-    hint: `Short by ${formatCredits(shortfall)} before the first run.`,
-    tone: "warning" as const,
-    nextStep: "Add credits, then open the service",
-  };
-}
-
 function getLinkedDiscoveryService(
   discoverySnapshot: EdenDiscoverySnapshot,
   serviceId: string,
@@ -325,7 +294,7 @@ function getConsumerServiceDiscoveryState(
     pricingUnit: linkedService?.pricingUnit,
     pricingModel: linkedService?.pricingModel,
   });
-  const affordability = getConsumerServiceAffordabilityDetails(
+  const affordability = getServiceAffordabilityDetails(
     launchDetails.pricing.pricePerUseCredits,
     currentBalanceCredits,
   );
@@ -736,8 +705,28 @@ export function ConsumerHomePanel({
         })
         .filter((service) =>
           includesSearchTerm([service.title, service.provider, service.category], normalizedQuery),
-        ),
+        )
+        .sort((left, right) => {
+          const tonePriority = {
+            ready: 0,
+            neutral: 1,
+            warning: 2,
+          } as const;
+
+          const toneDifference =
+            tonePriority[left.affordabilityTone] - tonePriority[right.affordabilityTone];
+
+          if (toneDifference !== 0) {
+            return toneDifference;
+          }
+
+          return left.title.localeCompare(right.title);
+        }),
     [currentBalanceCredits, discoverySnapshot, normalizedQuery, savedServiceIds],
+  );
+  const recommendedServicesReadyCount = useMemo(
+    () => recommendedServices.filter((service) => service.affordabilityTone === "ready").length,
+    [recommendedServices],
   );
 
   const trendingBusinesses = useMemo<ConsumerBusinessRailItem[]>(
@@ -1391,7 +1380,12 @@ export function ConsumerHomePanel({
           >
             <DiscoveryRail
               title="Recommended Services"
-              subtitle="Published services with visible Eden Credits pricing and no hidden checkout during runs."
+              subtitle="Published services with visible Eden Credits pricing and no hidden checkout during runs. Services your wallet likely covers appear first."
+              badgeLabel={
+                recommendedServicesReadyCount
+                  ? `${recommendedServicesReadyCount} ready now`
+                  : "Top-up likely first"
+              }
               hasItems={recommendedServices.length > 0}
               emptyMessage="No services match the current filters yet."
             >
