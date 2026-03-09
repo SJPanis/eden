@@ -192,6 +192,7 @@ type OwnerDashboardPanelProps = {
       providerEventId?: string | null;
       providerSessionId?: string | null;
       creditsTopUpPaymentId?: string | null;
+      relatedUserId?: string | null;
       status: "info" | "success" | "skipped" | "failed";
       createdAtLabel: string;
       metadataSummary: string[];
@@ -1481,6 +1482,16 @@ export function OwnerDashboardPanel({
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
                               {getUserDisplayLabel(payment.userId)}
                             </p>
+                            {payment.userId ? (
+                              <div className="mt-2">
+                                <Link
+                                  href={`/owner/users/${payment.userId}`}
+                                  className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                >
+                                  Inspect user
+                                </Link>
+                              </div>
+                            ) : null}
                             <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
                               <p className="break-all">
                                 Session: <span className="font-mono">{payment.providerSessionId}</span>
@@ -1588,8 +1599,8 @@ export function OwnerDashboardPanel({
                             </p>
                           ) : null}
                         </div>
-                        {eventLog.metadataSummary.length ? (
-                          <div className="mt-3 flex flex-wrap gap-2">
+                          {eventLog.metadataSummary.length ? (
+                            <div className="mt-3 flex flex-wrap gap-2">
                               {eventLog.metadataSummary.map((summaryLine) => (
                                 <span
                                   key={`${eventLog.id}-${summaryLine}`}
@@ -1600,14 +1611,24 @@ export function OwnerDashboardPanel({
                               ))}
                             </div>
                           ) : null}
-                          {eventLog.creditsTopUpPaymentId ? (
-                            <div className="mt-3">
-                              <Link
-                                href={`/owner/payments/${eventLog.creditsTopUpPaymentId}`}
-                                className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
-                              >
-                                Open payment detail
-                              </Link>
+                          {eventLog.creditsTopUpPaymentId || eventLog.relatedUserId ? (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {eventLog.creditsTopUpPaymentId ? (
+                                <Link
+                                  href={`/owner/payments/${eventLog.creditsTopUpPaymentId}`}
+                                  className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                >
+                                  Open payment detail
+                                </Link>
+                              ) : null}
+                              {eventLog.relatedUserId ? (
+                                <Link
+                                  href={`/owner/users/${eventLog.relatedUserId}`}
+                                  className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                                >
+                                  Inspect user
+                                </Link>
+                              ) : null}
                             </div>
                           ) : null}
                         </div>

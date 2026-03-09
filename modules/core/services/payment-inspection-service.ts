@@ -48,6 +48,7 @@ export type EdenOwnerCreditsTopUpMetrics = {
     providerEventId?: string | null;
     providerSessionId?: string | null;
     creditsTopUpPaymentId?: string | null;
+    relatedUserId?: string | null;
     status: EdenRepoPaymentEventLogStatus;
     createdAtLabel: string;
     metadataSummary: string[];
@@ -73,6 +74,7 @@ export type EdenOwnerCreditsTopUpPaymentDetail = {
     providerEventId?: string | null;
     providerSessionId?: string | null;
     creditsTopUpPaymentId?: string | null;
+    relatedUserId?: string | null;
     status: EdenRepoPaymentEventLogStatus;
     createdAtLabel: string;
     metadataSummary: string[];
@@ -141,7 +143,9 @@ export async function loadOwnerCreditsTopUpPaymentDetail(
       relatedUser,
       packageInfo: resolvePaymentPackageInfo(payment, eventLogs),
       settlementResultLabel: resolveSettlementResultLabel(payment, eventLogs),
-      recentEventLogs: eventLogs.map(mapPaymentEventLogToInspectionItem),
+      recentEventLogs: eventLogs.map((eventLog) =>
+        mapPaymentEventLogToInspectionItem(eventLog, payment),
+      ),
     };
   } catch (error) {
     logPaymentInspectionFailure("load_owner_credits_topup_payment_detail", error);
@@ -153,6 +157,10 @@ function buildOwnerCreditsTopUpMetrics(
   payments: EdenRepoCreditsTopUpPaymentRecord[],
   eventLogs: EdenRepoPaymentEventLogRecord[],
 ): EdenOwnerCreditsTopUpMetrics {
+  const paymentsById = new Map(payments.map((payment) => [payment.id, payment]));
+  const paymentsBySessionId = new Map(
+    payments.map((payment) => [payment.providerSessionId, payment]),
+  );
   const summary = payments.reduce(
     (accumulator, payment) => {
       accumulator.totalPayments += 1;
@@ -188,7 +196,12 @@ function buildOwnerCreditsTopUpMetrics(
     recentPayments: payments.map(mapPaymentToInspectionItem),
     paymentEventLogsSource: "persistent",
     recentEventLogCount: eventLogs.length,
-    recentEventLogs: eventLogs.map(mapPaymentEventLogToInspectionItem),
+    recentEventLogs: eventLogs.map((eventLog) =>
+      mapPaymentEventLogToInspectionItem(
+        eventLog,
+        resolveEventLogPaymentContext(eventLog, paymentsById, paymentsBySessionId),
+      ),
+    ),
   };
 }
 
@@ -214,7 +227,10 @@ function mapPaymentToInspectionItem(
   };
 }
 
-function mapPaymentEventLogToInspectionItem(eventLog: EdenRepoPaymentEventLogRecord) {
+function mapPaymentEventLogToInspectionItem(
+  eventLog: EdenRepoPaymentEventLogRecord,
+  payment?: EdenRepoCreditsTopUpPaymentRecord | null,
+) {
   return {
     id: eventLog.id,
     provider: eventLog.provider,
@@ -223,6 +239,7 @@ function mapPaymentEventLogToInspectionItem(eventLog: EdenRepoPaymentEventLogRec
     providerEventId: eventLog.providerEventId,
     providerSessionId: eventLog.providerSessionId,
     creditsTopUpPaymentId: eventLog.creditsTopUpPaymentId,
+    relatedUserId: payment?.userId ?? null,
     status: eventLog.status,
     createdAtLabel: formatInspectionTimestamp(eventLog.createdAt),
     metadataSummary: buildPaymentEventMetadataSummary(eventLog),
@@ -356,6 +373,22 @@ function resolveSettlementResultLabel(
   }
 
   return "Awaiting webhook settlement";
+}
+
+function resolveEventLogPaymentContext(
+  eventLog: EdenRepoPaymentEventLogRecord,
+  paymentsById: Map<string, EdenRepoCreditsTopUpPaymentRecord>,
+  paymentsBySessionId: Map<string, EdenRepoCreditsTopUpPaymentRecord>,
+) {
+  if (eventLog.creditsTopUpPaymentId) {
+    return paymentsById.get(eventLog.creditsTopUpPaymentId) ?? null;
+  }
+
+  if (eventLog.providerSessionId) {
+    return paymentsBySessionId.get(eventLog.providerSessionId) ?? null;
+  }
+
+  return null;
 }
 
 function formatMoneyAmount(amountCents: number, currency: string) {

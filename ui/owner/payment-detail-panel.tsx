@@ -251,6 +251,16 @@ export function OwnerPaymentDetailPanel({
                         ? `Unknown user (${payment.userId})`
                         : "No linked user"}
                   </p>
+                  {relatedUser ? (
+                    <div className="mt-3">
+                      <Link
+                        href={`/owner/users/${relatedUser.id}`}
+                        className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                      >
+                        Inspect user
+                      </Link>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -314,6 +324,16 @@ export function OwnerPaymentDetailPanel({
                                   {summaryLine}
                                 </span>
                               ))}
+                            </div>
+                          ) : null}
+                          {eventLog.relatedUserId ? (
+                            <div className="mt-3">
+                              <Link
+                                href={`/owner/users/${eventLog.relatedUserId}`}
+                                className="inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                              >
+                                Inspect user
+                              </Link>
                             </div>
                           ) : null}
                         </div>
