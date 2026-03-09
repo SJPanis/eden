@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   isBusinessFrozen,
@@ -50,6 +51,7 @@ import type {
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
 import type { EdenOwnerPayoutAccountingSummary } from "@/modules/core/services/payout-accounting-service";
 import { formatServicePricingLabel } from "@/modules/core/services/service-pricing";
+import { OwnerReconciliationFilters } from "@/ui/owner/components/owner-reconciliation-filters";
 import { ControlRoomSection } from "@/ui/owner/components/control-room-section";
 
 type OwnerDashboardPanelProps = {
@@ -210,6 +212,9 @@ type CreditActivity = {
   timestamp: string;
   simulated?: boolean;
 };
+
+type OwnerPaymentFilter = "all" | "pending" | "settled" | "failed_or_canceled";
+type OwnerPayoutFilter = "all" | "pending" | "settled" | "failed_or_canceled";
 
 const sectionLinks = [
   { id: "system-overview", label: "System Overview" },
@@ -385,6 +390,8 @@ export function OwnerDashboardPanel({
   paymentMetrics,
   payoutAccounting,
 }: OwnerDashboardPanelProps) {
+  const [paymentFilter, setPaymentFilter] = useState<OwnerPaymentFilter>("all");
+  const [payoutFilter, setPayoutFilter] = useState<OwnerPayoutFilter>("all");
   const users = watchedUsers;
   const businesses = watchedBusinesses;
   const baseServices = watchedServices;
@@ -631,10 +638,10 @@ export function OwnerDashboardPanel({
   ];
   const paymentSummaryCards = [
     {
-      id: "payments-pending",
-      label: "Pending top-ups",
-      value: `${paymentMetrics.pendingCount}`,
-      detail: "Checkout sessions created but not yet settled by Stripe webhook delivery.",
+      id: "payments-total",
+      label: "Total top-ups",
+      value: `${paymentMetrics.totalPayments}`,
+      detail: "Persistent credits top-up records tracked through the current owner payment ledger.",
     },
     {
       id: "payments-settled",
@@ -658,6 +665,41 @@ export function OwnerDashboardPanel({
       )} processed through the persistent top-up ledger.`,
     },
   ];
+  const paymentFilterOptions = [
+    { value: "all", label: "All", count: paymentMetrics.recentPayments.length },
+    {
+      value: "pending",
+      label: "Pending",
+      count: paymentMetrics.recentPayments.filter((payment) => payment.status === "pending").length,
+    },
+    {
+      value: "settled",
+      label: "Settled",
+      count: paymentMetrics.recentPayments.filter((payment) => payment.status === "settled").length,
+    },
+    {
+      value: "failed_or_canceled",
+      label: "Failed/Canceled",
+      count: paymentMetrics.recentPayments.filter(
+        (payment) => payment.status === "failed" || payment.status === "canceled",
+      ).length,
+    },
+  ] as const;
+  const filteredPayments = useMemo(
+    () =>
+      paymentMetrics.recentPayments.filter((payment) => {
+        if (paymentFilter === "all") {
+          return true;
+        }
+
+        if (paymentFilter === "failed_or_canceled") {
+          return payment.status === "failed" || payment.status === "canceled";
+        }
+
+        return payment.status === paymentFilter;
+      }),
+    [paymentFilter, paymentMetrics.recentPayments],
+  );
   const payoutSummaryCards = [
     {
       id: "payout-liability",
@@ -696,6 +738,39 @@ export function OwnerDashboardPanel({
       detail: "Persistent payout settlement total already marked as paid out.",
     },
   ];
+  const payoutFilterOptions = [
+    { value: "all", label: "All", count: payoutAccounting.payoutHistory.length },
+    {
+      value: "pending",
+      label: "Pending",
+      count: payoutAccounting.payoutHistory.filter((item) => item.status === "pending").length,
+    },
+    {
+      value: "settled",
+      label: "Settled",
+      count: payoutAccounting.payoutHistory.filter((item) => item.status === "settled").length,
+    },
+    {
+      value: "failed_or_canceled",
+      label: "Failed/Canceled",
+      count: payoutAccounting.payoutHistory.filter((item) => item.status === "canceled").length,
+    },
+  ] as const;
+  const filteredPayoutHistory = useMemo(
+    () =>
+      payoutAccounting.payoutHistory.filter((item) => {
+        if (payoutFilter === "all") {
+          return true;
+        }
+
+        if (payoutFilter === "failed_or_canceled") {
+          return item.status === "canceled";
+        }
+
+        return item.status === payoutFilter;
+      }),
+    [payoutAccounting.payoutHistory, payoutFilter],
+  );
   const adminSummaryStrip = [
     {
       id: "admin-summary-maintenance",
@@ -1464,12 +1539,18 @@ export function OwnerDashboardPanel({
                     </p>
                   </div>
                   <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-                    {paymentMetrics.totalPayments} records
+                    {filteredPayments.length} of {paymentMetrics.recentPayments.length} shown
                   </span>
                 </div>
+                <OwnerReconciliationFilters
+                  ariaLabel="Filter owner payment inspection rows"
+                  options={paymentFilterOptions.map((option) => ({ ...option }))}
+                  value={paymentFilter}
+                  onChange={(value) => setPaymentFilter(value as OwnerPaymentFilter)}
+                />
                 <div className="mt-4 space-y-3">
-                  {paymentMetrics.recentPayments.length ? (
-                    paymentMetrics.recentPayments.map((payment) => (
+                  {filteredPayments.length ? (
+                    filteredPayments.map((payment) => (
                       <div
                         key={payment.id}
                         className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
@@ -1543,8 +1624,9 @@ export function OwnerDashboardPanel({
                     ))
                   ) : (
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                      No persistent top-up payment records are available yet. Once Stripe-backed
-                      checkout sessions are created, the webhook settlement feed will appear here.
+                      {paymentMetrics.recentPayments.length
+                        ? "No payment rows match the current filter."
+                        : "No persistent top-up payment records are available yet. Once Stripe-backed checkout sessions are created, the webhook settlement feed will appear here."}
                     </div>
                   )}
                 </div>
@@ -1706,9 +1788,15 @@ export function OwnerDashboardPanel({
                       : "No persistent records"}
                   </span>
                 </div>
+                <OwnerReconciliationFilters
+                  ariaLabel="Filter owner payout history rows"
+                  options={payoutFilterOptions.map((option) => ({ ...option }))}
+                  value={payoutFilter}
+                  onChange={(value) => setPayoutFilter(value as OwnerPayoutFilter)}
+                />
                 <div className="mt-4 space-y-3">
-                  {payoutAccounting.payoutHistory.length ? (
-                    payoutAccounting.payoutHistory.map((item) => (
+                  {filteredPayoutHistory.length ? (
+                    filteredPayoutHistory.map((item) => (
                       <div
                         key={item.id}
                         className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
@@ -1747,7 +1835,9 @@ export function OwnerDashboardPanel({
                     ))
                   ) : (
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                      No payout settlement records exist yet. Use the internal payout action below to create persistent payout history without enabling real payout rails.
+                      {payoutAccounting.payoutHistory.length
+                        ? "No payout settlement rows match the current filter."
+                        : "No payout settlement records exist yet. Use the internal payout action below to create persistent payout history without enabling real payout rails."}
                     </div>
                   )}
                 </div>

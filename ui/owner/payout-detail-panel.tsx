@@ -1,18 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { DetailPlaceholderPanel } from "@/modules/core/components/detail-placeholder-panel";
 import { formatCredits } from "@/modules/core/mock-data";
 import { MockPayoutSettlementButton } from "@/modules/core/payments/mock-payout-settlement-button";
 import type { EdenMockBusiness, EdenMockUser } from "@/modules/core/mock-data";
 import type { EdenBusinessPayoutAccountingSummary } from "@/modules/core/services/payout-accounting-service";
+import { OwnerReconciliationFilters } from "@/ui/owner/components/owner-reconciliation-filters";
 
 type OwnerPayoutDetailPanelProps = {
   businessProfile: EdenMockBusiness;
   businessOwner: EdenMockUser | null;
   payoutAccounting: EdenBusinessPayoutAccountingSummary;
 };
+
+type OwnerPayoutFilter = "all" | "pending" | "settled" | "failed_or_canceled";
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 14 },
@@ -80,7 +84,41 @@ export function OwnerPayoutDetailPanel({
   businessOwner,
   payoutAccounting,
 }: OwnerPayoutDetailPanelProps) {
+  const [payoutFilter, setPayoutFilter] = useState<OwnerPayoutFilter>("all");
   const latestSettlement = payoutAccounting.payoutHistory[0] ?? null;
+  const payoutFilterOptions = [
+    { value: "all", label: "All", count: payoutAccounting.payoutHistory.length },
+    {
+      value: "pending",
+      label: "Pending",
+      count: payoutAccounting.payoutHistory.filter((item) => item.status === "pending").length,
+    },
+    {
+      value: "settled",
+      label: "Settled",
+      count: payoutAccounting.payoutHistory.filter((item) => item.status === "settled").length,
+    },
+    {
+      value: "failed_or_canceled",
+      label: "Failed/Canceled",
+      count: payoutAccounting.payoutHistory.filter((item) => item.status === "canceled").length,
+    },
+  ] as const;
+  const filteredPayoutHistory = useMemo(
+    () =>
+      payoutAccounting.payoutHistory.filter((item) => {
+        if (payoutFilter === "all") {
+          return true;
+        }
+
+        if (payoutFilter === "failed_or_canceled") {
+          return item.status === "canceled";
+        }
+
+        return item.status === payoutFilter;
+      }),
+    [payoutAccounting.payoutHistory, payoutFilter],
+  );
 
   return (
     <div className="space-y-5">
@@ -355,12 +393,23 @@ export function OwnerPayoutDetailPanel({
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
             <div className="rounded-2xl border border-eden-edge bg-white p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                Payout history
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Payout history
+                </p>
+                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  {filteredPayoutHistory.length} of {payoutAccounting.payoutHistory.length} shown
+                </span>
+              </div>
+              <OwnerReconciliationFilters
+                ariaLabel="Filter owner payout detail history rows"
+                options={payoutFilterOptions.map((option) => ({ ...option }))}
+                value={payoutFilter}
+                onChange={(value) => setPayoutFilter(value as OwnerPayoutFilter)}
+              />
               <div className="mt-4 space-y-3">
-                {payoutAccounting.payoutHistory.length ? (
-                  payoutAccounting.payoutHistory.map((item) => (
+                {filteredPayoutHistory.length ? (
+                  filteredPayoutHistory.map((item) => (
                     <div
                       key={item.id}
                       className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
@@ -404,7 +453,9 @@ export function OwnerPayoutDetailPanel({
                   ))
                 ) : (
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                    No payout settlement rows exist for this business yet.
+                    {payoutAccounting.payoutHistory.length
+                      ? "No payout settlement rows match the current filter."
+                      : "No payout settlement rows exist for this business yet."}
                   </div>
                 )}
               </div>

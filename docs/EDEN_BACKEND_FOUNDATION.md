@@ -247,6 +247,7 @@ Current safety notes:
 - the browser return confirmation UX is preserved, but it now reads settlement status instead of mutating wallet cookies directly
 - settled top-ups are merged into server-side wallet reads, so existing wallet history and receipt surfaces can stay unchanged
 - owner control-room payment visibility now reads the same persistent top-up records for reconciliation across pending, settled, failed, and canceled states
+- owner reconciliation surfaces now include lightweight status filters and compact summary strips so payment and payout inspection stay aligned without introducing a new data path
 - this slice still does not add subscriptions or builder payouts yet
 
 ## Builder Payout Accounting Slice
@@ -259,6 +260,7 @@ What exists now:
 - persistent payout settlement history per business
 - adjusted unpaid earnings visibility after settled payout records
 - owner payout detail now includes a compact summary strip above the full settlement history and payout breakdown
+- owner payout reconciliation surfaces now include lightweight status filters for settlement history without changing the underlying accounting service boundary
 - payout-ready balance using the current internal reserve holdback
 - Eden fee-share visibility beside builder liability
 - top earning business summaries in the owner control room
