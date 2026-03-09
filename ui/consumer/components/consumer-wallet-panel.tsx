@@ -13,12 +13,15 @@ import {
   buildCreditsTopUpReturnPath,
   buildPaymentTopUpReceipt,
   confirmPaymentBackedCreditsTopUp,
+  getCreditsTopUpPackageById,
+  getCreditsTopUpPackageLabel,
   getCreditsTopUpClientConfig,
   getTopUpCancellationMessage,
   readCreditsTopUpReturnState,
   startPaymentBackedCreditsTopUp,
   type EdenWalletTopUpReceipt,
 } from "@/ui/consumer/components/credits-topup-client";
+import { CreditsTopUpPackageSelector } from "@/ui/consumer/components/credits-topup-package-selector";
 
 type ConsumerWalletPanelProps = {
   currentBalanceCredits: number;
@@ -50,6 +53,9 @@ export function ConsumerWalletPanel({
   const [activeTopUpAction, setActiveTopUpAction] = useState<"mock" | "payment" | null>(null);
   const [isPending, startTransition] = useTransition();
   const topUpConfig = useMemo(() => getCreditsTopUpClientConfig(), []);
+  const [selectedPackageId, setSelectedPackageId] = useState(
+    topUpConfig.defaultPackageId ?? "",
+  );
   const cleanReturnPath = useMemo(
     () => buildCreditsTopUpReturnPath(pathname, searchParams),
     [pathname, searchParams],
@@ -60,6 +66,10 @@ export function ConsumerWalletPanel({
   );
 
   const displayBalanceCredits = receipt?.nextBalanceCredits ?? currentBalanceCredits;
+  const selectedPackage = useMemo(
+    () => getCreditsTopUpPackageById(selectedPackageId),
+    [selectedPackageId],
+  );
   const filteredTransactions = useMemo(
     () => filterWalletTransactions(recentTransactions, activityFilter),
     [activityFilter, recentTransactions],
@@ -102,7 +112,13 @@ export function ConsumerWalletPanel({
         }
 
         if (payload.status === "settled") {
-          setReceipt(buildPaymentTopUpReceipt(payload, displayBalanceCredits));
+          setReceipt(
+            buildPaymentTopUpReceipt(
+              payload,
+              displayBalanceCredits,
+              selectedPackageId,
+            ),
+          );
           startTransition(() => {
             router.refresh();
           });
@@ -153,6 +169,7 @@ export function ConsumerWalletPanel({
     topUpReturnState.provider,
     topUpReturnState.sessionId,
     topUpReturnState.status,
+    selectedPackageId,
   ]);
 
   async function handleAddMockCredits() {
@@ -172,6 +189,7 @@ export function ConsumerWalletPanel({
         },
         body: JSON.stringify({
           action: "add_credits",
+          packageId: selectedPackageId,
         }),
       });
       const payload = (await response.json().catch(() => ({}))) as MockTopUpResponse;
@@ -196,9 +214,9 @@ export function ConsumerWalletPanel({
         amountLabel: payload.amountLabel ?? `+${addedCredits} credits`,
         previousBalanceCredits,
         nextBalanceCredits,
-        title: payload.transactionTitle ?? "Wallet credits top-up",
+        title: payload.transactionTitle ?? `Wallet credits top-up (${selectedPackage.title})`,
         timestamp: payload.transactionTimestamp ?? "Just now",
-        detail: "Mock top-up recorded through the Eden Credits transaction flow.",
+        detail: `Mock top-up recorded through the Eden Credits transaction flow for ${selectedPackage.title}.`,
         source: "mock",
       });
 
@@ -224,7 +242,7 @@ export function ConsumerWalletPanel({
     setNotice(null);
 
     try {
-      await startPaymentBackedCreditsTopUp(cleanReturnPath);
+      await startPaymentBackedCreditsTopUp(cleanReturnPath, selectedPackageId);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -261,7 +279,7 @@ export function ConsumerWalletPanel({
             >
               {activeTopUpAction === "payment"
                 ? "Opening Checkout..."
-                : topUpConfig.paymentLabel}
+                : getCreditsTopUpPackageLabel(selectedPackageId)}
             </button>
           ) : null}
           {topUpConfig.mockEnabled ? (
@@ -274,12 +292,18 @@ export function ConsumerWalletPanel({
               {activeTopUpAction === "mock"
                 ? "Adding Credits..."
                 : topUpConfig.paymentEnabled
-                  ? "Add 250 Credits (Mock)"
-                  : "Add 250 Credits"}
+                  ? `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits (Mock)`
+                  : `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits`}
             </button>
           ) : null}
         </div>
       </div>
+
+      <CreditsTopUpPackageSelector
+        packages={topUpConfig.packages}
+        selectedPackageId={selectedPackageId}
+        onSelect={setSelectedPackageId}
+      />
 
       <div className="mt-5 grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
@@ -289,16 +313,18 @@ export function ConsumerWalletPanel({
           </p>
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Recent Activity</p>
+          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Selected Package</p>
           <p className="mt-2 text-sm font-semibold text-eden-ink">
-            {recentTransactions.length} wallet events
+            {selectedPackage.title}
           </p>
+          <p className="mt-2 text-xs text-eden-muted">{selectedPackage.chargeLabel}</p>
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Wallet Flow</p>
           <p className="mt-2 text-sm font-semibold text-eden-ink">
-            Top-ups and service charges only
+            {recentTransactions.length} wallet events
           </p>
+          <p className="mt-2 text-xs text-eden-muted">Top-ups and service charges only</p>
         </div>
       </div>
 

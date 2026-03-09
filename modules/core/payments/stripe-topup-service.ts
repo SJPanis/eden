@@ -8,8 +8,8 @@ import {
   markCreditsTopUpPaymentFailed,
 } from "@/modules/core/payments/credits-topup-payment-service";
 import {
-  getCreditsTopUpOffer,
   isPaymentBackedCreditsTopUpEnabled,
+  resolveCreditsTopUpPackage,
   resolveCreditsTopUpMode,
 } from "@/modules/core/payments/payment-runtime";
 import { getStripeClient } from "@/modules/core/payments/stripe-client";
@@ -29,11 +29,12 @@ export async function createCreditsTopUpCheckoutSession(input: {
   displayName: string;
   origin: string;
   returnPath: string;
+  packageId?: string | null;
 }) {
   ensurePaymentBackedTopUpEnabled();
 
   const stripe = requireStripeClient();
-  const offer = getCreditsTopUpOffer();
+  const selectedPackage = resolveCreditsTopUpPackage(input.packageId);
   const successUrl = buildReturnUrl(input.origin, input.returnPath, {
     eden_topup: "success",
     eden_topup_provider: "stripe",
@@ -51,11 +52,11 @@ export async function createCreditsTopUpCheckoutSession(input: {
       {
         quantity: 1,
         price_data: {
-          currency: offer.currency,
-          unit_amount: offer.amountCents,
+          currency: selectedPackage.currency,
+          unit_amount: selectedPackage.amountCents,
           product_data: {
-            name: `Eden Credits Top-up (${offer.creditsAmount.toLocaleString()} credits)`,
-            description: "One-time wallet top-up for Eden Credits.",
+            name: `Eden Credits Top-up (${selectedPackage.title})`,
+            description: selectedPackage.detail,
           },
         },
       },
@@ -64,7 +65,8 @@ export async function createCreditsTopUpCheckoutSession(input: {
       edenUserId: input.userId,
       edenUsername: input.username,
       edenDisplayName: input.displayName,
-      edenTopUpCredits: String(offer.creditsAmount),
+      edenTopUpPackageId: selectedPackage.id,
+      edenTopUpCredits: String(selectedPackage.creditsAmount),
       edenTopUpMode: resolveCreditsTopUpMode(),
     },
   });
@@ -79,17 +81,17 @@ export async function createCreditsTopUpCheckoutSession(input: {
     providerPaymentIntentId:
       typeof session.payment_intent === "string" ? session.payment_intent : null,
     userId: input.userId,
-    creditsAmount: offer.creditsAmount,
-    amountCents: offer.amountCents,
-    currency: offer.currency,
+    creditsAmount: selectedPackage.creditsAmount,
+    amountCents: selectedPackage.amountCents,
+    currency: selectedPackage.currency,
   });
 
   return {
     checkoutUrl: session.url,
-    creditsAmount: offer.creditsAmount,
-    amountCents: offer.amountCents,
-    currency: offer.currency,
-    providerLabel: offer.providerLabel,
+    creditsAmount: selectedPackage.creditsAmount,
+    amountCents: selectedPackage.amountCents,
+    currency: selectedPackage.currency,
+    providerLabel: selectedPackage.providerLabel,
     sessionId: session.id,
   } satisfies EdenCreditsCheckoutSession;
 }

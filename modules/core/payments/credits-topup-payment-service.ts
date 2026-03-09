@@ -7,7 +7,10 @@ import {
   mergeWalletTransactions,
 } from "@/modules/core/credits/mock-credits";
 import { formatCredits } from "@/modules/core/mock-data";
-import { getCreditsTopUpOffer, formatCurrencyAmount } from "@/modules/core/payments/payment-runtime";
+import {
+  formatCurrencyAmount,
+  resolveCreditsTopUpPackage,
+} from "@/modules/core/payments/payment-runtime";
 import { createPrismaCreditsTopUpPaymentRepo } from "@/modules/core/repos/prisma-credits-topup-payment-repo";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 import type { EdenRepoCreditsTopUpPaymentRecord } from "@/modules/core/repos/repo-types";
@@ -155,8 +158,8 @@ export async function settleCreditsTopUpPaymentFromCheckoutSession(
     providerPaymentIntentId: paymentIntentId,
     userId: session.metadata?.edenUserId ?? null,
     creditsAmount: getCreditsAmountFromSession(session),
-    amountCents: session.amount_total ?? getCreditsTopUpOffer().amountCents,
-    currency: (session.currency ?? getCreditsTopUpOffer().currency).toLowerCase(),
+    amountCents: getAmountCentsFromSession(session),
+    currency: getCurrencyFromSession(session),
     settledAt: new Date(),
   });
 }
@@ -212,6 +215,7 @@ async function loadCreditsTopUpPaymentBySessionId(providerSessionId: string) {
 }
 
 function getCreditsAmountFromSession(session: Stripe.Checkout.Session) {
+  const topUpPackage = resolveCreditsTopUpPackage(session.metadata?.edenTopUpPackageId);
   const rawCredits = session.metadata?.edenTopUpCredits;
   const parsedCredits = rawCredits ? Number.parseInt(rawCredits, 10) : NaN;
 
@@ -219,7 +223,22 @@ function getCreditsAmountFromSession(session: Stripe.Checkout.Session) {
     return parsedCredits;
   }
 
-  return getCreditsTopUpOffer().creditsAmount;
+  return topUpPackage.creditsAmount;
+}
+
+function getAmountCentsFromSession(session: Stripe.Checkout.Session) {
+  if (typeof session.amount_total === "number" && session.amount_total > 0) {
+    return session.amount_total;
+  }
+
+  return resolveCreditsTopUpPackage(session.metadata?.edenTopUpPackageId).amountCents;
+}
+
+function getCurrencyFromSession(session: Stripe.Checkout.Session) {
+  return (
+    session.currency?.toLowerCase() ??
+    resolveCreditsTopUpPackage(session.metadata?.edenTopUpPackageId).currency
+  );
 }
 
 function getProviderLabel(provider: string) {

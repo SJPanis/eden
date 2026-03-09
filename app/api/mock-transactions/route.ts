@@ -26,6 +26,7 @@ import {
 } from "@/modules/core/pipeline/mock-pipeline";
 import { mockSessionCookieName, resolveMockSession } from "@/modules/core/session/mock-session";
 import { resolveServicePricing } from "@/modules/core/services/service-pricing";
+import { resolveCreditsTopUpPackage } from "@/modules/core/payments/payment-runtime";
 import {
   loadDiscoveryServiceById,
   loadServiceById,
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
     action?: EdenMockSimulationAction;
     businessId?: string;
     serviceId?: string;
+    packageId?: string;
   };
   const requestedAction = requestBody.action;
 
@@ -89,6 +91,10 @@ export async function POST(request: Request) {
     | Awaited<ReturnType<typeof loadServiceById>>
     | null = null;
   let resolvedUsagePriceCredits: number | null = null;
+  const selectedTopUpPackage =
+    requestedAction === "add_credits"
+      ? resolveCreditsTopUpPackage(requestBody.packageId)
+      : null;
 
   if (requestedAction === "simulate_service_usage") {
     const workspaceServices = getMockWorkspaceServiceStates(
@@ -139,6 +145,10 @@ export async function POST(request: Request) {
     businessId: targetBusinessId,
     transactionIndex: currentTransactions.length + 1,
     createdBusiness,
+    topUpCreditsAmount: selectedTopUpPackage?.creditsAmount,
+    topUpAmountCents: selectedTopUpPackage?.amountCents,
+    topUpCurrency: selectedTopUpPackage?.currency,
+    topUpPackageTitle: selectedTopUpPackage?.title,
     serviceUsagePriceCredits: resolvedUsagePriceCredits,
     serviceUsageId: resolvedService?.id,
     serviceUsageTitle: resolvedService?.title,

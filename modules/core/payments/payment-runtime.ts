@@ -1,10 +1,45 @@
 export type EdenCreditsTopUpMode = "mock_only" | "hybrid" | "payment_only";
 
+export type EdenCreditsTopUpPackage = {
+  id: string;
+  creditsAmount: number;
+  amountCents: number;
+  currency: string;
+  providerLabel: string;
+  title: string;
+  detail: string;
+  chargeLabel: string;
+};
+
 const supportedCreditsTopUpModes = new Set<EdenCreditsTopUpMode>([
   "mock_only",
   "hybrid",
   "payment_only",
 ]);
+
+const baseCreditsTopUpPackages = [
+  {
+    id: "credits-250",
+    creditsAmount: 250,
+    amountCents: 1000,
+    title: "250 credits",
+    detail: "Best for lightweight discovery and a few priced service runs.",
+  },
+  {
+    id: "credits-1000",
+    creditsAmount: 1000,
+    amountCents: 3500,
+    title: "1000 credits",
+    detail: "Best for repeat consumer usage and steady marketplace exploration.",
+  },
+  {
+    id: "credits-2500",
+    creditsAmount: 2500,
+    amountCents: 8000,
+    title: "2500 credits",
+    detail: "Best for heavy testing, business scouting, and repeated high-value service use.",
+  },
+] as const;
 
 function getRuntimeValue(name: string) {
   const value = process.env[name];
@@ -32,35 +67,37 @@ export function isPaymentBackedCreditsTopUpEnabled(
   return mode === "hybrid" || mode === "payment_only";
 }
 
-export function getCreditsTopUpOffer() {
-  const creditsAmount = parsePositiveInteger(
-    getRuntimeValue("NEXT_PUBLIC_EDEN_STRIPE_TOPUP_CREDITS") ??
-      getRuntimeValue("EDEN_STRIPE_TOPUP_CREDITS"),
-    250,
-  );
-  const amountCents = parsePositiveInteger(
-    getRuntimeValue("NEXT_PUBLIC_EDEN_STRIPE_TOPUP_AMOUNT_CENTS") ??
-      getRuntimeValue("EDEN_STRIPE_TOPUP_AMOUNT_CENTS"),
-    1000,
-  );
+export function getCreditsTopUpPackages(): EdenCreditsTopUpPackage[] {
   const currency = (
     getRuntimeValue("NEXT_PUBLIC_EDEN_STRIPE_TOPUP_CURRENCY") ??
     getRuntimeValue("EDEN_STRIPE_TOPUP_CURRENCY") ??
     "usd"
   ).toLowerCase();
 
-  return {
-    creditsAmount,
-    amountCents,
+  return baseCreditsTopUpPackages.map((pkg) => ({
+    ...pkg,
     currency,
     providerLabel: "Stripe Checkout",
-  };
+    chargeLabel: `${formatCurrencyAmount(pkg.amountCents, currency)} for ${pkg.creditsAmount.toLocaleString()} credits`,
+  }));
 }
 
-export function formatCreditsTopUpChargeLabel() {
-  const offer = getCreditsTopUpOffer();
+export function getDefaultCreditsTopUpPackage() {
+  return getCreditsTopUpPackages()[0];
+}
 
-  return `${formatCurrencyAmount(offer.amountCents, offer.currency)} for ${offer.creditsAmount.toLocaleString()} credits`;
+export function resolveCreditsTopUpPackage(packageId?: string | null) {
+  const packages = getCreditsTopUpPackages();
+
+  if (!packageId) {
+    return packages[0];
+  }
+
+  return packages.find((pkg) => pkg.id === packageId) ?? packages[0];
+}
+
+export function formatCreditsTopUpChargeLabel(packageId?: string | null) {
+  return resolveCreditsTopUpPackage(packageId).chargeLabel;
 }
 
 export function formatCurrencyAmount(amountCents: number, currency: string) {
@@ -68,13 +105,4 @@ export function formatCurrencyAmount(amountCents: number, currency: string) {
     style: "currency",
     currency: currency.toUpperCase(),
   }).format(amountCents / 100);
-}
-
-function parsePositiveInteger(rawValue: string | null, fallback: number) {
-  if (!rawValue) {
-    return fallback;
-  }
-
-  const parsedValue = Number.parseInt(rawValue, 10);
-  return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : fallback;
 }

@@ -17,11 +17,14 @@ import {
   buildCreditsTopUpReturnPath,
   buildPaymentTopUpReceipt,
   confirmPaymentBackedCreditsTopUp,
+  getCreditsTopUpPackageById,
+  getCreditsTopUpPackageLabel,
   getCreditsTopUpClientConfig,
   getTopUpCancellationMessage,
   readCreditsTopUpReturnState,
   startPaymentBackedCreditsTopUp,
 } from "@/ui/consumer/components/credits-topup-client";
+import { CreditsTopUpPackageSelector } from "@/ui/consumer/components/credits-topup-package-selector";
 
 type ServiceUsagePanelProps = {
   serviceId?: string | null;
@@ -90,6 +93,9 @@ export function ServiceUsagePanel({
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
   const [isPending, startTransition] = useTransition();
   const topUpConfig = useMemo(() => getCreditsTopUpClientConfig(), []);
+  const [selectedPackageId, setSelectedPackageId] = useState(
+    topUpConfig.defaultPackageId ?? "",
+  );
   const cleanReturnPath = useMemo(
     () => buildCreditsTopUpReturnPath(pathname, searchParams),
     [pathname, searchParams],
@@ -135,6 +141,10 @@ export function ServiceUsagePanel({
       : `${pricing.pricingUnit} per use`;
   const requiredCredits = pricing.pricePerUseCredits ?? 40;
   const displayBalanceCredits = activity?.nextBalanceCredits ?? currentBalanceCredits;
+  const selectedPackage = useMemo(
+    () => getCreditsTopUpPackageById(selectedPackageId),
+    [selectedPackageId],
+  );
   const hasSufficientBalance = displayBalanceCredits >= requiredCredits;
   const actionLabel = pricing.hasStoredPrice
     ? `Use Service for ${pricing.pricePerUseCredits?.toLocaleString()} ${pricing.pricingUnit}`
@@ -181,7 +191,11 @@ export function ServiceUsagePanel({
         }
 
         if (payload.status === "settled") {
-          const receipt = buildPaymentTopUpReceipt(payload, displayBalanceCredits);
+          const receipt = buildPaymentTopUpReceipt(
+            payload,
+            displayBalanceCredits,
+            selectedPackageId,
+          );
           setActivity({
             kind: "topup",
             amountCredits: receipt.amountCredits,
@@ -243,6 +257,7 @@ export function ServiceUsagePanel({
     topUpReturnState.provider,
     topUpReturnState.sessionId,
     topUpReturnState.status,
+    selectedPackageId,
   ]);
 
   async function handleUseService() {
@@ -341,6 +356,7 @@ export function ServiceUsagePanel({
         },
         body: JSON.stringify({
           action: "add_credits",
+          packageId: selectedPackageId,
         }),
       });
       const payload = (await response.json().catch(() => ({}))) as MockUsageResponse;
@@ -370,9 +386,9 @@ export function ServiceUsagePanel({
         amountLabel: payload.amountLabel ?? `+${addedCredits} credits`,
         previousBalanceCredits,
         nextBalanceCredits,
-        title: payload.transactionTitle ?? "Wallet credits top-up",
+        title: payload.transactionTitle ?? `Wallet credits top-up (${selectedPackage.title})`,
         timestamp: payload.transactionTimestamp ?? "Just now",
-        detail: "Mock Eden Credits top-up posted to the active wallet.",
+        detail: `Mock Eden Credits top-up posted to the active wallet for ${selectedPackage.title}.`,
         source: "mock",
       });
       startTransition(() => {
@@ -399,7 +415,7 @@ export function ServiceUsagePanel({
     setNotice(null);
 
     try {
-      await startPaymentBackedCreditsTopUp(cleanReturnPath);
+      await startPaymentBackedCreditsTopUp(cleanReturnPath, selectedPackageId);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -444,7 +460,7 @@ export function ServiceUsagePanel({
             >
               {activeAction === "payment_topup"
                 ? "Opening Checkout..."
-                : topUpConfig.paymentLabel}
+                : getCreditsTopUpPackageLabel(selectedPackageId)}
             </button>
           ) : null}
           {topUpConfig.mockEnabled ? (
@@ -457,12 +473,18 @@ export function ServiceUsagePanel({
               {activeAction === "topup"
                 ? "Adding Credits..."
                 : topUpConfig.paymentEnabled
-                  ? "Add 250 Credits (Mock)"
-                  : "Add 250 Credits"}
+                  ? `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits (Mock)`
+                  : `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits`}
             </button>
           ) : null}
         </div>
       </div>
+
+      <CreditsTopUpPackageSelector
+        packages={topUpConfig.packages}
+        selectedPackageId={selectedPackageId}
+        onSelect={setSelectedPackageId}
+      />
 
       <div className="mt-5 grid gap-3 md:grid-cols-4">
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
@@ -480,6 +502,13 @@ export function ServiceUsagePanel({
           <p className="mt-2 text-sm font-semibold text-eden-ink">
             {formatCreditsValue(displayBalanceCredits)}
           </p>
+        </div>
+        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Selected Top-up</p>
+          <p className="mt-2 text-sm font-semibold text-eden-ink">
+            {selectedPackage.title}
+          </p>
+          <p className="mt-2 text-xs text-eden-muted">{selectedPackage.chargeLabel}</p>
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Usage Readiness</p>

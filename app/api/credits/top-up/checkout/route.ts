@@ -8,6 +8,7 @@ import { getServerSession } from "@/modules/core/session/server";
 export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => ({}))) as {
     returnPath?: string;
+    packageId?: string;
   };
   const headerStore = await headers();
   const session = await getServerSession();
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
       displayName: session.user.displayName,
       origin: resolveOrigin(headerStore),
       returnPath: requestBody.returnPath ?? "/consumer",
+      packageId: requestBody.packageId,
     });
 
     return NextResponse.json({

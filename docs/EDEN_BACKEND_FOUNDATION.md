@@ -264,14 +264,16 @@ Required env for the Stripe-backed path:
 
 - `EDEN_CREDITS_TOPUP_MODE`
 - `NEXT_PUBLIC_EDEN_CREDITS_TOPUP_MODE`
-- `EDEN_STRIPE_TOPUP_CREDITS`
-- `NEXT_PUBLIC_EDEN_STRIPE_TOPUP_CREDITS`
-- `EDEN_STRIPE_TOPUP_AMOUNT_CENTS`
-- `NEXT_PUBLIC_EDEN_STRIPE_TOPUP_AMOUNT_CENTS`
 - `EDEN_STRIPE_TOPUP_CURRENCY`
 - `NEXT_PUBLIC_EDEN_STRIPE_TOPUP_CURRENCY`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
+
+Top-up package note:
+
+- the current top-up package catalog is defined in `modules/core/payments/payment-runtime.ts`
+- the initial package set is 250, 1000, and 2500 credits
+- both mock top-ups and Stripe Checkout now resolve through the same package ids
 
 Local Stripe verification note:
 

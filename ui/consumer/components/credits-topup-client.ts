@@ -2,9 +2,10 @@
 
 import {
   formatCreditsTopUpChargeLabel,
-  getCreditsTopUpOffer,
+  getCreditsTopUpPackages,
   isMockCreditsTopUpEnabled,
   isPaymentBackedCreditsTopUpEnabled,
+  resolveCreditsTopUpPackage,
   resolveCreditsTopUpMode,
   type EdenCreditsTopUpMode,
 } from "@/modules/core/payments/payment-runtime";
@@ -60,14 +61,16 @@ type SearchParamsLike = {
 
 export function getCreditsTopUpClientConfig() {
   const mode = resolveCreditsTopUpMode();
-  const offer = getCreditsTopUpOffer();
+  const packages = getCreditsTopUpPackages();
+  const defaultPackage = packages[0];
 
   return {
     mode,
-    offer,
+    packages,
+    defaultPackage,
+    defaultPackageId: defaultPackage?.id ?? null,
     mockEnabled: isMockCreditsTopUpEnabled(mode),
     paymentEnabled: isPaymentBackedCreditsTopUpEnabled(mode),
-    paymentLabel: `${formatCreditsTopUpChargeLabel()} via ${offer.providerLabel}`,
   };
 }
 
@@ -95,7 +98,10 @@ export function readCreditsTopUpReturnState(
   };
 }
 
-export async function startPaymentBackedCreditsTopUp(returnPath: string) {
+export async function startPaymentBackedCreditsTopUp(
+  returnPath: string,
+  packageId?: string | null,
+) {
   const response = await fetch("/api/credits/top-up/checkout", {
     method: "POST",
     headers: {
@@ -103,6 +109,7 @@ export async function startPaymentBackedCreditsTopUp(returnPath: string) {
     },
     body: JSON.stringify({
       returnPath,
+      packageId,
     }),
   });
   const payload = (await response.json().catch(() => ({}))) as EdenTopUpCheckoutResponse;
@@ -136,13 +143,15 @@ export async function confirmPaymentBackedCreditsTopUp(sessionId: string) {
 export function buildPaymentTopUpReceipt(
   payload: EdenTopUpConfirmationResponse,
   fallbackPreviousBalanceCredits: number,
+  packageId?: string | null,
 ) {
+  const selectedPackage = resolveCreditsTopUpPackage(packageId);
   const amountCredits =
     typeof payload.creditsUsed === "number"
       ? payload.creditsUsed
       : typeof payload.creditsDelta === "number"
         ? Math.abs(payload.creditsDelta)
-        : getCreditsTopUpOffer().creditsAmount;
+        : selectedPackage.creditsAmount;
   const previousBalanceCredits =
     typeof payload.previousBalanceCredits === "number"
       ? payload.previousBalanceCredits
@@ -157,13 +166,22 @@ export function buildPaymentTopUpReceipt(
     amountLabel: payload.amountLabel ?? `+${amountCredits} credits`,
     previousBalanceCredits,
     nextBalanceCredits,
-    title: payload.transactionTitle ?? "Stripe Checkout top-up settled",
+    title: payload.transactionTitle ?? `${selectedPackage.providerLabel} top-up settled`,
     timestamp: payload.transactionTimestamp ?? "Just now",
     detail:
       payload.settlementSummary ??
       "Payment-backed top-up recorded through Eden Credits.",
     source: "payment" as const,
   } satisfies EdenWalletTopUpReceipt;
+}
+
+export function getCreditsTopUpPackageLabel(packageId?: string | null) {
+  const selectedPackage = resolveCreditsTopUpPackage(packageId);
+  return `${formatCreditsTopUpChargeLabel(packageId)} via ${selectedPackage.providerLabel}`;
+}
+
+export function getCreditsTopUpPackageById(packageId?: string | null) {
+  return resolveCreditsTopUpPackage(packageId);
 }
 
 export function getTopUpCancellationMessage(mode: EdenCreditsTopUpMode) {

@@ -376,6 +376,10 @@ export function buildSimulationTransaction(options: {
   businessId?: string;
   transactionIndex: number;
   createdBusiness?: EdenMockCreatedBusinessState | null;
+  topUpCreditsAmount?: number | null;
+  topUpAmountCents?: number | null;
+  topUpCurrency?: string | null;
+  topUpPackageTitle?: string | null;
   serviceUsagePriceCredits?: number | null;
   serviceUsageId?: string | null;
   serviceUsageTitle?: string | null;
@@ -386,6 +390,10 @@ export function buildSimulationTransaction(options: {
     businessId,
     transactionIndex,
     createdBusiness,
+    topUpCreditsAmount,
+    topUpAmountCents,
+    topUpCurrency,
+    topUpPackageTitle,
     serviceUsagePriceCredits,
     serviceUsageId,
     serviceUsageTitle,
@@ -399,17 +407,37 @@ export function buildSimulationTransaction(options: {
         };
 
   if (action === "add_credits") {
+    const creditsAmount =
+      typeof topUpCreditsAmount === "number" && topUpCreditsAmount > 0
+        ? Math.round(topUpCreditsAmount)
+        : 250;
+    const packageTitle =
+      topUpPackageTitle?.trim() || `${creditsAmount.toLocaleString()} credits`;
+    const topUpMoneyLabel =
+      typeof topUpAmountCents === "number" &&
+      topUpAmountCents > 0 &&
+      typeof topUpCurrency === "string" &&
+      topUpCurrency.trim()
+        ? formatMoneyFromCents(topUpAmountCents, topUpCurrency)
+        : null;
+
     return {
       id: `${prefix}-add-credits`,
       ...scope,
-      title: businessId ? "Workspace credits top-up" : "Wallet credits top-up",
-      amountLabel: "+250 credits",
-      creditsDelta: 250,
+      title: businessId
+        ? `Workspace credits top-up (${packageTitle})`
+        : `Wallet credits top-up (${packageTitle})`,
+      amountLabel: `+${creditsAmount} credits`,
+      creditsDelta: creditsAmount,
       direction: "inflow",
       kind: "wallet",
       detail: businessId
-        ? "Development-only top-up added to the active business workspace."
-        : "Development-only top-up added to the active user wallet.",
+        ? topUpMoneyLabel
+          ? `Development-only top-up added ${packageTitle} to the active business workspace at ${topUpMoneyLabel}.`
+          : `Development-only top-up added ${packageTitle} to the active business workspace.`
+        : topUpMoneyLabel
+          ? `Development-only top-up added ${packageTitle} to the active user wallet at ${topUpMoneyLabel}.`
+          : `Development-only top-up added ${packageTitle} to the active user wallet.`,
       timestamp: "Just now",
       simulated: true,
     };
