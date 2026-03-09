@@ -704,6 +704,105 @@ export function BusinessDashboardPanel({
       detail: "Persistent payout settlement total already marked as settled for this business.",
     },
   ];
+  const serviceUsageLeaders = [...usageMetrics.perService].sort((left, right) => {
+    return (
+      right.usageCount - left.usageCount ||
+      right.monetization.estimatedBuilderEarningsCredits -
+        left.monetization.estimatedBuilderEarningsCredits
+    );
+  });
+  const serviceEarningLeaders = [...usageMetrics.perService].sort((left, right) => {
+    return (
+      right.monetization.estimatedBuilderEarningsCredits -
+        left.monetization.estimatedBuilderEarningsCredits ||
+      right.usageCount - left.usageCount
+    );
+  });
+  const recentUsageWindow = usageMetrics.recentUsageEvents.slice(0, 8);
+  const recentUsageMomentumByService = recentUsageWindow.reduce<Record<string, number>>(
+    (lookup, event) => {
+      lookup[event.serviceId] = (lookup[event.serviceId] ?? 0) + 1;
+      return lookup;
+    },
+    {},
+  );
+  const serviceMomentumLeaders = [...usageMetrics.perService]
+    .map((service) => ({
+      ...service,
+      recentMomentumCount: recentUsageMomentumByService[service.serviceId] ?? 0,
+    }))
+    .sort((left, right) => {
+      return (
+        right.recentMomentumCount - left.recentMomentumCount ||
+        right.usageCount - left.usageCount ||
+        right.monetization.estimatedBuilderEarningsCredits -
+          left.monetization.estimatedBuilderEarningsCredits
+      );
+    });
+  const topCustomersByValue = [...usageMetrics.topCustomers].sort((left, right) => {
+    return (
+      right.projectedCustomerValueCredits - left.projectedCustomerValueCredits ||
+      right.usageCount - left.usageCount
+    );
+  });
+  const topCustomersByUsage = [...usageMetrics.topCustomers].sort((left, right) => {
+    return (
+      right.usageCount - left.usageCount ||
+      right.projectedCustomerValueCredits - left.projectedCustomerValueCredits
+    );
+  });
+  const highestEarningService = serviceEarningLeaders[0] ?? null;
+  const strongestMomentumService =
+    serviceMomentumLeaders.find((service) => service.recentMomentumCount > 0) ?? null;
+  const highestValueCustomer = topCustomersByValue[0] ?? null;
+  const highestUsageCustomer = topCustomersByUsage[0] ?? null;
+  const latestCustomerActivity = usageMetrics.recentCustomerActivity[0] ?? null;
+  const analyticsHighlights = [
+    {
+      id: "analytics-highlight-top-service",
+      label: "Top service by earnings",
+      value: highestEarningService
+        ? formatCredits(highestEarningService.monetization.estimatedBuilderEarningsCredits)
+        : "No priced runs yet",
+      detail: highestEarningService
+        ? `${highestEarningService.serviceTitle} at ${getServicePricingDisplay({
+            pricingModel: highestEarningService.pricingModel,
+            pricePerUse: highestEarningService.pricePerUseCredits,
+            pricingUnit: highestEarningService.pricingUnit,
+          })}.`
+        : "Builder earnings highlights appear once priced service usage is recorded.",
+    },
+    {
+      id: "analytics-highlight-customer-value",
+      label: "Top customer value",
+      value: highestValueCustomer
+        ? formatCredits(highestValueCustomer.projectedCustomerValueCredits)
+        : "No customer value yet",
+      detail: highestValueCustomer
+        ? `${highestValueCustomer.userDisplayName} across ${highestValueCustomer.perService.length} service${
+            highestValueCustomer.perService.length === 1 ? "" : "s"
+          }.`
+        : "Projected customer value appears after tracked usage is tied to customers.",
+    },
+    {
+      id: "analytics-highlight-payout-ready",
+      label: "Payout-ready",
+      value: formatCredits(payoutAccounting.payoutReadyCredits),
+      detail: `${payoutAccounting.statusOverview.pendingCount} pending settlement record${
+        payoutAccounting.statusOverview.pendingCount === 1 ? "" : "s"
+      } with ${formatCredits(payoutAccounting.pendingSettlementCredits)} queued internally.`,
+    },
+    {
+      id: "analytics-highlight-usage-pulse",
+      label: "Recent usage pulse",
+      value: strongestMomentumService
+        ? `${strongestMomentumService.recentMomentumCount}/${recentUsageWindow.length} recent runs`
+        : "No recent usage pulse",
+      detail: strongestMomentumService
+        ? `${strongestMomentumService.serviceTitle} is leading recent activity. ${strongestMomentumService.lastUsedAtLabel}.`
+        : "Recent service momentum will appear here after fresh runs are recorded.",
+    },
+  ];
   const settingsItems: SettingItem[] = businessProfile
     ? [
         {
@@ -1589,6 +1688,21 @@ export function BusinessDashboardPanel({
               ))}
             </motion.div>
 
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {analyticsHighlights.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.35),rgba(255,255,255,0.98))] p-4"
+                >
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-eden-ink">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+
             <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Transparent fee summary
@@ -1814,6 +1928,135 @@ export function BusinessDashboardPanel({
               </div>
             </div>
 
+            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Highest usage services
+                </p>
+                <div className="mt-4 space-y-3">
+                  {serviceUsageLeaders.length ? (
+                    serviceUsageLeaders.slice(0, 3).map((service, index) => (
+                      <div
+                        key={service.serviceId}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {index + 1}. {service.serviceTitle}
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              {getServicePricingDisplay({
+                                pricingModel: service.pricingModel,
+                                pricePerUse: service.pricePerUseCredits,
+                                pricingUnit: service.pricingUnit,
+                              })}
+                            </p>
+                          </div>
+                          <p className="text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Highest-usage services will appear once the workspace records tracked service runs.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Highest earning services
+                </p>
+                <div className="mt-4 space-y-3">
+                  {serviceEarningLeaders.length ? (
+                    serviceEarningLeaders.slice(0, 3).map((service, index) => (
+                      <div
+                        key={service.serviceId}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {index + 1}. {service.serviceTitle}
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              Builder keeps{" "}
+                              {formatCredits(service.monetization.estimatedBuilderEarningsCredits)}
+                              {" "}from {formatCredits(service.monetization.estimatedGrossCredits)} gross.
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              Eden fee share {formatCredits(
+                                service.monetization.estimatedPlatformEarningsCredits,
+                              )}
+                            </p>
+                          </div>
+                          <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                            {getServicePricingDisplay({
+                              pricingModel: service.pricingModel,
+                              pricePerUse: service.pricePerUseCredits,
+                              pricingUnit: service.pricingUnit,
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Pricing-based earning leaders appear here once the active business records priced usage.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Recent usage momentum
+                </p>
+                <div className="mt-4 space-y-3">
+                  {serviceMomentumLeaders.some((service) => service.recentMomentumCount > 0) ? (
+                    serviceMomentumLeaders
+                      .filter((service) => service.recentMomentumCount > 0)
+                      .slice(0, 3)
+                      .map((service) => (
+                        <div
+                          key={service.serviceId}
+                          className="rounded-2xl border border-eden-edge bg-white p-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {service.serviceTitle}
+                              </p>
+                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                {service.recentMomentumCount} of the latest {recentUsageWindow.length} tracked
+                                runs landed on this service.
+                              </p>
+                              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                                {getServicePricingDisplay({
+                                  pricingModel: service.pricingModel,
+                                  pricePerUse: service.pricePerUseCredits,
+                                  pricingUnit: service.pricingUnit,
+                                })}
+                              </p>
+                            </div>
+                            <p className="text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
+                      Momentum appears after fresh usage events arrive. The latest eight tracked runs are used for this quick pulse.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Recent Eden transactions
@@ -1968,6 +2211,147 @@ export function BusinessDashboardPanel({
                         {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
                       </p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Top customers by value
+                </p>
+                <div className="mt-4 space-y-3">
+                  {topCustomersByValue.length ? (
+                    topCustomersByValue.slice(0, 3).map((customer, index) => (
+                      <div
+                        key={`${customer.userId ?? customer.userDisplayName}-value`}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {index + 1}. {customer.userDisplayName}
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              {customer.username ? `@${customer.username}` : "Guest wallet"}
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              Projected value {formatCredits(customer.projectedCustomerValueCredits)} across{" "}
+                              {customer.perService.length} service
+                              {customer.perService.length === 1 ? "" : "s"}.
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              Top service: {customer.topServiceTitle}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {formatCredits(
+                                customer.monetization.estimatedBuilderEarningsCredits,
+                              )}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">Builder value</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Customer value leaders appear here after the active business records tracked usage.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Top customers by usage
+                </p>
+                <div className="mt-4 space-y-3">
+                  {topCustomersByUsage.length ? (
+                    topCustomersByUsage.slice(0, 3).map((customer, index) => (
+                      <div
+                        key={`${customer.userId ?? customer.userDisplayName}-usage`}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {index + 1}. {customer.userDisplayName}
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              {customer.usageCount} runs | {customer.usageSharePercent}% of tracked usage
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              Projected value {formatCredits(customer.projectedCustomerValueCredits)}.
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">{customer.lastUsedAtLabel}</p>
+                          </div>
+                          <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                            {customer.topServiceTitle}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      Usage leaders appear here once tracked customers accumulate across the active services.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Customer growth pulse
+                </p>
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Highest value customer
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                      {highestValueCustomer?.userDisplayName ?? "No customer value yet"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      {highestValueCustomer
+                        ? `${formatCredits(highestValueCustomer.projectedCustomerValueCredits)} projected value with ${formatCredits(
+                            highestValueCustomer.monetization.estimatedBuilderEarningsCredits,
+                          )} in builder-side earnings.`
+                        : "Projected customer value appears once priced service usage is tracked."}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Highest usage customer
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                      {highestUsageCustomer?.userDisplayName ?? "No usage leader yet"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      {highestUsageCustomer
+                        ? `${highestUsageCustomer.usageCount} runs and ${highestUsageCustomer.usageSharePercent}% of tracked demand.`
+                        : "Usage concentration appears once multiple tracked runs are tied to customers."}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Latest customer activity
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                      {latestCustomerActivity?.userDisplayName ?? "No recent customer activity"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      {latestCustomerActivity
+                        ? `${latestCustomerActivity.userDisplayName} used ${latestCustomerActivity.serviceTitle} for ${formatCredits(
+                            latestCustomerActivity.creditsUsed,
+                          )}.`
+                        : "Recent customer activity appears here after tracked service runs are recorded."}
+                    </p>
+                    <p className="mt-2 text-xs text-eden-muted">
+                      {latestCustomerActivity?.timestampLabel ?? "Waiting for the next tracked customer event."}
+                    </p>
                   </div>
                 </div>
               </div>
