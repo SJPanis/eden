@@ -38,7 +38,10 @@ import type {
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
 import type { EdenBusinessPayoutAccountingSummary } from "@/modules/core/services/payout-accounting-service";
-import { formatServicePricingLabel } from "@/modules/core/services/service-pricing";
+import {
+  formatServicePricingLabel,
+  resolveServicePricing,
+} from "@/modules/core/services/service-pricing";
 import { BusinessAiAssistantPanel } from "@/ui/business/components/business-ai-assistant-panel";
 import { MockServiceBuilder } from "@/ui/business/components/mock-service-builder";
 import {
@@ -605,6 +608,53 @@ export function BusinessDashboardPanel({
     pricingUnit:
       workspaceService?.record.pricingUnit ?? activeService?.pricingUnit ?? null,
   });
+  const activeServicePricing = resolveServicePricing({
+    pricePerUse: workspaceService?.record.pricePerUse ?? activeService?.pricePerUse ?? null,
+    pricingType: workspaceService?.record.pricingType ?? activeService?.pricingType ?? null,
+    pricingUnit: workspaceService?.record.pricingUnit ?? activeService?.pricingUnit ?? null,
+    pricingModel: workspaceService?.record.pricingModel ?? activeService?.pricingModel ?? null,
+  });
+  const publishLaunchSummaryCards = [
+    {
+      id: "launch-summary-state",
+      label: "Publish state",
+      value: getPipelineStatusLabel(releaseStatus),
+      detail:
+        releaseStatus === "published"
+          ? "This service is live in consumer discovery and Ask Eden for the current session."
+          : releaseStatus === "ready"
+            ? "This service is staged for launch and one step away from consumer discovery."
+            : releaseStatus === "testing"
+              ? "This service is still in testing and not yet promoted into consumer discovery."
+              : "This service is still in draft and not yet visible to consumers.",
+    },
+    {
+      id: "launch-summary-pricing",
+      label: "Pricing state",
+      value: activeServicePricing.hasStoredPrice
+        ? activeServicePricingLabel
+        : "Price needs review",
+      detail: activeServicePricing.hasStoredPrice
+        ? `Consumers see this exact Eden Credits rate before they run the service.`
+        : "Set a per-use Eden Credits price so the launch flow and earnings model are explicit.",
+    },
+    {
+      id: "launch-summary-readiness",
+      label: "Readiness",
+      value: `${pipelineSnapshot?.readinessPercent ?? businessProfile?.publishReadinessPercent ?? 0}% ready`,
+      detail:
+        pipelineSnapshot?.nextMilestone ??
+        "Finish the remaining checklist items before promoting this service into discovery.",
+    },
+    {
+      id: "launch-summary-wallet",
+      label: "Consumer billing path",
+      value: "Eden Credits only",
+      detail: activeServicePricing.hasStoredPrice
+        ? `Each run deducts the visible price from the consumer wallet. No hidden checkout happens during service use.`
+        : "Wallet charging is ready, but the final per-use price should be set before launch.",
+    },
+  ];
   const billingUsage: BillingUsageItem[] = businessProfile
     ? [
         {
@@ -1300,6 +1350,20 @@ export function BusinessDashboardPanel({
               </div>
             }
           >
+            <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {publishLaunchSummaryCards.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.26),rgba(255,255,255,0.96))] p-4"
+                >
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
             <div className="grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
               <div className="rounded-2xl border border-eden-edge bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">

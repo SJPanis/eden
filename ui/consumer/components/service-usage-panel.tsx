@@ -46,6 +46,8 @@ type ServiceUsagePanelProps = {
   pricingModel?: string | null;
   disabled?: boolean;
   disabledReason?: string;
+  availabilityLabel?: string;
+  availabilityDetail?: string;
 };
 
 type MockUsageResponse = {
@@ -89,6 +91,8 @@ export function ServiceUsagePanel({
   pricingModel,
   disabled = false,
   disabledReason,
+  availabilityLabel,
+  availabilityDetail,
 }: ServiceUsagePanelProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -169,6 +173,12 @@ export function ServiceUsagePanel({
     [recentTransactions],
   );
   const latestVisibleTransaction = filteredTransactions[0] ?? null;
+  const serviceAvailabilityLabel = availabilityLabel ?? (disabled ? "Preview only" : "Published and available");
+  const serviceAvailabilityDetail =
+    availabilityDetail ??
+    (disabled
+      ? "This service is not currently available for a consumer run."
+      : "This service can be run immediately through the Eden Credits wallet flow.");
 
   useEffect(() => {
     if (!topUpConfig.paymentEnabled) {
@@ -461,7 +471,7 @@ export function ServiceUsagePanel({
           </h2>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
             {summary ||
-              "Run this service through Eden's mocked usage path. This records a ServiceUsage event and refreshes wallet-facing mock activity without charging any real payment rail."}
+              "Run this service through Eden's mocked usage path. The visible Eden Credits price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
           </p>
         </div>
 
@@ -509,7 +519,31 @@ export function ServiceUsagePanel({
         onSelect={setSelectedPackageId}
       />
 
-      <div className="mt-5 grid gap-3 md:grid-cols-4">
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Availability</p>
+          <p className="mt-2 text-sm font-semibold text-eden-ink">{serviceAvailabilityLabel}</p>
+          <p className="mt-2 text-sm leading-6 text-eden-muted">{serviceAvailabilityDetail}</p>
+        </div>
+        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
+          <p className="mt-2 text-sm font-semibold text-eden-ink">Eden Credits only</p>
+          <p className="mt-2 text-sm leading-6 text-eden-muted">
+            Each run uses the visible credit price below. Wallet top-ups are the only time a payment-backed checkout can appear.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">No hidden charges</p>
+          <p className="mt-2 text-sm font-semibold text-eden-ink">
+            Explicit top-up, explicit run
+          </p>
+          <p className="mt-2 text-sm leading-6 text-eden-muted">
+            Service use deducts credits only. Checkout is only used when you choose to add credits to the wallet.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-5">
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Price Per Use</p>
           <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
@@ -524,6 +558,15 @@ export function ServiceUsagePanel({
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Current Balance</p>
           <p className="mt-2 text-sm font-semibold text-eden-ink">
             {formatCreditsValue(displayBalanceCredits)}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Wallet charge</p>
+          <p className="mt-2 text-sm font-semibold text-eden-ink">
+            {formatCreditsValue(requiredCredits)}
+          </p>
+          <p className="mt-2 text-xs text-eden-muted">
+            The exact balance change applied when this service run succeeds.
           </p>
         </div>
         <div className="rounded-2xl border border-eden-ring bg-eden-accent-soft/35 p-4">
@@ -548,8 +591,8 @@ export function ServiceUsagePanel({
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
-          ? `Selected package: ${selectedPackage.title}. Service usage still settles through Eden Credits first, and Stripe top-ups only become available after webhook settlement confirms the purchase.`
-          : "No real payment is charged yet. Eden only records a mocked transaction and a persistent service-usage event for analytics."}
+          ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Credits first, and Stripe top-ups only add credits after webhook settlement confirms the purchase.`
+          : "No real payment is charged during service use. Eden only records a wallet event plus a persistent service-usage event for analytics."}
       </div>
 
       {!hasSufficientBalance ? (

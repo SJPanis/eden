@@ -191,6 +191,20 @@ export default async function ServiceDetailPage({
     pricing.pricingType === "per_session"
       ? `${pricing.pricingUnit} per session`
       : `${pricing.pricingUnit} per use`;
+  const consumerAvailabilityLabel = businessFrozen
+    ? "Temporarily unavailable"
+    : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
+      ? "Published and available"
+      : pipelineStatusOverride === "ready" || pipelineSnapshot?.status === "ready"
+        ? "Ready for launch"
+        : "Preview availability";
+  const consumerAvailabilityDetail = businessFrozen
+    ? "This service is currently blocked by an owner freeze on the linked business."
+    : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
+      ? "This service is live in Eden discovery and can be run through the credits wallet flow right now."
+      : pipelineStatusOverride === "ready" || pipelineSnapshot?.status === "ready"
+        ? "This service is almost live. The current route remains a preview of the launch-ready experience."
+        : "This route is still showing a pre-launch or preview state for the service.";
   const currentUserBalanceCredits = getUserCreditsBalance(
     session.user.id,
     simulatedTransactions,
@@ -240,10 +254,90 @@ export default async function ServiceDetailPage({
       note={
         businessFrozen
           ? "All content on this page is mocked. The linked business is currently under a local owner freeze overlay."
-          : "All content on this page is mocked. Service pricing and usage events are local-development placeholders that stay aligned with Eden's analytics layer."
+          : "All content on this page is mocked. The price shown below is the exact Eden Credits amount used for service runs, and no hidden checkout or background payment happens during usage."
       }
     >
       <div className="space-y-5">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Launch clarity
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  This service route makes the core consumer promise explicit before the run starts: availability, price, and wallet behavior are visible up front.
+                </p>
+              </div>
+              <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                {consumerAvailabilityLabel}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Availability</p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {consumerAvailabilityLabel}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  {consumerAvailabilityDetail}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Visible price</p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  {pricing.hasStoredPrice
+                    ? `Consumers see ${pricingUnitLabel} before the service can run.`
+                    : "This route is still using a mocked fallback usage rate."}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">Eden Credits only</p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Service runs deduct credits from the wallet. Stripe only appears if the user explicitly chooses to top up.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Current wallet</p>
+                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  {currentUserBalanceCredits.toLocaleString()} credits
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  The wallet panel below shows the resulting balance change after each service run or top-up.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+              First-time user guide
+            </p>
+            <div className="mt-4 space-y-3">
+              <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                <p className="text-sm font-semibold text-eden-ink">1. Check availability and price</p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Eden shows whether the service is live and exactly what the credits price is before anything runs.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                <p className="text-sm font-semibold text-eden-ink">2. Top up only if needed</p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Add credits through the wallet flow if your balance is low. No hidden payment happens when you press use.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                <p className="text-sm font-semibold text-eden-ink">3. Run the service</p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  A successful run deducts the visible credits amount, records usage, and updates the wallet history immediately.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <ServiceUsagePanel
           serviceId={service?.id ?? null}
           businessId={business?.id ?? businessId}
@@ -255,6 +349,8 @@ export default async function ServiceDetailPage({
           pricingType={service?.pricingType ?? null}
           pricingUnit={service?.pricingUnit ?? null}
           pricingModel={service?.pricingModel ?? null}
+          availabilityLabel={consumerAvailabilityLabel}
+          availabilityDetail={consumerAvailabilityDetail}
           disabled={businessFrozen || !service}
           disabledReason={
             businessFrozen

@@ -15,6 +15,7 @@ import type {
 import {
   type EdenDiscoverySnapshot,
   categories,
+  formatCredits,
   getUserById,
 } from "@/modules/core/mock-data";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
@@ -386,6 +387,35 @@ export function ConsumerHomePanel({
         : null,
     [discoverySnapshot, latestTurn, selectedResult],
   );
+  const consumerLaunchClarityCards = useMemo(
+    () => [
+      {
+        id: "consumer-launch-services",
+        label: "Published services",
+        value: `${discoverySnapshot.marketplaceServices.length}`,
+        detail: "Discover live services that are already visible in Eden's consumer marketplace.",
+      },
+      {
+        id: "consumer-launch-price",
+        label: "Transparent pricing",
+        value: "Shown before every run",
+        detail: "Each service detail page shows the exact Eden Credits price before usage begins.",
+      },
+      {
+        id: "consumer-launch-wallet",
+        label: "Wallet balance",
+        value: formatCredits(currentBalanceCredits),
+        detail: "Top up once, then reuse Eden Credits across discovery and service runs.",
+      },
+      {
+        id: "consumer-launch-payments",
+        label: "No hidden checkout",
+        value: "Top-up only",
+        detail: "Checkout appears only when you explicitly add credits. Service runs deduct only the visible wallet price.",
+      },
+    ],
+    [currentBalanceCredits, discoverySnapshot.marketplaceServices.length],
+  );
 
   const recommendedServices = useMemo<ConsumerServiceRailItem[]>(
     () =>
@@ -522,6 +552,45 @@ export function ConsumerHomePanel({
           currentBalanceCredits={currentBalanceCredits}
           recentTransactions={recentWalletTransactions}
         />
+      </motion.section>
+
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={sectionVariants}
+        transition={{ duration: 0.3, ease: "easeOut", delay: 0.04 }}
+        className="rounded-[28px] border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.35),rgba(255,255,255,0.98),rgba(255,247,237,0.9))] p-5"
+      >
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
+              How Eden Works
+            </p>
+            <h2 className="mt-2 text-lg font-semibold text-eden-ink">
+              Discover, top up, and use services with visible credit pricing
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-eden-muted">
+              Eden&apos;s consumer loop is simple: discover a published service, check the visible Eden Credits price, top up only if needed, and run the service through the wallet flow.
+            </p>
+          </div>
+          <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+            First-time clarity
+          </span>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {consumerLaunchClarityCards.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-2xl border border-eden-edge bg-white/90 p-4"
+            >
+              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                {item.label}
+              </p>
+              <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+              <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+            </div>
+          ))}
+        </div>
       </motion.section>
 
       <motion.section
