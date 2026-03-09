@@ -10,15 +10,18 @@ import {
   type WalletActivityFilter,
 } from "@/ui/consumer/components/wallet-activity-filters";
 import {
+  buildTopUpCancellationMessage,
+  buildTopUpFailureMessage,
+  buildTopUpProcessingMessage,
   buildCreditsTopUpReturnPath,
   buildPaymentTopUpReceipt,
   confirmPaymentBackedCreditsTopUp,
+  getCreditsTopUpActionLabel,
   getCreditsTopUpPackageById,
-  getCreditsTopUpPackageLabel,
   getCreditsTopUpClientConfig,
-  getTopUpCancellationMessage,
   readCreditsTopUpReturnState,
   startPaymentBackedCreditsTopUp,
+  type EdenTopUpStatusMessage,
   type EdenWalletTopUpReceipt,
 } from "@/ui/consumer/components/credits-topup-client";
 import { CreditsTopUpPackageSelector } from "@/ui/consumer/components/credits-topup-package-selector";
@@ -47,8 +50,7 @@ export function ConsumerWalletPanel({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [receipt, setReceipt] = useState<EdenWalletTopUpReceipt | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<EdenTopUpStatusMessage | null>(null);
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
   const [activeTopUpAction, setActiveTopUpAction] = useState<"mock" | "payment" | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -82,8 +84,7 @@ export function ConsumerWalletPanel({
 
     if (topUpReturnState.status === "cancelled") {
       setReceipt(null);
-      setNotice(null);
-      setError(getTopUpCancellationMessage(topUpConfig.mode));
+      setStatusMessage(buildTopUpCancellationMessage(topUpConfig.mode, selectedPackageId));
       router.replace(cleanReturnPath, { scroll: false });
       return;
     }
@@ -101,8 +102,7 @@ export function ConsumerWalletPanel({
 
     void (async () => {
       setActiveTopUpAction("payment");
-      setError(null);
-      setNotice(null);
+      setStatusMessage(null);
 
       try {
         const payload = await confirmPaymentBackedCreditsTopUp(topUpSessionId);
@@ -124,16 +124,10 @@ export function ConsumerWalletPanel({
           });
         } else if (payload.status === "processing") {
           setReceipt(null);
-          setNotice(
-            payload.message ??
-              "Payment submitted. Eden is waiting for Stripe webhook settlement before credits are added.",
-          );
+          setStatusMessage(buildTopUpProcessingMessage(selectedPackageId, payload.message));
         } else {
           setReceipt(null);
-          setError(
-            payload.message ??
-              "Stripe did not settle this top-up. No Eden Credits were added.",
-          );
+          setStatusMessage(buildTopUpFailureMessage(selectedPackageId, payload.message));
         }
 
         router.replace(cleanReturnPath, { scroll: false });
@@ -142,11 +136,14 @@ export function ConsumerWalletPanel({
           return;
         }
 
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Unable to confirm the payment-backed top-up.",
-        );
+        setStatusMessage({
+          tone: "danger",
+          title: "Confirmation unavailable",
+          detail:
+            requestError instanceof Error
+              ? requestError.message
+              : "Unable to confirm the payment-backed credits top-up.",
+        });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
         if (isActive) {
@@ -178,8 +175,7 @@ export function ConsumerWalletPanel({
     }
 
     setActiveTopUpAction("mock");
-    setError(null);
-    setNotice(null);
+    setStatusMessage(null);
 
     try {
       const response = await fetch("/api/mock-transactions", {
@@ -224,9 +220,12 @@ export function ConsumerWalletPanel({
         router.refresh();
       });
     } catch (requestError) {
-      setError(
-        requestError instanceof Error ? requestError.message : "Unable to add mocked Eden Credits.",
-      );
+      setStatusMessage({
+        tone: "danger",
+        title: "Top-up not recorded",
+        detail:
+          requestError instanceof Error ? requestError.message : "Unable to add mocked Eden Credits.",
+      });
     } finally {
       setActiveTopUpAction(null);
     }
@@ -238,17 +237,23 @@ export function ConsumerWalletPanel({
     }
 
     setActiveTopUpAction("payment");
-    setError(null);
-    setNotice(null);
+    setStatusMessage({
+      tone: "info",
+      title: "Preparing checkout",
+      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Credits will only be added after Eden receives settlement confirmation.`,
+    });
 
     try {
       await startPaymentBackedCreditsTopUp(cleanReturnPath, selectedPackageId);
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Unable to start the payment-backed credits top-up.",
-      );
+      setStatusMessage({
+        tone: "danger",
+        title: "Checkout unavailable",
+        detail:
+          requestError instanceof Error
+            ? requestError.message
+            : "Unable to start the payment-backed credits top-up.",
+      });
       setActiveTopUpAction(null);
     }
   }
@@ -279,7 +284,7 @@ export function ConsumerWalletPanel({
             >
               {activeTopUpAction === "payment"
                 ? "Opening Checkout..."
-                : getCreditsTopUpPackageLabel(selectedPackageId)}
+                : getCreditsTopUpActionLabel(selectedPackageId, "payment")}
             </button>
           ) : null}
           {topUpConfig.mockEnabled ? (
@@ -292,8 +297,8 @@ export function ConsumerWalletPanel({
               {activeTopUpAction === "mock"
                 ? "Adding Credits..."
                 : topUpConfig.paymentEnabled
-                  ? `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits (Mock)`
-                  : `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits`}
+                  ? `${getCreditsTopUpActionLabel(selectedPackageId, "mock")} (Mock)`
+                  : getCreditsTopUpActionLabel(selectedPackageId, "mock")}
             </button>
           ) : null}
         </div>
@@ -312,12 +317,13 @@ export function ConsumerWalletPanel({
             {formatCreditsValue(displayBalanceCredits)}
           </p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
+        <div className="rounded-2xl border border-eden-ring bg-eden-accent-soft/35 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Selected Package</p>
           <p className="mt-2 text-sm font-semibold text-eden-ink">
             {selectedPackage.title}
           </p>
           <p className="mt-2 text-xs text-eden-muted">{selectedPackage.chargeLabel}</p>
+          <p className="mt-2 text-xs text-eden-muted">{selectedPackage.detail}</p>
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Wallet Flow</p>
@@ -330,7 +336,7 @@ export function ConsumerWalletPanel({
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
-          ? "Stripe Checkout is available for a one-time credits purchase here, while the mock wallet path remains available based on the current environment mode."
+          ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time credits purchase here, and credits are added only after webhook settlement.`
           : "No external payments are connected yet. This wallet surface records internal mock credits events only."}
       </div>
 
@@ -359,15 +365,20 @@ export function ConsumerWalletPanel({
         </div>
       ) : null}
 
-      {error ? (
-        <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700">
-          {error}
-        </div>
-      ) : null}
-
-      {notice ? (
-        <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
-          {notice}
+      {statusMessage ? (
+        <div
+          className={`mt-4 rounded-2xl border p-4 text-sm leading-6 ${
+            statusMessage.tone === "danger"
+              ? "border-rose-200 bg-rose-50 text-rose-700"
+              : statusMessage.tone === "warning"
+                ? "border-amber-200 bg-amber-50 text-amber-700"
+                : "border-sky-200 bg-sky-50 text-sky-700"
+          }`}
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em]">
+            {statusMessage.title}
+          </p>
+          <p className="mt-2">{statusMessage.detail}</p>
         </div>
       ) : null}
 

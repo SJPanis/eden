@@ -14,15 +14,18 @@ import {
   type WalletActivityFilter,
 } from "@/ui/consumer/components/wallet-activity-filters";
 import {
+  buildTopUpCancellationMessage,
+  buildTopUpFailureMessage,
+  buildTopUpProcessingMessage,
   buildCreditsTopUpReturnPath,
   buildPaymentTopUpReceipt,
   confirmPaymentBackedCreditsTopUp,
+  getCreditsTopUpActionLabel,
   getCreditsTopUpPackageById,
-  getCreditsTopUpPackageLabel,
   getCreditsTopUpClientConfig,
-  getTopUpCancellationMessage,
   readCreditsTopUpReturnState,
   startPaymentBackedCreditsTopUp,
+  type EdenTopUpStatusMessage,
 } from "@/ui/consumer/components/credits-topup-client";
 import { CreditsTopUpPackageSelector } from "@/ui/consumer/components/credits-topup-package-selector";
 
@@ -86,8 +89,7 @@ export function ServiceUsagePanel({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<EdenTopUpStatusMessage | null>(null);
   const [activity, setActivity] = useState<ActivityState | null>(null);
   const [activeAction, setActiveAction] = useState<"usage" | "topup" | "payment_topup" | null>(null);
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
@@ -161,8 +163,7 @@ export function ServiceUsagePanel({
 
     if (topUpReturnState.status === "cancelled") {
       setActivity(null);
-      setNotice(null);
-      setError(getTopUpCancellationMessage(topUpConfig.mode));
+      setStatusMessage(buildTopUpCancellationMessage(topUpConfig.mode, selectedPackageId));
       router.replace(cleanReturnPath, { scroll: false });
       return;
     }
@@ -180,8 +181,7 @@ export function ServiceUsagePanel({
 
     void (async () => {
       setActiveAction("payment_topup");
-      setError(null);
-      setNotice(null);
+      setStatusMessage(null);
 
       try {
         const payload = await confirmPaymentBackedCreditsTopUp(topUpSessionId);
@@ -212,16 +212,10 @@ export function ServiceUsagePanel({
           });
         } else if (payload.status === "processing") {
           setActivity(null);
-          setNotice(
-            payload.message ??
-              "Payment submitted. Eden is waiting for Stripe webhook settlement before credits are added.",
-          );
+          setStatusMessage(buildTopUpProcessingMessage(selectedPackageId, payload.message));
         } else {
           setActivity(null);
-          setError(
-            payload.message ??
-              "Stripe did not settle this top-up. No Eden Credits were added.",
-          );
+          setStatusMessage(buildTopUpFailureMessage(selectedPackageId, payload.message));
         }
 
         router.replace(cleanReturnPath, { scroll: false });
@@ -230,11 +224,14 @@ export function ServiceUsagePanel({
           return;
         }
 
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Unable to confirm the payment-backed top-up.",
-        );
+        setStatusMessage({
+          tone: "danger",
+          title: "Confirmation unavailable",
+          detail:
+            requestError instanceof Error
+              ? requestError.message
+              : "Unable to confirm the payment-backed top-up.",
+        });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
         if (isActive) {
@@ -267,15 +264,16 @@ export function ServiceUsagePanel({
 
     if (!hasSufficientBalance) {
       setActivity(null);
-      setError(
-        `Insufficient Eden Credits. This run requires ${formatCreditsValue(requiredCredits)}, and your current balance is ${formatCreditsValue(displayBalanceCredits)}.`,
-      );
+      setStatusMessage({
+        tone: "warning",
+        title: "Insufficient balance",
+        detail: `This run requires ${formatCreditsValue(requiredCredits)}, and your current balance is ${formatCreditsValue(displayBalanceCredits)}.`,
+      });
       return;
     }
 
     setActiveAction("usage");
-    setError(null);
-    setNotice(null);
+    setStatusMessage(null);
     setActivity(null);
 
     try {
@@ -329,11 +327,14 @@ export function ServiceUsagePanel({
         router.refresh();
       });
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Unable to record mocked service usage.",
-      );
+      setStatusMessage({
+        tone: "danger",
+        title: "Usage not recorded",
+        detail:
+          requestError instanceof Error
+            ? requestError.message
+            : "Unable to record mocked service usage.",
+      });
     } finally {
       setActiveAction(null);
     }
@@ -345,8 +346,7 @@ export function ServiceUsagePanel({
     }
 
     setActiveAction("topup");
-    setError(null);
-    setNotice(null);
+    setStatusMessage(null);
 
     try {
       const response = await fetch("/api/mock-transactions", {
@@ -395,11 +395,14 @@ export function ServiceUsagePanel({
         router.refresh();
       });
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Unable to add mocked Eden Credits.",
-      );
+      setStatusMessage({
+        tone: "danger",
+        title: "Top-up not recorded",
+        detail:
+          requestError instanceof Error
+            ? requestError.message
+            : "Unable to add mocked Eden Credits.",
+      });
     } finally {
       setActiveAction(null);
     }
@@ -411,17 +414,23 @@ export function ServiceUsagePanel({
     }
 
     setActiveAction("payment_topup");
-    setError(null);
-    setNotice(null);
+    setStatusMessage({
+      tone: "info",
+      title: "Preparing checkout",
+      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Credits will only be added after Eden receives settlement confirmation.`,
+    });
 
     try {
       await startPaymentBackedCreditsTopUp(cleanReturnPath, selectedPackageId);
     } catch (requestError) {
-      setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Unable to start the payment-backed credits top-up.",
-      );
+      setStatusMessage({
+        tone: "danger",
+        title: "Checkout unavailable",
+        detail:
+          requestError instanceof Error
+            ? requestError.message
+            : "Unable to start the payment-backed credits top-up.",
+      });
       setActiveAction(null);
     }
   }
@@ -460,7 +469,7 @@ export function ServiceUsagePanel({
             >
               {activeAction === "payment_topup"
                 ? "Opening Checkout..."
-                : getCreditsTopUpPackageLabel(selectedPackageId)}
+                : getCreditsTopUpActionLabel(selectedPackageId, "payment")}
             </button>
           ) : null}
           {topUpConfig.mockEnabled ? (
@@ -473,8 +482,8 @@ export function ServiceUsagePanel({
               {activeAction === "topup"
                 ? "Adding Credits..."
                 : topUpConfig.paymentEnabled
-                  ? `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits (Mock)`
-                  : `Add ${selectedPackage.creditsAmount.toLocaleString()} Credits`}
+                  ? `${getCreditsTopUpActionLabel(selectedPackageId, "mock")} (Mock)`
+                  : getCreditsTopUpActionLabel(selectedPackageId, "mock")}
             </button>
           ) : null}
         </div>
@@ -503,12 +512,13 @@ export function ServiceUsagePanel({
             {formatCreditsValue(displayBalanceCredits)}
           </p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+        <div className="rounded-2xl border border-eden-ring bg-eden-accent-soft/35 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Selected Top-up</p>
           <p className="mt-2 text-sm font-semibold text-eden-ink">
             {selectedPackage.title}
           </p>
           <p className="mt-2 text-xs text-eden-muted">{selectedPackage.chargeLabel}</p>
+          <p className="mt-2 text-xs text-eden-muted">{selectedPackage.detail}</p>
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Usage Readiness</p>
@@ -524,7 +534,7 @@ export function ServiceUsagePanel({
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
-          ? "Service usage still settles through Eden Credits first. Wallet top-ups can use Stripe Checkout in this environment, while usage continues to record through the existing credits and ServiceUsage paths."
+          ? `Selected package: ${selectedPackage.title}. Service usage still settles through Eden Credits first, and Stripe top-ups only become available after webhook settlement confirms the purchase.`
           : "No real payment is charged yet. Eden only records a mocked transaction and a persistent service-usage event for analytics."}
       </div>
 
@@ -566,15 +576,20 @@ export function ServiceUsagePanel({
         </div>
       ) : null}
 
-      {error ? (
-        <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700">
-          {error}
-        </div>
-      ) : null}
-
-      {notice ? (
-        <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
-          {notice}
+      {statusMessage ? (
+        <div
+          className={`mt-4 rounded-2xl border p-4 text-sm leading-6 ${
+            statusMessage.tone === "danger"
+              ? "border-rose-200 bg-rose-50 text-rose-700"
+              : statusMessage.tone === "warning"
+                ? "border-amber-200 bg-amber-50 text-amber-700"
+                : "border-sky-200 bg-sky-50 text-sky-700"
+          }`}
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em]">
+            {statusMessage.title}
+          </p>
+          <p className="mt-2">{statusMessage.detail}</p>
         </div>
       ) : null}
 

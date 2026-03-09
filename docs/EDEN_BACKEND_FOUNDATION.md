@@ -247,6 +247,7 @@ Current safety notes:
 - the Stripe webhook is the authoritative settlement path and maps settled payments back into Eden's existing wallet transaction architecture
 - checkout creation, webhook receipt, settlement, skipped duplicate settlement, and settlement failures now write best-effort persistent payment event logs for owner inspection
 - the browser return confirmation UX is preserved, but it now reads settlement status instead of mutating wallet cookies directly
+- consumer wallet top-up surfaces now share clearer package selection states plus structured cancel, processing, and settlement messaging without changing the underlying payment flow
 - settled top-ups are merged into server-side wallet reads, so existing wallet history and receipt surfaces can stay unchanged
 - owner control-room payment visibility now reads the same persistent top-up records for reconciliation across pending, settled, failed, and canceled states
 - owner reconciliation surfaces now include lightweight status filters and compact summary strips so payment and payout inspection stay aligned without introducing a new data path
