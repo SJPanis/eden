@@ -24,6 +24,7 @@ import {
   getDefaultUserIdForRole,
   type EdenMockSession,
 } from "@/modules/core/session/mock-session";
+import { edenLaunchLabels } from "@/ui/consumer/components/service-affordability-shared";
 
 type EdenEntryPanelProps = {
   session: EdenMockSession;
@@ -46,6 +47,51 @@ const stepVariants = {
   visible: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -16 },
 };
+
+const publicLaunchClarityCards = [
+  {
+    id: "what-eden-is",
+    label: "What Eden is",
+    value: "A builder-to-consumer service platform",
+    detail:
+      "Builders create and publish AI-powered services. Consumers discover them, see visible pricing, and run them through Eden Credits.",
+  },
+  {
+    id: "how-pricing-works",
+    label: edenLaunchLabels.visiblePricing,
+    value: "Shown before every run",
+    detail:
+      "Service pages and marketplace cards expose the run price before usage begins, so the decision stays explicit.",
+  },
+  {
+    id: "how-billing-works",
+    label: edenLaunchLabels.creditsOnlyBilling,
+    value: "Top up only when needed",
+    detail:
+      "Consumers add credits first, then reuse them across service runs. Hidden checkout does not appear during service use.",
+  },
+];
+
+const publicHowEdenWorksSteps = [
+  {
+    id: "builder-publish",
+    label: "1. Builders publish services",
+    detail:
+      "Businesses create, price, and publish services so they can appear in discovery and Ask Eden.",
+  },
+  {
+    id: "consumer-discover",
+    label: "2. Consumers explore",
+    detail:
+      "Marketplace cards and Ask Eden show published availability, visible pricing, and credits-only trust cues.",
+  },
+  {
+    id: "consumer-wallet",
+    label: "3. Wallet decides the next step",
+    detail:
+      "Consumers compare wallet balance to the visible price, top up only if needed, then run the service.",
+  },
+];
 
 function getOptionLabel(options: Array<{ id: string; label: string }>, id: string) {
   return options.find((option) => option.id === id)?.label ?? id;
@@ -246,10 +292,94 @@ export function EdenEntryPanel({
               Start Eden like a real product.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
-              Create a mocked account, sign into an existing public mock profile, or continue as a
-              consumer guest. The onboarding steps are local-only, but they shape the same session
-              and routing shell used across Eden v1.
+              Eden is a builder-to-consumer service platform. Builders publish services with
+              visible pricing, consumers discover them and top up Eden Credits only when needed,
+              and service runs happen with no hidden checkout during usage.
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                Published and priced
+              </span>
+              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+                {edenLaunchLabels.visiblePricing}
+              </span>
+              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+                {edenLaunchLabels.creditsOnlyBilling}
+              </span>
+              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+                {edenLaunchLabels.noHiddenCheckout}
+              </span>
+            </div>
+
+            <div className="mt-6 grid gap-3 md:grid-cols-3">
+              {publicLaunchClarityCards.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.28),rgba(255,255,255,0.98))] p-4"
+                >
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(255,247,237,0.9),rgba(255,255,255,0.98))] p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                      How Eden works
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      The same launch-ready loop carries from builder workspace to public discovery
+                      to service usage.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+                    One visible loop
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {publicHowEdenWorksSteps.map((step) => (
+                    <div key={step.id} className="rounded-2xl border border-eden-edge bg-white/92 p-4">
+                      <p className="text-sm font-semibold text-eden-ink">{step.label}</p>
+                      <p className="mt-2 text-sm leading-6 text-eden-muted">{step.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.5),rgba(255,255,255,0.98))] p-5">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Public next step
+                </p>
+                <p className="mt-3 text-base font-semibold text-eden-ink">
+                  Explore the consumer marketplace first
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  Start in the consumer layer to see published services, visible pricing, wallet
+                  guidance, and the credits-only run flow before you go deeper into onboarding.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link
+                    href="/consumer"
+                    className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70"
+                  >
+                    Explore consumer marketplace
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setActiveStep("mode")}
+                    className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                  >
+                    Continue onboarding
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-3">
               {entryModeOptions.map((option) => (

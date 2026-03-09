@@ -949,7 +949,7 @@ export function ConsumerHomePanel({
             </div>
           </form>
           <p className="mt-3 text-sm text-eden-muted">
-            Conversational discovery entry point powered by Eden AI routing placeholders.
+            Ask Eden helps you discover published services, visible pricing, and the same credits-only run flow shown across the marketplace.
           </p>
         </motion.section>
 
@@ -1367,6 +1367,38 @@ export function ConsumerHomePanel({
             initial="hidden"
             animate="visible"
             variants={sectionVariants}
+            transition={{ duration: 0.3, ease: "easeOut", delay: 0.045 }}
+            className="rounded-[24px] border border-eden-edge bg-white/88 p-4"
+          >
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Marketplace clarity
+                </p>
+                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  These rails show the public Eden loop in one place: published services,{" "}
+                  {edenLaunchLabels.visiblePricing.toLowerCase()}, {edenLaunchLabels.creditsOnlyBilling.toLowerCase()},
+                  {" "}and wallet-aware next steps before any run begins.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                  Published and priced
+                </span>
+                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  {edenLaunchLabels.visiblePricing}
+                </span>
+                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  {edenLaunchLabels.creditsOnlyBilling}
+                </span>
+              </div>
+            </div>
+          </motion.section>
+
+          <motion.section
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
             transition={{ duration: 0.3, ease: "easeOut", delay: 0.05 }}
           >
             <DiscoveryRail
@@ -1419,7 +1451,7 @@ export function ConsumerHomePanel({
               subtitle={
                 savedOnly
                   ? "Favorites filter is active. Showing saved businesses only."
-                  : "Popular business spaces in the consumer layer right now."
+                  : "Popular builder spaces in Eden right now. Open a business to inspect what they publish into the consumer marketplace."
               }
               hasItems={trendingBusinesses.length > 0}
               emptyMessage="No businesses match the current filters yet."
