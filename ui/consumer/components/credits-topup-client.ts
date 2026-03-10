@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  formatLeaves,
+  formatLeavesAmountLabel,
+} from "@/modules/core/credits/eden-currency";
+import {
   formatCreditsTopUpChargeLabel,
   getCreditsTopUpPackages,
   isMockCreditsTopUpEnabled,
@@ -121,7 +125,7 @@ export async function startPaymentBackedCreditsTopUp(
   const payload = (await response.json().catch(() => ({}))) as EdenTopUpCheckoutResponse;
 
   if (!response.ok || !payload.ok || !payload.checkoutUrl) {
-    throw new Error(payload.error || "Unable to start the payment-backed credits top-up.");
+    throw new Error(payload.error || "Unable to start the payment-backed Leaves top-up.");
   }
 
   window.location.assign(payload.checkoutUrl);
@@ -140,7 +144,7 @@ export async function confirmPaymentBackedCreditsTopUp(sessionId: string) {
   const payload = (await response.json().catch(() => ({}))) as EdenTopUpConfirmationResponse;
 
   if (!response.ok || !payload.ok) {
-    throw new Error(payload.error || "Unable to confirm the payment-backed credits top-up.");
+    throw new Error(payload.error || "Unable to confirm the payment-backed Leaves top-up.");
   }
 
   return payload;
@@ -172,13 +176,13 @@ export function buildPaymentTopUpReceipt(
     : payload.transactionTitle ?? `${selectedPackage.providerLabel} top-up settled`;
   const receiptDetail = payload.alreadyApplied
     ? payload.settlementSummary ??
-      `Stripe already settled ${selectedPackage.title}. Eden Credits were previously added to this wallet through the webhook-authoritative top-up flow.`
+      `Stripe already settled ${selectedPackage.title}. Eden Leaves were previously added to this wallet through the webhook-authoritative top-up flow.`
     : payload.settlementSummary ??
-      `Stripe settlement confirmed for ${selectedPackage.title}. Eden Credits were added through the webhook-authoritative top-up flow.`;
+      `Stripe settlement confirmed for ${selectedPackage.title}. Eden Leaves were added through the webhook-authoritative top-up flow.`;
 
   return {
     amountCredits,
-    amountLabel: payload.amountLabel ?? `+${amountCredits} credits`,
+    amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `+${amountCredits} Leaves`),
     previousBalanceCredits,
     nextBalanceCredits,
     title: receiptTitle,
@@ -198,7 +202,7 @@ export function getCreditsTopUpActionLabel(
   action: "payment" | "mock",
 ) {
   const selectedPackage = resolveCreditsTopUpPackage(packageId);
-  const baseLabel = `${selectedPackage.creditsAmount.toLocaleString()} credits`;
+  const baseLabel = formatLeaves(selectedPackage.creditsAmount);
 
   return action === "payment" ? `Buy ${baseLabel}` : `Add ${baseLabel}`;
 }
@@ -217,7 +221,7 @@ export function buildTopUpCancellationMessage(
     return {
       tone: "warning",
       title: "Checkout cancelled",
-      detail: `${selectedPackage.title} was not purchased. Eden Credits were not added to the wallet.`,
+      detail: `${selectedPackage.title} was not purchased. Eden Leaves were not added to the wallet.`,
     };
   }
 
@@ -237,9 +241,9 @@ export function buildTopUpProcessingMessage(
   return {
     tone: "info",
     title: "Payment processing",
-    detail:
-      message ??
-      `${selectedPackage.title} has been submitted. Eden is waiting for Stripe webhook settlement before credits are added.`,
+      detail:
+        message ??
+      `${selectedPackage.title} has been submitted. Eden is waiting for Stripe webhook settlement before Leaves are added.`,
   };
 }
 
@@ -252,8 +256,8 @@ export function buildTopUpFailureMessage(
   return {
     tone: "danger",
     title: "Top-up not settled",
-    detail:
-      message ??
-      `${selectedPackage.title} did not settle successfully. No Eden Credits were added.`,
+      detail:
+        message ??
+      `${selectedPackage.title} did not settle successfully. No Eden Leaves were added.`,
   };
 }

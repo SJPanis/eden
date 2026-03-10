@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  edenSpendableLeavesLabel,
+  formatLeaves,
+  formatLeavesAmountLabel,
+} from "@/modules/core/credits/eden-currency";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
 import {
   filterWalletTransactions,
@@ -156,8 +161,8 @@ export function ConsumerWalletPanel({
           title: "Confirmation unavailable",
           detail:
             requestError instanceof Error
-              ? requestError.message
-              : "Unable to confirm the payment-backed credits top-up.",
+            ? requestError.message
+            : "Unable to confirm the payment-backed Leaves top-up.",
         });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
@@ -206,7 +211,7 @@ export function ConsumerWalletPanel({
       const payload = (await response.json().catch(() => ({}))) as MockTopUpResponse;
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Unable to add mocked Eden Credits.");
+        throw new Error(payload.error || "Unable to add mocked Eden Leaves.");
       }
 
       const addedCredits =
@@ -222,12 +227,12 @@ export function ConsumerWalletPanel({
 
       setReceipt({
         amountCredits: addedCredits,
-        amountLabel: payload.amountLabel ?? `+${addedCredits} credits`,
+        amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `+${addedCredits} Leaves`),
         previousBalanceCredits,
         nextBalanceCredits,
-        title: payload.transactionTitle ?? `Wallet credits top-up (${selectedPackage.title})`,
+        title: payload.transactionTitle ?? `Wallet Leaves top-up (${selectedPackage.title})`,
         timestamp: payload.transactionTimestamp ?? "Just now",
-        detail: `Mock top-up recorded through the Eden Credits transaction flow for ${selectedPackage.title}.`,
+        detail: `Mock top-up recorded through the Eden Leaves transaction flow for ${selectedPackage.title}.`,
         source: "mock",
       });
 
@@ -239,7 +244,7 @@ export function ConsumerWalletPanel({
         tone: "danger",
         title: "Top-up not recorded",
         detail:
-          requestError instanceof Error ? requestError.message : "Unable to add mocked Eden Credits.",
+          requestError instanceof Error ? requestError.message : "Unable to add mocked Eden Leaves.",
       });
     } finally {
       setActiveTopUpAction(null);
@@ -255,7 +260,7 @@ export function ConsumerWalletPanel({
     setStatusMessage({
       tone: "info",
       title: "Preparing checkout",
-      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Credits will only be added after Eden receives settlement confirmation.`,
+      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Leaves will only be added after Eden receives settlement confirmation.`,
     });
 
     try {
@@ -267,7 +272,7 @@ export function ConsumerWalletPanel({
         detail:
           requestError instanceof Error
             ? requestError.message
-            : "Unable to start the payment-backed credits top-up.",
+            : "Unable to start the payment-backed Leaves top-up.",
       });
       setActiveTopUpAction(null);
     }
@@ -281,11 +286,11 @@ export function ConsumerWalletPanel({
             Eden Wallet
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight text-eden-ink md:text-3xl">
-            Credits ready for discovery
+            Spendable Leaves ready for discovery
           </h2>
           <p className="mt-3 text-sm leading-7 text-eden-muted md:text-base">
             Wallet activity on the consumer layer stays fully mocked, but it uses the same Eden
-            Credits transaction path that powers service charges and top-ups across the platform.
+            Leaves transaction path that powers service charges and top-ups across the platform.
           </p>
         </div>
 
@@ -310,7 +315,7 @@ export function ConsumerWalletPanel({
               className="inline-flex min-w-[190px] items-center justify-center rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm font-semibold text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
             >
               {activeTopUpAction === "mock"
-                ? "Adding Credits..."
+                ? "Adding Leaves..."
                 : topUpConfig.paymentEnabled
                   ? `${getCreditsTopUpActionLabel(selectedPackageId, "mock")} (Mock)`
                   : getCreditsTopUpActionLabel(selectedPackageId, "mock")}
@@ -337,20 +342,20 @@ export function ConsumerWalletPanel({
               </p>
             </div>
             <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-              Add Credits only when needed
+              Add Leaves only when needed
             </span>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
               <p className="text-sm font-semibold text-eden-ink">1. Pick a package</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Choose the amount of Eden Credits you want to add to the wallet.
+                Choose the amount of Eden Leaves you want to add to the wallet.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">2. Add Credits</p>
+              <p className="text-sm font-semibold text-eden-ink">2. Add Leaves</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Use checkout or mock top-up. Credits appear only after the settlement flow completes.
+                Use checkout or mock top-up. Leaves appear only after the settlement flow completes.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -367,10 +372,10 @@ export function ConsumerWalletPanel({
             Current wallet position
           </p>
           <p className="mt-3 text-base font-semibold text-eden-ink">
-            {formatCreditsValue(displayBalanceCredits)} ready for service runs
+            {formatCreditsValue(displayBalanceCredits)} of {edenSpendableLeavesLabel.toLowerCase()} ready for service runs
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
-            After you add credits here, open a service card and confirm the visible Eden Credits price before you run it.
+            After you add Leaves here, open a service card and confirm the visible Eden Leaves price before you run it.
           </p>
           <div className="mt-4 rounded-2xl border border-eden-edge bg-white/92 p-3">
             <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Next action</p>
@@ -389,6 +394,7 @@ export function ConsumerWalletPanel({
           <p className="mt-2 text-sm font-semibold text-eden-ink">
             {formatCreditsValue(displayBalanceCredits)}
           </p>
+          <p className="mt-2 text-xs text-eden-muted">{edenSpendableLeavesLabel}</p>
         </div>
         <div className="rounded-2xl border border-eden-ring bg-eden-accent-soft/35 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Selected Package</p>
@@ -409,8 +415,8 @@ export function ConsumerWalletPanel({
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
-          ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time credits purchase here, and credits are added only after webhook settlement.`
-          : "No external payments are connected yet. This wallet surface records internal mock credits events only."}
+          ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time Leaves purchase here, and Leaves are added only after webhook settlement.`
+          : "No external payments are connected yet. This wallet surface records internal mock Leaves events only."}
       </div>
 
       {receipt ? (
@@ -513,7 +519,7 @@ export function ConsumerWalletPanel({
                       : "text-rose-700"
                   }`}
                 >
-                  {latestVisibleTransaction.amountLabel}
+                  {formatLeavesAmountLabel(latestVisibleTransaction.amountLabel)}
                 </p>
                 <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
                   Resulting balance
@@ -579,7 +585,7 @@ export function ConsumerWalletPanel({
                         transaction.creditsDelta >= 0 ? "text-emerald-700" : "text-rose-700"
                       }`}
                     >
-                      {transaction.amountLabel}
+                      {formatLeavesAmountLabel(transaction.amountLabel)}
                     </p>
                     <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
                       {transaction.timestamp}
@@ -629,5 +635,5 @@ export function ConsumerWalletPanel({
 }
 
 function formatCreditsValue(value: number) {
-  return `${value.toLocaleString()} credits`;
+  return formatLeaves(value);
 }

@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  formatDisplayPricingUnit,
+  formatLeaves,
+  formatLeavesAmountLabel,
+} from "@/modules/core/credits/eden-currency";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
 import {
   formatServicePricingLabel,
@@ -151,8 +156,8 @@ export function ServiceUsagePanel({
 
   const pricingUnitLabel =
     pricing.pricingType === "per_session"
-      ? `${pricing.pricingUnit} per session`
-      : `${pricing.pricingUnit} per use`;
+      ? `${formatDisplayPricingUnit(pricing.pricingUnit)} per session`
+      : `${formatDisplayPricingUnit(pricing.pricingUnit)} per use`;
   const requiredCredits = pricing.pricePerUseCredits ?? 40;
   const displayBalanceCredits = activity?.nextBalanceCredits ?? currentBalanceCredits;
   const selectedPackage = useMemo(
@@ -162,7 +167,7 @@ export function ServiceUsagePanel({
   const hasSufficientBalance = displayBalanceCredits >= requiredCredits;
   const balanceShortfall = Math.max(requiredCredits - displayBalanceCredits, 0);
   const actionLabel = pricing.hasStoredPrice
-    ? `${edenLaunchLabels.runService} for ${pricing.pricePerUseCredits?.toLocaleString()} ${pricing.pricingUnit}`
+    ? `${edenLaunchLabels.runService} for ${formatLeaves(pricing.pricePerUseCredits ?? requiredCredits)}`
     : edenLaunchLabels.runService;
   const filteredTransactions = useMemo(
     () => filterWalletTransactions(recentTransactions, activityFilter),
@@ -184,7 +189,7 @@ export function ServiceUsagePanel({
     availabilityDetail ??
     (disabled
       ? "This service is not currently available for a consumer run."
-      : "This service can be run immediately through the Eden Credits wallet flow.");
+      : "This service can be run immediately through the Eden Leaves wallet flow.");
   const runDecisionSummary = disabled
     ? {
         toneClass: "border-amber-200 bg-amber-50",
@@ -282,7 +287,7 @@ export function ServiceUsagePanel({
           detail:
             requestError instanceof Error
               ? requestError.message
-              : "Unable to confirm the payment-backed top-up.",
+              : "Unable to confirm the payment-backed Leaves top-up.",
         });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
@@ -345,7 +350,7 @@ export function ServiceUsagePanel({
       if (!response.ok || !payload.ok) {
         if (payload.insufficientBalance) {
           throw new Error(
-            `Insufficient Eden Credits. This run requires ${formatCreditsValue(payload.requiredCredits ?? requiredCredits)}, and your current balance is ${formatCreditsValue(payload.currentBalanceCredits ?? displayBalanceCredits)}.`,
+            `Insufficient Eden Leaves. This run requires ${formatCreditsValue(payload.requiredCredits ?? requiredCredits)}, and your current balance is ${formatCreditsValue(payload.currentBalanceCredits ?? displayBalanceCredits)}.`,
           );
         }
         throw new Error(payload.error || "Unable to record mocked service usage.");
@@ -367,7 +372,7 @@ export function ServiceUsagePanel({
       setActivity({
         kind: "usage",
         amountCredits: chargedCredits,
-        amountLabel: payload.amountLabel ?? `-${chargedCredits} credits`,
+        amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `-${chargedCredits} Leaves`),
         previousBalanceCredits,
         nextBalanceCredits,
         title: payload.transactionTitle ?? `${serviceTitle} usage settled`,
@@ -414,7 +419,7 @@ export function ServiceUsagePanel({
       const payload = (await response.json().catch(() => ({}))) as MockUsageResponse;
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Unable to add mocked Eden Credits.");
+        throw new Error(payload.error || "Unable to add mocked Eden Leaves.");
       }
 
       const addedCredits =
@@ -435,12 +440,12 @@ export function ServiceUsagePanel({
       setActivity({
         kind: "topup",
         amountCredits: addedCredits,
-        amountLabel: payload.amountLabel ?? `+${addedCredits} credits`,
+        amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `+${addedCredits} Leaves`),
         previousBalanceCredits,
         nextBalanceCredits,
-        title: payload.transactionTitle ?? `Wallet credits top-up (${selectedPackage.title})`,
+        title: payload.transactionTitle ?? `Wallet Leaves top-up (${selectedPackage.title})`,
         timestamp: payload.transactionTimestamp ?? "Just now",
-        detail: `Mock Eden Credits top-up posted to the active wallet for ${selectedPackage.title}.`,
+        detail: `Mock Eden Leaves top-up posted to the active wallet for ${selectedPackage.title}.`,
         source: "mock",
       });
       startTransition(() => {
@@ -453,7 +458,7 @@ export function ServiceUsagePanel({
         detail:
           requestError instanceof Error
             ? requestError.message
-            : "Unable to add mocked Eden Credits.",
+            : "Unable to add mocked Eden Leaves.",
       });
     } finally {
       setActiveAction(null);
@@ -469,7 +474,7 @@ export function ServiceUsagePanel({
     setStatusMessage({
       tone: "info",
       title: "Preparing checkout",
-      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Credits will only be added after Eden receives settlement confirmation.`,
+      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Leaves will only be added after Eden receives settlement confirmation.`,
     });
 
     try {
@@ -481,7 +486,7 @@ export function ServiceUsagePanel({
         detail:
           requestError instanceof Error
             ? requestError.message
-            : "Unable to start the payment-backed credits top-up.",
+            : "Unable to start the payment-backed Leaves top-up.",
       });
       setActiveAction(null);
     }
@@ -499,7 +504,7 @@ export function ServiceUsagePanel({
           </h2>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
             {summary ||
-              "Run this service through Eden's mocked usage path. The visible Eden Credits price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
+              "Run this service through Eden's mocked usage path. The visible Eden Leaves price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
           </p>
         </div>
 
@@ -532,7 +537,7 @@ export function ServiceUsagePanel({
               className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm font-semibold text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-60"
             >
               {activeAction === "topup"
-                ? "Adding Credits..."
+                ? "Adding Leaves..."
                 : topUpConfig.paymentEnabled
                   ? `${getCreditsTopUpActionLabel(selectedPackageId, "mock")} (Mock)`
                   : getCreditsTopUpActionLabel(selectedPackageId, "mock")}
@@ -555,7 +560,7 @@ export function ServiceUsagePanel({
                 First-time run flow
               </p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                The same decision sequence applies every time: check the visible price, compare it to your wallet, add credits only if needed, then run the service.
+                The same decision sequence applies every time: check the visible price, compare it to your wallet, add Leaves only if needed, then run the service.
               </p>
             </div>
             <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -566,7 +571,7 @@ export function ServiceUsagePanel({
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
               <p className="text-sm font-semibold text-eden-ink">1. Check price</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                {pricingLabel} is the exact Eden Credits amount used for the run.
+                {pricingLabel} is the exact Eden Leaves amount used for the run.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -576,9 +581,9 @@ export function ServiceUsagePanel({
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">3. Top up only if needed</p>
+              <p className="text-sm font-semibold text-eden-ink">3. Add Leaves only if needed</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Checkout appears only during Add Credits. Service runs never trigger a hidden payment.
+                Checkout appears only during Add Leaves. Service runs never trigger a hidden payment.
               </p>
             </div>
           </div>
@@ -623,7 +628,7 @@ export function ServiceUsagePanel({
             {edenLaunchLabels.creditsOnlyBilling}
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
-            Each run uses the visible credit price below. Wallet top-ups are the only time a payment-backed checkout can appear.
+            Each run uses the visible Leaves price below. Wallet top-ups are the only time a payment-backed checkout can appear.
           </p>
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
@@ -632,7 +637,7 @@ export function ServiceUsagePanel({
             Explicit top-up, explicit run
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
-            Service use deducts credits only. Checkout is only used when you choose to add credits to the wallet.
+            Service use deducts Leaves only. Checkout is only used when you choose to add Leaves to the wallet.
           </p>
         </div>
       </div>
@@ -685,13 +690,13 @@ export function ServiceUsagePanel({
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
-          ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Credits first, and Stripe top-ups only add credits after webhook settlement confirms the purchase.`
+          ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Leaves first, and Stripe top-ups only add Leaves after webhook settlement confirms the purchase.`
           : "No real payment is charged during service use. Eden only records a wallet event plus a persistent service-usage event for analytics."}
       </div>
 
       {!hasSufficientBalance ? (
         <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
-          Your Eden Credits balance is below the required service price. {edenLaunchLabels.addCredits} first, then return to the visible {edenLaunchLabels.runService} action to complete the credits-only flow.
+          Your Eden Leaves balance is below the required service price. {edenLaunchLabels.addCredits} first, then return to the visible {edenLaunchLabels.runService} action to complete the Leaves-only flow.
         </div>
       ) : null}
 
@@ -805,7 +810,7 @@ export function ServiceUsagePanel({
                       : "text-rose-700"
                   }`}
                 >
-                  {latestVisibleTransaction.amountLabel}
+                  {formatLeavesAmountLabel(latestVisibleTransaction.amountLabel)}
                 </p>
                 <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
                   Resulting balance
@@ -871,7 +876,7 @@ export function ServiceUsagePanel({
                         transaction.creditsDelta >= 0 ? "text-emerald-700" : "text-rose-700"
                       }`}
                     >
-                      {transaction.amountLabel}
+                      {formatLeavesAmountLabel(transaction.amountLabel)}
                     </p>
                     <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
                       {transaction.timestamp}
@@ -921,5 +926,5 @@ export function ServiceUsagePanel({
 }
 
 function formatCreditsValue(value: number) {
-  return `${value.toLocaleString()} credits`;
+  return formatLeaves(value);
 }

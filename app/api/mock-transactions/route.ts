@@ -179,7 +179,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Insufficient Eden Credits for this service run.",
+        error: "Insufficient Eden Leaves for this service run.",
         insufficientBalance: true,
         requiredCredits,
         currentBalanceCredits: previousUserBalanceCredits,

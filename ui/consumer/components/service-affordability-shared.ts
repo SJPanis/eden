@@ -1,11 +1,13 @@
+import { formatLeaves } from "@/modules/core/credits/eden-currency";
+
 export type EdenServiceAffordabilityTone = "ready" | "warning" | "neutral";
 
 export const edenLaunchLabels = {
   openService: "Open Service",
   runService: "Run Service",
-  addCredits: "Add Credits",
+  addCredits: "Add Leaves",
   visiblePricing: "Visible pricing",
-  creditsOnlyBilling: "Eden Credits only",
+  creditsOnlyBilling: "Eden Leaves only",
   noHiddenCheckout: "No hidden checkout during service use.",
   consumerReadiness: "Consumer-facing readiness",
 } as const;
@@ -18,7 +20,7 @@ type EdenServiceAffordabilityDetails = {
 };
 
 function formatCreditsValue(value: number) {
-  return `${value.toLocaleString()} credits`;
+  return formatLeaves(value);
 }
 
 export function getLaunchAvailabilityLabel(status?: string | null) {

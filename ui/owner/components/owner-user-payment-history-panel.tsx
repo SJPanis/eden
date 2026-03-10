@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { formatLeaves } from "@/modules/core/credits/eden-currency";
 import type { EdenOwnerUserCreditsTopUpHistoryItem } from "@/modules/core/services/payment-inspection-service";
 import { formatCredits } from "@/modules/core/mock-data";
 import { OwnerReconciliationFilters } from "@/ui/owner/components/owner-reconciliation-filters";
@@ -143,7 +144,7 @@ export function OwnerUserPaymentHistoryPanel({
                   </div>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
                     {payment.packageInfo?.title ?? "Top-up package unavailable"} |{" "}
-                    {payment.packageInfo?.chargeLabel ?? `${payment.creditsAmount} credits`}
+                    {payment.packageInfo?.chargeLabel ?? formatLeaves(payment.creditsAmount)}
                   </p>
                   <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
                     <p className="break-all">

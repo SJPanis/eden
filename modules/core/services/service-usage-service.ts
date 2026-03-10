@@ -775,7 +775,7 @@ function buildMonetizationProjection(
   ).length;
   const pricingRuleLabel =
     missingStoredPricingCount > 0
-      ? `Gross earnings use each service's current stored per-use price when available. Eden keeps a 15% fee share. ${missingStoredPricingCount} tracked run${missingStoredPricingCount === 1 ? "" : "s"} currently fall back to the recorded usage credits because a service price has not been set yet.`
+      ? `Gross earnings use each service's current stored per-use price when available. Eden keeps a 15% fee share. ${missingStoredPricingCount} tracked run${missingStoredPricingCount === 1 ? "" : "s"} currently fall back to the recorded usage Leaves because a service price has not been set yet.`
       : "Gross earnings use each service's current stored per-use price. Eden keeps a 15% fee share and the builder keeps the remainder.";
 
   return {

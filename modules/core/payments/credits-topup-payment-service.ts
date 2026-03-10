@@ -86,7 +86,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       status: "processing",
       payment: null,
       message:
-        "Payment submitted. Eden is waiting for Stripe webhook settlement before credits are added.",
+        "Payment submitted. Eden is waiting for Stripe webhook settlement before Leaves are added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 
@@ -100,7 +100,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       payment,
       message:
         payment.failureReason ??
-        "Stripe did not settle this top-up. No Eden Credits were added.",
+        "Stripe did not settle this top-up. No Eden Leaves were added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 
@@ -110,7 +110,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       payment,
       message:
         payment.failureReason ??
-        "This Stripe Checkout session was canceled before Eden Credits were added.",
+        "This Stripe Checkout session was canceled before Eden Leaves were added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 
@@ -119,7 +119,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       status: "processing",
       payment,
       message:
-        "Payment submitted. Eden is waiting for Stripe webhook settlement before credits are added.",
+        "Payment submitted. Eden is waiting for Stripe webhook settlement before Leaves are added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 

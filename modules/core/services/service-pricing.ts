@@ -1,4 +1,6 @@
-﻿export const edenPlatformFeeRate = 0.15;
+import { formatDisplayPricingUnit } from "@/modules/core/credits/eden-currency";
+
+export const edenPlatformFeeRate = 0.15;
 export const defaultServicePricingType = "per_use";
 export const defaultServicePricingUnit = "credits";
 
@@ -63,12 +65,13 @@ export function formatServicePricingLabel(
   } = {},
 ) {
   const pricing = resolveServicePricing(input);
+  const displayPricingUnit = formatDisplayPricingUnit(pricing.pricingUnit);
 
   if (pricing.pricePerUseCredits === null) {
     return options.fallbackLabel ?? "Not priced yet";
   }
 
-  const amountLabel = `${pricing.pricePerUseCredits.toLocaleString()} ${pricing.pricingUnit}`;
+  const amountLabel = `${pricing.pricePerUseCredits.toLocaleString()} ${displayPricingUnit}`;
   const cadenceLabel =
     pricing.pricingType === "per_session" ? "per session" : "per use";
 
@@ -84,6 +87,10 @@ export function resolveUsageGrossCredits(
   fallbackCreditsUsed: number,
 ) {
   return resolveServicePricing(pricing).pricePerUseCredits ?? fallbackCreditsUsed;
+}
+
+export function formatServicePricingUnitLabel(pricingUnit?: string | null) {
+  return formatDisplayPricingUnit(pricingUnit);
 }
 
 export function calculatePlatformFeeCredits(

@@ -56,7 +56,7 @@ export async function createCreditsTopUpCheckoutSession(input: {
           currency: selectedPackage.currency,
           unit_amount: selectedPackage.amountCents,
           product_data: {
-            name: `Eden Credits Top-up (${selectedPackage.title})`,
+            name: `Eden Leaves Top-up (${selectedPackage.title})`,
             description: selectedPackage.detail,
           },
         },
@@ -202,7 +202,7 @@ function requireStripeClient() {
   const stripe = getStripeClient();
 
   if (!stripe) {
-    throw new Error("Stripe Checkout is not configured. Set STRIPE_SECRET_KEY to enable real credits top-ups.");
+    throw new Error("Stripe Checkout is not configured. Set STRIPE_SECRET_KEY to enable real Leaves top-ups.");
   }
 
   return stripe;

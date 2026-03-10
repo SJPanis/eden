@@ -17,6 +17,9 @@ import {
 } from "@/modules/core/credits/mock-credits";
 import { MockResetControls } from "@/modules/core/components/mock-reset-controls";
 import { MockTransactionControls } from "@/modules/core/credits/mock-transaction-controls";
+import {
+  edenEarnedLeavesLabel,
+} from "@/modules/core/credits/eden-currency";
 import { MockPayoutSettlementButton } from "@/modules/core/payments/mock-payout-settlement-button";
 import {
   formatPipelineTimestamp,
@@ -573,9 +576,9 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-credits",
-      label: "Eden credit flow",
+      label: "Eden Leaves flow",
       value: `+${formatCredits(creditFlow.inflow)} / -${formatCredits(creditFlow.outflow)}`,
-      detail: "Shared placeholder credit movement across wallet top-ups, usage, reserves, and adjustments.",
+      detail: "Shared placeholder Leaves movement across wallet top-ups, usage, reserves, and adjustments.",
     },
     {
       id: "overview-health",
@@ -600,12 +603,12 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-usage-credits",
-      label: "Usage credits tracked",
+      label: "Spendable Leaves used",
       value: formatCredits(usageMetrics.totalCreditsUsed),
       detail:
         usageMetrics.source === "persistent"
-          ? "Credits attached to persisted service usage events for early monetization reporting."
-          : "Credits estimated from usage transactions while Prisma-backed usage records are unavailable.",
+          ? "Spendable Leaves attached to persisted service usage events for early monetization reporting."
+          : "Spendable Leaves estimated from usage transactions while Prisma-backed usage records are unavailable.",
     },
     {
       id: "overview-platform-earnings",
@@ -615,9 +618,9 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-builder-earnings",
-      label: "Estimated builder earnings",
+      label: `${edenEarnedLeavesLabel} accrued`,
       value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
-      detail: "Builder net earnings projection after the Eden fee share using current service pricing.",
+      detail: "Builder net earned Leaves projection after the Eden fee share using current service pricing.",
     },
   ];
   const releaseSummaryCards = [
@@ -650,19 +653,19 @@ export function OwnerDashboardPanel({
   ];
   const creditSummary = [
     {
-      label: "Credits issued",
+      label: "Leaves issued",
       value: formatCredits(creditFlow.inflow),
       detail: "Mock distribution to users, businesses, and owner test accounts.",
     },
     {
-      label: "Credits consumed",
+      label: "Leaves consumed",
       value: formatCredits(creditFlow.outflow),
       detail: "Placeholder usage from AI routing, service discovery, and workspace actions.",
     },
     {
       label: "Reserve held",
       value: formatCredits(creditFlow.reserve),
-      detail: "Credits reserved for publish staging, safety holds, and owner review buffers.",
+      detail: "Leaves reserved for publish staging, safety holds, and owner review buffers.",
     },
     {
       label: "Net movement",
@@ -675,7 +678,7 @@ export function OwnerDashboardPanel({
       id: "payments-total",
       label: "Total top-ups",
       value: `${paymentMetrics.totalPayments}`,
-      detail: "Persistent credits top-up records tracked through the current owner payment ledger.",
+      detail: "Persistent Leaves top-up records tracked through the current owner payment ledger.",
     },
     {
       id: "payments-settled",
@@ -691,7 +694,7 @@ export function OwnerDashboardPanel({
     },
     {
       id: "payments-credits",
-      label: "Credits settled",
+      label: "Leaves settled",
       value: formatCredits(paymentMetrics.totalCreditsSettled),
       detail: `${formatMoneyAmount(
         paymentMetrics.totalSettledAmountCents,
@@ -1587,8 +1590,8 @@ export function OwnerDashboardPanel({
           <ControlRoomSection
             id="transaction-flow"
             eyebrow="Transaction Flow"
-            title="Eden credit movement"
-            description="Owner-facing placeholder activity showing how credits move across issuing, spending, holds, and adjustments."
+            title="Eden Leaves movement"
+            description="Owner-facing placeholder activity showing how spendable Leaves move across issuing, spending, holds, and adjustments."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
                 Ledger mock mode
@@ -1614,7 +1617,7 @@ export function OwnerDashboardPanel({
               ))}
             </motion.div>
             <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent credit activity</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaves activity</p>
               <div className="mt-4 space-y-3">
                 {creditActivity.map((activity) => (
                   <div
@@ -1732,7 +1735,7 @@ export function OwnerDashboardPanel({
                               {index + 1}. {business.businessName}
                             </p>
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
-                              Total earned {formatCredits(business.totalEarnedCredits)} | Ready{" "}
+                              Earned Leaves {formatCredits(business.totalEarnedCredits)} | Ready{" "}
                               {formatCredits(business.payoutReadyCredits)}
                             </p>
                             <p className="mt-1 text-xs text-eden-muted">
@@ -2004,7 +2007,7 @@ export function OwnerDashboardPanel({
                       Recent top-up payments
                     </p>
                     <p className="mt-2 text-sm leading-6 text-eden-muted">
-                      Owner inspection of pending, settled, failed, and canceled Eden Credits top-ups.
+                      Owner inspection of pending, settled, failed, and canceled Eden Leaves top-ups.
                     </p>
                   </div>
                   <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -2386,7 +2389,7 @@ export function OwnerDashboardPanel({
                       <p className="mt-2 text-lg font-semibold text-eden-ink">{usageMetrics.totalUsageEvents}</p>
                     </div>
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Usage credits</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Spendable Leaves used</p>
                       <p className="mt-2 text-lg font-semibold text-eden-ink">
                         {formatCredits(usageMetrics.totalCreditsUsed)}
                       </p>
@@ -2690,8 +2693,8 @@ export function OwnerDashboardPanel({
                 businessId={simulationBusinessId}
                 description={
                   simulationBusiness
-                    ? `These development-only actions append local Eden Credits events for ${simulationBusiness.name}.`
-                    : `These development-only actions append local Eden Credits events for ${session.user.displayName}.`
+                    ? `These development-only actions append local Eden Leaves events for ${simulationBusiness.name}.`
+                    : `These development-only actions append local Eden Leaves events for ${session.user.displayName}.`
                 }
               />
             </div>

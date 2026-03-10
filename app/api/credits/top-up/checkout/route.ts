@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Unable to create a payment-backed credits checkout session.",
+            : "Unable to create a payment-backed Leaves checkout session.",
       },
       { status: 400 },
     );

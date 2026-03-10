@@ -95,7 +95,7 @@ export default async function OwnerUserInspectionPage({
   const role = user ? toTitleCase(user.role) : "Unknown";
   const edenBalance = user
     ? formatCredits(getUserCreditsBalance(user.id, simulatedTransactions))
-    : "0 credits";
+    : "0 Leaves";
   const summary =
     user?.summary ??
     "This is a mocked owner inspection route used to connect user records to the wider Eden platform shell.";
@@ -182,7 +182,7 @@ export default async function OwnerUserInspectionPage({
           </div>
           <div className="rounded-2xl border border-eden-edge bg-white p-3">
             <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-              Credits purchased
+              Leaves purchased
             </p>
             <p className="mt-2 text-lg font-semibold text-eden-ink">
               {formatCredits(totalCreditsPurchased)}

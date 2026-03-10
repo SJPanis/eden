@@ -633,10 +633,10 @@ function buildChecklistItems(
     },
     {
       id: "pipeline-check-credits",
-      label: "Sufficient Eden Credits",
+      label: "Sufficient Eden Leaves",
       detail: requirementBooleans.sufficientCredits
-        ? "The workspace has enough Eden Credits to continue through testing and publish."
-        : "Add Eden Credits to keep this mocked release moving.",
+        ? "The workspace has enough Eden Leaves to continue through testing and publish."
+        : "Add Eden Leaves to keep this mocked release moving.",
       state: requirementBooleans.sufficientCredits ? "done" : "blocked",
     },
     {
@@ -734,7 +734,7 @@ function buildPipelineStages(
           ? "The mocked release is live across the business workspace."
           : status === "ready"
             ? "The release has cleared testing and can now be published."
-            : "Publish remains locked until build, testing, billing, and Eden Credits are ready.",
+            : "Publish remains locked until build, testing, billing, and Eden Leaves are ready.",
       readiness:
         status === "published" ? "Live" : status === "ready" ? "Ready to publish" : "Locked",
     },
@@ -774,7 +774,7 @@ function buildActionStates(
             ? "Start build work before sending the release to testing."
             : baseRequirementsMet
               ? "Move this mocked release into testing."
-              : "Complete the checklist and credits requirements before testing.",
+              : "Complete the checklist and Leaves requirements before testing.",
       disabled: !(status === "draft" && buildStarted && baseRequirementsMet),
     },
     {
@@ -834,7 +834,7 @@ function getNextMilestone(
   requirementBooleans: ChecklistBooleans,
 ) {
   if (!requirementBooleans.sufficientCredits) {
-    return "Restore Eden Credits to continue";
+    return "Restore Eden Leaves to continue";
   }
 
   if (status === "published") {

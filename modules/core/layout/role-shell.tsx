@@ -14,6 +14,7 @@ import { roleMeta, topNavItems, type EdenRole } from "@/modules/core/config/role
 import {
   getCreditsDisplaySummary,
 } from "@/modules/core/credits/mock-credits";
+import { edenCurrencyName, edenSpendableLeavesLabel } from "@/modules/core/credits/eden-currency";
 import { getBusinessById, type EdenMockTransaction } from "@/modules/core/mock-data";
 import { canAccessRoles, type EdenMockSession } from "@/modules/core/session/mock-session";
 import { MockSessionSwitcher } from "@/modules/core/session/mock-session-switcher";
@@ -137,12 +138,12 @@ export function RoleShell({
               <div className="grid gap-3 md:min-w-[360px]">
                 <div className="rounded-2xl border border-eden-edge bg-white/84 p-3">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-muted">
-                    Eden Credits
+                    {edenCurrencyName}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-4">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.12em] text-eden-muted">
-                        Active user
+                        {edenSpendableLeavesLabel}
                       </p>
                       <p className="mt-1 text-sm font-semibold text-eden-ink">
                         {creditsSummary.userBalanceLabel}
@@ -151,7 +152,7 @@ export function RoleShell({
                     {creditsSummary.businessBalanceLabel ? (
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.12em] text-eden-muted">
-                          {activeBusinessName ? "Workspace" : "Business"}
+                          {activeBusinessName ? "Workspace Leaves" : "Business Leaves"}
                         </p>
                         <p className="mt-1 text-sm font-semibold text-eden-ink">
                           {creditsSummary.businessBalanceLabel}

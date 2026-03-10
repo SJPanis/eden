@@ -339,7 +339,7 @@ function buildIdeaOutputs(
     connectedIdeas.push({
       id: `idea-${primaryService.id}-workspace`,
       title: `${primaryService.title} Builder Extension`,
-      description: `Turn ${primaryService.title} into a deeper Eden workspace flow for ${primaryServiceBusiness.name}, with AI-assisted copy, Eden Credits visibility, and publish preparation.`,
+      description: `Turn ${primaryService.title} into a deeper Eden workspace flow for ${primaryServiceBusiness.name}, with AI-assisted copy, Eden Leaves visibility, and publish preparation.`,
       actionLabel: "Start Building",
     });
   }
@@ -674,7 +674,7 @@ function choosePricingPlaceholder(prompt: string, category: string, variantIndex
     return "Subscription";
   }
 
-  return "Eden Credits";
+  return "Eden Leaves";
 }
 
 function buildGenerateDescriptionOutput(
@@ -912,7 +912,7 @@ function getChecklistSuggestion(
   if (item.id === "pipeline-check-credits") {
     return item.state === "done"
       ? `Credit coverage is sufficient. Hold the current reserve through launch and post-publish monitoring.`
-      : `Add Eden Credits before publish so the release can clear readiness and keep usage simulations active.`;
+      : `Add Eden Leaves before publish so the release can clear readiness and keep usage simulations active.`;
   }
 
   return item.state === "done"

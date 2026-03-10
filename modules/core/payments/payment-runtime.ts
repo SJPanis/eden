@@ -1,3 +1,7 @@
+import {
+  formatLeaves,
+} from "@/modules/core/credits/eden-currency";
+
 export type EdenCreditsTopUpMode = "mock_only" | "hybrid" | "payment_only";
 
 export type EdenCreditsTopUpPackage = {
@@ -22,21 +26,21 @@ const baseCreditsTopUpPackages = [
     id: "credits-250",
     creditsAmount: 250,
     amountCents: 1000,
-    title: "250 credits",
+    title: "250 Leaves",
     detail: "Best for lightweight discovery and a few priced service runs.",
   },
   {
     id: "credits-1000",
     creditsAmount: 1000,
     amountCents: 3500,
-    title: "1000 credits",
+    title: "1000 Leaves",
     detail: "Best for repeat consumer usage and steady marketplace exploration.",
   },
   {
     id: "credits-2500",
     creditsAmount: 2500,
     amountCents: 8000,
-    title: "2500 credits",
+    title: "2500 Leaves",
     detail: "Best for heavy testing, business scouting, and repeated high-value service use.",
   },
 ] as const;
@@ -78,7 +82,7 @@ export function getCreditsTopUpPackages(): EdenCreditsTopUpPackage[] {
     ...pkg,
     currency,
     providerLabel: "Stripe Checkout",
-    chargeLabel: `${formatCurrencyAmount(pkg.amountCents, currency)} for ${pkg.creditsAmount.toLocaleString()} credits`,
+    chargeLabel: `${formatCurrencyAmount(pkg.amountCents, currency)} for ${formatLeaves(pkg.creditsAmount)}`,
   }));
 }
 

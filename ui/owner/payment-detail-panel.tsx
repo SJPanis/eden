@@ -98,7 +98,7 @@ export function OwnerPaymentDetailPanel({
     },
     {
       id: "payment-summary-credits",
-      label: "Credits amount",
+      label: "Leaves amount",
       value: formatCredits(payment.creditsAmount),
       detail: formatMoneyAmount(payment.amountCents, payment.currency),
     },
@@ -157,7 +157,7 @@ export function OwnerPaymentDetailPanel({
                 ? `Unknown user (${payment.userId})`
                 : "Unlinked user",
           },
-          { label: "Credits amount", value: formatCredits(payment.creditsAmount) },
+          { label: "Leaves amount", value: formatCredits(payment.creditsAmount) },
           {
             label: "Charge",
             value: formatMoneyAmount(payment.amountCents, payment.currency),
@@ -260,7 +260,7 @@ export function OwnerPaymentDetailPanel({
                     Payment Financial Summary
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    Current top-up state with related wallet credits, selected package when known,
+                    Current top-up state with related wallet Leaves, selected package when known,
                     and owner-visible settlement status.
                   </p>
                 </div>
@@ -275,7 +275,7 @@ export function OwnerPaymentDetailPanel({
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-eden-edge bg-white p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                    Credits added
+                    Leaves added
                   </p>
                   <p className="mt-2 text-lg font-semibold text-eden-ink">
                     {formatCredits(payment.creditsAmount)}

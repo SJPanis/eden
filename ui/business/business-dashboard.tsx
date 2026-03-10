@@ -12,6 +12,11 @@ import {
 } from "@/modules/core/credits/mock-credits";
 import { MockTransactionControls } from "@/modules/core/credits/mock-transaction-controls";
 import {
+  edenEarnedLeavesLabel,
+  edenPlatformFeeLeavesLabel,
+  edenSpendableLeavesLabel,
+} from "@/modules/core/credits/eden-currency";
+import {
   getBusinessPipelineSnapshot,
   getRecentPipelineEvents,
   formatPipelineTimestamp,
@@ -566,7 +571,7 @@ export function BusinessDashboardPanel({
           detail: "Shared readiness state derived from the mocked build, test, and publish pipeline.",
         },
         {
-          label: "Eden Credits",
+          label: edenSpendableLeavesLabel,
           value: formatCredits(billingSnapshot?.businessBalanceCredits ?? businessProfile.creditBalanceCredits),
           detail: "Shared mocked workspace balance reserved for builds, AI actions, testing, and publish prep.",
         },
@@ -661,7 +666,7 @@ export function BusinessDashboardPanel({
         )}.`
       : activeServicePricing.hasStoredPrice
         ? `Consumers will see ${activeServicePricingLabel} before they decide. Publish the service to expose the wallet cue in discovery.`
-        : "Set a visible Eden Credits price so consumers can compare the run cost to their wallet before they decide.";
+        : "Set a visible Eden Leaves price so consumers can compare the run cost to their wallet before they decide.";
   const publishLaunchSummaryCards = [
     {
       id: "launch-summary-state",
@@ -683,8 +688,8 @@ export function BusinessDashboardPanel({
         ? activeServicePricingLabel
         : "Price needs review",
       detail: activeServicePricing.hasStoredPrice
-        ? `Consumers see this exact Eden Credits rate before they run the service.`
-        : "Set a per-use Eden Credits price so the launch flow and earnings model are explicit.",
+        ? `Consumers see this exact Eden Leaves rate before they run the service.`
+        : "Set a per-use Eden Leaves price so the launch flow and earnings model are explicit.",
     },
     {
       id: "launch-summary-consumer",
@@ -721,8 +726,8 @@ export function BusinessDashboardPanel({
       label: edenLaunchLabels.visiblePricing,
       value: activeServicePricing.hasStoredPrice ? activeServicePricingLabel : "Price needs review",
       detail: activeServicePricing.hasStoredPrice
-        ? `Consumers see the exact Eden Credits price before they run. ${edenLaunchLabels.noHiddenCheckout}`
-        : "Add a visible Eden Credits price so the consumer decision stays explicit.",
+        ? `Consumers see the exact Eden Leaves price before they run. ${edenLaunchLabels.noHiddenCheckout}`
+        : "Add a visible Eden Leaves price so the consumer decision stays explicit.",
     },
     {
       id: "consumer-launch-wallet",
@@ -742,26 +747,26 @@ export function BusinessDashboardPanel({
       detail:
         releaseStatus === "published"
           ? "This is the same trust-first guidance consumers see across marketplace cards, Ask Eden, and service detail."
-          : "Once published, the marketplace will show the same price-visible, credits-only decision flow to consumers.",
+          : "Once published, the marketplace will show the same price-visible, Leaves-only decision flow to consumers.",
     },
   ];
   const billingUsage: BillingUsageItem[] = businessProfile
     ? [
         {
           id: "billing-usage-01",
-          label: "Current balance",
+          label: edenSpendableLeavesLabel,
           value: formatCredits(billingSnapshot?.businessBalanceCredits ?? businessProfile.creditBalanceCredits),
           detail: "Shared mocked workspace balance available for AI actions, testing, and publish prep.",
         },
         {
           id: "billing-usage-02",
-          label: "Active user wallet",
+          label: "Operator spendable Leaves",
           value: formatCredits(billingSnapshot?.userBalanceCredits ?? session.user.edenBalanceCredits),
           detail: "Current mock operator wallet shown alongside workspace billing context.",
         },
         {
           id: "billing-usage-03",
-          label: "Recent usage",
+          label: "Spendable Leaves used",
           value: `${formatCredits(billingSnapshot?.usageCredits ?? 0)} this cycle`,
           detail: "Derived from the shared mocked transaction stream tied to this business workspace.",
         },
@@ -782,13 +787,13 @@ export function BusinessDashboardPanel({
         },
         {
           id: "billing-usage-06",
-          label: "Estimated builder earnings",
+          label: edenEarnedLeavesLabel,
           value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
           detail: "Estimated builder share derived from the active services' stored per-use pricing.",
         },
         {
           id: "billing-usage-07",
-          label: "Estimated Eden fee share",
+          label: edenPlatformFeeLeavesLabel,
           value: formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits),
           detail: "Estimated Eden platform share derived from stored service pricing, not real charging.",
         },
@@ -803,27 +808,27 @@ export function BusinessDashboardPanel({
   const payoutAccountingItems = [
     {
       id: "payout-total-earned",
-      label: "Total earned",
+      label: `${edenEarnedLeavesLabel} total`,
       value: formatCredits(payoutAccounting.totalEarnedCredits),
-      detail: "Builder-side earnings accrued from priced service usage across this workspace.",
+      detail: "Builder-side earned Leaves accrued from priced service usage across this workspace.",
     },
     {
       id: "payout-unpaid",
-      label: "Unpaid earnings",
+      label: `${edenEarnedLeavesLabel} unpaid`,
       value: formatCredits(payoutAccounting.unpaidEarningsCredits),
-      detail: "Builder earnings still owed after persistent payout settlement records are applied.",
+      detail: "Earned Leaves still owed after persistent payout settlement records are applied.",
     },
     {
       id: "payout-ready",
-      label: "Payout-ready",
+      label: "Earned Leaves ready",
       value: formatCredits(payoutAccounting.payoutReadyCredits),
-      detail: "Accrued earnings available after the current internal reserve holdback.",
+      detail: "Accrued earned Leaves available after the current internal reserve holdback.",
     },
     {
       id: "payout-fee-share",
-      label: "Eden fee share",
+      label: edenPlatformFeeLeavesLabel,
       value: formatCredits(payoutAccounting.edenFeeShareCredits),
-      detail: "Platform share derived from the same pricing-based usage accounting.",
+      detail: "Platform fee Leaves derived from the same pricing-based usage accounting.",
     },
     {
       id: "payout-pending",
@@ -1854,9 +1859,9 @@ export function BusinessDashboardPanel({
         <motion.div variants={sectionVariants}>
           <WorkspaceSection
             id="billing"
-            eyebrow="Billing / Eden Credits"
+            eyebrow="Balances / Eden Leaves"
             title="Balance, usage, and fee clarity"
-            description="The billing layer is still placeholder-only, but the workspace now exposes credits, usage, hosting, and fee visibility together."
+            description="The billing layer is still placeholder-only, but the workspace now exposes spendable Leaves, earned Leaves, usage, hosting, and fee visibility together."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
                 Transparent fees
@@ -1887,7 +1892,7 @@ export function BusinessDashboardPanel({
                     <p className="mt-2 text-sm leading-6 text-current/80">
                       {releaseStatus === "published"
                         ? `${consumerAffordability.hint} ${edenLaunchLabels.noHiddenCheckout}`
-                        : "Consumers will see the same visible-price, credits-only guidance after this service is published."}
+                        : "Consumers will see the same visible-price, Leaves-only guidance after this service is published."}
                     </p>
                   </div>
                   <span className="rounded-full border border-current/20 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
@@ -2384,7 +2389,7 @@ export function BusinessDashboardPanel({
                             <div>
                               <p className="text-sm font-semibold text-eden-ink">{event.serviceTitle}</p>
                               <p className="mt-1 text-sm leading-6 text-eden-muted">
-                                {formatCredits(event.creditsUsed)} used through {event.usageType.replace(/_/g, " ")}.
+                                {formatCredits(event.creditsUsed)} of spendable Leaves used through {event.usageType.replace(/_/g, " ")}.
                               </p>
                               <p className="mt-1 text-xs text-eden-muted">
                                 Gross estimate: {formatCredits(event.estimatedGrossCredits)}
@@ -2669,7 +2674,7 @@ export function BusinessDashboardPanel({
                               </span>
                             </div>
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
-                              Used {event.serviceTitle} for {formatCredits(event.creditsUsed)}.
+                              Used {event.serviceTitle} for {formatCredits(event.creditsUsed)} of spendable Leaves.
                             </p>
                             <p className="mt-1 text-xs text-eden-muted">
                               Estimated customer value:{" "}
@@ -2702,7 +2707,7 @@ export function BusinessDashboardPanel({
             <div className="mt-4">
               <MockTransactionControls
                 businessId={activeBusinessId}
-                description={`These development-only actions append local Eden Credits events for ${businessProfile.name}.`}
+                description={`These development-only actions append local Eden Leaves events for ${businessProfile.name}.`}
               />
             </div>
           </WorkspaceSection>

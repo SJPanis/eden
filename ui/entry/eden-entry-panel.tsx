@@ -54,7 +54,7 @@ const publicLaunchClarityCards = [
     label: "What Eden is",
     value: "A builder-to-consumer service platform",
     detail:
-      "Builders create and publish AI-powered services. Consumers discover them, see visible pricing, and run them through Eden Credits.",
+      "Builders create and publish AI-powered services. Consumers discover them, see visible pricing, and run them through Eden Leaves.",
   },
   {
     id: "how-pricing-works",
@@ -68,7 +68,7 @@ const publicLaunchClarityCards = [
     label: edenLaunchLabels.creditsOnlyBilling,
     value: "Top up only when needed",
     detail:
-      "Consumers add credits first, then reuse them across service runs. Hidden checkout does not appear during service use.",
+      "Consumers add Leaves first, then reuse them across service runs. Hidden checkout does not appear during service use.",
   },
 ];
 
@@ -83,7 +83,7 @@ const publicHowEdenWorksSteps = [
     id: "consumer-discover",
     label: "2. Consumers explore",
     detail:
-      "Marketplace cards and Ask Eden show published availability, visible pricing, and credits-only trust cues.",
+      "Marketplace cards and Ask Eden show published availability, visible pricing, and Leaves-only trust cues.",
   },
   {
     id: "consumer-wallet",
@@ -104,7 +104,7 @@ const publicAudienceCards = [
     id: "consumers",
     label: "For consumers",
     detail:
-      "Explore published services, check visible pricing, add Eden Credits only if needed, and run without hidden charges during service use.",
+      "Explore published services, check visible pricing, add Eden Leaves only if needed, and run without hidden charges during service use.",
   },
 ];
 
@@ -308,7 +308,7 @@ export function EdenEntryPanel({
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
               Eden is a builder-to-consumer service platform. Builders publish services with
-              visible pricing, consumers discover them and top up Eden Credits only when needed,
+              visible pricing, consumers discover them and top up Eden Leaves only when needed,
               and service runs happen with no hidden checkout during usage.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -401,7 +401,7 @@ export function EdenEntryPanel({
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   Start in the consumer layer to see published services, visible pricing, wallet
-                  guidance, and the credits-only run flow before you go deeper into onboarding.
+                  guidance, and the Leaves-only run flow before you go deeper into onboarding.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link

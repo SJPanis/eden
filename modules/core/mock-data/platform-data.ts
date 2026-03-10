@@ -208,7 +208,7 @@ export const services: EdenMockService[] = [
       "Placeholder service detail for a guided focus-planning experience that helps users convert intent into momentum.",
     status: "Testing",
     tags: ["Productivity", "Planning", "Focus"],
-    pricingModel: "Eden Credits",
+    pricingModel: "Eden Leaves",
     pricePerUse: 95,
     pricingType: "per_use",
     pricingUnit: "credits",
@@ -223,7 +223,7 @@ export const services: EdenMockService[] = [
       "Placeholder service detail for a guided reset experience with calm routines, recovery prompts, and simple next actions.",
     status: "Published",
     tags: ["Wellness", "Recovery", "Guided care"],
-    pricingModel: "Eden Credits",
+    pricingModel: "Eden Leaves",
     pricePerUse: 70,
     pricingType: "per_use",
     pricingUnit: "credits",
@@ -238,7 +238,7 @@ export const services: EdenMockService[] = [
       "Placeholder learning service focused on short, practical skill blocks and milestone-based builder guidance.",
     status: "Published",
     tags: ["Learning", "Creator", "Sprint"],
-    pricingModel: "Eden Credits",
+    pricingModel: "Eden Leaves",
     pricePerUse: 135,
     pricingType: "per_use",
     pricingUnit: "credits",
@@ -253,7 +253,7 @@ export const services: EdenMockService[] = [
       "Placeholder service detail for a home setup support experience with systems planning and household optimization.",
     status: "Draft",
     tags: ["Home", "Setup", "Operations"],
-    pricingModel: "Eden Credits",
+    pricingModel: "Eden Leaves",
     pricePerUse: 160,
     pricingType: "per_use",
     pricingUnit: "credits",
@@ -268,7 +268,7 @@ export const services: EdenMockService[] = [
       "Placeholder service bundle for recovery routines, pacing recommendations, and follow-up habit support.",
     status: "Published",
     tags: ["Wellness", "Bundle", "Recovery"],
-    pricingModel: "Eden Credits",
+    pricingModel: "Eden Leaves",
     pricePerUse: 110,
     pricingType: "per_use",
     pricingUnit: "credits",
@@ -344,11 +344,11 @@ export const transactions: EdenMockTransaction[] = [
     businessId: "business-01",
     userId: "user-02",
     title: "Builder workspace reserve added",
-    amountLabel: "+1,200 credits",
+    amountLabel: "+1,200 Leaves",
     creditsDelta: 1200,
     direction: "inflow",
     kind: "wallet",
-    detail: "Northstar Habit Lab received a mock credit top-up for testing and publish prep.",
+    detail: "Northstar Habit Lab received a mock Leaves top-up for testing and publish prep.",
     timestamp: "09:42",
   },
   {
@@ -356,7 +356,7 @@ export const transactions: EdenMockTransaction[] = [
     userId: "user-01",
     serviceId: "service-01",
     title: "Consumer discovery usage settled",
-    amountLabel: "-680 credits",
+    amountLabel: "-680 Leaves",
     creditsDelta: -680,
     direction: "outflow",
     kind: "usage",
@@ -368,18 +368,18 @@ export const transactions: EdenMockTransaction[] = [
     businessId: "business-01",
     userId: "user-02",
     title: "Publish reserve moved to hold",
-    amountLabel: "860 credits",
+    amountLabel: "860 Leaves",
     creditsDelta: 0,
     direction: "reserve",
     kind: "reserve",
-    detail: "Credits were moved into a mock safety hold before publish validation.",
+    detail: "Leaves were moved into a mock safety hold before publish validation.",
     timestamp: "08:57",
   },
   {
     id: "transaction-04",
     userId: "user-06",
     title: "Owner audit adjustment posted",
-    amountLabel: "+140 credits",
+    amountLabel: "+140 Leaves",
     creditsDelta: 140,
     direction: "adjustment",
     kind: "adjustment",
@@ -391,7 +391,7 @@ export const transactions: EdenMockTransaction[] = [
     businessId: "business-01",
     userId: "user-02",
     title: "AI workspace usage settled",
-    amountLabel: "-240 credits",
+    amountLabel: "-240 Leaves",
     creditsDelta: -240,
     direction: "outflow",
     kind: "usage",
@@ -682,7 +682,7 @@ export const ownerDashboardBusinessIds = ["business-01", "business-02", "busines
 export const ownerDashboardServiceIds = ["service-02", "service-03", "service-05"];
 
 export function formatCredits(value: number) {
-  return `${value.toLocaleString()} credits`;
+  return formatLeaves(value);
 }
 
 export function getUserById(id: string) {
@@ -836,3 +836,4 @@ function getCreditsFromAmountLabel(amountLabel: string) {
 
   return Number.parseFloat(match[0].replace(/,/g, ""));
 }
+import { formatLeaves } from "@/modules/core/credits/eden-currency";

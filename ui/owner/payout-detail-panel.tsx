@@ -156,7 +156,7 @@ export function OwnerPayoutDetailPanel({
       id: "payout-summary-unpaid",
       label: "Unpaid total",
       value: formatCredits(payoutAccounting.unpaidEarningsCredits),
-      detail: `${formatCredits(payoutAccounting.pendingSettlementCredits)} pending settlement credits.`,
+      detail: `${formatCredits(payoutAccounting.pendingSettlementCredits)} pending settlement Leaves.`,
     },
     {
       id: "payout-summary-ready",

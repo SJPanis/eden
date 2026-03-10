@@ -4,6 +4,10 @@ import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
 import { DetailPlaceholderPanel } from "@/modules/core/components/detail-placeholder-panel";
 import {
+  formatLeaves,
+  formatDisplayPricingUnit,
+} from "@/modules/core/credits/eden-currency";
+import {
   getRecentUserTransactionHistory,
   getUserCreditsBalance,
 } from "@/modules/core/credits/mock-credits";
@@ -194,8 +198,8 @@ export default async function ServiceDetailPage({
   );
   const pricingUnitLabel =
     pricing.pricingType === "per_session"
-      ? `${pricing.pricingUnit} per session`
-      : `${pricing.pricingUnit} per use`;
+      ? `${formatDisplayPricingUnit(pricing.pricingUnit)} per session`
+      : `${formatDisplayPricingUnit(pricing.pricingUnit)} per use`;
   const consumerAvailabilityLabel = businessFrozen
     ? "Temporarily unavailable"
     : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
@@ -206,7 +210,7 @@ export default async function ServiceDetailPage({
   const consumerAvailabilityDetail = businessFrozen
     ? "This service is currently blocked by an owner freeze on the linked business."
     : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
-      ? "This service is live in Eden discovery and can be run through the credits wallet flow right now."
+      ? "This service is live in Eden discovery and can be run through the Eden Leaves wallet flow right now."
       : pipelineStatusOverride === "ready" || pipelineSnapshot?.status === "ready"
         ? "This service is almost live. The current route remains a preview of the launch-ready experience."
         : "This route is still showing a pre-launch or preview state for the service.";
@@ -263,7 +267,7 @@ export default async function ServiceDetailPage({
       note={
         businessFrozen
           ? "All content on this page is mocked. The linked business is currently under a local owner freeze overlay."
-          : `All content on this page is mocked. The price shown below is the exact Eden Credits amount used for service runs, and ${edenLaunchLabels.noHiddenCheckout.toLowerCase()}`
+          : `All content on this page is mocked. The price shown below is the exact Eden Leaves amount used for service runs, and ${edenLaunchLabels.noHiddenCheckout.toLowerCase()}`
       }
     >
       <div className="space-y-5">
@@ -315,7 +319,7 @@ export default async function ServiceDetailPage({
                     Current wallet
                   </p>
                   <p className="mt-2 text-sm font-semibold text-eden-ink">
-                    {currentUserBalanceCredits.toLocaleString()} credits
+                    {formatLeaves(currentUserBalanceCredits)}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-eden-edge bg-white/90 p-3">
@@ -351,13 +355,13 @@ export default async function ServiceDetailPage({
                 <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">{edenLaunchLabels.creditsOnlyBilling}</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Service runs deduct credits from the wallet. Stripe only appears if the user explicitly chooses to top up.
+                  Service runs deduct Leaves from the wallet. Stripe only appears if the user explicitly chooses to top up.
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-white p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Current wallet</p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">
-                  {currentUserBalanceCredits.toLocaleString()} credits
+                  {formatLeaves(currentUserBalanceCredits)}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   The wallet panel below shows the resulting balance change after each service run or top-up.
@@ -383,7 +387,7 @@ export default async function ServiceDetailPage({
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                 <p className="text-sm font-semibold text-eden-ink">1. Check availability and price</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Eden shows whether the service is live and exactly what the credits price is before anything runs.
+                  Eden shows whether the service is live and exactly what the Eden Leaves price is before anything runs.
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -393,15 +397,15 @@ export default async function ServiceDetailPage({
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                <p className="text-sm font-semibold text-eden-ink">3. Add Credits only if needed</p>
+                <p className="text-sm font-semibold text-eden-ink">3. Add Leaves only if needed</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Add Credits through the wallet flow if your balance is low. {edenLaunchLabels.noHiddenCheckout}
+                  Add Leaves through the wallet flow if your balance is low. {edenLaunchLabels.noHiddenCheckout}
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                 <p className="text-sm font-semibold text-eden-ink">4. Run the service</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  A successful run deducts the visible credits amount, records usage, and updates the wallet history immediately.
+                  A successful run deducts the visible Leaves amount, records usage, and updates the wallet history immediately.
                 </p>
               </div>
             </div>

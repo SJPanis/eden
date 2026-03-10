@@ -1,4 +1,5 @@
 import type { EdenRole } from "@/modules/core/config/role-nav";
+import { formatLeaves } from "@/modules/core/credits/eden-currency";
 import {
   businessFeeSummary,
   formatCredits,
@@ -412,7 +413,7 @@ export function buildSimulationTransaction(options: {
         ? Math.round(topUpCreditsAmount)
         : 250;
     const packageTitle =
-      topUpPackageTitle?.trim() || `${creditsAmount.toLocaleString()} credits`;
+      topUpPackageTitle?.trim() || formatLeaves(creditsAmount);
     const topUpMoneyLabel =
       typeof topUpAmountCents === "number" &&
       topUpAmountCents > 0 &&
@@ -425,9 +426,9 @@ export function buildSimulationTransaction(options: {
       id: `${prefix}-add-credits`,
       ...scope,
       title: businessId
-        ? `Workspace credits top-up (${packageTitle})`
-        : `Wallet credits top-up (${packageTitle})`,
-      amountLabel: `+${creditsAmount} credits`,
+        ? `Workspace Leaves top-up (${packageTitle})`
+        : `Wallet Leaves top-up (${packageTitle})`,
+      amountLabel: `+${creditsAmount} Leaves`,
       creditsDelta: creditsAmount,
       direction: "inflow",
       kind: "wallet",
@@ -448,7 +449,7 @@ export function buildSimulationTransaction(options: {
       id: `${prefix}-purchase`,
       ...scope,
       title: businessId ? "Mock service purchase settled" : "Mock consumer purchase settled",
-      amountLabel: businessId ? "+180 credits" : "-120 credits",
+      amountLabel: businessId ? "+180 Leaves" : "-120 Leaves",
       creditsDelta: businessId ? 180 : -120,
       direction: businessId ? "inflow" : "outflow",
       kind: businessId ? "wallet" : "usage",
@@ -465,7 +466,7 @@ export function buildSimulationTransaction(options: {
       id: `${prefix}-hosting`,
       ...scope,
       title: businessId ? "Hosting fee applied" : "Subscription fee applied",
-      amountLabel: businessId ? "-18 credits" : "-12 credits",
+      amountLabel: businessId ? "-18 Leaves" : "-12 Leaves",
       creditsDelta: businessId ? -18 : -12,
       direction: "outflow",
       kind: businessId ? "hosting" : "fee",
@@ -494,7 +495,7 @@ export function buildSimulationTransaction(options: {
       : businessId
         ? "Service usage settled"
         : "Discovery usage settled",
-    amountLabel: `-${usageCredits} credits`,
+    amountLabel: `-${usageCredits} Leaves`,
     creditsDelta: -usageCredits,
     direction: "outflow",
     kind: "usage",
@@ -523,14 +524,14 @@ export function buildPaymentTopUpTransaction(input: {
     id: `payment-topup-${input.sessionId}`,
     userId: input.userId ?? undefined,
     title: `${input.providerLabel} top-up settled`,
-    amountLabel: `+${input.creditsAmount} credits`,
+    amountLabel: `+${input.creditsAmount} Leaves`,
     creditsDelta: input.creditsAmount,
     direction: "inflow",
     kind: "wallet",
     detail: `${input.providerLabel} completed a one-time ${formatMoneyFromCents(
       input.amountCents,
       input.currency,
-    )} payment for ${formatCredits(input.creditsAmount)}.`,
+    )} payment for ${formatLeaves(input.creditsAmount)}.`,
     timestamp: input.timestampLabel ?? "Just now",
     simulated: false,
   };
@@ -538,7 +539,7 @@ export function buildPaymentTopUpTransaction(input: {
 
 function getCreditsFromAmountLabel(amountLabel: string) {
   const normalized = amountLabel.toLowerCase();
-  if (!normalized.includes("credit")) {
+  if (!normalized.includes("credit") && !normalized.includes("leave")) {
     return 0;
   }
 
