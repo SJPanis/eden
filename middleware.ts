@@ -20,9 +20,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const cookieHeader = request.headers.get("cookie") ?? "";
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? undefined,
+    secureCookie:
+      request.nextUrl.protocol === "https:" ||
+      cookieHeader.includes("__Secure-"),
   });
   const authenticatedRole = parseAuthenticatedRoleClaim(
     token?.[edenAuthJsPlatformRoleClaim],

@@ -59,13 +59,8 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successNote, setSuccessNote] = useState<string | null>(null);
   const callbackUrl = useMemo(
-    () => {
-      const rawCallbackUrl = searchParams.get("callbackUrl");
-      return rawCallbackUrl && rawCallbackUrl.startsWith("/") && !rawCallbackUrl.startsWith("//")
-        ? rawCallbackUrl
-        : "/consumer";
-    },
-    [searchParams],
+    () => "/consumer",
+    [],
   );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
