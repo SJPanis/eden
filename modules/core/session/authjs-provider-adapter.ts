@@ -45,12 +45,13 @@ export function createAuthJsProviderAdapter(
 
       const token = await getToken({
         req: {
-          headers: new Headers({
+          headers: {
             cookie: input.cookieHeader,
             host: new URL(input.requestUrl ?? resolveAuthJsRequestUrl()).host,
-          }),
+          },
         } as never,
         secret,
+        secureCookie: resolveAuthJsRequestUrl().startsWith("https://"),
       });
 
       const claims = extractProviderClaims(token);
