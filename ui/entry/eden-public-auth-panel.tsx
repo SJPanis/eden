@@ -63,7 +63,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
       const rawCallbackUrl = searchParams.get("callbackUrl");
       return rawCallbackUrl && rawCallbackUrl.startsWith("/") && !rawCallbackUrl.startsWith("//")
         ? rawCallbackUrl
-        : "/";
+        : "/consumer";
     },
     [searchParams],
   );

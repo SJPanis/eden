@@ -43,15 +43,21 @@ export function createAuthJsProviderAdapter(
         return null;
       }
 
+      const requestUrl = input.requestUrl ?? resolveAuthJsRequestUrl();
+      const shouldUseSecureCookie =
+        process.env.NODE_ENV === "production" ||
+        requestUrl.startsWith("https://") ||
+        input.cookieHeader.includes("__Secure-");
+
       const token = await getToken({
         req: {
           headers: {
             cookie: input.cookieHeader,
-            host: new URL(input.requestUrl ?? resolveAuthJsRequestUrl()).host,
+            host: new URL(requestUrl).host,
           },
         } as never,
         secret,
-        secureCookie: resolveAuthJsRequestUrl().startsWith("https://"),
+        secureCookie: shouldUseSecureCookie,
       });
 
       const claims = extractProviderClaims(token);

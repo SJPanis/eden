@@ -31,10 +31,11 @@ export async function resolvePersistentCompatibilitySession(
       providerCookieValue,
       cookieHeader,
     };
-    const providerAdapters = [
-      createAuthJsProviderAdapter(prisma),
-      createPrismaCookieAuthProviderAdapter(prisma),
-    ];
+    const providerAdapters = [createAuthJsProviderAdapter(prisma)];
+
+    if (mode === "mock_only" || process.env.NODE_ENV !== "production") {
+      providerAdapters.push(createPrismaCookieAuthProviderAdapter(prisma));
+    }
     let providerSession = null;
 
     for (const providerAdapter of providerAdapters) {
