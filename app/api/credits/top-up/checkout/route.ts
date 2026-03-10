@@ -1,9 +1,10 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { getServerSession as getNextAuthServerSession } from "next-auth";
 import {
   createCreditsTopUpCheckoutSession,
 } from "@/modules/core/payments/stripe-topup-service";
-import { getServerSession } from "@/modules/core/session/server";
+import { buildEdenAuthJsOptions } from "@/modules/core/session/authjs-config";
 
 export const runtime = "nodejs";
 
@@ -13,13 +14,34 @@ export async function POST(request: Request) {
     packageId?: string;
   };
   const headerStore = await headers();
-  const session = await getServerSession();
+  const authSession = (await getNextAuthServerSession(
+    buildEdenAuthJsOptions(),
+  )) as
+    | {
+        user?: {
+          id?: string;
+          username?: string;
+          name?: string | null;
+        };
+      }
+    | null;
+
+  if (!authSession?.user?.id || !authSession.user.username) {
+    console.error("[eden][payments][checkout_create] missing_authenticated_session");
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Authentication is required before Eden can create a Leaves checkout session.",
+      },
+      { status: 401 },
+    );
+  }
 
   try {
     const checkoutSession = await createCreditsTopUpCheckoutSession({
-      userId: session.user.id,
-      username: session.user.username,
-      displayName: session.user.displayName,
+      userId: authSession.user.id,
+      username: authSession.user.username,
+      displayName: authSession.user.name ?? authSession.user.username,
       origin: resolveOrigin(headerStore),
       returnPath: requestBody.returnPath ?? "/consumer",
       packageId: requestBody.packageId,

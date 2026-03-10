@@ -107,6 +107,10 @@ export function buildEdenAuthJsOptions(): NextAuthOptions {
       async jwt({ token, account, profile, user }) {
         const nextToken = token as EdenAuthJsJwt;
         const signInUser = user as EdenAuthJsSignInUser | undefined;
+        const existingRoleClaim =
+          typeof nextToken[edenAuthJsPlatformRoleClaim] === "string"
+            ? nextToken[edenAuthJsPlatformRoleClaim]
+            : null;
 
         if (account?.provider) {
           nextToken[edenAuthJsProviderClaim] = account.provider;
@@ -122,7 +126,17 @@ export function buildEdenAuthJsOptions(): NextAuthOptions {
           nextToken[edenAuthJsProviderSubjectClaim] = providerSubject;
         }
 
+        if (typeof signInUser?.id === "string") {
+          nextToken.sub = signInUser.id;
+        }
+
+        const shouldHydratePersistedClaims =
+          typeof nextToken.sub !== "string" ||
+          typeof nextToken[edenAuthJsUsernameClaim] !== "string" ||
+          !existingRoleClaim;
         const persistedAuthUser =
+          !signInUser?.id &&
+          shouldHydratePersistedClaims &&
           typeof nextToken[edenAuthJsProviderClaim] === "string" &&
           typeof nextToken[edenAuthJsProviderSubjectClaim] === "string"
             ? await resolvePersistedUserByProviderAccount({
@@ -138,6 +152,9 @@ export function buildEdenAuthJsOptions(): NextAuthOptions {
         const username =
           normalizeUsername(signInUser?.username) ??
           normalizeUsername(persistedAuthUser?.username) ??
+          (typeof nextToken[edenAuthJsUsernameClaim] === "string"
+            ? nextToken[edenAuthJsUsernameClaim]
+            : null) ??
           normalizeUsername(signInUser?.email ?? null) ??
           extractProfileUsername(profile);
 
@@ -145,20 +162,22 @@ export function buildEdenAuthJsOptions(): NextAuthOptions {
           nextToken[edenAuthJsUsernameClaim] = username;
         }
 
-        const platformRole = await resolvePersistedPlatformRole({
-          userId:
-            typeof signInUser?.id === "string"
-              ? signInUser.id
-              : typeof persistedAuthUser?.id === "string"
-                ? persistedAuthUser.id
-              : typeof nextToken.sub === "string"
-                ? nextToken.sub
-                : null,
-          username,
-        });
+        if (!existingRoleClaim) {
+          const platformRole = await resolvePersistedPlatformRole({
+            userId:
+              typeof signInUser?.id === "string"
+                ? signInUser.id
+                : typeof persistedAuthUser?.id === "string"
+                  ? persistedAuthUser.id
+                  : typeof nextToken.sub === "string"
+                    ? nextToken.sub
+                    : null,
+            username,
+          });
 
-        if (platformRole) {
-          nextToken[edenAuthJsPlatformRoleClaim] = platformRole;
+          if (platformRole) {
+            nextToken[edenAuthJsPlatformRoleClaim] = platformRole;
+          }
         }
 
         return nextToken;
