@@ -202,9 +202,10 @@ export function getCreditsTopUpActionLabel(
   action: "payment" | "mock",
 ) {
   const selectedPackage = resolveCreditsTopUpPackage(packageId);
-  const baseLabel = formatLeaves(selectedPackage.creditsAmount);
 
-  return action === "payment" ? `Buy ${baseLabel}` : `Add ${baseLabel}`;
+  return action === "payment"
+    ? `Continue to Checkout for ${formatLeaves(selectedPackage.creditsAmount)}`
+    : `Add ${formatLeaves(selectedPackage.creditsAmount)}`;
 }
 
 export function getCreditsTopUpPackageById(packageId?: string | null) {
@@ -212,23 +213,15 @@ export function getCreditsTopUpPackageById(packageId?: string | null) {
 }
 
 export function buildTopUpCancellationMessage(
-  mode: EdenCreditsTopUpMode,
+  _mode: EdenCreditsTopUpMode,
   packageId?: string | null,
 ): EdenTopUpStatusMessage {
   const selectedPackage = resolveCreditsTopUpPackage(packageId);
 
-  if (mode === "payment_only") {
-    return {
-      tone: "warning",
-      title: "Checkout cancelled",
-      detail: `${selectedPackage.title} was not purchased. Eden Leaves were not added to the wallet.`,
-    };
-  }
-
   return {
     tone: "warning",
     title: "Checkout cancelled",
-    detail: `${selectedPackage.title} was not purchased. Mock top-up remains available in this environment.`,
+    detail: `${selectedPackage.title} was not purchased. Eden Leaves were not added to the wallet.`,
   };
 }
 

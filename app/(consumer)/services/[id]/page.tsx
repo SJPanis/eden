@@ -27,6 +27,7 @@ import {
   formatServicePricingLabel,
   resolveServicePricing,
 } from "@/modules/core/services/service-pricing";
+import { getLiveServiceExecutionDefinition } from "@/modules/core/services/live-service-execution";
 import {
   loadBusinessById,
   loadDiscoveryBusinessForService,
@@ -39,6 +40,7 @@ import {
   getLaunchAvailabilityLabel,
   getServiceAffordabilityDetails,
 } from "@/ui/consumer/components/service-affordability-shared";
+import { LiveServiceExecutionPanel } from "@/ui/consumer/components/live-service-execution-panel";
 import { ServiceUsagePanel } from "@/ui/consumer/components/service-usage-panel";
 
 type SearchValue = string | string[] | undefined;
@@ -214,6 +216,12 @@ export default async function ServiceDetailPage({
       : pipelineStatusOverride === "ready" || pipelineSnapshot?.status === "ready"
         ? "This service is almost live. The current route remains a preview of the launch-ready experience."
         : "This route is still showing a pre-launch or preview state for the service.";
+  const liveExecutionDefinition =
+    service?.id === id ? getLiveServiceExecutionDefinition(service.id) : null;
+  const liveServiceAvailable =
+    !!liveExecutionDefinition &&
+    !businessFrozen &&
+    consumerAvailabilityLabel === getLaunchAvailabilityLabel("published");
   const currentUserBalanceCredits = getUserCreditsBalance(
     session.user.id,
     simulatedTransactions,
@@ -412,6 +420,27 @@ export default async function ServiceDetailPage({
           </div>
         </div>
 
+        {liveExecutionDefinition ? (
+          <LiveServiceExecutionPanel
+            definition={liveExecutionDefinition}
+            serviceId={service?.id ?? id}
+            serviceTitle={service?.title ?? title}
+            currentBalanceCredits={currentUserBalanceCredits}
+            pricePerUse={service?.pricePerUse ?? null}
+            pricingType={service?.pricingType ?? null}
+            pricingUnit={service?.pricingUnit ?? null}
+            pricingModel={service?.pricingModel ?? null}
+            disabled={!liveServiceAvailable}
+            disabledReason={
+              businessFrozen
+                ? "This live runner is paused because the linked business is under an owner freeze."
+                : !liveServiceAvailable
+                  ? "This live runner only opens once the service is published and available in consumer discovery."
+                  : undefined
+            }
+          />
+        ) : null}
+
         <ServiceUsagePanel
           serviceId={service?.id ?? null}
           businessId={business?.id ?? businessId}
@@ -425,6 +454,12 @@ export default async function ServiceDetailPage({
           pricingModel={service?.pricingModel ?? null}
           availabilityLabel={consumerAvailabilityLabel}
           availabilityDetail={consumerAvailabilityDetail}
+          usageActionDisabled={liveServiceAvailable}
+          usageActionDisabledReason={
+            liveServiceAvailable
+              ? "This published service now has a dedicated live runner above. Use that flow so the output, wallet charge, and usage record stay aligned."
+              : undefined
+          }
           disabled={businessFrozen || !service}
           disabledReason={
             businessFrozen

@@ -27,6 +27,7 @@ import {
 import { mockSessionCookieName, resolveMockSession } from "@/modules/core/session/mock-session";
 import {
   buildUsageSettlementSnapshot,
+  resolveEffectiveUsageChargeLeaves,
   resolveServicePricing,
 } from "@/modules/core/services/service-pricing";
 import { resolveCreditsTopUpPackage } from "@/modules/core/payments/payment-runtime";
@@ -56,6 +57,10 @@ export async function POST(request: Request) {
     businessId?: string;
     serviceId?: string;
     packageId?: string;
+    providerCostCents?: number;
+    infraBufferCents?: number;
+    platformMarkupRate?: number;
+    minimumChargeLeaves?: number;
   };
   const requestedAction = requestBody.action;
 
@@ -136,12 +141,26 @@ export async function POST(request: Request) {
           createdBusiness,
           workspaceServices,
         }));
-      resolvedUsagePriceCredits = resolveServicePricing({
-        pricePerUse: resolvedService?.pricePerUse,
-        pricingType: resolvedService?.pricingType,
-        pricingUnit: resolvedService?.pricingUnit,
-        pricingModel: resolvedService?.pricingModel,
-      }).pricePerUseCredits;
+      resolvedUsagePriceCredits = resolveEffectiveUsageChargeLeaves(
+        {
+          pricePerUse: resolvedService?.pricePerUse,
+          pricingType: resolvedService?.pricingType,
+          pricingUnit: resolvedService?.pricingUnit,
+          pricingModel: resolvedService?.pricingModel,
+        },
+        resolveServicePricing({
+          pricePerUse: resolvedService?.pricePerUse,
+          pricingType: resolvedService?.pricingType,
+          pricingUnit: resolvedService?.pricingUnit,
+          pricingModel: resolvedService?.pricingModel,
+        }).pricePerUseCredits ?? 40,
+        {
+          providerCostCents: requestBody.providerCostCents,
+          infraBufferCents: requestBody.infraBufferCents,
+          platformMarkupRate: requestBody.platformMarkupRate,
+          minimumChargeLeaves: requestBody.minimumChargeLeaves,
+        },
+      );
     }
   }
 
@@ -169,6 +188,12 @@ export async function POST(request: Request) {
         pricingModel: resolvedService.pricingModel,
       },
       requiredCredits,
+      {
+        providerCostCents: requestBody.providerCostCents,
+        infraBufferCents: requestBody.infraBufferCents,
+        platformMarkupRate: requestBody.platformMarkupRate,
+        minimumChargeLeaves: requestBody.minimumChargeLeaves,
+      },
     );
   }
 

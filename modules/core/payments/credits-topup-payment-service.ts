@@ -8,8 +8,8 @@ import {
 } from "@/modules/core/credits/mock-credits";
 import { formatCredits } from "@/modules/core/mock-data";
 import {
+  findCreditsTopUpPackage,
   formatCurrencyAmount,
-  resolveCreditsTopUpPackage,
 } from "@/modules/core/payments/payment-runtime";
 import { createPrismaCreditsTopUpPaymentRepo } from "@/modules/core/repos/prisma-credits-topup-payment-repo";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
@@ -161,13 +161,14 @@ export async function settleCreditsTopUpPaymentFromCheckoutSession(
     };
   }
 
+  const selectedPackage = resolveAndValidateSettledTopUpPackage(session);
   const payment = await repo.markSettled({
     providerSessionId: session.id,
     providerPaymentIntentId: paymentIntentId,
     userId: session.metadata?.edenUserId ?? null,
-    creditsAmount: getCreditsAmountFromSession(session),
-    amountCents: getAmountCentsFromSession(session),
-    currency: getCurrencyFromSession(session),
+    creditsAmount: selectedPackage.creditsAmount,
+    amountCents: selectedPackage.amountCents,
+    currency: selectedPackage.currency,
     settledAt: new Date(),
   });
 
@@ -227,31 +228,38 @@ async function loadCreditsTopUpPaymentBySessionId(providerSessionId: string) {
   }
 }
 
-function getCreditsAmountFromSession(session: Stripe.Checkout.Session) {
-  const topUpPackage = resolveCreditsTopUpPackage(session.metadata?.edenTopUpPackageId);
+function resolveAndValidateSettledTopUpPackage(session: Stripe.Checkout.Session) {
+  const packageId = session.metadata?.edenTopUpPackageId ?? null;
+  const selectedPackage = findCreditsTopUpPackage(packageId);
+
+  if (!selectedPackage) {
+    throw new Error("Stripe Checkout session does not reference a valid Eden Leaves package.");
+  }
+
   const rawCredits = session.metadata?.edenTopUpCredits;
   const parsedCredits = rawCredits ? Number.parseInt(rawCredits, 10) : NaN;
 
-  if (Number.isFinite(parsedCredits) && parsedCredits > 0) {
-    return parsedCredits;
+  if (Number.isFinite(parsedCredits) && parsedCredits !== selectedPackage.creditsAmount) {
+    throw new Error("Stripe Checkout metadata credits do not match the selected Eden Leaves package.");
   }
 
-  return topUpPackage.creditsAmount;
-}
-
-function getAmountCentsFromSession(session: Stripe.Checkout.Session) {
-  if (typeof session.amount_total === "number" && session.amount_total > 0) {
-    return session.amount_total;
+  if (
+    typeof session.amount_total === "number" &&
+    session.amount_total > 0 &&
+    session.amount_total !== selectedPackage.amountCents
+  ) {
+    throw new Error("Stripe Checkout amount does not match the selected Eden Leaves package.");
   }
 
-  return resolveCreditsTopUpPackage(session.metadata?.edenTopUpPackageId).amountCents;
-}
+  if (
+    typeof session.currency === "string" &&
+    session.currency.trim().length > 0 &&
+    session.currency.toLowerCase() !== selectedPackage.currency
+  ) {
+    throw new Error("Stripe Checkout currency does not match the selected Eden Leaves package.");
+  }
 
-function getCurrencyFromSession(session: Stripe.Checkout.Session) {
-  return (
-    session.currency?.toLowerCase() ??
-    resolveCreditsTopUpPackage(session.metadata?.edenTopUpPackageId).currency
-  );
+  return selectedPackage;
 }
 
 function getProviderLabel(provider: string) {

@@ -80,6 +80,7 @@ export const config = {
     "/owner/:path*",
     "/api/credits/top-up/checkout",
     "/api/credits/top-up/confirm",
+    "/api/services/execute",
     "/api/mock-transactions",
     "/api/mock-business",
     "/api/mock-services",

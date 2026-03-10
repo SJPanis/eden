@@ -6,6 +6,7 @@ export type EdenCreditsTopUpMode = "mock_only" | "hybrid" | "payment_only";
 
 export type EdenCreditsTopUpPackage = {
   id: string;
+  packLabel: string;
   creditsAmount: number;
   amountCents: number;
   currency: string;
@@ -13,6 +14,7 @@ export type EdenCreditsTopUpPackage = {
   title: string;
   detail: string;
   chargeLabel: string;
+  leavesPerDollar: number;
 };
 
 const supportedCreditsTopUpModes = new Set<EdenCreditsTopUpMode>([
@@ -24,6 +26,7 @@ const supportedCreditsTopUpModes = new Set<EdenCreditsTopUpMode>([
 const baseCreditsTopUpPackages = [
   {
     id: "credits-250",
+    packLabel: "Starter",
     creditsAmount: 250,
     amountCents: 1000,
     title: "250 Leaves",
@@ -31,6 +34,7 @@ const baseCreditsTopUpPackages = [
   },
   {
     id: "credits-1000",
+    packLabel: "Balanced",
     creditsAmount: 1000,
     amountCents: 3500,
     title: "1000 Leaves",
@@ -38,6 +42,7 @@ const baseCreditsTopUpPackages = [
   },
   {
     id: "credits-2500",
+    packLabel: "High Balance",
     creditsAmount: 2500,
     amountCents: 8000,
     title: "2500 Leaves",
@@ -83,6 +88,7 @@ export function getCreditsTopUpPackages(): EdenCreditsTopUpPackage[] {
     currency,
     providerLabel: "Stripe Checkout",
     chargeLabel: `${formatCurrencyAmount(pkg.amountCents, currency)} for ${formatLeaves(pkg.creditsAmount)}`,
+    leavesPerDollar: pkg.creditsAmount / (pkg.amountCents / 100),
   }));
 }
 
@@ -90,18 +96,35 @@ export function getDefaultCreditsTopUpPackage() {
   return getCreditsTopUpPackages()[0];
 }
 
-export function resolveCreditsTopUpPackage(packageId?: string | null) {
-  const packages = getCreditsTopUpPackages();
-
+export function findCreditsTopUpPackage(packageId?: string | null) {
   if (!packageId) {
-    return packages[0];
+    return null;
   }
 
-  return packages.find((pkg) => pkg.id === packageId) ?? packages[0];
+  return getCreditsTopUpPackages().find((pkg) => pkg.id === packageId) ?? null;
+}
+
+export function resolveCreditsTopUpPackage(packageId?: string | null) {
+  return findCreditsTopUpPackage(packageId) ?? getDefaultCreditsTopUpPackage();
 }
 
 export function formatCreditsTopUpChargeLabel(packageId?: string | null) {
   return resolveCreditsTopUpPackage(packageId).chargeLabel;
+}
+
+export function getCreditsTopUpAnchorPackage() {
+  return getDefaultCreditsTopUpPackage();
+}
+
+export function convertAnchorPackCentsToLeaves(amountCents: number) {
+  const anchorPackage = getCreditsTopUpAnchorPackage();
+  const centsPerLeaf = anchorPackage.amountCents / anchorPackage.creditsAmount;
+
+  if (!Number.isFinite(amountCents) || amountCents <= 0 || !Number.isFinite(centsPerLeaf)) {
+    return 0;
+  }
+
+  return Math.max(1, Math.ceil(amountCents / centsPerLeaf));
 }
 
 export function formatCurrencyAmount(amountCents: number, currency: string) {

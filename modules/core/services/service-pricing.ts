@@ -1,14 +1,23 @@
 import { formatDisplayPricingUnit } from "@/modules/core/credits/eden-currency";
+import { convertAnchorPackCentsToLeaves } from "@/modules/core/payments/payment-runtime";
 
 export const edenPlatformFeeRate = 0.15;
 export const defaultServicePricingType = "per_use";
 export const defaultServicePricingUnit = "credits";
+export const defaultUsageMeteringMarkupRate = 0.35;
 
 export type EdenServicePricingInput = {
   pricePerUse?: number | string | null;
   pricingType?: string | null;
   pricingUnit?: string | null;
   pricingModel?: string | null;
+};
+
+export type EdenUsageMeteringInput = {
+  providerCostCents?: number | null;
+  infraBufferCents?: number | null;
+  platformMarkupRate?: number | null;
+  minimumChargeLeaves?: number | null;
 };
 
 export type EdenResolvedServicePricing = {
@@ -89,6 +98,49 @@ export function resolveUsageGrossCredits(
   return resolveServicePricing(pricing).pricePerUseCredits ?? fallbackCreditsUsed;
 }
 
+export function resolveMeteredUsageChargeLeaves(
+  metering: EdenUsageMeteringInput = {},
+) {
+  const providerCostCents = normalizePositiveWholeNumber(metering.providerCostCents);
+  const infraBufferCents = normalizePositiveWholeNumber(metering.infraBufferCents);
+  const minimumChargeLeaves = normalizePositiveWholeNumber(
+    metering.minimumChargeLeaves,
+  );
+  const markupRate =
+    typeof metering.platformMarkupRate === "number" &&
+    Number.isFinite(metering.platformMarkupRate) &&
+    metering.platformMarkupRate >= 0
+      ? metering.platformMarkupRate
+      : defaultUsageMeteringMarkupRate;
+  const baseCostCents = providerCostCents + infraBufferCents;
+
+  if (baseCostCents <= 0 && minimumChargeLeaves <= 0) {
+    return null;
+  }
+
+  const meteredChargeLeaves =
+    baseCostCents > 0
+      ? convertAnchorPackCentsToLeaves(Math.ceil(baseCostCents * (1 + markupRate)))
+      : 0;
+
+  return Math.max(meteredChargeLeaves, minimumChargeLeaves);
+}
+
+export function resolveEffectiveUsageChargeLeaves(
+  pricing: EdenServicePricingInput,
+  fallbackCreditsUsed: number,
+  metering: EdenUsageMeteringInput = {},
+) {
+  const resolvedPrice = resolveUsageGrossCredits(pricing, fallbackCreditsUsed);
+  const meteredChargeLeaves = resolveMeteredUsageChargeLeaves(metering);
+
+  if (meteredChargeLeaves === null) {
+    return resolvedPrice;
+  }
+
+  return Math.max(resolvedPrice, meteredChargeLeaves);
+}
+
 export function formatServicePricingUnitLabel(pricingUnit?: string | null) {
   return formatDisplayPricingUnit(pricingUnit);
 }
@@ -113,8 +165,13 @@ export function calculateBuilderEarningsCredits(
 export function buildUsageSettlementSnapshot(
   pricing: EdenServicePricingInput,
   fallbackCreditsUsed: number,
+  metering: EdenUsageMeteringInput = {},
 ) {
-  const grossCredits = resolveUsageGrossCredits(pricing, fallbackCreditsUsed);
+  const grossCredits = resolveEffectiveUsageChargeLeaves(
+    pricing,
+    fallbackCreditsUsed,
+    metering,
+  );
   const platformFeeCredits = calculatePlatformFeeCredits(grossCredits, edenPlatformFeeRate);
 
   return {
@@ -125,6 +182,14 @@ export function buildUsageSettlementSnapshot(
       edenPlatformFeeRate,
     ),
   };
+}
+
+function normalizePositiveWholeNumber(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return 0;
+  }
+
+  return Math.round(value);
 }
 
 

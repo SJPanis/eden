@@ -55,13 +55,15 @@ type ServiceUsagePanelProps = {
   pricingModel?: string | null;
   disabled?: boolean;
   disabledReason?: string;
+  usageActionDisabled?: boolean;
+  usageActionDisabledReason?: string;
   availabilityLabel?: string;
   availabilityDetail?: string;
 };
 
 type MockUsageResponse = {
   ok?: boolean;
-  action?: "add_credits" | "simulate_service_usage";
+  action?: "simulate_service_usage";
   transactionTitle?: string;
   transactionTimestamp?: string;
   amountLabel?: string;
@@ -100,6 +102,8 @@ export function ServiceUsagePanel({
   pricingModel,
   disabled = false,
   disabledReason,
+  usageActionDisabled = false,
+  usageActionDisabledReason,
   availabilityLabel,
   availabilityDetail,
 }: ServiceUsagePanelProps) {
@@ -108,7 +112,7 @@ export function ServiceUsagePanel({
   const searchParams = useSearchParams();
   const [statusMessage, setStatusMessage] = useState<EdenTopUpStatusMessage | null>(null);
   const [activity, setActivity] = useState<ActivityState | null>(null);
-  const [activeAction, setActiveAction] = useState<"usage" | "topup" | "payment_topup" | null>(null);
+  const [activeAction, setActiveAction] = useState<"usage" | "payment_topup" | null>(null);
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
   const [isPending, startTransition] = useTransition();
   const topUpConfig = useMemo(() => getCreditsTopUpClientConfig(), []);
@@ -199,6 +203,15 @@ export function ServiceUsagePanel({
           "This service cannot be run from the current route state.",
         cue: "Review availability first",
       }
+    : usageActionDisabled
+      ? {
+          toneClass: "border-sky-200 bg-sky-50",
+          title: "Use the live runner above",
+          detail:
+            usageActionDisabledReason ??
+            "This published service now has a dedicated paid execution panel above so output and accounting stay in one flow.",
+          cue: "Run through the live execution panel",
+        }
     : hasSufficientBalance
       ? {
           toneClass: "border-emerald-200 bg-emerald-50",
@@ -397,74 +410,6 @@ export function ServiceUsagePanel({
     }
   }
 
-  async function handleAddCredits() {
-    if (activeAction || isPending) {
-      return;
-    }
-
-    setActiveAction("topup");
-    setStatusMessage(null);
-
-    try {
-      const response = await fetch("/api/mock-transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "add_credits",
-          packageId: selectedPackageId,
-        }),
-      });
-      const payload = (await response.json().catch(() => ({}))) as MockUsageResponse;
-
-      if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Unable to add mocked Eden Leaves.");
-      }
-
-      const addedCredits =
-        typeof payload.creditsDelta === "number"
-          ? Math.abs(payload.creditsDelta)
-          : typeof payload.creditsUsed === "number"
-            ? payload.creditsUsed
-            : 250;
-      const previousBalanceCredits =
-        typeof payload.previousBalanceCredits === "number"
-          ? payload.previousBalanceCredits
-          : displayBalanceCredits;
-      const nextBalanceCredits =
-        typeof payload.nextBalanceCredits === "number"
-          ? payload.nextBalanceCredits
-          : previousBalanceCredits + addedCredits;
-
-      setActivity({
-        kind: "topup",
-        amountCredits: addedCredits,
-        amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `+${addedCredits} Leaves`),
-        previousBalanceCredits,
-        nextBalanceCredits,
-        title: payload.transactionTitle ?? `Wallet Leaves top-up (${selectedPackage.title})`,
-        timestamp: payload.transactionTimestamp ?? "Just now",
-        detail: `Mock Eden Leaves top-up posted to the active wallet for ${selectedPackage.title}.`,
-        source: "mock",
-      });
-      startTransition(() => {
-        router.refresh();
-      });
-    } catch (requestError) {
-      setStatusMessage({
-        tone: "danger",
-        title: "Top-up not recorded",
-        detail:
-          requestError instanceof Error
-            ? requestError.message
-            : "Unable to add mocked Eden Leaves.",
-      });
-    } finally {
-      setActiveAction(null);
-    }
-  }
-
   async function handleStartPaymentTopUp() {
     if (activeAction || isPending) {
       return;
@@ -512,10 +457,21 @@ export function ServiceUsagePanel({
           <button
             type="button"
             onClick={handleUseService}
-            disabled={!serviceId || disabled || !!activeAction || isPending || !hasSufficientBalance}
+            disabled={
+              !serviceId ||
+              disabled ||
+              usageActionDisabled ||
+              !!activeAction ||
+              isPending ||
+              !hasSufficientBalance
+            }
             className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
           >
-            {activeAction === "usage" ? "Recording Usage..." : actionLabel}
+            {usageActionDisabled
+              ? "Use Live Runner Above"
+              : activeAction === "usage"
+                ? "Recording Usage..."
+                : actionLabel}
           </button>
           {topUpConfig.paymentEnabled ? (
             <button
@@ -527,20 +483,6 @@ export function ServiceUsagePanel({
               {activeAction === "payment_topup"
                 ? "Opening Checkout..."
                 : getCreditsTopUpActionLabel(selectedPackageId, "payment")}
-            </button>
-          ) : null}
-          {topUpConfig.mockEnabled ? (
-            <button
-              type="button"
-              onClick={handleAddCredits}
-              disabled={!!activeAction || isPending}
-              className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm font-semibold text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {activeAction === "topup"
-                ? "Adding Leaves..."
-                : topUpConfig.paymentEnabled
-                  ? `${getCreditsTopUpActionLabel(selectedPackageId, "mock")} (Mock)`
-                  : getCreditsTopUpActionLabel(selectedPackageId, "mock")}
             </button>
           ) : null}
         </div>
@@ -691,7 +633,7 @@ export function ServiceUsagePanel({
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
           ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Leaves first, and Stripe top-ups only add Leaves after webhook settlement confirms the purchase.`
-          : "No real payment is charged during service use. Eden only records a wallet event plus a persistent service-usage event for analytics."}
+          : "Stripe Checkout is not available in this environment, so Leaves cannot be purchased from this service route."}
       </div>
 
       {!hasSufficientBalance ? (
@@ -706,6 +648,12 @@ export function ServiceUsagePanel({
         </div>
       ) : null}
 
+      {usageActionDisabledReason && !disabled ? (
+        <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
+          {usageActionDisabledReason}
+        </div>
+      ) : null}
+
       {activity ? (
         <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-700">
           <div className="flex items-start justify-between gap-3">
@@ -717,7 +665,7 @@ export function ServiceUsagePanel({
                 ? "Service charge"
                 : activity.source === "payment"
                   ? "Payment-backed top-up"
-                  : "Mock top-up"}
+                  : "Top-up"}
             </span>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">

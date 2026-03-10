@@ -21,7 +21,9 @@ import {
   resolveUsageGrossCredits,
 } from "@/modules/core/services/service-pricing";
 
-export type EdenServiceUsageType = "simulate_service_usage";
+export type EdenServiceUsageType =
+  | "simulate_service_usage"
+  | "live_service_execution";
 export type EdenServiceUsageSource = "persistent" | "mock_fallback";
 
 export type EdenUsageMonetizationProjection = {

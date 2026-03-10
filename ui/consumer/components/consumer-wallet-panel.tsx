@@ -41,17 +41,6 @@ type ConsumerWalletPanelProps = {
   recentTransactions: EdenConsumerTransactionHistoryItem[];
 };
 
-type MockTopUpResponse = {
-  ok?: boolean;
-  transactionTitle?: string;
-  transactionTimestamp?: string;
-  amountLabel?: string;
-  creditsDelta?: number;
-  previousBalanceCredits?: number;
-  nextBalanceCredits?: number;
-  error?: string;
-};
-
 export function ConsumerWalletPanel({
   currentBalanceCredits,
   recentTransactions,
@@ -62,7 +51,7 @@ export function ConsumerWalletPanel({
   const [receipt, setReceipt] = useState<EdenWalletTopUpReceipt | null>(null);
   const [statusMessage, setStatusMessage] = useState<EdenTopUpStatusMessage | null>(null);
   const [activityFilter, setActivityFilter] = useState<WalletActivityFilter>("all");
-  const [activeTopUpAction, setActiveTopUpAction] = useState<"mock" | "payment" | null>(null);
+  const [activeTopUpAction, setActiveTopUpAction] = useState<"payment" | null>(null);
   const [isPending, startTransition] = useTransition();
   const topUpConfig = useMemo(() => getCreditsTopUpClientConfig(), []);
   const [selectedPackageId, setSelectedPackageId] = useState(
@@ -189,68 +178,6 @@ export function ConsumerWalletPanel({
     selectedPackageId,
   ]);
 
-  async function handleAddMockCredits() {
-    if (isPending || activeTopUpAction) {
-      return;
-    }
-
-    setActiveTopUpAction("mock");
-    setStatusMessage(null);
-
-    try {
-      const response = await fetch("/api/mock-transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "add_credits",
-          packageId: selectedPackageId,
-        }),
-      });
-      const payload = (await response.json().catch(() => ({}))) as MockTopUpResponse;
-
-      if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Unable to add mocked Eden Leaves.");
-      }
-
-      const addedCredits =
-        typeof payload.creditsDelta === "number" ? Math.abs(payload.creditsDelta) : 250;
-      const previousBalanceCredits =
-        typeof payload.previousBalanceCredits === "number"
-          ? payload.previousBalanceCredits
-          : displayBalanceCredits;
-      const nextBalanceCredits =
-        typeof payload.nextBalanceCredits === "number"
-          ? payload.nextBalanceCredits
-          : previousBalanceCredits + addedCredits;
-
-      setReceipt({
-        amountCredits: addedCredits,
-        amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `+${addedCredits} Leaves`),
-        previousBalanceCredits,
-        nextBalanceCredits,
-        title: payload.transactionTitle ?? `Wallet Leaves top-up (${selectedPackage.title})`,
-        timestamp: payload.transactionTimestamp ?? "Just now",
-        detail: `Mock top-up recorded through the Eden Leaves transaction flow for ${selectedPackage.title}.`,
-        source: "mock",
-      });
-
-      startTransition(() => {
-        router.refresh();
-      });
-    } catch (requestError) {
-      setStatusMessage({
-        tone: "danger",
-        title: "Top-up not recorded",
-        detail:
-          requestError instanceof Error ? requestError.message : "Unable to add mocked Eden Leaves.",
-      });
-    } finally {
-      setActiveTopUpAction(null);
-    }
-  }
-
   async function handleStartPaymentTopUp() {
     if (isPending || activeTopUpAction) {
       return;
@@ -307,20 +234,6 @@ export function ConsumerWalletPanel({
                 : getCreditsTopUpActionLabel(selectedPackageId, "payment")}
             </button>
           ) : null}
-          {topUpConfig.mockEnabled ? (
-            <button
-              type="button"
-              onClick={handleAddMockCredits}
-              disabled={isPending || !!activeTopUpAction}
-              className="inline-flex min-w-[190px] items-center justify-center rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm font-semibold text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
-            >
-              {activeTopUpAction === "mock"
-                ? "Adding Leaves..."
-                : topUpConfig.paymentEnabled
-                  ? `${getCreditsTopUpActionLabel(selectedPackageId, "mock")} (Mock)`
-                  : getCreditsTopUpActionLabel(selectedPackageId, "mock")}
-            </button>
-          ) : null}
         </div>
       </div>
 
@@ -355,7 +268,7 @@ export function ConsumerWalletPanel({
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
               <p className="text-sm font-semibold text-eden-ink">2. Add Leaves</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Use checkout or mock top-up. Leaves appear only after the settlement flow completes.
+                Continue to checkout for the selected pack. Leaves appear only after the settlement flow completes.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -416,7 +329,7 @@ export function ConsumerWalletPanel({
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
           ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time Leaves purchase here, and Leaves are added only after webhook settlement.`
-          : "No external payments are connected yet. This wallet surface records internal mock Leaves events only."}
+          : "Stripe Checkout is not available in this environment, so Leaves cannot be purchased from this wallet surface."}
       </div>
 
       {receipt ? (
@@ -426,7 +339,7 @@ export function ConsumerWalletPanel({
               Latest Wallet Receipt
             </p>
             <span className="rounded-full border border-emerald-200 bg-white/82 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
-              {receipt.source === "payment" ? "Payment-backed" : "Mock top-up"}
+              {receipt.source === "payment" ? "Payment-backed" : "Top-up"}
             </span>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">

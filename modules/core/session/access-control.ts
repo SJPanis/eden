@@ -18,6 +18,7 @@ const protectedPageRoutePrefixes: Array<{ prefix: string; role: EdenRole }> = [
 const protectedApiRoutePrefixes: Array<{ prefix: string; role: EdenRole }> = [
   { prefix: "/api/credits/top-up/checkout", role: "consumer" },
   { prefix: "/api/credits/top-up/confirm", role: "consumer" },
+  { prefix: "/api/services/execute", role: "consumer" },
   { prefix: "/api/mock-transactions", role: "consumer" },
   { prefix: "/api/mock-business", role: "business" },
   { prefix: "/api/mock-services", role: "business" },

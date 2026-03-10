@@ -42,13 +42,14 @@ export function CreditsTopUpPackageSelector({
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {packages.map((pkg, index) => {
+        {packages.map((pkg) => {
           const isSelected = pkg.id === selectedPackageId;
-          const creditsPerDollar = Math.round(pkg.creditsAmount / (pkg.amountCents / 100));
+          const creditsPerDollar = pkg.leavesPerDollar.toFixed(
+            Number.isInteger(pkg.leavesPerDollar) ? 0 : 1,
+          );
           const isBestValue = pkg.id === bestValuePackageId;
           const isRecommended = pkg.id === recommendedPackageId;
-          const packageLabel =
-            index === 0 ? "Starter" : index === packages.length - 1 ? "High balance" : "Balanced";
+          const packageLabel = pkg.packLabel;
 
           return (
             <button
