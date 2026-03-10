@@ -56,12 +56,14 @@ import {
 } from "@/ui/consumer/components/service-affordability-shared";
 import { BusinessAiAssistantPanel } from "@/ui/business/components/business-ai-assistant-panel";
 import { MockServiceBuilder } from "@/ui/business/components/mock-service-builder";
+import { ProjectBlueprintPanel } from "@/ui/business/components/project-blueprint-panel";
 import {
   createEmptyServiceDraftFormValues,
   parseServiceDraftTags,
   type ServiceDraftFormValues,
 } from "@/ui/business/components/service-draft-shared";
 import { WorkspaceSection } from "@/ui/business/components/workspace-section";
+import type { EdenProjectBlueprintRecord } from "@/modules/core/projects/project-blueprint-shared";
 
 type WorkspaceMetric = {
   label: string;
@@ -198,6 +200,7 @@ type BusinessDashboardPanelProps = {
   workspaceServices?: EdenMockWorkspaceServiceState[];
   usageMetrics: BusinessUsageMetrics;
   payoutAccounting: EdenBusinessPayoutAccountingSummary;
+  projectBlueprints: EdenProjectBlueprintRecord[];
 };
 
 const workspaceNav = [
@@ -389,6 +392,7 @@ export function BusinessDashboardPanel({
   workspaceServices = [],
   usageMetrics,
   payoutAccounting,
+  projectBlueprints,
 }: BusinessDashboardPanelProps) {
   const [releaseEventFilter, setReleaseEventFilter] = useState<ReleaseEventFilter>("all");
   const projects = getProjectsByBusinessId(activeBusinessId, createdBusiness, workspaceServices);
@@ -1269,7 +1273,7 @@ export function BusinessDashboardPanel({
             id="projects"
             eyebrow="Projects"
             title="Ideas and active builds"
-            description="Track the business concepts currently in motion, from early ideas to active test-ready builds."
+            description="Track the business concepts currently in motion, from early ideas to active test-ready builds, persistent project blueprints, and the first agent tree foundation."
             actions={
               <button
                 type="button"
@@ -1349,6 +1353,12 @@ export function BusinessDashboardPanel({
                 </motion.article>
               ))}
             </motion.div>
+            <ProjectBlueprintPanel
+              businessId={activeBusinessId}
+              businessName={businessProfile?.name ?? "Active business"}
+              initialProjects={projectBlueprints}
+              availableForInternalUseCredits={payoutAccounting.availableForInternalUseCredits}
+            />
           </WorkspaceSection>
         </motion.div>
 

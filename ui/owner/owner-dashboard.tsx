@@ -17,6 +17,7 @@ import {
 } from "@/modules/core/credits/mock-credits";
 import { EdenBrandLockup } from "@/modules/core/components/eden-brand-lockup";
 import { MockResetControls } from "@/modules/core/components/mock-reset-controls";
+import { OwnerLeavesGrantButton } from "@/modules/core/components/owner-leaves-grant-button";
 import { MockTransactionControls } from "@/modules/core/credits/mock-transaction-controls";
 import {
   edenEarnedLeavesLabel,
@@ -418,7 +419,6 @@ export function OwnerDashboardPanel({
   adminState,
   simulationBusinessId,
   workspaceServices = [],
-  watchedUsers,
   watchedBusinesses,
   watchedServices,
   userCatalog,
@@ -430,7 +430,7 @@ export function OwnerDashboardPanel({
 }: OwnerDashboardPanelProps) {
   const [paymentFilter, setPaymentFilter] = useState<OwnerPaymentFilter>("all");
   const [payoutFilter, setPayoutFilter] = useState<OwnerPayoutFilter>("all");
-  const users = watchedUsers;
+  const users = userCatalog;
   const businesses = watchedBusinesses;
   const baseServices = watchedServices;
   const userLookup = new Map(userCatalog.map((user) => [user.id, user]));
@@ -1207,6 +1207,14 @@ export function OwnerDashboardPanel({
                                 ? "w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
                                 : "w-full border-rose-200 bg-rose-50 hover:border-rose-300 hover:bg-rose-100"
                             }
+                          />
+                        </div>
+                        <div className="mt-3">
+                          <OwnerLeavesGrantButton
+                            userId={user.id}
+                            username={user.username}
+                            amountCredits={250}
+                            className="w-full border-sky-200 bg-sky-50 hover:border-sky-300 hover:bg-sky-100"
                           />
                         </div>
                       </>

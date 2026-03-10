@@ -14,6 +14,7 @@ import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
 import {
   buildBusinessPayoutAccountingSummary,
+  loadBusinessProjectBlueprints,
   loadBusinessServiceUsageMetrics,
   loadBusinessWorkspaceOverview,
   loadDiscoverySnapshot,
@@ -50,7 +51,7 @@ export default async function BusinessPage() {
     return <BusinessWorkspaceStarterPanel session={session} />;
   }
 
-  const [discoverySnapshot, workspaceOverview, usageMetrics] = await Promise.all([
+  const [discoverySnapshot, workspaceOverview, usageMetrics, projectBlueprints] = await Promise.all([
     loadDiscoverySnapshot({
       pipelineRecords,
       createdBusiness,
@@ -66,6 +67,7 @@ export default async function BusinessPage() {
       createdBusiness,
       workspaceServices,
     }),
+    loadBusinessProjectBlueprints(activeBusinessId),
   ]);
   const payoutAccounting = await buildBusinessPayoutAccountingSummary(usageMetrics, {
     createdBusiness,
@@ -91,6 +93,7 @@ export default async function BusinessPage() {
       assistantHistory={scopedAssistantHistory}
       usageMetrics={usageMetrics}
       payoutAccounting={payoutAccounting}
+      projectBlueprints={projectBlueprints}
     />
   );
 }

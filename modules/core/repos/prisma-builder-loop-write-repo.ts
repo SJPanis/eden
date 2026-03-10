@@ -213,6 +213,19 @@ export function createPrismaBuilderLoopWriteRepo(
 }
 
 async function upsertShadowOwnerUser(prisma: EdenPrismaClient, userId: string) {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (existingUser) {
+    return;
+  }
+
   const mockUser = getUserById(userId);
 
   if (!mockUser) {
