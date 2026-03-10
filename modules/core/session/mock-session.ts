@@ -60,8 +60,8 @@ export const defaultRouteByRole: Record<EdenRole, string> = {
 };
 
 export const layerAccessRules: Record<EdenRole, EdenRole[] | null> = {
-  consumer: ["consumer"],
-  business: ["business"],
+  consumer: ["consumer", "owner"],
+  business: ["business", "owner"],
   owner: ["owner"],
 };
 

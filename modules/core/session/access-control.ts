@@ -91,6 +91,17 @@ export function parseAuthenticatedRoleClaim(value: unknown): EdenRole | null {
   return null;
 }
 
+export function canAccessProtectedRouteRole(
+  authenticatedRole: EdenRole,
+  requiredRole: EdenRole,
+) {
+  if (authenticatedRole === "owner") {
+    return true;
+  }
+
+  return authenticatedRole === requiredRole;
+}
+
 export function resolveConfiguredOwnerUsername(
   input = process.env.EDEN_OWNER_USERNAME ?? process.env.OWNER_USERNAME,
 ) {

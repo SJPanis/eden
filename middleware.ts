@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import {
   buildAuthSignInPath,
+  canAccessProtectedRouteRole,
   edenAuthJsPlatformRoleClaim,
   getCanonicalRouteForRole,
   parseAuthenticatedRoleClaim,
@@ -54,7 +55,7 @@ export async function middleware(request: NextRequest) {
         );
   }
 
-  if (authenticatedRole !== routeMatch.role) {
+  if (!canAccessProtectedRouteRole(authenticatedRole, routeMatch.role)) {
     const redirectPath = getCanonicalRouteForRole(authenticatedRole);
 
     return routeMatch.kind === "api"
