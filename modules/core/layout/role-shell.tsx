@@ -66,6 +66,9 @@ export function RoleShell({
   const activeBusinessFrozen =
     activeBusinessId && adminState ? isBusinessFrozen(activeBusinessId, adminState) : false;
   const showMockSessionSwitcher = session.auth.source === "mock";
+  const visibleTopNavItems = topNavItems.filter(
+    (item) => item.href !== "/owner" || session.role === "owner",
+  );
 
   function handleSignOut() {
     startSignOutTransition(() => {
@@ -105,7 +108,7 @@ export function RoleShell({
           </Link>
 
           <nav className="flex flex-wrap gap-2">
-            {topNavItems.map((item) => {
+            {visibleTopNavItems.map((item) => {
               const isConsumerDetailRoute =
                 item.href === "/consumer" &&
                 (pathname === "/consumer" ||

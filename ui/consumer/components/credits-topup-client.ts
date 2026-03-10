@@ -8,7 +8,6 @@ import {
   formatCreditsTopUpChargeLabel,
   getCreditsTopUpPackages,
   isMockCreditsTopUpEnabled,
-  isPaymentBackedCreditsTopUpEnabled,
   resolveCreditsTopUpPackage,
   resolveCreditsTopUpMode,
   type EdenCreditsTopUpMode,
@@ -80,7 +79,7 @@ export function getCreditsTopUpClientConfig() {
     defaultPackage,
     defaultPackageId: defaultPackage?.id ?? null,
     mockEnabled: isMockCreditsTopUpEnabled(mode),
-    paymentEnabled: isPaymentBackedCreditsTopUpEnabled(mode),
+    paymentEnabled: packages.length > 0,
   };
 }
 
