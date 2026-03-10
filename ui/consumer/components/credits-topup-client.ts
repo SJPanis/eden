@@ -204,7 +204,7 @@ export function getCreditsTopUpActionLabel(
   const selectedPackage = resolveCreditsTopUpPackage(packageId);
 
   return action === "payment"
-    ? `Continue to Checkout for ${formatLeaves(selectedPackage.creditsAmount)}`
+    ? `Continue to Checkout - ${selectedPackage.packLabel} Pack`
     : `Add ${formatLeaves(selectedPackage.creditsAmount)}`;
 }
 

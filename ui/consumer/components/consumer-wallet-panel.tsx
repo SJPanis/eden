@@ -67,6 +67,7 @@ export function ConsumerWalletPanel({
   );
 
   const displayBalanceCredits = receipt?.nextBalanceCredits ?? currentBalanceCredits;
+  const hasSelectedPackage = selectedPackageId.trim().length > 0;
   const selectedPackage = useMemo(
     () => getCreditsTopUpPackageById(selectedPackageId),
     [selectedPackageId],
@@ -221,20 +222,7 @@ export function ConsumerWalletPanel({
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          {topUpConfig.paymentEnabled ? (
-            <button
-              type="button"
-              onClick={handleStartPaymentTopUp}
-              disabled={isPending || !!activeTopUpAction}
-              className="inline-flex min-w-[210px] items-center justify-center rounded-2xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
-            >
-              {activeTopUpAction === "payment"
-                ? "Opening Checkout..."
-                : getCreditsTopUpActionLabel(selectedPackageId, "payment")}
-            </button>
-          ) : null}
-        </div>
+        <div className="flex flex-col gap-3 sm:flex-row" />
       </div>
 
       <CreditsTopUpPackageSelector
@@ -242,6 +230,38 @@ export function ConsumerWalletPanel({
         selectedPackageId={selectedPackageId}
         onSelect={setSelectedPackageId}
       />
+
+      <div className="mt-4 rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.42),rgba(255,255,255,0.98))] p-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+              Checkout action
+            </p>
+            <p className="mt-2 text-sm font-semibold text-eden-ink">
+              {selectedPackage.packLabel} Pack selected
+            </p>
+            <p className="mt-1 text-sm text-eden-muted">
+              {selectedPackage.chargeLabel}. Leaves are added only after Stripe webhook settlement confirms the purchase.
+            </p>
+          </div>
+          {topUpConfig.paymentEnabled ? (
+            <button
+              type="button"
+              onClick={handleStartPaymentTopUp}
+              disabled={!hasSelectedPackage || isPending || !!activeTopUpAction}
+              className="inline-flex min-w-[260px] items-center justify-center rounded-2xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
+            >
+              {activeTopUpAction === "payment"
+                ? "Opening Checkout..."
+                : getCreditsTopUpActionLabel(selectedPackageId, "payment")}
+            </button>
+          ) : (
+            <div className="rounded-2xl border border-eden-edge bg-white/88 px-4 py-3 text-sm text-eden-muted">
+              Stripe Checkout is unavailable in this environment.
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
