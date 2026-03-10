@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { EdenBrandLockup } from "@/modules/core/components/eden-brand-lockup";
 import { edenLaunchLabels } from "@/ui/consumer/components/service-affordability-shared";
 
@@ -48,7 +48,6 @@ const howEdenWorksSteps = [
 ];
 
 export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [mode, setMode] = useState<AuthMode>(
@@ -105,21 +104,43 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
   }
 
   async function handleSignIn() {
-    const response = await signIn("credentials", {
-      username,
-      password,
-      redirect: false,
-      callbackUrl,
-    });
+    try {
+      const response = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+        callbackUrl,
+      });
 
-    if (!response?.ok || response.error) {
-      setSubmitError("Invalid username or password.");
+      if (!response) {
+        setSubmitError("Eden could not complete sign-in. Please try again.");
+        setSuccessNote(null);
+        return;
+      }
+
+      if (response.error) {
+        setSubmitError(
+          response.error === "CredentialsSignin"
+            ? "Invalid username or password."
+            : "Eden could not complete sign-in. Please try again.",
+        );
+        setSuccessNote(null);
+        return;
+      }
+
+      if (!response.ok || !response.url) {
+        setSubmitError("Eden could not complete sign-in. Please try again.");
+        setSuccessNote(null);
+        return;
+      }
+
+      setSuccessNote("Sign-in succeeded. Redirecting to your Eden workspace.");
+      window.location.assign(response.url);
+    } catch (error) {
+      console.error("[eden-auth] credentials sign-in failed", error);
+      setSubmitError("Eden could not complete sign-in. Please try again.");
       setSuccessNote(null);
-      return;
     }
-
-    router.push(response.url ?? callbackUrl);
-    router.refresh();
   }
 
   return (
