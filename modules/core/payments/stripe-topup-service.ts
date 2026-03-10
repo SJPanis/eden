@@ -9,6 +9,7 @@ import {
 } from "@/modules/core/payments/credits-topup-payment-service";
 import { recordPaymentEventLog } from "@/modules/core/services/payment-event-log-service";
 import {
+  hasStripeTopUpRuntimeConfig,
   isPaymentBackedCreditsTopUpEnabled,
   resolveCreditsTopUpPackage,
   resolveCreditsTopUpMode,
@@ -212,6 +213,12 @@ function requireStripeClient() {
 function ensurePaymentBackedTopUpEnabled() {
   if (!isPaymentBackedCreditsTopUpEnabled()) {
     throw new Error("Payment-backed top-ups are disabled. Use mock top-ups or enable hybrid/payment mode.");
+  }
+
+  if (!hasStripeTopUpRuntimeConfig()) {
+    throw new Error(
+      "Stripe Checkout is not fully configured. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to enable real Leaves top-ups.",
+    );
   }
 }
 

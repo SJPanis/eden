@@ -55,11 +55,22 @@ function getRuntimeValue(name: string) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
+export function hasStripeTopUpRuntimeConfig() {
+  return Boolean(
+    getRuntimeValue("STRIPE_SECRET_KEY") &&
+      getRuntimeValue("STRIPE_WEBHOOK_SECRET"),
+  );
+}
+
 export function resolveCreditsTopUpMode(): EdenCreditsTopUpMode {
   const rawMode =
     getRuntimeValue("NEXT_PUBLIC_EDEN_CREDITS_TOPUP_MODE") ??
     getRuntimeValue("EDEN_CREDITS_TOPUP_MODE") ??
-    "mock_only";
+    null;
+
+  if (!rawMode) {
+    return hasStripeTopUpRuntimeConfig() ? "hybrid" : "mock_only";
+  }
 
   return supportedCreditsTopUpModes.has(rawMode as EdenCreditsTopUpMode)
     ? (rawMode as EdenCreditsTopUpMode)

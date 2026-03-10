@@ -5,6 +5,8 @@ import {
 } from "@/modules/core/payments/stripe-topup-service";
 import { getServerSession } from "@/modules/core/session/server";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => ({}))) as {
     returnPath?: string;
@@ -32,6 +34,12 @@ export async function POST(request: Request) {
       providerLabel: checkoutSession.providerLabel,
     });
   } catch (error) {
+    const detail =
+      error instanceof Error
+        ? error.message
+        : "Unknown checkout session creation error";
+    console.error(`[eden][payments][checkout_create] ${detail}`);
+
     return NextResponse.json(
       {
         ok: false,
