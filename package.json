@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "owner:bootstrap": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/bootstrap-owner.ts",
+    "password:reset": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/reset-password.ts",
     "db:sync:canonical-marketplace": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sync-canonical-marketplace.ts",
     "db:diverge:hybrid-read": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/apply-hybrid-read-divergence.ts",
     "db:verify:hybrid-read": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-hybrid-read-divergence.ts",
@@ -27,6 +28,7 @@
     "prisma": "^7.4.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "server-only": "^0.0.1",
     "stripe": "^20.4.1"
   },
   "devDependencies": {
