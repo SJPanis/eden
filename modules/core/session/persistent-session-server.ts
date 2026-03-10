@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getServerSession as getNextAuthServerSession } from "next-auth";
 import {
   logResolvedSessionSnapshot,
   logSessionResolution,
@@ -12,6 +13,7 @@ import {
   withSessionAuthDebug,
 } from "@/modules/core/session/mock-session";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { buildEdenAuthJsOptions } from "@/modules/core/session/authjs-config";
 import { createAuthJsProviderAdapter } from "@/modules/core/session/authjs-provider-adapter";
 import { createPrismaCookieAuthProviderAdapter } from "@/modules/core/session/prisma-cookie-auth-provider-adapter";
 import { createPrismaAuthIdentityAdapter } from "@/modules/core/session/prisma-auth-identity-adapter";
@@ -27,6 +29,74 @@ export async function resolvePersistentCompatibilitySession(
 
   try {
     const prisma = getPrismaClient();
+    const authJsSession = (await getNextAuthServerSession(
+      buildEdenAuthJsOptions(),
+    )) as
+      | {
+          user?: {
+            id?: string;
+            username?: string;
+            role?: "consumer" | "business" | "owner";
+          };
+        }
+      | null;
+
+    if (typeof authJsSession?.user?.id === "string") {
+      const identityAdapter = createPrismaAuthIdentityAdapter(prisma);
+      const identity = await identityAdapter.resolveIdentity(authJsSession.user.id);
+
+      if (identity) {
+        const session = createCompatibilitySession(
+          {
+            id: identity.user.id,
+            username: identity.user.username,
+            displayName: identity.user.displayName,
+            role: identity.platformRole,
+            status: identity.user.status,
+            edenBalanceCredits: identity.user.edenBalanceCredits,
+            businessIds: identity.user.businessIds,
+          },
+          {
+            auth: {
+              mode,
+              source: "persistent",
+              resolver: identity.resolver,
+              sessionKey: identity.sessionKey,
+            },
+            memberships: identity.memberships,
+          },
+        );
+        const diagnosticsEnabled = shouldExposeAuthSessionDiagnostics();
+        const resolvedSession = diagnosticsEnabled
+          ? withSessionAuthDebug(session, {
+              memberships: identity.memberships,
+              usedOwnedBusinessFallbackClaims:
+                identity.diagnostics.usedOwnedBusinessFallbackClaims,
+              note: `Resolved through the Auth.js server session for @${identity.user.username}.`,
+            })
+          : session;
+
+        logSessionResolution(
+          mode,
+          "persistent",
+          identity.resolver,
+          `Resolved persisted identity for ${identity.user.username} via Auth.js server session.`,
+        );
+        logResolvedSessionSnapshot({
+          mode,
+          source: "persistent",
+          resolver: identity.resolver,
+          role: identity.platformRole,
+          memberships: identity.memberships,
+          usedOwnedBusinessFallbackClaims:
+            identity.diagnostics.usedOwnedBusinessFallbackClaims,
+          detail: `Resolved through the Auth.js server session for ${identity.user.username}.`,
+        });
+
+        return resolvedSession;
+      }
+    }
+
     const providerResolutionInput = {
       providerCookieValue,
       cookieHeader,

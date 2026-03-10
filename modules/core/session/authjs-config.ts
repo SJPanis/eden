@@ -35,6 +35,12 @@ type EdenAuthJsJwt = JWT & {
   [edenAuthJsPlatformRoleClaim]?: "consumer" | "business" | "owner";
 };
 
+type EdenAuthJsSessionUser = {
+  id?: string;
+  username?: string;
+  role?: "consumer" | "business" | "owner";
+};
+
 type EdenAuthJsSignInUser = User & {
   id?: string;
   username?: string;
@@ -156,6 +162,26 @@ export function buildEdenAuthJsOptions(): NextAuthOptions {
         }
 
         return nextToken;
+      },
+      async session({ session, token }) {
+        const sessionUser = session.user as typeof session.user & EdenAuthJsSessionUser;
+
+        if (typeof token.sub === "string") {
+          sessionUser.id = token.sub;
+        }
+
+        if (typeof token[edenAuthJsUsernameClaim] === "string") {
+          sessionUser.username = token[edenAuthJsUsernameClaim];
+        }
+
+        if (typeof token[edenAuthJsPlatformRoleClaim] === "string") {
+          sessionUser.role = token[edenAuthJsPlatformRoleClaim] as
+            | "consumer"
+            | "business"
+            | "owner";
+        }
+
+        return session;
       },
     },
   };
