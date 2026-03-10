@@ -45,6 +45,10 @@ export function resolveAuthSessionMode(
     return input as EdenAuthSessionMode;
   }
 
+  if (process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET) {
+    return "hybrid";
+  }
+
   return "mock_only";
 }
 

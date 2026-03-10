@@ -15,6 +15,7 @@ import {
   getRecentTransactions,
   getUserCreditsBalance,
 } from "@/modules/core/credits/mock-credits";
+import { EdenBrandLockup } from "@/modules/core/components/eden-brand-lockup";
 import { MockResetControls } from "@/modules/core/components/mock-reset-controls";
 import { MockTransactionControls } from "@/modules/core/credits/mock-transaction-controls";
 import {
@@ -742,7 +743,13 @@ export function OwnerDashboardPanel({
       id: "payout-liability",
       label: "Total builder liability",
       value: formatCredits(payoutAccounting.totalBuilderLiabilityCredits),
-      detail: "Current unpaid builder earnings liability after persistent payout settlements are applied.",
+      detail: "Current unpaid builder earnings liability after persistent payout settlements and internal Eden use are applied.",
+    },
+    {
+      id: "payout-internal-use",
+      label: "Earned Leaves used internally",
+      value: formatCredits(payoutAccounting.totalInternalUseCredits),
+      detail: "Persistent internal-use records where builders reused earned Leaves inside Eden instead of leaving them in payout accounting.",
     },
     {
       id: "payout-ready",
@@ -969,8 +976,13 @@ export function OwnerDashboardPanel({
       >
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
           <div>
+            <EdenBrandLockup
+              size="sm"
+              label="Eden"
+              subtitle="Owner control room"
+            />
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">Owner Layer</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
               Eden Control Room
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
@@ -2361,6 +2373,19 @@ export function OwnerDashboardPanel({
                   </div>
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Internal Eden use
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      {payoutAccounting.statusOverview.internalUseCount}
+                    </p>
+                    <p className="mt-1 text-xs text-eden-muted">
+                      {formatCredits(
+                        payoutAccounting.statusOverview.internalUseCredits,
+                      )} reused from earned Leaves
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
                       Current state
                     </p>
                     <p className="mt-2 text-lg font-semibold text-eden-ink">
@@ -2372,6 +2397,68 @@ export function OwnerDashboardPanel({
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Internal earned Leaves usage
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    Recent business-side internal Eden use recorded against earned Leaves. These rows reduce remaining builder liability without creating a payout.
+                  </p>
+                </div>
+                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  {payoutAccounting.internalUseHistorySource === "persistent"
+                    ? "Persistent records"
+                    : "No persistent records"}
+                </span>
+              </div>
+              <div className="mt-4 space-y-3">
+                {payoutAccounting.internalUseHistory.length ? (
+                  payoutAccounting.internalUseHistory.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {item.businessName}
+                            </p>
+                            <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
+                              {item.usageTypeLabel}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            {formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}
+                          </p>
+                          <p className="mt-1 text-xs text-eden-muted">
+                            {item.actorLabel}
+                            {item.notes ? ` | ${item.notes}` : ""}
+                          </p>
+                        </div>
+                        <div className="text-left md:text-right">
+                          <p className="text-sm font-semibold text-eden-ink">{item.createdAtLabel}</p>
+                          <div className="mt-3">
+                            <Link
+                              href={`/owner/payouts/${item.businessId}`}
+                              className={getOwnerReconciliationActionClasses()}
+                            >
+                              View Payout
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    No internal earned-Leaves usage has been recorded yet.
+                  </div>
+                )}
               </div>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
@@ -2483,6 +2570,11 @@ export function OwnerDashboardPanel({
                             <p className="mt-1 text-sm leading-6 text-eden-muted">
                               Unpaid earnings: {formatCredits(business.unpaidEarningsCredits)}
                             </p>
+                            {business.internalUseCredits > 0 ? (
+                              <p className="mt-1 text-sm leading-6 text-eden-muted">
+                                Used internally: {formatCredits(business.internalUseCredits)}
+                              </p>
+                            ) : null}
                             <p className="mt-1 text-sm leading-6 text-eden-muted">
                               Paid out: {formatCredits(business.paidOutCredits)}
                               {business.pendingSettlementCredits > 0
@@ -2495,6 +2587,9 @@ export function OwnerDashboardPanel({
                               {formatCredits(business.payoutReadyCredits)}
                             </p>
                             <p className="mt-1 text-xs text-eden-muted">Payout-ready</p>
+                            <p className="mt-2 text-xs text-eden-muted">
+                              Available for Eden use: {formatCredits(business.availableForInternalUseCredits)}
+                            </p>
                             <p className="mt-2 text-xs text-eden-muted">
                               Eden fee share: {formatCredits(business.edenFeeShareCredits)}
                             </p>

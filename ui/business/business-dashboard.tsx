@@ -11,6 +11,8 @@ import {
   getBusinessBillingSnapshot,
 } from "@/modules/core/credits/mock-credits";
 import { MockTransactionControls } from "@/modules/core/credits/mock-transaction-controls";
+import { EdenBrandLockup } from "@/modules/core/components/eden-brand-lockup";
+import { MockInternalLeavesUsageButton } from "@/modules/core/components/mock-internal-leaves-usage-button";
 import {
   edenEarnedLeavesLabel,
   edenPlatformFeeLeavesLabel,
@@ -813,10 +815,22 @@ export function BusinessDashboardPanel({
       detail: "Builder-side earned Leaves accrued from priced service usage across this workspace.",
     },
     {
+      id: "payout-internal-used",
+      label: `${edenEarnedLeavesLabel} used internally`,
+      value: formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits),
+      detail: "Earned Leaves already spent on internal Eden work instead of remaining payout/accounting balance.",
+    },
+    {
       id: "payout-unpaid",
       label: `${edenEarnedLeavesLabel} unpaid`,
       value: formatCredits(payoutAccounting.unpaidEarningsCredits),
-      detail: "Earned Leaves still owed after persistent payout settlement records are applied.",
+      detail: "Earned Leaves still owed after persistent payout settlements and internal Eden use are applied.",
+    },
+    {
+      id: "payout-internal-available",
+      label: "Available for Eden use",
+      value: formatCredits(payoutAccounting.availableForInternalUseCredits),
+      detail: "Remaining earned Leaves that can still be used internally inside Eden without touching the spendable wallet.",
     },
     {
       id: "payout-ready",
@@ -849,6 +863,10 @@ export function BusinessDashboardPanel({
       detail: "Persistent payout settlement total already marked as settled for this business.",
     },
   ];
+  const internalUseSuggestedAmount = Math.min(
+    40,
+    payoutAccounting.availableForInternalUseCredits,
+  );
   const serviceUsageLeaders = [...usageMetrics.perService].sort((left, right) => {
     return (
       right.usageCount - left.usageCount ||
@@ -1040,10 +1058,15 @@ export function BusinessDashboardPanel({
       >
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(300px,0.82fr)]">
           <div>
+            <EdenBrandLockup
+              size="sm"
+              label="Eden"
+              subtitle="Builder workspace"
+            />
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
               Business Workspace
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
               {businessProfile.name}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
@@ -2003,6 +2026,11 @@ export function BusinessDashboardPanel({
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
                               Unpaid earnings: {formatCredits(service.unpaidEarningsCredits)}
                             </p>
+                            {service.internalUseCredits > 0 ? (
+                              <p className="mt-1 text-sm leading-6 text-eden-muted">
+                                Used internally: {formatCredits(service.internalUseCredits)}
+                              </p>
+                            ) : null}
                           </div>
                           <div className="text-left md:text-right">
                             <p className="text-sm font-semibold text-eden-ink">
@@ -2151,6 +2179,128 @@ export function BusinessDashboardPanel({
                       {formatCredits(payoutAccounting.payoutReadyCredits)}
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                      Internal earned Leaves use
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      Builders can now reuse earned Leaves for internal Eden work without converting them into the spendable wallet or an external payout.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                    {formatCredits(payoutAccounting.availableForInternalUseCredits)} available
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Used internally
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      {formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits)}
+                    </p>
+                    <p className="mt-1 text-xs text-eden-muted">
+                      {payoutAccounting.statusOverview.internalUseCount} internal Eden use record
+                      {payoutAccounting.statusOverview.internalUseCount === 1 ? "" : "s"} applied.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Remaining earned Leaves
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      {formatCredits(payoutAccounting.availableForInternalUseCredits)}
+                    </p>
+                    <p className="mt-1 text-xs text-eden-muted">
+                      This remaining earned balance stays internal until future payout or transfer rails exist.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <MockInternalLeavesUsageButton
+                    businessId={activeBusinessId}
+                    amountCredits={internalUseSuggestedAmount}
+                    label={
+                      internalUseSuggestedAmount > 0
+                        ? `Use ${formatCredits(internalUseSuggestedAmount)} internally`
+                        : "No earned Leaves available for internal use"
+                    }
+                    detail={
+                      internalUseSuggestedAmount > 0
+                        ? "Record an internal Eden-use event against earned Leaves. This does not change the spendable wallet and does not create an external payout."
+                        : "Earned Leaves must accrue through priced service usage before internal Eden use can be recorded."
+                    }
+                    reference={`business-internal-use-${activeBusinessId}`}
+                    notes={`Business workspace internal Eden use for ${businessProfile?.name ?? activeBusinessId}`}
+                    className="w-full border-sky-200 bg-sky-50 hover:border-sky-300 hover:bg-sky-100"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                      Internal use history
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      Persistent internal Eden-use rows for this business. These entries reduce remaining earned Leaves without touching Stripe-funded spendable Leaves.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                    {payoutAccounting.internalUseHistorySource === "persistent"
+                      ? "Persistent records"
+                      : "No persistent records"}
+                  </span>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {payoutAccounting.internalUseHistory.length ? (
+                    payoutAccounting.internalUseHistory.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-eden-ink">
+                                {formatCredits(item.amountCredits)}
+                              </p>
+                              <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
+                                {item.usageTypeLabel}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              {item.reference ?? "No internal-use reference recorded."}
+                            </p>
+                            <p className="mt-1 text-xs text-eden-muted">
+                              {item.actorLabel}
+                              {item.notes ? ` | ${item.notes}` : ""}
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              Recorded
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-eden-ink">
+                              {item.createdAtLabel}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      No internal earned-Leaves usage has been recorded for this business yet.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

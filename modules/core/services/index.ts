@@ -7,6 +7,7 @@ export * from "@/modules/core/services/dashboard-read-service";
 export * from "@/modules/core/services/discovery-service";
 export * from "@/modules/core/services/payment-inspection-service";
 export * from "@/modules/core/services/payment-event-log-service";
+export * from "@/modules/core/services/internal-leaves-usage-service";
 export * from "@/modules/core/services/pipeline-service";
 export * from "@/modules/core/services/payout-accounting-service";
 export * from "@/modules/core/services/payout-settlement-service";

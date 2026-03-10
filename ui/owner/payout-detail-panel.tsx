@@ -159,6 +159,12 @@ export function OwnerPayoutDetailPanel({
       detail: `${formatCredits(payoutAccounting.pendingSettlementCredits)} pending settlement Leaves.`,
     },
     {
+      id: "payout-summary-internal-use",
+      label: "Used internally",
+      value: formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits),
+      detail: `${formatCredits(payoutAccounting.availableForInternalUseCredits)} remaining for internal Eden use.`,
+    },
+    {
       id: "payout-summary-ready",
       label: "Payout-ready",
       value: formatCredits(payoutAccounting.payoutReadyCredits),
@@ -204,11 +210,15 @@ export function OwnerPayoutDetailPanel({
             ? "Persistent settlements"
             : "No settlements yet",
         ]}
-        summary={`This route reuses the current business payout accounting and persistent settlement history for ${businessProfile.name}. Builder earnings are still internal-only, but settled rows now adjust what Eden considers paid out, unpaid, and payout-ready.`}
+        summary={`This route reuses the current business payout accounting, internal earned-Leaves usage, and persistent settlement history for ${businessProfile.name}. Builder earnings are still internal-only, but settlement rows and internal Eden use now adjust what Eden considers paid out, unpaid, and payout-ready.`}
         metadata={[
           { label: "Owner", value: businessOwner?.displayName ?? "Unknown owner" },
           { label: "Total earned", value: formatCredits(payoutAccounting.totalEarnedCredits) },
           { label: "Unpaid total", value: formatCredits(payoutAccounting.unpaidEarningsCredits) },
+          {
+            label: "Used internally",
+            value: formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits),
+          },
           { label: "Payout-ready", value: formatCredits(payoutAccounting.payoutReadyCredits) },
           { label: "Paid out", value: formatCredits(payoutAccounting.paidOutCredits) },
           { label: "Holdback", value: formatCredits(payoutAccounting.holdbackCredits) },
@@ -352,6 +362,17 @@ export function OwnerPayoutDetailPanel({
                 </div>
                 <div className="rounded-2xl border border-eden-edge bg-white p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    Internal Eden use
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    {payoutAccounting.statusOverview.internalUseCount}
+                  </p>
+                  <p className="mt-1 text-xs text-eden-muted">
+                    {formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leaves
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-eden-edge bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
                     Business detail
                   </p>
                   <p className="mt-2 text-lg font-semibold text-eden-ink">
@@ -396,6 +417,14 @@ export function OwnerPayoutDetailPanel({
                   </p>
                   <p className="mt-2 text-sm font-semibold text-eden-ink">
                     {formatCredits(payoutAccounting.unpaidEarningsCredits)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    Used internally
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    {formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits)}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -498,6 +527,64 @@ export function OwnerPayoutDetailPanel({
             </div>
 
             <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                    Internal earned Leaves usage
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    Persistent internal Eden-use rows for this business. These reduce remaining earned Leaves without creating an external payout.
+                  </p>
+                </div>
+                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  {payoutAccounting.internalUseHistory.length} recorded
+                </span>
+              </div>
+              <div className="mt-4 space-y-3">
+                {payoutAccounting.internalUseHistory.length ? (
+                  payoutAccounting.internalUseHistory.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {formatCredits(item.amountCredits)}
+                            </p>
+                            <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
+                              {item.usageTypeLabel}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            {item.reference ?? "No internal-use reference recorded."}
+                          </p>
+                          <p className="mt-1 text-xs text-eden-muted">
+                            {item.actorLabel}
+                            {item.notes ? ` | ${item.notes}` : ""}
+                          </p>
+                        </div>
+                        <div className="text-left md:text-right">
+                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            Recorded
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                            {item.createdAtLabel}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    No internal earned-Leaves usage has been recorded for this business yet.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-eden-edge bg-white p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Per-service payout breakdown
               </p>
@@ -519,6 +606,11 @@ export function OwnerPayoutDetailPanel({
                           <p className="mt-2 text-sm leading-6 text-eden-muted">
                             Unpaid: {formatCredits(service.unpaidEarningsCredits)}
                           </p>
+                          {service.internalUseCredits > 0 ? (
+                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              Used internally: {formatCredits(service.internalUseCredits)}
+                            </p>
+                          ) : null}
                           <p className="mt-1 text-sm leading-6 text-eden-muted">
                             Paid out: {formatCredits(service.paidOutCredits)}
                           </p>

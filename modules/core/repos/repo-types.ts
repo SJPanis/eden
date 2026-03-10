@@ -153,6 +153,17 @@ export interface EdenRepoPayoutSettlementRecord {
   settledAt?: Date | null;
 }
 
+export interface EdenRepoInternalLeavesUsageRecord {
+  id: string;
+  businessId: string;
+  userId?: string | null;
+  amountCredits: number;
+  usageType: string;
+  reference?: string | null;
+  notes?: string | null;
+  createdAt: Date;
+}
+
 export interface EdenDiscoverySnapshotRecord {
   services: EdenRepoServiceRecord[];
   businesses: EdenRepoBusinessRecord[];

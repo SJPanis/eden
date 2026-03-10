@@ -7,6 +7,7 @@ import type {
   EdenResolvedAuthProviderSession,
 } from "@/modules/core/session/auth-provider-adapter";
 import {
+  edenAuthJsCredentialsProviderId,
   edenAuthJsProviderClaim,
   edenAuthJsProviderSubjectClaim,
   edenAuthJsUsernameClaim,
@@ -141,7 +142,7 @@ async function resolveProviderFallbackUser(
     username?: string;
   },
 ) {
-  if (!claims.username) {
+  if (claims.provider !== edenAuthJsCredentialsProviderId || !claims.username) {
     return null;
   }
 

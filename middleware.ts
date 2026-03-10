@@ -80,6 +80,7 @@ export const config = {
     "/api/mock-services",
     "/api/mock-pipeline",
     "/api/mock-assistant-history",
+    "/api/mock-internal-leaves-usage",
     "/api/mock-admin",
     "/api/mock-payout-settlements",
     "/api/mock-state",

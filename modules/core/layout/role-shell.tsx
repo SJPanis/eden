@@ -1,7 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTransition } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -10,6 +12,7 @@ import {
   type EdenMockAdminState,
 } from "@/modules/core/admin/mock-admin-state";
 import type { EdenMockCreatedBusinessState } from "@/modules/core/business/mock-created-business";
+import { EdenBrandLockup } from "@/modules/core/components/eden-brand-lockup";
 import { roleMeta, topNavItems, type EdenRole } from "@/modules/core/config/role-nav";
 import {
   getCreditsDisplaySummary,
@@ -43,6 +46,7 @@ export function RoleShell({
   adminState,
 }: RoleShellProps) {
   const pathname = usePathname();
+  const [isSigningOut, startSignOutTransition] = useTransition();
   const roleDetails = roleMeta[role];
   const activeRoleDetails = roleMeta[session.role];
   const creditsSummary = getCreditsDisplaySummary(
@@ -61,6 +65,15 @@ export function RoleShell({
   const activeUserFrozen = adminState ? isUserFrozen(session.user.id, adminState) : false;
   const activeBusinessFrozen =
     activeBusinessId && adminState ? isBusinessFrozen(activeBusinessId, adminState) : false;
+  const showMockSessionSwitcher = session.auth.source === "mock";
+
+  function handleSignOut() {
+    startSignOutTransition(() => {
+      void signOut({
+        callbackUrl: "/",
+      });
+    });
+  }
 
   return (
     <div className="eden-grid min-h-screen px-4 py-5 md:px-8 md:py-8">
@@ -83,15 +96,13 @@ export function RoleShell({
         ) : null}
 
         <header className="eden-shell flex flex-col gap-4 p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-eden-edge bg-white text-sm font-semibold text-eden-ink">
-              E
-            </div>
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-muted">Eden v1</p>
-              <p className="text-sm font-medium text-eden-ink">AI-First Platform Shell</p>
-            </div>
-          </div>
+          <Link href="/" className="w-fit">
+            <EdenBrandLockup
+              size="sm"
+              label="Eden"
+              subtitle="AI-first platform shell"
+            />
+          </Link>
 
           <nav className="flex flex-wrap gap-2">
             {topNavItems.map((item) => {
@@ -133,7 +144,7 @@ export function RoleShell({
             </div>
 
             <div className="flex flex-col gap-3 md:min-w-[320px] md:items-end">
-              <MockSessionSwitcher session={session} />
+              {showMockSessionSwitcher ? <MockSessionSwitcher session={session} /> : null}
 
               <div className="grid gap-3 md:min-w-[360px]">
                 <div className="rounded-2xl border border-eden-edge bg-white/84 p-3">
@@ -168,13 +179,25 @@ export function RoleShell({
                 <div className="flex items-center gap-3 self-end">
                   <div className="text-right">
                     <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-muted">
-                      Active Mock Session
+                      {session.auth.source === "persistent"
+                        ? "Authenticated Session"
+                        : "Active Mock Session"}
                     </p>
                     <p className="text-sm font-medium text-eden-ink">{session.user.displayName}</p>
                     <p className="text-xs text-eden-muted">
                       {activeRoleDetails.label} - @{session.user.username}
                     </p>
                     <div className="mt-2 flex flex-wrap justify-end gap-2">
+                      {session.auth.source === "persistent" ? (
+                        <button
+                          type="button"
+                          onClick={handleSignOut}
+                          disabled={isSigningOut}
+                          className="rounded-full border border-eden-edge bg-white/80 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {isSigningOut ? "Signing out" : "Sign out"}
+                        </button>
+                      ) : null}
                       <span className="rounded-full border border-eden-edge bg-white/80 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
                         {activeUserFrozen ? "Frozen" : "Active"}
                       </span>

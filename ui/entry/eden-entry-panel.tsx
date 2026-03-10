@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { EdenBrandLockup } from "@/modules/core/components/eden-brand-lockup";
 import { roleMeta } from "@/modules/core/config/role-nav";
 import { MockSessionSwitcher } from "@/modules/core/session/mock-session-switcher";
 import {
@@ -300,10 +301,15 @@ export function EdenEntryPanel({
             transition={{ duration: 0.28, ease: "easeOut" }}
             className="rounded-[32px] border border-eden-edge bg-white/88 p-6"
           >
+            <EdenBrandLockup
+              size="md"
+              label="Eden"
+              subtitle="Launchable AI service platform"
+            />
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
               Eden Entry
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-eden-ink">
+            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-eden-ink">
               Start Eden like a real product.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">

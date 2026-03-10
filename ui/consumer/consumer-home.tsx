@@ -18,6 +18,7 @@ import {
   formatCredits,
   getUserById,
 } from "@/modules/core/mock-data";
+import { EdenBrandLockup } from "@/modules/core/components/eden-brand-lockup";
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
 import {
   formatServicePricingLabel,
@@ -847,10 +848,15 @@ export function ConsumerHomePanel({
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
+            <EdenBrandLockup
+              size="sm"
+              label="Eden"
+              subtitle="Consumer marketplace"
+            />
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
               Public marketplace
             </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink md:text-3xl">
+            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-eden-ink md:text-3xl">
               Explore published services with visible pricing.
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-eden-muted">

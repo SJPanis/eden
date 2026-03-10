@@ -68,6 +68,7 @@ model User {
   id                  String           @id @default(cuid())
   username            String           @unique
   displayName         String
+  passwordHash        String?
   role                EdenRole         @default(CONSUMER)
   status              UserStatus       @default(ACTIVE)
   summary             String?
@@ -79,6 +80,7 @@ model User {
   authProviderAccounts AuthProviderAccount[]
   serviceUsages       ServiceUsage[]
   creditsTopUpPayments CreditsTopUpPayment[]
+  internalLeavesUsages InternalLeavesUsage[]
 }
 
 model AuthProviderAccount {
@@ -121,6 +123,7 @@ model Business {
   pipelineRecords         PipelineRecord[]
   pipelineEvents          PipelineEvent[]
   payoutSettlements       PayoutSettlement[]
+  internalLeavesUsages    InternalLeavesUsage[]
 
   @@index([ownerUserId])
   @@index([status])
@@ -244,6 +247,23 @@ model PayoutSettlement {
 
   @@index([businessId, createdAt])
   @@index([status, createdAt])
+}
+
+model InternalLeavesUsage {
+  id           String   @id @default(cuid())
+  businessId   String
+  userId       String?
+  amountCredits Int
+  usageType    String
+  reference    String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([businessId, createdAt])
+  @@index([userId, createdAt])
+  @@index([usageType, createdAt])
 }
 
 model PipelineRecord {

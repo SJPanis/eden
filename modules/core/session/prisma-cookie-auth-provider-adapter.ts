@@ -87,7 +87,7 @@ async function resolveProviderFallbackUser(
   },
 ) {
   return (
-    (parsed.username
+    (parsed.provider === "eden-dev-session-switcher" && parsed.username
       ? await prisma.user.findUnique({
           where: {
             username: parsed.username,
@@ -95,7 +95,8 @@ async function resolveProviderFallbackUser(
           select: providerUserSelect,
         })
       : null) ??
-    (parsed.subject.startsWith("eden-dev:")
+    (parsed.provider === "eden-dev-session-switcher" &&
+    parsed.subject.startsWith("eden-dev:")
       ? await prisma.user.findUnique({
           where: {
             username: parsed.subject.replace(/^eden-dev:/, ""),

@@ -1,0 +1,91 @@
+import { NextResponse } from "next/server";
+import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { resolveConfiguredOwnerUsername } from "@/modules/core/session/access-control";
+import {
+  hashCredentialPassword,
+  isValidCredentialPassword,
+  isValidCredentialUsername,
+  normalizeCredentialUsername,
+} from "@/modules/core/session/password-auth";
+
+export async function POST(request: Request) {
+  const requestBody = (await request.json().catch(() => null)) as
+    | {
+        username?: string;
+        password?: string;
+        displayName?: string;
+      }
+    | null;
+
+  const username = normalizeCredentialUsername(requestBody?.username);
+  const password = requestBody?.password ?? "";
+  const displayName = requestBody?.displayName?.trim() || username || "Eden User";
+
+  if (!username || !isValidCredentialUsername(username) || !isValidCredentialPassword(password)) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Enter a valid username and a password with at least 8 characters.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (username === resolveConfiguredOwnerUsername()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "That username is unavailable.",
+      },
+      { status: 409 },
+    );
+  }
+
+  const existingUser = await getPrismaClient().user.findUnique({
+    where: {
+      username,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (existingUser) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "That username is unavailable.",
+      },
+      { status: 409 },
+    );
+  }
+
+  const passwordHash = await hashCredentialPassword(password);
+
+  const createdUser = await getPrismaClient().user.create({
+    data: {
+      username,
+      displayName,
+      passwordHash,
+      role: "CONSUMER",
+    },
+    select: {
+      id: true,
+      username: true,
+      displayName: true,
+    },
+  });
+
+  await getPrismaClient().authProviderAccount.create({
+    data: {
+      provider: "credentials",
+      providerSubject: username,
+      userId: createdUser.id,
+    },
+  });
+
+  return NextResponse.json({
+    ok: true,
+    user: createdUser,
+  });
+}

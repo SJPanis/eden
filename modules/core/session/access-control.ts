@@ -23,6 +23,7 @@ const protectedApiRoutePrefixes: Array<{ prefix: string; role: EdenRole }> = [
   { prefix: "/api/mock-services", role: "business" },
   { prefix: "/api/mock-pipeline", role: "business" },
   { prefix: "/api/mock-assistant-history", role: "business" },
+  { prefix: "/api/mock-internal-leaves-usage", role: "business" },
   { prefix: "/api/mock-admin", role: "owner" },
   { prefix: "/api/mock-payout-settlements", role: "owner" },
   { prefix: "/api/mock-state", role: "owner" },
@@ -135,10 +136,11 @@ export function resolveAuthorizedPlatformRole(input: {
 
 export function buildAuthSignInPath(targetPath: string) {
   const searchParams = new URLSearchParams({
+    auth: "signin",
     callbackUrl: targetPath,
   });
 
-  return `/api/auth/signin?${searchParams.toString()}`;
+  return `/?${searchParams.toString()}`;
 }
 
 function matchesRoutePrefix(pathname: string, prefix: string) {
