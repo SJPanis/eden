@@ -161,11 +161,15 @@ export async function settleCreditsTopUpPaymentFromCheckoutSession(
     };
   }
 
-  const selectedPackage = resolveAndValidateSettledTopUpPackage(session);
+  const selectedPackage = resolveAndValidateSettledTopUpPackage(
+    session,
+    existingPayment,
+  );
+  const checkoutUserId = resolveCheckoutSessionUserId(session);
   const payment = await repo.markSettled({
     providerSessionId: session.id,
     providerPaymentIntentId: paymentIntentId,
-    userId: session.metadata?.edenUserId ?? null,
+    userId: checkoutUserId,
     creditsAmount: selectedPackage.creditsAmount,
     amountCents: selectedPackage.amountCents,
     currency: selectedPackage.currency,
@@ -228,7 +232,10 @@ async function loadCreditsTopUpPaymentBySessionId(providerSessionId: string) {
   }
 }
 
-function resolveAndValidateSettledTopUpPackage(session: Stripe.Checkout.Session) {
+function resolveAndValidateSettledTopUpPackage(
+  session: Stripe.Checkout.Session,
+  existingPayment?: EdenRepoCreditsTopUpPaymentRecord | null,
+) {
   const packageId = session.metadata?.edenTopUpPackageId ?? null;
   const selectedPackage = findCreditsTopUpPackage(packageId);
 
@@ -259,7 +266,49 @@ function resolveAndValidateSettledTopUpPackage(session: Stripe.Checkout.Session)
     throw new Error("Stripe Checkout currency does not match the selected Eden Leaves package.");
   }
 
+  if (existingPayment) {
+    if (
+      existingPayment.creditsAmount !== selectedPackage.creditsAmount ||
+      existingPayment.amountCents !== selectedPackage.amountCents ||
+      existingPayment.currency !== selectedPackage.currency
+    ) {
+      throw new Error(
+        "The persisted Eden payment record does not match the Stripe Checkout package details.",
+      );
+    }
+
+    const checkoutUserId = resolveCheckoutSessionUserId(session);
+    if (existingPayment.userId && checkoutUserId && existingPayment.userId !== checkoutUserId) {
+      throw new Error(
+        "The persisted Eden payment record belongs to a different user than the Stripe Checkout session.",
+      );
+    }
+  }
+
   return selectedPackage;
+}
+
+function resolveCheckoutSessionUserId(session: Stripe.Checkout.Session) {
+  const metadataUserId =
+    typeof session.metadata?.edenUserId === "string" &&
+    session.metadata.edenUserId.trim().length > 0
+      ? session.metadata.edenUserId
+      : null;
+  const clientReferenceUserId =
+    typeof session.client_reference_id === "string" &&
+    session.client_reference_id.trim().length > 0
+      ? session.client_reference_id
+      : null;
+
+  if (!metadataUserId && !clientReferenceUserId) {
+    return null;
+  }
+
+  if (metadataUserId && clientReferenceUserId && metadataUserId !== clientReferenceUserId) {
+    throw new Error("Stripe Checkout user references are inconsistent for this Eden payment.");
+  }
+
+  return metadataUserId ?? clientReferenceUserId;
 }
 
 function getProviderLabel(provider: string) {

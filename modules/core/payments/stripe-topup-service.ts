@@ -47,6 +47,7 @@ export async function createCreditsTopUpCheckoutSession(input: {
   });
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    client_reference_id: input.userId,
     success_url: successUrl,
     cancel_url: cancelUrl,
     line_items: [
@@ -340,6 +341,21 @@ function validateCompletedCheckoutSession(session: Stripe.Checkout.Session) {
 
   if (session.payment_status !== "paid") {
     throw new Error("The checkout session has not completed payment.");
+  }
+
+  if (
+    typeof session.metadata?.edenUserId !== "string" ||
+    session.metadata.edenUserId.trim().length === 0
+  ) {
+    throw new Error("The checkout session is missing the required Eden user reference.");
+  }
+
+  if (
+    typeof session.client_reference_id === "string" &&
+    session.client_reference_id.trim().length > 0 &&
+    session.client_reference_id !== session.metadata.edenUserId
+  ) {
+    throw new Error("The checkout session user reference does not match the Eden metadata.");
   }
 }
 
