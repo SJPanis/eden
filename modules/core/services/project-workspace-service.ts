@@ -1,7 +1,9 @@
 import "server-only";
 
 import {
+  edenProjectAgentRunLeavesCost,
   edenProjectHostingLeavesPerDay,
+  type EdenProjectAgentRunRecord,
   type EdenProjectBlueprintRecord,
   type EdenProjectBlueprintStatus,
 } from "@/modules/core/projects/project-blueprint-shared";
@@ -26,6 +28,20 @@ export async function loadBusinessProjectBlueprints(businessId: string) {
       agents: {
         orderBy: {
           createdAt: "asc",
+        },
+      },
+      agentRuns: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 6,
+        include: {
+          agent: {
+            select: {
+              name: true,
+              roleTitle: true,
+            },
+          },
         },
       },
     },
@@ -61,6 +77,20 @@ export async function createProjectBlueprint(input: {
       agents: {
         orderBy: {
           createdAt: "asc",
+        },
+      },
+      agentRuns: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 6,
+        include: {
+          agent: {
+            select: {
+              name: true,
+              roleTitle: true,
+            },
+          },
         },
       },
     },
@@ -117,6 +147,20 @@ export async function loadProjectBlueprintById(projectId: string) {
           createdAt: "asc",
         },
       },
+      agentRuns: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 6,
+        include: {
+          agent: {
+            select: {
+              name: true,
+              roleTitle: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -142,6 +186,20 @@ export async function markProjectBlueprintTesting(projectId: string) {
       agents: {
         orderBy: {
           createdAt: "asc",
+        },
+      },
+      agentRuns: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 6,
+        include: {
+          agent: {
+            select: {
+              name: true,
+              roleTitle: true,
+            },
+          },
         },
       },
     },
@@ -194,6 +252,20 @@ export async function publishProjectBlueprint(projectId: string) {
       agents: {
         orderBy: {
           createdAt: "asc",
+        },
+      },
+      agentRuns: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 6,
+        include: {
+          agent: {
+            select: {
+              name: true,
+              roleTitle: true,
+            },
+          },
         },
       },
     },
@@ -251,6 +323,20 @@ export async function fundProjectHosting(input: {
           createdAt: "asc",
         },
       },
+      agentRuns: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 6,
+        include: {
+          agent: {
+            select: {
+              name: true,
+              roleTitle: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -294,6 +380,115 @@ export async function runProjectBlueprintTest(input: {
   };
 }
 
+export async function runProjectAgent(input: {
+  projectId: string;
+  agentId: string;
+  userId: string;
+  prompt: string;
+  executionKey: string;
+  costLeaves?: number;
+}) {
+  const prisma = getPrismaClient();
+  const existingRun = await prisma.projectAgentRun.findUnique({
+    where: {
+      executionKey: input.executionKey,
+    },
+    include: {
+      agent: {
+        select: {
+          name: true,
+          roleTitle: true,
+        },
+      },
+    },
+  });
+
+  if (existingRun) {
+    return {
+      agentRun: mapProjectAgentRunRecord(existingRun),
+      recorded: false as const,
+    };
+  }
+
+  const project = await loadProjectBlueprintById(input.projectId);
+
+  if (!project) {
+    return null;
+  }
+
+  const selectedAgent = project.agents.find((agent) => agent.id === input.agentId);
+
+  if (!selectedAgent) {
+    return null;
+  }
+
+  const output = buildProjectAgentOutput({
+    project,
+    agent: selectedAgent,
+    prompt: input.prompt,
+  });
+  const costLeaves = input.costLeaves ?? edenProjectAgentRunLeavesCost;
+
+  const runRecord = await prisma.$transaction(async (transaction) => {
+    await transaction.internalLeavesUsage.create({
+      data: {
+        businessId: project.businessId,
+        userId: input.userId,
+        amountCredits: costLeaves,
+        usageType: "project_agent_run",
+        reference: `project-agent-run-${project.id}-${selectedAgent.id}-${input.executionKey}`,
+        notes: `Ran ${selectedAgent.name} for ${project.title}.`,
+      },
+    });
+
+    return transaction.projectAgentRun.create({
+      data: {
+        projectId: project.id,
+        agentId: selectedAgent.id,
+        userId: input.userId,
+        executionKey: input.executionKey,
+        prompt: input.prompt,
+        outputTitle: output.outputTitle,
+        outputSummary: output.outputSummary,
+        outputLines: output.outputLines,
+        costLeaves,
+      },
+      include: {
+        agent: {
+          select: {
+            name: true,
+            roleTitle: true,
+          },
+        },
+      },
+    });
+  });
+
+  return {
+    agentRun: mapProjectAgentRunRecord(runRecord),
+    recorded: true as const,
+  };
+}
+
+export async function loadProjectAgentRunByExecutionKey(executionKey: string) {
+  const prisma = getPrismaClient();
+  const agentRun = await prisma.projectAgentRun.findUnique({
+    where: {
+      executionKey,
+    },
+    include: {
+      agent: {
+        select: {
+          name: true,
+          roleTitle: true,
+        },
+      },
+    },
+  });
+
+  return agentRun ? mapProjectAgentRunRecord(agentRun) : null;
+}
+
 export function calculateRemainingHostingLeaves(
   hostingBalanceLeaves: number,
   hostingBalanceUpdatedAt?: Date | null,
@@ -332,6 +527,22 @@ function mapProjectBlueprintRecord(project: {
     parentAgentId: string | null;
     branchLabel: string | null;
     createdAt: Date;
+  }>;
+  agentRuns: Array<{
+    id: string;
+    projectId: string;
+    agentId: string;
+    userId: string | null;
+    prompt: string;
+    outputTitle: string;
+    outputSummary: string;
+    outputLines: string[];
+    costLeaves: number;
+    createdAt: Date;
+    agent: {
+      name: string;
+      roleTitle: string;
+    };
   }>;
 }) {
   const hostingRemainingLeaves = calculateRemainingHostingLeaves(
@@ -377,7 +588,67 @@ function mapProjectBlueprintRecord(project: {
       branchLabel: agent.branchLabel,
       createdAtLabel: formatTimestamp(agent.createdAt),
     })),
+    agentRuns: project.agentRuns.map((agentRun) => mapProjectAgentRunRecord(agentRun)),
   } satisfies EdenProjectBlueprintRecord;
+}
+
+function buildProjectAgentOutput(input: {
+  project: EdenProjectBlueprintRecord;
+  agent: EdenProjectBlueprintRecord["agents"][number];
+  prompt: string;
+}) {
+  const branchLabel = input.agent.branchLabel
+    ? `Branch: ${input.agent.branchLabel}.`
+    : "Branch: core team.";
+  const parentLabel = input.agent.parentAgentId
+    ? "This agent reports into the existing project tree."
+    : "This agent can operate as a lead node for the current branch.";
+
+  return {
+    outputTitle: `${input.agent.name} operating inside ${input.project.title}`,
+    outputSummary: `${input.agent.name} used the project goal, role instructions, and current prompt to produce an operational next-step pass inside Eden.`,
+    outputLines: [
+      `Project goal: ${input.project.goal}`,
+      `Agent role: ${input.agent.roleTitle}`,
+      branchLabel,
+      parentLabel,
+      `Prompt received: ${input.prompt}`,
+      `Agent instruction focus: ${input.agent.instructions}`,
+      `Recommended next step: Turn this prompt into one scoped workflow inside ${input.project.title} and review it before publishing another consumer-facing change.`,
+    ],
+  };
+}
+
+function mapProjectAgentRunRecord(agentRun: {
+  id: string;
+  projectId: string;
+  agentId: string;
+  userId: string | null;
+  prompt: string;
+  outputTitle: string;
+  outputSummary: string;
+  outputLines: string[];
+  costLeaves: number;
+  createdAt: Date;
+  agent: {
+    name: string;
+    roleTitle: string;
+  };
+}): EdenProjectAgentRunRecord {
+  return {
+    id: agentRun.id,
+    projectId: agentRun.projectId,
+    agentId: agentRun.agentId,
+    agentName: agentRun.agent.name,
+    agentRoleTitle: agentRun.agent.roleTitle,
+    actorUserId: agentRun.userId,
+    prompt: agentRun.prompt,
+    outputTitle: agentRun.outputTitle,
+    outputSummary: agentRun.outputSummary,
+    outputLines: agentRun.outputLines,
+    costLeaves: agentRun.costLeaves,
+    createdAtLabel: formatTimestamp(agentRun.createdAt),
+  };
 }
 
 function formatTimestamp(timestamp: Date) {

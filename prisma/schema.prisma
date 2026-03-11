@@ -88,6 +88,7 @@ model User {
   serviceUsages       ServiceUsage[]
   creditsTopUpPayments CreditsTopUpPayment[]
   internalLeavesUsages InternalLeavesUsage[]
+  projectAgentRuns    ProjectAgentRun[]
   createdProjectBlueprints ProjectBlueprint[] @relation("ProjectBlueprintCreator")
   receivedLeavesGrants OwnerLeavesGrant[] @relation("OwnerLeavesGrantRecipient")
   issuedLeavesGrants OwnerLeavesGrant[] @relation("OwnerLeavesGrantIssuer")
@@ -157,6 +158,7 @@ model ProjectBlueprint {
   business               Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
   creatorUser            User                   @relation("ProjectBlueprintCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
   agents                 ProjectAgent[]
+  agentRuns              ProjectAgentRun[]
 
   @@index([businessId, createdAt])
   @@index([creatorUserId, createdAt])
@@ -176,9 +178,31 @@ model ProjectAgent {
   project       ProjectBlueprint @relation(fields: [projectId], references: [id], onDelete: Cascade)
   parentAgent   ProjectAgent? @relation("ProjectAgentTree", fields: [parentAgentId], references: [id], onDelete: SetNull)
   childAgents   ProjectAgent[] @relation("ProjectAgentTree")
+  agentRuns     ProjectAgentRun[]
 
   @@index([projectId, createdAt])
   @@index([parentAgentId, createdAt])
+}
+
+model ProjectAgentRun {
+  id            String           @id @default(cuid())
+  projectId      String
+  agentId        String
+  userId         String?
+  executionKey   String?          @unique
+  prompt         String
+  outputTitle    String
+  outputSummary  String
+  outputLines    String[]
+  costLeaves     Int
+  createdAt      DateTime         @default(now())
+  project        ProjectBlueprint @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  agent          ProjectAgent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  user           User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, createdAt])
+  @@index([agentId, createdAt])
+  @@index([userId, createdAt])
 }
 
 model BusinessMember {
@@ -228,6 +252,7 @@ model ServiceUsage {
   id          String   @id @default(cuid())
   serviceId   String
   userId      String?
+  executionKey String? @unique
   usageType   String
   creditsUsed Int
   grossCredits Int?

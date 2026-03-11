@@ -4,18 +4,23 @@ import { getMockWorkspaceServices } from "@/modules/core/business/workspace-serv
 import { getSimulatedTransactions } from "@/modules/core/credits/server";
 import { getUserById } from "@/modules/core/mock-data";
 import { getMockPipelineRecords } from "@/modules/core/pipeline/server";
-import { edenProjectHostingFundingIncrementLeaves } from "@/modules/core/projects/project-blueprint-shared";
+import {
+  edenProjectAgentRunLeavesCost,
+  edenProjectHostingFundingIncrementLeaves,
+} from "@/modules/core/projects/project-blueprint-shared";
 import {
   buildBusinessPayoutAccountingSummary,
   createProjectAgent,
   createProjectBlueprint,
   fundProjectHosting,
   loadBusinessProjectBlueprints,
+  loadProjectAgentRunByExecutionKey,
   loadBusinessServiceUsageMetrics,
   loadProjectBlueprintById,
   markProjectBlueprintTesting,
   publishProjectBlueprint,
   recordInternalLeavesUsage,
+  runProjectAgent,
   runProjectBlueprintTest,
 } from "@/modules/core/services";
 import { getServerSession } from "@/modules/core/session/server";
@@ -39,6 +44,8 @@ export async function POST(request: Request) {
       branchLabel?: string;
       prompt?: string;
       amountLeaves?: number;
+      agentId?: string;
+      executionKey?: string;
     };
     const session = await getServerSession();
 
@@ -197,6 +204,95 @@ export async function POST(request: Request) {
         action,
         project: await loadProjectBlueprintById(projectId),
         testResult,
+      });
+    }
+
+    if (action === "run_agent") {
+      const agentId = body.agentId?.trim();
+      const prompt = body.prompt?.trim();
+      const executionKey = body.executionKey?.trim();
+
+      if (!agentId || !prompt || prompt.length < 8 || !executionKey) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Agent, prompt, and execution key are required before running a project agent.",
+          },
+          { status: 400 },
+        );
+      }
+
+      const existingAgentRun = await loadProjectAgentRunByExecutionKey(executionKey);
+
+      if (existingAgentRun) {
+        return NextResponse.json({
+          ok: true,
+          action,
+          project: await loadProjectBlueprintById(projectId),
+          agentRun: existingAgentRun,
+        });
+      }
+
+      const [workspaceServices, simulatedTransactions, pipelineRecords] = await Promise.all([
+        getMockWorkspaceServices(),
+        getSimulatedTransactions(),
+        getMockPipelineRecords(),
+      ]);
+      const usageMetrics = await loadBusinessServiceUsageMetrics(project.businessId, {
+        simulatedTransactions,
+        pipelineRecords,
+        createdBusiness,
+        workspaceServices,
+      });
+      const payoutAccounting = await buildBusinessPayoutAccountingSummary(usageMetrics, {
+        createdBusiness,
+        workspaceServices,
+      });
+      const costLeaves = edenProjectAgentRunLeavesCost;
+
+      if (payoutAccounting.availableForInternalUseCredits < costLeaves) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Insufficient earned Leaves available for this agent run.",
+            insufficientBalance: true,
+            previousAvailableCredits: payoutAccounting.availableForInternalUseCredits,
+            nextAvailableCredits: payoutAccounting.availableForInternalUseCredits,
+          },
+          { status: 409 },
+        );
+      }
+
+      const agentRunResult = await runProjectAgent({
+        projectId: project.id,
+        agentId,
+        userId: session.user.id,
+        prompt,
+        executionKey,
+        costLeaves,
+      });
+
+      if (!agentRunResult) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Eden could not run that project agent. Confirm the selected project and agent still exist.",
+          },
+          { status: 404 },
+        );
+      }
+
+      return NextResponse.json({
+        ok: true,
+        action,
+        project: await loadProjectBlueprintById(projectId),
+        agentRun: agentRunResult.agentRun,
+        previousAvailableCredits: payoutAccounting.availableForInternalUseCredits,
+        nextAvailableCredits: Math.max(
+          payoutAccounting.availableForInternalUseCredits -
+            (agentRunResult.recorded ? costLeaves : 0),
+          0,
+        ),
       });
     }
 

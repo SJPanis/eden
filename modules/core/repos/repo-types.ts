@@ -96,6 +96,7 @@ export interface EdenRepoServiceUsageRecord {
   businessId: string;
   businessName: string;
   userId?: string | null;
+  executionKey?: string | null;
   usageType: string;
   creditsUsed: number;
   grossCredits?: number | null;

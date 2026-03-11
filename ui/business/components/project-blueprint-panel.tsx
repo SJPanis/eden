@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  edenProjectAgentRunLeavesCost,
   edenProjectHostingFundingIncrementLeaves,
+  type EdenProjectAgentRunRecord,
   type EdenProjectBlueprintRecord,
 } from "@/modules/core/projects/project-blueprint-shared";
 import { formatCredits } from "@/modules/core/mock-data";
@@ -79,6 +81,8 @@ export function ProjectBlueprintPanel({
 }: ProjectBlueprintPanelProps) {
   const router = useRouter();
   const [projects, setProjects] = useState(initialProjects);
+  const [currentAvailableForInternalUseCredits, setCurrentAvailableForInternalUseCredits] =
+    useState(availableForInternalUseCredits);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     initialProjects[0]?.id ?? null,
   );
@@ -90,6 +94,9 @@ export function ProjectBlueprintPanel({
   const [agentInstructions, setAgentInstructions] = useState("");
   const [agentParentId, setAgentParentId] = useState("");
   const [agentBranchLabel, setAgentBranchLabel] = useState("");
+  const [agentRunAgentId, setAgentRunAgentId] = useState("");
+  const [agentRunPrompt, setAgentRunPrompt] = useState("");
+  const [agentRunResult, setAgentRunResult] = useState<EdenProjectAgentRunRecord | null>(null);
   const [testPrompt, setTestPrompt] = useState("");
   const [testResult, setTestResult] = useState<EdenProjectTestResult | null>(null);
   const [feedback, setFeedback] = useState<{
@@ -100,12 +107,13 @@ export function ProjectBlueprintPanel({
 
   useEffect(() => {
     setProjects(initialProjects);
+    setCurrentAvailableForInternalUseCredits(availableForInternalUseCredits);
     setSelectedProjectId((current) =>
       current && initialProjects.some((project) => project.id === current)
         ? current
         : initialProjects[0]?.id ?? null,
     );
-  }, [initialProjects]);
+  }, [availableForInternalUseCredits, initialProjects]);
 
   const selectedProject =
     projects.find((project) => project.id === selectedProjectId) ?? projects[0] ?? null;
@@ -121,6 +129,21 @@ export function ProjectBlueprintPanel({
     () => projects.reduce((sum, project) => sum + project.hostingRemainingLeaves, 0),
     [projects],
   );
+
+  useEffect(() => {
+    setAgentRunAgentId((current) => {
+      if (!selectedProject?.agents.length) {
+        return "";
+      }
+
+      return current && selectedProject.agents.some((agent) => agent.id === current)
+        ? current
+        : selectedProject.agents[0]?.id ?? "";
+    });
+    setAgentRunResult((current) =>
+      current && selectedProject && current.projectId === selectedProject.id ? current : null,
+    );
+  }, [selectedProject]);
 
   async function postProjectAction(
     payload: Record<string, unknown>,
@@ -144,6 +167,8 @@ export function ProjectBlueprintPanel({
         project?: EdenProjectBlueprintRecord;
         projects?: EdenProjectBlueprintRecord[];
         testResult?: EdenProjectTestResult;
+        agentRun?: EdenProjectAgentRunRecord;
+        previousAvailableCredits?: number;
         nextAvailableCredits?: number;
       };
 
@@ -168,6 +193,14 @@ export function ProjectBlueprintPanel({
         setTestResult(result.testResult);
       }
 
+      if (result.agentRun) {
+        setAgentRunResult(result.agentRun);
+      }
+
+      if (typeof result.nextAvailableCredits === "number") {
+        setCurrentAvailableForInternalUseCredits(result.nextAvailableCredits);
+      }
+
       setFeedback({
         tone: "success",
         text:
@@ -177,6 +210,12 @@ export function ProjectBlueprintPanel({
                   ? `${formatCredits(result.nextAvailableCredits)} earned Leaves remain available for Eden use.`
                   : "The project hosting bank has been topped up."
               }`
+            : result.action === "run_agent"
+              ? `Agent run completed. ${
+                  typeof result.nextAvailableCredits === "number"
+                    ? `${formatCredits(result.nextAvailableCredits)} earned Leaves remain available for Eden use.`
+                    : "The output is now attached to the project workspace."
+                }`
             : result.action === "publish_project"
               ? "Project published and active inside Eden."
               : result.action === "run_test"
@@ -275,6 +314,31 @@ export function ProjectBlueprintPanel({
     );
   }
 
+  async function handleRunAgent() {
+    if (!selectedProject) {
+      return;
+    }
+
+    if (!agentRunAgentId || !agentRunPrompt.trim() || agentRunPrompt.trim().length < 8) {
+      setFeedback({
+        tone: "error",
+        text: "Select an agent and enter at least 8 characters before running it.",
+      });
+      return;
+    }
+
+    await postProjectAction(
+      {
+        action: "run_agent",
+        projectId: selectedProject.id,
+        agentId: agentRunAgentId,
+        prompt: agentRunPrompt.trim(),
+        executionKey: crypto.randomUUID(),
+      },
+      "run_agent",
+    );
+  }
+
   async function handlePublish() {
     if (!selectedProject) {
       return;
@@ -306,7 +370,7 @@ export function ProjectBlueprintPanel({
 
   const fundHostingDisabled =
     pendingAction !== null ||
-    availableForInternalUseCredits < edenProjectHostingFundingIncrementLeaves;
+    currentAvailableForInternalUseCredits < edenProjectHostingFundingIncrementLeaves;
 
   return (
     <div className="mt-4 space-y-4">
@@ -651,6 +715,156 @@ export function ProjectBlueprintPanel({
 
           <div className="rounded-2xl border border-eden-edge bg-white p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+              Runnable project agent
+            </p>
+            <p className="mt-2 text-sm leading-6 text-eden-muted">
+              Run one agent inside Eden using the current project context. This is a controlled execution pass funded from earned Leaves available for Eden use.
+            </p>
+            {selectedProject ? (
+              <>
+                <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                  <select
+                    value={agentRunAgentId}
+                    onChange={(event) => setAgentRunAgentId(event.target.value)}
+                    className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  >
+                    {selectedProject.agents.length ? null : (
+                      <option value="">No project agents available</option>
+                    )}
+                    {selectedProject.agents.map((agent) => (
+                      <option key={agent.id} value={agent.id}>
+                        {agent.name} · {agent.roleTitle}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 px-3 py-2 text-sm text-eden-muted">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Agent run cost
+                    </p>
+                    <p className="mt-1 font-semibold text-eden-ink">
+                      {formatCredits(edenProjectAgentRunLeavesCost)}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {formatCredits(currentAvailableForInternalUseCredits)} earned Leaves remain available for Eden use.
+                    </p>
+                  </div>
+                </div>
+                <textarea
+                  value={agentRunPrompt}
+                  onChange={(event) => setAgentRunPrompt(event.target.value)}
+                  placeholder="Describe what this agent should do for the project right now"
+                  rows={4}
+                  className="mt-4 w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                />
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-xs leading-5 text-eden-muted">
+                    This does not touch the consumer wallet. It records a visible internal Leaves use event against builder earnings.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={
+                      pendingAction !== null ||
+                      !selectedProject.agents.length ||
+                      currentAvailableForInternalUseCredits < edenProjectAgentRunLeavesCost
+                    }
+                    onClick={handleRunAgent}
+                    className="rounded-full border border-eden-edge bg-white px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {pendingAction === "run_agent"
+                      ? "Running agent..."
+                      : `Run agent for ${formatCredits(edenProjectAgentRunLeavesCost)}`}
+                  </button>
+                </div>
+                <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+                  {agentRunResult && selectedProject.id === agentRunResult.projectId ? (
+                    <>
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-eden-ink">
+                            {agentRunResult.outputTitle}
+                          </p>
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            {agentRunResult.agentName} · {agentRunResult.agentRoleTitle}
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                          {formatCredits(agentRunResult.costLeaves)}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-eden-muted">
+                        {agentRunResult.outputSummary}
+                      </p>
+                      <div className="mt-3 space-y-2">
+                        {agentRunResult.outputLines.map((line) => (
+                          <div
+                            key={line}
+                            className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-muted"
+                          >
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm leading-6 text-eden-muted">
+                      Agent output will appear here after the selected project agent completes a controlled Eden run.
+                    </p>
+                  )}
+                </div>
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      Recent agent runs
+                    </p>
+                    <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                      {selectedProject.agentRuns.length} stored
+                    </span>
+                  </div>
+                  {selectedProject.agentRuns.length ? (
+                    selectedProject.agentRuns.map((run) => (
+                      <div
+                        key={run.id}
+                        className="rounded-2xl border border-eden-edge bg-white p-3"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-eden-ink">
+                              {run.agentName}
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              {run.agentRoleTitle}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-eden-muted">
+                              {formatCredits(run.costLeaves)}
+                            </p>
+                            <p className="mt-1 text-[11px] text-eden-muted">
+                              {run.createdAtLabel}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-eden-muted">
+                          {run.outputSummary}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      No agent runs have been recorded yet for this project.
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                Select a project before running a project agent.
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Controlled test window
             </p>
             <p className="mt-2 text-sm leading-6 text-eden-muted">
@@ -667,7 +881,7 @@ export function ProjectBlueprintPanel({
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-xs leading-5 text-eden-muted">
-                    Current affordability for hosting: {formatCredits(availableForInternalUseCredits)} earned Leaves available for Eden use.
+                    Current affordability for hosting: {formatCredits(currentAvailableForInternalUseCredits)} earned Leaves available for Eden use.
                   </p>
                   <button
                     type="button"

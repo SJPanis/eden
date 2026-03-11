@@ -1,5 +1,6 @@
 import "server-only";
 
+import { Prisma } from "@prisma/client";
 import { getEffectiveTransactions } from "@/modules/core/credits/mock-credits";
 import { getBusinessPipelineSnapshot } from "@/modules/core/pipeline/mock-pipeline";
 import type {
@@ -162,6 +163,7 @@ type EdenResolvedUsageRecord = {
 export async function recordServiceUsageEvent(input: {
   serviceId: string;
   userId?: string | null;
+  executionKey?: string | null;
   usageType: EdenServiceUsageType;
   creditsUsed: number;
   grossCredits?: number | null;
@@ -171,19 +173,70 @@ export async function recordServiceUsageEvent(input: {
 }) {
   try {
     const repo = createPrismaServiceUsageRepo(getPrismaClient());
+    if (input.executionKey) {
+      const existingRecord = await repo.findByExecutionKey(input.executionKey);
+
+      if (existingRecord) {
+        return {
+          recorded: true,
+          duplicate: true,
+          source: "persistent" as const,
+          record: existingRecord,
+        };
+      }
+    }
     const record = await repo.create(input);
 
     return {
       recorded: Boolean(record),
+      duplicate: false,
       source: record ? ("persistent" as const) : ("mock_fallback" as const),
+      record,
     };
   } catch (error) {
+    if (
+      input.executionKey &&
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      try {
+        const repo = createPrismaServiceUsageRepo(getPrismaClient());
+        const existingRecord = await repo.findByExecutionKey(input.executionKey);
+
+        if (existingRecord) {
+          return {
+            recorded: true,
+            duplicate: true,
+            source: "persistent" as const,
+            record: existingRecord,
+          };
+        }
+      } catch (duplicateLookupError) {
+        logServiceUsageFailure(
+          "load_duplicate_service_usage_record",
+          duplicateLookupError,
+        );
+      }
+    }
+
     logServiceUsageFailure("record_service_usage", error);
 
     return {
       recorded: false,
+      duplicate: false,
       source: "mock_fallback" as const,
+      record: null,
     };
+  }
+}
+
+export async function loadRecordedServiceUsageEvent(executionKey: string) {
+  try {
+    const repo = createPrismaServiceUsageRepo(getPrismaClient());
+    return await repo.findByExecutionKey(executionKey);
+  } catch (error) {
+    logServiceUsageFailure("load_service_usage_by_execution_key", error);
+    return null;
   }
 }
 

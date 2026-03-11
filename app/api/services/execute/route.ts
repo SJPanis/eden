@@ -34,6 +34,7 @@ import {
   loadBusinessById,
   loadDiscoveryBusinessForService,
   loadDiscoveryServiceById,
+  loadRecordedServiceUsageEvent,
   recordServiceUsageEvent,
 } from "@/modules/core/services";
 import { getServerSession } from "@/modules/core/session/server";
@@ -49,8 +50,13 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as {
     serviceId?: string;
     input?: string;
+    executionKey?: string;
   };
   const serviceId = typeof body.serviceId === "string" ? body.serviceId : null;
+  const executionKey =
+    typeof body.executionKey === "string" && body.executionKey.trim().length > 0
+      ? body.executionKey.trim()
+      : null;
   const prompt = typeof body.input === "string" ? body.input.trim() : "";
 
   if (!serviceId) {
@@ -58,6 +64,16 @@ export async function POST(request: Request) {
       {
         ok: false,
         error: "A service id is required before Eden can run this service.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!executionKey) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Eden needs a stable execution key before it can run a paid service.",
       },
       { status: 400 },
     );
@@ -167,6 +183,85 @@ export async function POST(request: Request) {
     service.pricePerUse ?? 40,
     definition.metering,
   );
+  const usageTransactionId = buildLiveExecutionTransactionId(executionKey);
+  const existingUsageRecord = await loadRecordedServiceUsageEvent(executionKey);
+
+  if (existingUsageRecord) {
+    if (
+      existingUsageRecord.serviceId !== service.id ||
+      existingUsageRecord.userId !== session.user.id
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "That paid execution key is already associated with a different Eden service run.",
+        },
+        { status: 409 },
+      );
+    }
+
+    const existingResult = executeLiveService(service.id, prompt);
+
+    if (!existingResult) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Eden could not restore that paid service result.",
+        },
+        { status: 500 },
+      );
+    }
+
+    const transactionState = ensureUsageTransactionRecorded(
+      currentTransactions,
+      cookieTransactions,
+      buildUsageTransaction({
+        id: usageTransactionId,
+        userId: session.user.id,
+        businessId: business.id,
+        serviceId: service.id,
+        serviceTitle: service.title,
+        requiredCredits: existingUsageRecord.creditsUsed,
+      }),
+      session.user.id,
+    );
+    const previousBalanceCredits = transactionState.alreadyRecorded
+      ? currentBalanceCredits + existingUsageRecord.creditsUsed
+      : currentBalanceCredits;
+    const response = NextResponse.json({
+      ok: true,
+      serviceId: service.id,
+      serviceTitle: service.title,
+      transactionId: usageTransactionId,
+      transactionTitle: transactionState.transaction.title,
+      transactionTimestamp: transactionState.transaction.timestamp,
+      amountLabel: transactionState.transaction.amountLabel,
+      requiredCredits: existingUsageRecord.creditsUsed,
+      previousBalanceCredits,
+      nextBalanceCredits: transactionState.nextBalanceCredits,
+      grossCredits:
+        existingUsageRecord.grossCredits ?? existingUsageRecord.creditsUsed,
+      platformFeeCredits: existingUsageRecord.platformFeeCredits ?? 0,
+      builderEarningsCredits:
+        existingUsageRecord.builderEarningsCredits ??
+        Math.max(
+          (existingUsageRecord.grossCredits ?? existingUsageRecord.creditsUsed) -
+            (existingUsageRecord.platformFeeCredits ?? 0),
+          0,
+        ),
+      result: existingResult,
+    });
+
+    if (!transactionState.alreadyRecorded) {
+      response.cookies.set(
+        mockTransactionsCookieName,
+        serializeMockTransactionsCookie(transactionState.nextCookieTransactions),
+        mockTransactionsCookieOptions,
+      );
+    }
+
+    return response;
+  }
 
   if (currentBalanceCredits < requiredCredits) {
     return NextResponse.json(
@@ -208,6 +303,7 @@ export async function POST(request: Request) {
   const usagePersistence = await recordServiceUsageEvent({
     serviceId: service.id,
     userId: session.user.id,
+    executionKey,
     usageType: "live_service_execution",
     creditsUsed: requiredCredits,
     grossCredits: settlementSnapshot.grossCredits,
@@ -224,35 +320,30 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
-
-  const nextTransaction = {
-    id: `live-service-usage-${crypto.randomUUID()}`,
-    userId: session.user.id,
-    businessId: business.id,
-    serviceId: service.id,
-    title: `${service.title} run completed`,
-    amountLabel: `-${requiredCredits} Leaves`,
-    creditsDelta: -requiredCredits,
-    direction: "outflow",
-    kind: "usage",
-    detail: `Live service run completed for ${service.title}. Eden recorded the usage and updated builder/platform accounting.`,
-    timestamp: "Just now",
-    simulated: false,
-  } satisfies EdenMockTransaction;
-  const nextCookieTransactions = [nextTransaction, ...cookieTransactions].slice(0, 40);
-  const nextTransactions = [nextTransaction, ...currentTransactions].slice(0, 40);
-  const nextBalanceCredits = getUserCreditsBalance(session.user.id, nextTransactions);
+  const nextTransactionState = ensureUsageTransactionRecorded(
+    currentTransactions,
+    cookieTransactions,
+    buildUsageTransaction({
+      id: usageTransactionId,
+      userId: session.user.id,
+      businessId: business.id,
+      serviceId: service.id,
+      serviceTitle: service.title,
+      requiredCredits,
+    }),
+    session.user.id,
+  );
   const response = NextResponse.json({
     ok: true,
     serviceId: service.id,
     serviceTitle: service.title,
-    transactionId: nextTransaction.id,
-    transactionTitle: nextTransaction.title,
-    transactionTimestamp: nextTransaction.timestamp,
-    amountLabel: nextTransaction.amountLabel,
+    transactionId: nextTransactionState.transaction.id,
+    transactionTitle: nextTransactionState.transaction.title,
+    transactionTimestamp: nextTransactionState.transaction.timestamp,
+    amountLabel: nextTransactionState.transaction.amountLabel,
     requiredCredits,
     previousBalanceCredits: currentBalanceCredits,
-    nextBalanceCredits,
+    nextBalanceCredits: nextTransactionState.nextBalanceCredits,
     grossCredits: settlementSnapshot.grossCredits,
     platformFeeCredits: settlementSnapshot.platformFeeCredits,
     builderEarningsCredits: settlementSnapshot.builderEarningsCredits,
@@ -261,9 +352,64 @@ export async function POST(request: Request) {
 
   response.cookies.set(
     mockTransactionsCookieName,
-    serializeMockTransactionsCookie(nextCookieTransactions),
+    serializeMockTransactionsCookie(nextTransactionState.nextCookieTransactions),
     mockTransactionsCookieOptions,
   );
 
   return response;
+}
+
+function buildLiveExecutionTransactionId(executionKey: string) {
+  return `live-service-usage-${executionKey}`;
+}
+
+function buildUsageTransaction(input: {
+  id: string;
+  userId: string;
+  businessId: string;
+  serviceId: string;
+  serviceTitle: string;
+  requiredCredits: number;
+}) {
+  return {
+    id: input.id,
+    userId: input.userId,
+    businessId: input.businessId,
+    serviceId: input.serviceId,
+    title: `${input.serviceTitle} run completed`,
+    amountLabel: `-${input.requiredCredits} Leaves`,
+    creditsDelta: -input.requiredCredits,
+    direction: "outflow",
+    kind: "usage",
+    detail: `Live service run completed for ${input.serviceTitle}. Eden recorded the usage and updated builder/platform accounting.`,
+    timestamp: "Just now",
+    simulated: false,
+  } satisfies EdenMockTransaction;
+}
+
+function ensureUsageTransactionRecorded(
+  currentTransactions: EdenMockTransaction[],
+  cookieTransactions: EdenMockTransaction[],
+  nextTransaction: EdenMockTransaction,
+  userId: string,
+) {
+  const alreadyRecorded = currentTransactions.some(
+    (transaction) => transaction.id === nextTransaction.id,
+  );
+  const nextCookieTransactions = alreadyRecorded
+    ? cookieTransactions
+    : [nextTransaction, ...cookieTransactions].slice(0, 40);
+  const nextTransactions = alreadyRecorded
+    ? currentTransactions
+    : [nextTransaction, ...currentTransactions].slice(0, 40);
+
+  return {
+    alreadyRecorded,
+    transaction: nextTransaction,
+    nextCookieTransactions,
+    nextBalanceCredits: getUserCreditsBalance(
+      userId,
+      nextTransactions,
+    ),
+  };
 }

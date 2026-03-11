@@ -78,6 +78,7 @@ export function LiveServiceExecutionPanel({
   const [successNote, setSuccessNote] = useState<string | null>(null);
   const [result, setResult] = useState<EdenLiveServiceExecutionResult | null>(null);
   const [receipt, setReceipt] = useState<ExecutionReceipt | null>(null);
+  const [executionKey, setExecutionKey] = useState(() => crypto.randomUUID());
 
   const pricing = useMemo(
     () =>
@@ -126,6 +127,7 @@ export function LiveServiceExecutionPanel({
         body: JSON.stringify({
           serviceId,
           input,
+          executionKey,
         }),
       });
       const payload = (await response.json().catch(() => ({}))) as LiveServiceExecutionResponse;
@@ -165,6 +167,7 @@ export function LiveServiceExecutionPanel({
       startTransition(() => {
         router.refresh();
       });
+      setExecutionKey(crypto.randomUUID());
     } catch (error) {
       setErrorMessage(
         error instanceof Error
