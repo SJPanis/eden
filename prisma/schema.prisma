@@ -71,27 +71,74 @@ enum ProjectBlueprintStatus {
   INACTIVE
 }
 
+enum ProjectRuntimeType {
+  INTERNAL_SANDBOX
+  INTERNAL_PREVIEW
+  EDEN_MANAGED_INSTANCE
+  EXTERNAL_LINKED_DOMAIN
+}
+
+enum ProjectRuntimeEnvironment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+enum ProjectRuntimeTarget {
+  EDEN_INTERNAL
+  EDEN_MANAGED
+  EXTERNAL_DOMAIN
+}
+
+enum ProjectRuntimeAccessPolicy {
+  OWNER_ONLY
+  BUSINESS_MEMBERS
+  PUBLIC
+}
+
+enum ProjectRuntimeVisibility {
+  PRIVATE_INTERNAL
+  PRIVATE_PREVIEW
+  PUBLIC_LAUNCH
+}
+
+enum ProjectRuntimeStatus {
+  REGISTERED
+  CONFIGURING
+  READY
+  PAUSED
+  ERROR
+  ARCHIVED
+}
+
+enum ProjectRuntimeDomainLinkType {
+  INTERNAL_PREVIEW
+  EDEN_MANAGED
+  LINKED_EXTERNAL
+}
+
 model User {
-  id                  String           @id @default(cuid())
-  username            String           @unique
-  displayName         String
-  passwordHash        String?
-  role                EdenRole         @default(CONSUMER)
-  status              UserStatus       @default(ACTIVE)
-  summary             String?
-  edenBalanceCredits  Int              @default(0)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  ownedBusinesses     Business[]       @relation("BusinessOwner")
-  businessMemberships BusinessMember[]
-  authProviderAccounts AuthProviderAccount[]
-  serviceUsages       ServiceUsage[]
-  creditsTopUpPayments CreditsTopUpPayment[]
-  internalLeavesUsages InternalLeavesUsage[]
-  projectAgentRuns    ProjectAgentRun[]
-  createdProjectBlueprints ProjectBlueprint[] @relation("ProjectBlueprintCreator")
-  receivedLeavesGrants OwnerLeavesGrant[] @relation("OwnerLeavesGrantRecipient")
-  issuedLeavesGrants OwnerLeavesGrant[] @relation("OwnerLeavesGrantIssuer")
+  id                       String                @id @default(cuid())
+  username                 String                @unique
+  displayName              String
+  passwordHash             String?
+  role                     EdenRole              @default(CONSUMER)
+  status                   UserStatus            @default(ACTIVE)
+  summary                  String?
+  edenBalanceCredits       Int                   @default(0)
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  ownedBusinesses          Business[]            @relation("BusinessOwner")
+  businessMemberships      BusinessMember[]
+  authProviderAccounts     AuthProviderAccount[]
+  serviceUsages            ServiceUsage[]
+  creditsTopUpPayments     CreditsTopUpPayment[]
+  internalLeavesUsages     InternalLeavesUsage[]
+  projectAgentRuns         ProjectAgentRun[]
+  createdProjectBlueprints ProjectBlueprint[]    @relation("ProjectBlueprintCreator")
+  createdProjectRuntimes   ProjectRuntime[]      @relation("ProjectRuntimeCreator")
+  receivedLeavesGrants     OwnerLeavesGrant[]    @relation("OwnerLeavesGrantRecipient")
+  issuedLeavesGrants       OwnerLeavesGrant[]    @relation("OwnerLeavesGrantIssuer")
 }
 
 model AuthProviderAccount {
@@ -108,10 +155,10 @@ model AuthProviderAccount {
 }
 
 model Business {
-  id                      String             @id @default(cuid())
+  id                      String                @id @default(cuid())
   name                    String
   ownerUserId             String
-  status                  BusinessStatus     @default(DRAFT)
+  status                  BusinessStatus        @default(DRAFT)
   category                String
   tags                    String[]
   description             String
@@ -119,18 +166,18 @@ model Business {
   tagline                 String?
   targetAudience          String?
   monetizationModel       String?
-  visibility              BusinessVisibility @default(PRIVATE_PREVIEW)
+  visibility              BusinessVisibility    @default(PRIVATE_PREVIEW)
   teamLabel               String?
-  creditBalanceCredits    Int                @default(0)
-  publishReadinessPercent Int                @default(0)
+  creditBalanceCredits    Int                   @default(0)
+  publishReadinessPercent Int                   @default(0)
   nextMilestone           String?
   featuredServiceId       String?
-  createdAt               DateTime           @default(now())
-  updatedAt               DateTime           @updatedAt
-  ownerUser               User               @relation("BusinessOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  ownerUser               User                  @relation("BusinessOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
   members                 BusinessMember[]
-  services                Service[]          @relation("BusinessServices")
-  featuredService         Service?           @relation("FeaturedService", fields: [featuredServiceId], references: [id], onDelete: SetNull)
+  services                Service[]             @relation("BusinessServices")
+  featuredService         Service?              @relation("FeaturedService", fields: [featuredServiceId], references: [id], onDelete: SetNull)
   pipelineRecords         PipelineRecord[]
   pipelineEvents          PipelineEvent[]
   payoutSettlements       PayoutSettlement[]
@@ -143,41 +190,86 @@ model Business {
 }
 
 model ProjectBlueprint {
-  id                     String                 @id @default(cuid())
-  businessId             String
-  creatorUserId          String
-  title                  String
-  description            String
-  goal                   String
-  status                 ProjectBlueprintStatus @default(DRAFT)
-  hostingBalanceLeaves   Int                    @default(0)
+  id                      String                 @id @default(cuid())
+  businessId              String
+  creatorUserId           String
+  title                   String
+  description             String
+  goal                    String
+  status                  ProjectBlueprintStatus @default(DRAFT)
+  hostingBalanceLeaves    Int                    @default(0)
   hostingBalanceUpdatedAt DateTime?
-  publishedAt            DateTime?
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  business               Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  creatorUser            User                   @relation("ProjectBlueprintCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
-  agents                 ProjectAgent[]
-  agentRuns              ProjectAgentRun[]
+  publishedAt             DateTime?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  business                Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  creatorUser             User                   @relation("ProjectBlueprintCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
+  agents                  ProjectAgent[]
+  agentRuns               ProjectAgentRun[]
+  runtimes                ProjectRuntime[]
 
   @@index([businessId, createdAt])
   @@index([creatorUserId, createdAt])
   @@index([status, createdAt])
 }
 
+model ProjectRuntime {
+  id                String                     @id @default(cuid())
+  projectId         String
+  creatorUserId     String
+  name              String
+  purpose           String
+  runtimeType       ProjectRuntimeType
+  environment       ProjectRuntimeEnvironment  @default(DEVELOPMENT)
+  target            ProjectRuntimeTarget       @default(EDEN_INTERNAL)
+  accessPolicy      ProjectRuntimeAccessPolicy @default(BUSINESS_MEMBERS)
+  visibility        ProjectRuntimeVisibility   @default(PRIVATE_PREVIEW)
+  status            ProjectRuntimeStatus       @default(REGISTERED)
+  runtimeLocator    String?
+  statusDetail      String?
+  lastHealthCheckAt DateTime?
+  activatedAt       DateTime?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  project           ProjectBlueprint           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creatorUser       User                       @relation("ProjectRuntimeCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
+  domainLinks       ProjectRuntimeDomainLink[]
+
+  @@unique([projectId, environment, runtimeType])
+  @@index([projectId, createdAt])
+  @@index([runtimeType, environment, createdAt])
+  @@index([status, createdAt])
+}
+
+model ProjectRuntimeDomainLink {
+  id         String                       @id @default(cuid())
+  runtimeId  String
+  linkType   ProjectRuntimeDomainLinkType
+  hostname   String
+  pathPrefix String?
+  isPrimary  Boolean                      @default(false)
+  isActive   Boolean                      @default(false)
+  createdAt  DateTime                     @default(now())
+  updatedAt  DateTime                     @updatedAt
+  runtime    ProjectRuntime               @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+
+  @@unique([runtimeId, hostname, pathPrefix])
+  @@index([runtimeId, createdAt])
+}
+
 model ProjectAgent {
-  id            String        @id @default(cuid())
+  id            String            @id @default(cuid())
   projectId     String
   name          String
   roleTitle     String
   instructions  String
   parentAgentId String?
   branchLabel   String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  project       ProjectBlueprint @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  parentAgent   ProjectAgent? @relation("ProjectAgentTree", fields: [parentAgentId], references: [id], onDelete: SetNull)
-  childAgents   ProjectAgent[] @relation("ProjectAgentTree")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  project       ProjectBlueprint  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parentAgent   ProjectAgent?     @relation("ProjectAgentTree", fields: [parentAgentId], references: [id], onDelete: SetNull)
+  childAgents   ProjectAgent[]    @relation("ProjectAgentTree")
   agentRuns     ProjectAgentRun[]
 
   @@index([projectId, createdAt])
@@ -186,19 +278,19 @@ model ProjectAgent {
 
 model ProjectAgentRun {
   id            String           @id @default(cuid())
-  projectId      String
-  agentId        String
-  userId         String?
-  executionKey   String?          @unique
-  prompt         String
-  outputTitle    String
-  outputSummary  String
-  outputLines    String[]
-  costLeaves     Int
-  createdAt      DateTime         @default(now())
-  project        ProjectBlueprint @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  agent          ProjectAgent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  user           User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  projectId     String
+  agentId       String
+  userId        String?
+  executionKey  String?          @unique
+  prompt        String
+  outputTitle   String
+  outputSummary String
+  outputLines   String[]
+  costLeaves    Int
+  createdAt     DateTime         @default(now())
+  project       ProjectBlueprint @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  agent         ProjectAgent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  user          User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([projectId, createdAt])
   @@index([agentId, createdAt])
@@ -249,18 +341,18 @@ model Service {
 }
 
 model ServiceUsage {
-  id          String   @id @default(cuid())
-  serviceId   String
-  userId      String?
-  executionKey String? @unique
-  usageType   String
-  creditsUsed Int
-  grossCredits Int?
-  platformFeeCredits Int?
+  id                     String   @id @default(cuid())
+  serviceId              String
+  userId                 String?
+  executionKey           String?  @unique
+  usageType              String
+  creditsUsed            Int
+  grossCredits           Int?
+  platformFeeCredits     Int?
   builderEarningsCredits Int?
-  createdAt   DateTime @default(now())
-  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt              DateTime @default(now())
+  service                Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user                   User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([serviceId, createdAt])
   @@index([userId, createdAt])
@@ -268,9 +360,9 @@ model ServiceUsage {
 }
 
 model CreditsTopUpPayment {
-  id                      String                   @id @default(cuid())
+  id                      String                    @id @default(cuid())
   provider                String
-  providerSessionId       String                   @unique
+  providerSessionId       String                    @unique
   providerPaymentIntentId String?
   userId                  String?
   creditsAmount           Int
@@ -278,10 +370,10 @@ model CreditsTopUpPayment {
   currency                String
   status                  CreditsTopUpPaymentStatus @default(PENDING)
   failureReason           String?
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
   settledAt               DateTime?
-  user                    User?                    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user                    User?                     @relation(fields: [userId], references: [id], onDelete: SetNull)
   paymentEventLogs        PaymentEventLog[]
 
   @@index([provider, createdAt])
@@ -290,16 +382,16 @@ model CreditsTopUpPayment {
 }
 
 model PaymentEventLog {
-  id                  String                @id @default(cuid())
-  provider            String
-  eventType           String
-  providerEventId     String?
+  id                    String                @id @default(cuid())
+  provider              String
+  eventType             String
+  providerEventId       String?
   creditsTopUpPaymentId String?
-  providerSessionId   String?
-  metadata            Json?
-  status              PaymentEventLogStatus @default(INFO)
-  createdAt           DateTime              @default(now())
-  creditsTopUpPayment CreditsTopUpPayment?  @relation(fields: [creditsTopUpPaymentId], references: [id], onDelete: SetNull)
+  providerSessionId     String?
+  metadata              Json?
+  status                PaymentEventLogStatus @default(INFO)
+  createdAt             DateTime              @default(now())
+  creditsTopUpPayment   CreditsTopUpPayment?  @relation(fields: [creditsTopUpPaymentId], references: [id], onDelete: SetNull)
 
   @@index([provider, createdAt])
   @@index([eventType, createdAt])
@@ -310,32 +402,32 @@ model PaymentEventLog {
 }
 
 model PayoutSettlement {
-  id        String                  @id @default(cuid())
-  businessId String
+  id            String                 @id @default(cuid())
+  businessId    String
   amountCredits Int
-  status    PayoutSettlementStatus  @default(SETTLED)
-  reference String?
-  notes     String?
-  createdAt DateTime                @default(now())
-  updatedAt DateTime                @updatedAt
-  settledAt DateTime?
-  business  Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  status        PayoutSettlementStatus @default(SETTLED)
+  reference     String?
+  notes         String?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  settledAt     DateTime?
+  business      Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId, createdAt])
   @@index([status, createdAt])
 }
 
 model InternalLeavesUsage {
-  id           String   @id @default(cuid())
-  businessId   String
-  userId       String?
+  id            String   @id @default(cuid())
+  businessId    String
+  userId        String?
   amountCredits Int
-  usageType    String
-  reference    String?
-  notes        String?
-  createdAt    DateTime @default(now())
-  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  usageType     String
+  reference     String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([businessId, createdAt])
   @@index([userId, createdAt])

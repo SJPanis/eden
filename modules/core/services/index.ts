@@ -12,6 +12,7 @@ export * from "@/modules/core/services/leaves-grant-service";
 export * from "@/modules/core/services/pipeline-service";
 export * from "@/modules/core/services/payout-accounting-service";
 export * from "@/modules/core/services/payout-settlement-service";
+export * from "@/modules/core/services/project-runtime-service";
 export * from "@/modules/core/services/project-workspace-service";
 export * from "@/modules/core/services/read-record-mappers";
 export * from "@/modules/core/services/read-service-types";

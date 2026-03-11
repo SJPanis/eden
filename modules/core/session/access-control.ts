@@ -28,6 +28,7 @@ const protectedApiRoutePrefixes: Array<{ prefix: string; role: EdenRole }> = [
   { prefix: "/api/mock-assistant-history", role: "business" },
   { prefix: "/api/mock-internal-leaves-usage", role: "business" },
   { prefix: "/api/owner/leaves-grants", role: "owner" },
+  { prefix: "/api/owner/project-runtimes", role: "owner" },
   { prefix: "/api/mock-admin", role: "owner" },
   { prefix: "/api/mock-payout-settlements", role: "owner" },
   { prefix: "/api/mock-state", role: "owner" },

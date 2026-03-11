@@ -939,7 +939,7 @@ function mapUsageRecordToTransaction(record: EdenRepoServiceUsageRecord) {
     businessId: record.businessId,
     serviceId: record.serviceId,
     title: `${record.serviceTitle} run completed`,
-    amountLabel: `-${record.creditsUsed} Leafâ€™s`,
+    amountLabel: `-${record.creditsUsed} Leaf's`,
     creditsDelta: -record.creditsUsed,
     direction: "outflow" as const,
     kind: "usage" as const,

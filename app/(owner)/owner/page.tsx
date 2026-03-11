@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getMockAdminState } from "@/modules/core/admin/server";
 import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
@@ -48,23 +49,33 @@ export default async function OwnerPage() {
   });
 
   return (
-    <OwnerDashboardPanel
-      session={session}
-      simulatedTransactions={simulatedTransactions}
-      pipelineRecords={pipelineRecords}
-      pipelineEvents={pipelineEvents}
-      adminState={adminState}
-      simulationBusinessId={simulationBusinessId}
-      workspaceServices={workspaceServices}
-      watchedUsers={dashboardData.watchedUsers}
-      watchedBusinesses={dashboardData.watchedBusinesses}
-      watchedServices={dashboardData.watchedServices}
-      userCatalog={dashboardData.userCatalog}
-      businessCatalog={dashboardData.businessCatalog}
-      serviceCatalog={dashboardData.serviceCatalog}
-      usageMetrics={usageMetrics}
-      paymentMetrics={paymentMetrics}
-      payoutAccounting={payoutAccounting}
-    />
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Link
+          href="/owner/runtimes"
+          className="rounded-full border border-eden-edge bg-white px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+        >
+          Open runtime registry
+        </Link>
+      </div>
+      <OwnerDashboardPanel
+        session={session}
+        simulatedTransactions={simulatedTransactions}
+        pipelineRecords={pipelineRecords}
+        pipelineEvents={pipelineEvents}
+        adminState={adminState}
+        simulationBusinessId={simulationBusinessId}
+        workspaceServices={workspaceServices}
+        watchedUsers={dashboardData.watchedUsers}
+        watchedBusinesses={dashboardData.watchedBusinesses}
+        watchedServices={dashboardData.watchedServices}
+        userCatalog={dashboardData.userCatalog}
+        businessCatalog={dashboardData.businessCatalog}
+        serviceCatalog={dashboardData.serviceCatalog}
+        usageMetrics={usageMetrics}
+        paymentMetrics={paymentMetrics}
+        payoutAccounting={payoutAccounting}
+      />
+    </div>
   );
 }
