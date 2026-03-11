@@ -117,6 +117,34 @@ enum ProjectRuntimeDomainLinkType {
   LINKED_EXTERNAL
 }
 
+enum ProjectRuntimeLaunchIntentType {
+  INTERNAL_PREVIEW
+  EDEN_HOSTED
+  LINKED_EXTERNAL
+}
+
+enum ProjectRuntimeLaunchMode {
+  CONTROL_PLANE_ONLY
+  EDEN_MANAGED_PROMOTION
+  EXTERNAL_HANDOFF
+}
+
+enum ProjectRuntimeDeploymentEventType {
+  LAUNCH_INTENT_UPDATED
+  MANUAL_NOTE
+  PREVIEW_CHECKPOINT
+  HOSTED_CHECKPOINT
+  EXTERNAL_LINK_CHECKPOINT
+}
+
+enum ProjectRuntimeDeploymentEventStatus {
+  RECORDED
+  PLANNED
+  READY
+  BLOCKED
+  FAILED
+}
+
 enum ProjectRuntimeTaskType {
   IMPLEMENTATION_PLAN
   ANALYSIS
@@ -131,29 +159,30 @@ enum ProjectRuntimeTaskStatus {
 }
 
 model User {
-  id                         String                   @id @default(cuid())
-  username                   String                   @unique
-  displayName                String
-  passwordHash               String?
-  role                       EdenRole                 @default(CONSUMER)
-  status                     UserStatus               @default(ACTIVE)
-  summary                    String?
-  edenBalanceCredits         Int                      @default(0)
-  createdAt                  DateTime                 @default(now())
-  updatedAt                  DateTime                 @updatedAt
-  ownedBusinesses            Business[]               @relation("BusinessOwner")
-  businessMemberships        BusinessMember[]
-  authProviderAccounts       AuthProviderAccount[]
-  serviceUsages              ServiceUsage[]
-  creditsTopUpPayments       CreditsTopUpPayment[]
-  internalLeavesUsages       InternalLeavesUsage[]
-  projectAgentRuns           ProjectAgentRun[]
-  createdProjectBlueprints   ProjectBlueprint[]       @relation("ProjectBlueprintCreator")
-  createdProjectRuntimes     ProjectRuntime[]         @relation("ProjectRuntimeCreator")
-  createdProjectRuntimeTasks ProjectRuntimeTask[]     @relation("ProjectRuntimeTaskCreator")
-  projectRuntimeAuditLogs    ProjectRuntimeAuditLog[] @relation("ProjectRuntimeAuditActor")
-  receivedLeavesGrants       OwnerLeavesGrant[]       @relation("OwnerLeavesGrantRecipient")
-  issuedLeavesGrants         OwnerLeavesGrant[]       @relation("OwnerLeavesGrantIssuer")
+  id                              String                           @id @default(cuid())
+  username                        String                           @unique
+  displayName                     String
+  passwordHash                    String?
+  role                            EdenRole                         @default(CONSUMER)
+  status                          UserStatus                       @default(ACTIVE)
+  summary                         String?
+  edenBalanceCredits              Int                              @default(0)
+  createdAt                       DateTime                         @default(now())
+  updatedAt                       DateTime                         @updatedAt
+  ownedBusinesses                 Business[]                       @relation("BusinessOwner")
+  businessMemberships             BusinessMember[]
+  authProviderAccounts            AuthProviderAccount[]
+  serviceUsages                   ServiceUsage[]
+  creditsTopUpPayments            CreditsTopUpPayment[]
+  internalLeavesUsages            InternalLeavesUsage[]
+  projectAgentRuns                ProjectAgentRun[]
+  createdProjectBlueprints        ProjectBlueprint[]               @relation("ProjectBlueprintCreator")
+  createdProjectRuntimes          ProjectRuntime[]                 @relation("ProjectRuntimeCreator")
+  createdProjectRuntimeTasks      ProjectRuntimeTask[]             @relation("ProjectRuntimeTaskCreator")
+  projectRuntimeAuditLogs         ProjectRuntimeAuditLog[]         @relation("ProjectRuntimeAuditActor")
+  projectRuntimeDeploymentRecords ProjectRuntimeDeploymentRecord[] @relation("ProjectRuntimeDeploymentActor")
+  receivedLeavesGrants            OwnerLeavesGrant[]               @relation("OwnerLeavesGrantRecipient")
+  issuedLeavesGrants              OwnerLeavesGrant[]               @relation("OwnerLeavesGrantIssuer")
 }
 
 model AuthProviderAccount {
@@ -229,28 +258,30 @@ model ProjectBlueprint {
 }
 
 model ProjectRuntime {
-  id                String                     @id @default(cuid())
+  id                String                           @id @default(cuid())
   projectId         String
   creatorUserId     String
   name              String
   purpose           String
   runtimeType       ProjectRuntimeType
-  environment       ProjectRuntimeEnvironment  @default(DEVELOPMENT)
-  target            ProjectRuntimeTarget       @default(EDEN_INTERNAL)
-  accessPolicy      ProjectRuntimeAccessPolicy @default(BUSINESS_MEMBERS)
-  visibility        ProjectRuntimeVisibility   @default(PRIVATE_PREVIEW)
-  status            ProjectRuntimeStatus       @default(REGISTERED)
+  environment       ProjectRuntimeEnvironment        @default(DEVELOPMENT)
+  target            ProjectRuntimeTarget             @default(EDEN_INTERNAL)
+  accessPolicy      ProjectRuntimeAccessPolicy       @default(BUSINESS_MEMBERS)
+  visibility        ProjectRuntimeVisibility         @default(PRIVATE_PREVIEW)
+  status            ProjectRuntimeStatus             @default(REGISTERED)
   runtimeLocator    String?
   statusDetail      String?
   lastHealthCheckAt DateTime?
   activatedAt       DateTime?
-  createdAt         DateTime                   @default(now())
-  updatedAt         DateTime                   @updatedAt
-  project           ProjectBlueprint           @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creatorUser       User                       @relation("ProjectRuntimeCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
+  createdAt         DateTime                         @default(now())
+  updatedAt         DateTime                         @updatedAt
+  project           ProjectBlueprint                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creatorUser       User                             @relation("ProjectRuntimeCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
   domainLinks       ProjectRuntimeDomainLink[]
+  launchIntent      ProjectRuntimeLaunchIntent?
   tasks             ProjectRuntimeTask[]
   auditLogs         ProjectRuntimeAuditLog[]
+  deploymentRecords ProjectRuntimeDeploymentRecord[]
 
   @@unique([projectId, environment, runtimeType])
   @@index([projectId, createdAt])
@@ -272,6 +303,22 @@ model ProjectRuntimeDomainLink {
 
   @@unique([runtimeId, hostname, pathPrefix])
   @@index([runtimeId, createdAt])
+}
+
+model ProjectRuntimeLaunchIntent {
+  id               String                         @id @default(cuid())
+  runtimeId        String                         @unique
+  intentType       ProjectRuntimeLaunchIntentType @default(INTERNAL_PREVIEW)
+  intendedTarget   ProjectRuntimeTarget           @default(EDEN_INTERNAL)
+  launchMode       ProjectRuntimeLaunchMode       @default(CONTROL_PLANE_ONLY)
+  destinationLabel String?
+  notes            String?
+  createdAt        DateTime                       @default(now())
+  updatedAt        DateTime                       @updatedAt
+  runtime          ProjectRuntime                 @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+
+  @@index([intentType, createdAt])
+  @@index([intendedTarget, createdAt])
 }
 
 model ProjectRuntimeTask {
@@ -318,6 +365,24 @@ model ProjectRuntimeAuditLog {
   @@index([runtimeId, createdAt])
   @@index([actorUserId, createdAt])
   @@index([fieldName, createdAt])
+}
+
+model ProjectRuntimeDeploymentRecord {
+  id          String                              @id @default(cuid())
+  runtimeId   String
+  actorUserId String
+  eventType   ProjectRuntimeDeploymentEventType
+  eventStatus ProjectRuntimeDeploymentEventStatus @default(RECORDED)
+  summary     String
+  detail      String?
+  createdAt   DateTime                            @default(now())
+  runtime     ProjectRuntime                      @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  actorUser   User                                @relation("ProjectRuntimeDeploymentActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@index([runtimeId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([eventType, createdAt])
+  @@index([eventStatus, createdAt])
 }
 
 model ProjectAgent {

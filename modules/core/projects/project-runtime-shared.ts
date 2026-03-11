@@ -21,9 +21,47 @@ export const ownerRuntimeHealthCheckActionOptions = [
   { value: "set_now", label: "Record health check now" },
   { value: "clear", label: "Clear health check" },
 ] as const;
+export const ownerRuntimeLaunchIntentTypeOptions = [
+  { value: "internal_preview", label: "Internal Preview" },
+  { value: "eden_hosted", label: "Eden Hosted" },
+  { value: "linked_external", label: "Linked External" },
+] as const;
+export const ownerRuntimeLaunchModeOptions = [
+  { value: "control_plane_only", label: "Control Plane Only" },
+  { value: "eden_managed_promotion", label: "Eden Managed Promotion" },
+  { value: "external_handoff", label: "External Handoff" },
+] as const;
+export const ownerRuntimeLaunchTargetOptions = [
+  { value: "eden_internal", label: "Eden Internal" },
+  { value: "eden_managed", label: "Eden Managed" },
+  { value: "external_domain", label: "External Domain" },
+] as const;
+export const ownerRuntimeDeploymentEventTypeOptions = [
+  { value: "manual_note", label: "Manual Note" },
+  { value: "preview_checkpoint", label: "Preview Checkpoint" },
+  { value: "hosted_checkpoint", label: "Hosted Checkpoint" },
+  { value: "external_link_checkpoint", label: "External Link Checkpoint" },
+] as const;
+export const ownerRuntimeDeploymentEventStatusOptions = [
+  { value: "recorded", label: "Recorded" },
+  { value: "planned", label: "Planned" },
+  { value: "ready", label: "Ready" },
+  { value: "blocked", label: "Blocked" },
+  { value: "failed", label: "Failed" },
+] as const;
 
 export type OwnerRuntimeHealthCheckAction =
   (typeof ownerRuntimeHealthCheckActionOptions)[number]["value"];
+export type OwnerRuntimeLaunchIntentType =
+  (typeof ownerRuntimeLaunchIntentTypeOptions)[number]["value"];
+export type OwnerRuntimeLaunchMode =
+  (typeof ownerRuntimeLaunchModeOptions)[number]["value"];
+export type OwnerRuntimeLaunchTarget =
+  (typeof ownerRuntimeLaunchTargetOptions)[number]["value"];
+export type OwnerRuntimeDeploymentEventType =
+  (typeof ownerRuntimeDeploymentEventTypeOptions)[number]["value"];
+export type OwnerRuntimeDeploymentEventStatus =
+  (typeof ownerRuntimeDeploymentEventStatusOptions)[number]["value"];
 
 export type EdenProjectRuntimeDomainLinkRecord = {
   id: string;
@@ -45,6 +83,33 @@ export type EdenProjectRuntimeAuditLogRecord = {
   nextValue?: string | null;
   nextValueLabel?: string | null;
   detail: string;
+  actorUserId: string;
+  actorLabel: string;
+  createdAtLabel: string;
+};
+
+export type EdenProjectRuntimeLaunchIntentRecord = {
+  id: string;
+  intentType: string;
+  intentTypeLabel: string;
+  intendedTarget: string;
+  intendedTargetLabel: string;
+  launchMode: string;
+  launchModeLabel: string;
+  destinationLabel?: string | null;
+  notes?: string | null;
+  createdAtLabel: string;
+  updatedAtLabel: string;
+};
+
+export type EdenProjectRuntimeDeploymentRecord = {
+  id: string;
+  eventType: string;
+  eventTypeLabel: string;
+  eventStatus: string;
+  eventStatusLabel: string;
+  summary: string;
+  detail?: string | null;
   actorUserId: string;
   actorLabel: string;
   createdAtLabel: string;
@@ -83,7 +148,9 @@ export type EdenProjectRuntimeRecord = {
   updatedAtLabel: string;
   lastHealthCheckAtLabel?: string | null;
   domainLinks: EdenProjectRuntimeDomainLinkRecord[];
+  launchIntent?: EdenProjectRuntimeLaunchIntentRecord | null;
   auditEntries: EdenProjectRuntimeAuditLogRecord[];
+  deploymentHistory: EdenProjectRuntimeDeploymentRecord[];
 };
 
 export type EdenProjectRuntimeRegistryState = {

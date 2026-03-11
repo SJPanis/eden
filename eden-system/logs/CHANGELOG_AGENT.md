@@ -239,3 +239,53 @@
 - No container execution, health probe, deploy job, preview activation, or domain handoff happens when lifecycle metadata is updated.
 - The new lifecycle audit migration was generated but not applied in this session.
 - Persistent verification of runtime lifecycle updates and audit entries still depends on resolving the existing Prisma/database access issues and running the pending migration commands on the live database.
+
+### Runtime launch-intent and deployment-history metadata v1 completed
+
+- Re-read `EDEN_MASTER_SPEC.md`, `PROJECT_ISOLATION_MODEL.md`, `AI_ORCHESTRATION_MODEL.md`, `CURRENT_STATE.md`, `TASK_QUEUE.md`, `HUMAN_ACTIONS_REQUIRED.md`, `CHANGELOG_AGENT.md`, and `CODEX_TASK_EXECUTOR.md` before extending runtime control.
+- Inspected the current runtime schema, runtime service layer, audit-log flow, and `/owner/runtimes` UI before changing code.
+- Extended Prisma schema with:
+  - enums: `ProjectRuntimeLaunchIntentType`, `ProjectRuntimeLaunchMode`
+  - enums: `ProjectRuntimeDeploymentEventType`, `ProjectRuntimeDeploymentEventStatus`
+  - models: `ProjectRuntimeLaunchIntent`, `ProjectRuntimeDeploymentRecord`
+  - reverse relation from `User` to deployment-history records
+- Extended runtime shared types with:
+  - launch-intent option lists and types
+  - deployment-history option lists and types
+  - `EdenProjectRuntimeLaunchIntentRecord`
+  - `EdenProjectRuntimeDeploymentRecord`
+- Extended `modules/core/services/project-runtime-service.ts` with:
+  - launch-intent loading on runtime registry records
+  - recent deployment-history loading on runtime registry records
+  - owner launch-intent update handling
+  - manual deployment-history record creation
+  - default internal sandbox launch-intent creation during sandbox registration
+- Added owner-only API routes:
+  - `app/api/owner/project-runtimes/[runtimeId]/launch-intent/route.ts`
+  - `app/api/owner/project-runtimes/[runtimeId]/deployment-history/route.ts`
+- Added owner-only UI:
+  - `ui/owner/owner-runtime-launch-panel.tsx`
+  - integrated into `ui/owner/owner-runtime-registry.tsx`
+- Preserved:
+  - existing `ProjectBlueprint` behavior
+  - existing runtime registry behavior
+  - existing sandbox task runner behavior
+  - existing lifecycle controls and audit entry behavior
+- Generated additive migration:
+  - `prisma/migrations/20260311233000_runtime_launch_intent_deployment_history_v1/migration.sql`
+
+### Verification completed for runtime launch-intent and deployment-history v1
+
+- `cmd /c npx prisma format` passed when pointed at the local schema engine binary.
+- `cmd /c npx prisma generate` passed.
+- `cmd /c npx prisma validate` passed.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+### Important limits after runtime launch-intent and deployment-history v1
+
+- Launch intent and deployment history are still metadata-only control-plane records.
+- No container provisioning, preview deployment, Eden-managed host launch, or external domain handoff happens when these records are updated.
+- Saving launch intent creates a deployment-history record, but that record describes owner intent only and not a real deploy action.
+- The new launch-intent/deployment-history migration was generated but not applied in this session.
+- Persistent verification of launch intent and deployment-history records still depends on resolving the existing Prisma/database access issues and running the pending migration commands on the live database.

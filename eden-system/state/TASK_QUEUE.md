@@ -46,11 +46,18 @@
 - [x] Add runtime lifecycle audit logging for status changes, status detail changes, and health check updates.
 - [x] Add recent runtime audit visibility to `/owner/runtimes`.
 - [x] Generate a Prisma migration for runtime lifecycle audit logging.
+- [x] Add structured runtime launch-intent metadata separate from lifecycle status fields.
+- [x] Add deployment-history metadata records for runtime control-plane events.
+- [x] Add owner-only launch-intent update APIs and UI inside `/owner/runtimes`.
+- [x] Add owner-only deployment-history visibility and manual record creation inside `/owner/runtimes`.
+- [x] Generate a Prisma migration for runtime launch-intent and deployment-history metadata.
 - [ ] Run `prisma migrate resolve --applied 20260311120000_pre_runtime_baseline` on the active database.
-- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, and `20260311213000_owner_runtime_lifecycle_audit_v1` create the runtime, task, and audit tables.
+- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, and `20260311233000_runtime_launch_intent_deployment_history_v1` create the runtime, task, audit, launch-intent, and deployment-history tables.
 - [ ] Execute the owner-only sandbox initializer against the migrated database and confirm the registry loads persistent data.
 - [ ] Create a sandbox task against the migrated database and confirm planner/worker outputs persist.
 - [ ] Save a runtime lifecycle update against the migrated database and confirm audit entries persist.
+- [ ] Save a runtime launch-intent update against the migrated database and confirm the generated deployment-history record persists.
+- [ ] Add a manual deployment-history entry against the migrated database and confirm it persists.
 
 ### Soon
 
@@ -59,13 +66,15 @@
 - [ ] Add runtime launch/read actions that operate on runtime metadata instead of direct project blueprint state.
 - [ ] Add domain/link metadata for external domains and Eden-managed hosted URLs.
 - [ ] Add project secret/config storage boundaries outside general business metadata.
+- [ ] Add structured runtime config/secret metadata boundaries for Eden-managed and external launch targets.
+- [ ] Add launch-intent change auditing if launch metadata needs its own immutable audit stream beyond deployment-history records.
 - [ ] Expand runtime audit logging to cover runtime creation, visibility/access policy changes, target changes, and launch-related events.
 - [ ] Add a runtime-aware filter or drill-down from the owner control room into `/owner/runtimes`.
 
 ### Later
 
 - [ ] Introduce isolated workers or containers for project execution.
-- [ ] Introduce runtime artifact storage and deployment history.
+- [ ] Introduce runtime artifact storage and real deployment execution history sourced from actual jobs.
 - [ ] Support multi-project businesses with multiple environments and domain mappings.
 
 ## Chapter 03 - AI Orchestration

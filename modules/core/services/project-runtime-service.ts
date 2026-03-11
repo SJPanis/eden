@@ -3,12 +3,19 @@ import "server-only";
 import { EdenRole, Prisma, UserStatus } from "@prisma/client";
 import type {
   EdenProjectRuntimeAuditLogRecord,
+  EdenProjectRuntimeDeploymentRecord,
+  EdenProjectRuntimeLaunchIntentRecord,
   EdenProjectRuntimeRecord,
   EdenProjectRuntimeRegistryState,
   EdenProjectRuntimeTaskArtifactRecord,
   EdenProjectRuntimeTaskRecord,
   EdenProjectRuntimeTaskState,
+  OwnerRuntimeDeploymentEventStatus,
+  OwnerRuntimeDeploymentEventType,
   OwnerRuntimeHealthCheckAction,
+  OwnerRuntimeLaunchIntentType,
+  OwnerRuntimeLaunchMode,
+  OwnerRuntimeLaunchTarget,
 } from "@/modules/core/projects/project-runtime-shared";
 import {
   edenInternalSandboxLeadAgentLabel,
@@ -45,7 +52,23 @@ const projectRuntimeRegistryInclude = {
       createdAt: "asc",
     },
   },
+  launchIntent: true,
   auditLogs: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 6,
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+    },
+  },
+  deploymentRecords: {
     orderBy: {
       createdAt: "desc",
     },
@@ -92,6 +115,35 @@ type ProjectRuntimeLifecycleFieldName =
   | "status"
   | "statusDetail"
   | "lastHealthCheckAt";
+
+type ProjectRuntimeLaunchIntentTypeValue =
+  | "INTERNAL_PREVIEW"
+  | "EDEN_HOSTED"
+  | "LINKED_EXTERNAL";
+
+type ProjectRuntimeLaunchModeValue =
+  | "CONTROL_PLANE_ONLY"
+  | "EDEN_MANAGED_PROMOTION"
+  | "EXTERNAL_HANDOFF";
+
+type ProjectRuntimeTargetValue =
+  | "EDEN_INTERNAL"
+  | "EDEN_MANAGED"
+  | "EXTERNAL_DOMAIN";
+
+type ProjectRuntimeDeploymentEventTypeValue =
+  | "LAUNCH_INTENT_UPDATED"
+  | "MANUAL_NOTE"
+  | "PREVIEW_CHECKPOINT"
+  | "HOSTED_CHECKPOINT"
+  | "EXTERNAL_LINK_CHECKPOINT";
+
+type ProjectRuntimeDeploymentEventStatusValue =
+  | "RECORDED"
+  | "PLANNED"
+  | "READY"
+  | "BLOCKED"
+  | "FAILED";
 
 type ProjectRuntimeLifecycleStatus =
   | "REGISTERED"
@@ -317,6 +369,343 @@ export async function updateOwnerProjectRuntimeLifecycle(
     });
   } catch (error) {
     logProjectRuntimeFailure("update_owner_project_runtime_lifecycle", error);
+
+    return {
+      ok: false as const,
+      status: 503,
+      error: describeProjectRuntimeFailure(error),
+    };
+  }
+}
+
+export async function updateOwnerProjectRuntimeLaunchIntent(
+  actor: EdenProjectRuntimeActor,
+  input: {
+    runtimeId: string;
+    intentType: string;
+    intendedTarget: string;
+    launchMode: string;
+    destinationLabel?: string | null;
+    notes?: string | null;
+  },
+) {
+  const prisma = getPrismaClient();
+  const runtimeId = input.runtimeId.trim();
+  const nextIntentType = parseProjectRuntimeLaunchIntentType(input.intentType);
+  const nextIntendedTarget = parseProjectRuntimeLaunchTarget(input.intendedTarget);
+  const nextLaunchMode = parseProjectRuntimeLaunchMode(input.launchMode);
+  const nextDestinationLabel = normalizeLaunchDestinationLabel(
+    input.destinationLabel,
+  );
+  const nextNotes = normalizeLaunchIntentNotes(input.notes);
+
+  if (!runtimeId) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Runtime id is required before saving launch intent metadata.",
+    };
+  }
+
+  if (!nextIntentType || !nextIntendedTarget || !nextLaunchMode) {
+    return {
+      ok: false as const,
+      status: 400,
+      error:
+        "Select a valid launch intent type, intended target, and launch mode before saving.",
+    };
+  }
+
+  try {
+    return prisma.$transaction(async (transaction) => {
+      await upsertProjectRuntimeActor(transaction, actor);
+
+      const currentRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        select: {
+          id: true,
+          name: true,
+          launchIntent: {
+            select: {
+              id: true,
+              intentType: true,
+              intendedTarget: true,
+              launchMode: true,
+              destinationLabel: true,
+              notes: true,
+            },
+          },
+        },
+      });
+
+      if (!currentRuntime) {
+        return {
+          ok: false as const,
+          status: 404,
+          error: "The requested runtime record could not be found.",
+        };
+      }
+
+      const intentChanged =
+        !currentRuntime.launchIntent ||
+        currentRuntime.launchIntent.intentType !== nextIntentType ||
+        currentRuntime.launchIntent.intendedTarget !== nextIntendedTarget ||
+        currentRuntime.launchIntent.launchMode !== nextLaunchMode ||
+        (currentRuntime.launchIntent.destinationLabel ?? null) !==
+          nextDestinationLabel ||
+        (currentRuntime.launchIntent.notes ?? null) !== nextNotes;
+
+      if (!intentChanged) {
+        const unchangedRuntime = await transaction.projectRuntime.findUnique({
+          where: {
+            id: runtimeId,
+          },
+          include: projectRuntimeRegistryInclude,
+        });
+
+        if (!unchangedRuntime) {
+          throw new Error(
+            "Eden could not reload the runtime record after a no-op launch intent update.",
+          );
+        }
+
+        return {
+          ok: true as const,
+          changed: false,
+          runtime: mapProjectRuntimeRecord(unchangedRuntime),
+        };
+      }
+
+      if (currentRuntime.launchIntent) {
+        await transaction.projectRuntimeLaunchIntent.update({
+          where: {
+            runtimeId,
+          },
+          data: {
+            intentType: nextIntentType,
+            intendedTarget: nextIntendedTarget,
+            launchMode: nextLaunchMode,
+            destinationLabel: nextDestinationLabel,
+            notes: nextNotes,
+          },
+        });
+      } else {
+        await transaction.projectRuntimeLaunchIntent.create({
+          data: {
+            runtimeId,
+            intentType: nextIntentType,
+            intendedTarget: nextIntendedTarget,
+            launchMode: nextLaunchMode,
+            destinationLabel: nextDestinationLabel,
+            notes: nextNotes,
+          },
+        });
+      }
+
+      await transaction.projectRuntimeDeploymentRecord.create({
+        data: {
+          runtimeId,
+          actorUserId: actor.id,
+          eventType: "LAUNCH_INTENT_UPDATED",
+          eventStatus: "RECORDED",
+          summary: buildLaunchIntentDeploymentSummary({
+            runtimeName: currentRuntime.name,
+            intentType: nextIntentType,
+            intendedTarget: nextIntendedTarget,
+          }),
+          detail: buildLaunchIntentDeploymentDetail({
+            launchMode: nextLaunchMode,
+            destinationLabel: nextDestinationLabel,
+            notes: nextNotes,
+          }),
+        },
+      });
+
+      const updatedRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        include: projectRuntimeRegistryInclude,
+      });
+
+      if (!updatedRuntime) {
+        throw new Error(
+          "Eden could not reload the runtime record after saving launch intent metadata.",
+        );
+      }
+
+      return {
+        ok: true as const,
+        changed: true,
+        runtime: mapProjectRuntimeRecord(updatedRuntime),
+      };
+    });
+  } catch (error) {
+    logProjectRuntimeFailure("update_owner_project_runtime_launch_intent", error);
+
+    return {
+      ok: false as const,
+      status: 503,
+      error: describeProjectRuntimeFailure(error),
+    };
+  }
+}
+
+export async function loadOwnerProjectRuntimeDeploymentHistory(runtimeId: string) {
+  const normalizedRuntimeId = runtimeId.trim();
+
+  if (!normalizedRuntimeId) {
+    return {
+      records: [] as EdenProjectRuntimeDeploymentRecord[],
+      unavailableReason: "Runtime id is required before loading deployment history.",
+      runtimeMissing: false,
+    };
+  }
+
+  try {
+    const prisma = getPrismaClient();
+    const runtime = await prisma.projectRuntime.findUnique({
+      where: {
+        id: normalizedRuntimeId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!runtime) {
+      return {
+        records: [] as EdenProjectRuntimeDeploymentRecord[],
+        unavailableReason: null,
+        runtimeMissing: true,
+      };
+    }
+
+    const records = await prisma.projectRuntimeDeploymentRecord.findMany({
+      where: {
+        runtimeId: normalizedRuntimeId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        actorUser: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    return {
+      records: records.map(mapProjectRuntimeDeploymentRecord),
+      unavailableReason: null,
+      runtimeMissing: false,
+    };
+  } catch (error) {
+    logProjectRuntimeFailure("load_owner_project_runtime_deployment_history", error);
+
+    return {
+      records: [] as EdenProjectRuntimeDeploymentRecord[],
+      unavailableReason: describeProjectRuntimeFailure(error),
+      runtimeMissing: false,
+    };
+  }
+}
+
+export async function addOwnerProjectRuntimeDeploymentRecord(
+  actor: EdenProjectRuntimeActor,
+  input: {
+    runtimeId: string;
+    eventType: string;
+    eventStatus: string;
+    summary: string;
+    detail?: string | null;
+  },
+) {
+  const prisma = getPrismaClient();
+  const runtimeId = input.runtimeId.trim();
+  const eventType = parseProjectRuntimeDeploymentEventType(input.eventType);
+  const eventStatus = parseProjectRuntimeDeploymentEventStatus(input.eventStatus);
+  const summary = normalizeDeploymentSummary(input.summary);
+  const detail = normalizeDeploymentDetail(input.detail);
+
+  if (!runtimeId) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Runtime id is required before adding a deployment history record.",
+    };
+  }
+
+  if (!eventType || !eventStatus) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Select a valid deployment event type and result before saving.",
+    };
+  }
+
+  if (!summary || summary.length < 8) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Enter a clearer deployment history summary before saving.",
+    };
+  }
+
+  try {
+    return prisma.$transaction(async (transaction) => {
+      await upsertProjectRuntimeActor(transaction, actor);
+
+      const runtime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!runtime) {
+        return {
+          ok: false as const,
+          status: 404,
+          error: "The requested runtime record could not be found.",
+        };
+      }
+
+      const record = await transaction.projectRuntimeDeploymentRecord.create({
+        data: {
+          runtimeId,
+          actorUserId: actor.id,
+          eventType,
+          eventStatus,
+          summary,
+          detail,
+        },
+        include: {
+          actorUser: {
+            select: {
+              id: true,
+              username: true,
+              displayName: true,
+            },
+          },
+        },
+      });
+
+      return {
+        ok: true as const,
+        record: mapProjectRuntimeDeploymentRecord(record),
+      };
+    });
+  } catch (error) {
+    logProjectRuntimeFailure("add_owner_project_runtime_deployment_record", error);
 
     return {
       ok: false as const,
@@ -679,6 +1068,31 @@ export async function registerOwnerInternalSandboxRuntime(
       },
     });
 
+    const existingLaunchIntent = await transaction.projectRuntimeLaunchIntent.findUnique(
+      {
+        where: {
+          runtimeId: edenOwnerInternalSandboxRuntimeId,
+        },
+        select: {
+          id: true,
+        },
+      },
+    );
+
+    if (!existingLaunchIntent) {
+      await transaction.projectRuntimeLaunchIntent.create({
+        data: {
+          runtimeId: edenOwnerInternalSandboxRuntimeId,
+          intentType: "INTERNAL_PREVIEW",
+          intendedTarget: "EDEN_INTERNAL",
+          launchMode: "CONTROL_PLANE_ONLY",
+          destinationLabel: "sandbox.eden.internal/owner-sandbox",
+          notes:
+            "Metadata only. The internal sandbox is reserved as an owner-only preview intent until real runtime provisioning exists.",
+        },
+      });
+    }
+
     const runtime = await transaction.projectRuntime.findUnique({
       where: {
         id: edenOwnerInternalSandboxRuntimeId,
@@ -784,7 +1198,31 @@ function mapProjectRuntimeRecord(
       isPrimary: link.isPrimary,
       isActive: link.isActive,
     })),
+    launchIntent: runtime.launchIntent
+      ? mapProjectRuntimeLaunchIntentRecord(runtime.launchIntent)
+      : null,
     auditEntries: runtime.auditLogs.map(mapProjectRuntimeAuditLogRecord),
+    deploymentHistory: runtime.deploymentRecords.map(
+      mapProjectRuntimeDeploymentRecord,
+    ),
+  };
+}
+
+function mapProjectRuntimeLaunchIntentRecord(
+  intent: NonNullable<ProjectRuntimeRegistryRecord["launchIntent"]>,
+): EdenProjectRuntimeLaunchIntentRecord {
+  return {
+    id: intent.id,
+    intentType: intent.intentType.toLowerCase(),
+    intentTypeLabel: formatEnumLabel(intent.intentType),
+    intendedTarget: intent.intendedTarget.toLowerCase(),
+    intendedTargetLabel: formatEnumLabel(intent.intendedTarget),
+    launchMode: intent.launchMode.toLowerCase(),
+    launchModeLabel: formatEnumLabel(intent.launchMode),
+    destinationLabel: intent.destinationLabel,
+    notes: intent.notes,
+    createdAtLabel: formatTimestamp(intent.createdAt),
+    updatedAtLabel: formatTimestamp(intent.updatedAt),
   };
 }
 
@@ -809,6 +1247,23 @@ function mapProjectRuntimeAuditLogRecord(
     actorUserId: entry.actorUser.id,
     actorLabel: `${entry.actorUser.displayName} (@${entry.actorUser.username})`,
     createdAtLabel: formatTimestamp(entry.createdAt),
+  };
+}
+
+function mapProjectRuntimeDeploymentRecord(
+  record: ProjectRuntimeRegistryRecord["deploymentRecords"][number],
+): EdenProjectRuntimeDeploymentRecord {
+  return {
+    id: record.id,
+    eventType: record.eventType.toLowerCase(),
+    eventTypeLabel: formatEnumLabel(record.eventType),
+    eventStatus: record.eventStatus.toLowerCase(),
+    eventStatusLabel: formatEnumLabel(record.eventStatus),
+    summary: record.summary,
+    detail: record.detail,
+    actorUserId: record.actorUser.id,
+    actorLabel: `${record.actorUser.displayName} (@${record.actorUser.username})`,
+    createdAtLabel: formatTimestamp(record.createdAt),
   };
 }
 
@@ -1253,6 +1708,142 @@ function normalizeRuntimeHealthCheckAction(
   return normalized ? null : "keep";
 }
 
+function parseProjectRuntimeLaunchIntentType(
+  value: OwnerRuntimeLaunchIntentType | string,
+): ProjectRuntimeLaunchIntentTypeValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "internal_preview":
+      return "INTERNAL_PREVIEW";
+    case "eden_hosted":
+      return "EDEN_HOSTED";
+    case "linked_external":
+      return "LINKED_EXTERNAL";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeLaunchMode(
+  value: OwnerRuntimeLaunchMode | string,
+): ProjectRuntimeLaunchModeValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "control_plane_only":
+      return "CONTROL_PLANE_ONLY";
+    case "eden_managed_promotion":
+      return "EDEN_MANAGED_PROMOTION";
+    case "external_handoff":
+      return "EXTERNAL_HANDOFF";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeLaunchTarget(
+  value: OwnerRuntimeLaunchTarget | string,
+): ProjectRuntimeTargetValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "eden_internal":
+      return "EDEN_INTERNAL";
+    case "eden_managed":
+      return "EDEN_MANAGED";
+    case "external_domain":
+      return "EXTERNAL_DOMAIN";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeDeploymentEventType(
+  value: OwnerRuntimeDeploymentEventType | string,
+): ProjectRuntimeDeploymentEventTypeValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "manual_note":
+      return "MANUAL_NOTE";
+    case "preview_checkpoint":
+      return "PREVIEW_CHECKPOINT";
+    case "hosted_checkpoint":
+      return "HOSTED_CHECKPOINT";
+    case "external_link_checkpoint":
+      return "EXTERNAL_LINK_CHECKPOINT";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeDeploymentEventStatus(
+  value: OwnerRuntimeDeploymentEventStatus | string,
+): ProjectRuntimeDeploymentEventStatusValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "recorded":
+      return "RECORDED";
+    case "planned":
+      return "PLANNED";
+    case "ready":
+      return "READY";
+    case "blocked":
+      return "BLOCKED";
+    case "failed":
+      return "FAILED";
+    default:
+      return null;
+  }
+}
+
+function normalizeLaunchDestinationLabel(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+function normalizeLaunchIntentNotes(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+function normalizeDeploymentSummary(value: string) {
+  return value.trim();
+}
+
+function normalizeDeploymentDetail(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+function buildLaunchIntentDeploymentSummary(input: {
+  runtimeName: string;
+  intentType: ProjectRuntimeLaunchIntentTypeValue;
+  intendedTarget: ProjectRuntimeTargetValue;
+}) {
+  return `${input.runtimeName} launch intent set to ${formatEnumLabel(
+    input.intentType,
+  )} toward ${formatEnumLabel(input.intendedTarget)}.`;
+}
+
+function buildLaunchIntentDeploymentDetail(input: {
+  launchMode: ProjectRuntimeLaunchModeValue;
+  destinationLabel: string | null;
+  notes: string | null;
+}) {
+  const details = [
+    `Launch mode: ${formatEnumLabel(input.launchMode)}.`,
+    input.destinationLabel
+      ? `Intended destination: ${input.destinationLabel}.`
+      : null,
+    input.notes ? `Notes: ${input.notes}` : null,
+  ].filter(Boolean);
+
+  return details.join(" ");
+}
+
 async function upsertProjectRuntimeActor(
   transaction: Prisma.TransactionClient | ReturnType<typeof getPrismaClient>,
   actor: EdenProjectRuntimeActor,
@@ -1316,6 +1907,8 @@ function isProjectRuntimeSchemaUnavailable(error: unknown) {
   return (
     message.includes("projectruntime") ||
     message.includes("projectruntimeauditlog") ||
+    message.includes("projectruntimelaunchintent") ||
+    message.includes("projectruntimedeploymentrecord") ||
     message.includes("projectruntimedomainlink") ||
     (message.includes("relation") && message.includes("does not exist")) ||
     (message.includes("table") && message.includes("does not exist"))

@@ -8,6 +8,7 @@ import type {
 } from "@/modules/core/projects/project-runtime-shared";
 import { edenOwnerInternalSandboxRuntimeId } from "@/modules/core/projects/project-runtime-shared";
 import { OwnerRuntimeLifecyclePanel } from "@/ui/owner/owner-runtime-lifecycle-panel";
+import { OwnerRuntimeLaunchPanel } from "@/ui/owner/owner-runtime-launch-panel";
 import { InternalSandboxTaskRunner } from "@/ui/owner/internal-sandbox-task-runner";
 
 type OwnerRuntimeRegistryProps = {
@@ -414,6 +415,11 @@ export function OwnerRuntimeRegistry({
 
               <OwnerRuntimeLifecyclePanel
                 key={`${runtime.id}-${runtime.updatedAtLabel}-${runtime.lastHealthCheckAtLabel ?? "none"}`}
+                runtime={runtime}
+              />
+
+              <OwnerRuntimeLaunchPanel
+                key={`${runtime.id}-${runtime.launchIntent?.updatedAtLabel ?? "launch-none"}-${runtime.deploymentHistory[0]?.createdAtLabel ?? "deploy-none"}`}
                 runtime={runtime}
               />
 
