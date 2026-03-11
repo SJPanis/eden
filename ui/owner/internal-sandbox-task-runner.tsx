@@ -6,6 +6,10 @@ import type {
   EdenProjectRuntimeRecord,
   EdenProjectRuntimeTaskRecord,
 } from "@/modules/core/projects/project-runtime-shared";
+import {
+  ownerRuntimeProviderOptions,
+  ownerRuntimeTaskRequestedActionOptions,
+} from "@/modules/core/projects/project-runtime-shared";
 
 type InternalSandboxTaskRunnerProps = {
   runtime: EdenProjectRuntimeRecord;
@@ -37,6 +41,10 @@ export function InternalSandboxTaskRunner({
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [inputText, setInputText] = useState("");
+  const [providerKey, setProviderKey] = useState("");
+  const [modelLabel, setModelLabel] = useState("");
+  const [requestedActionType, setRequestedActionType] =
+    useState("sandbox_test");
   const [feedback, setFeedback] = useState<{
     tone: "success" | "error";
     text: string;
@@ -57,6 +65,9 @@ export function InternalSandboxTaskRunner({
           body: JSON.stringify({
             title,
             inputText,
+            providerKey: providerKey || null,
+            modelLabel: modelLabel || null,
+            requestedActionType,
           }),
         },
       );
@@ -77,10 +88,13 @@ export function InternalSandboxTaskRunner({
 
       setTitle("");
       setInputText("");
+      setProviderKey("");
+      setModelLabel("");
+      setRequestedActionType("sandbox_test");
       setFeedback({
         tone: "success",
         text:
-          "Sandbox task recorded. Lead/Planner and Worker outputs were stored as metadata only; no real isolated runtime was executed.",
+          "Sandbox task recorded. Planner, worker, result, and any governed preflight record were stored in the control plane only.",
       });
       startTransition(() => {
         router.refresh();
@@ -145,7 +159,8 @@ export function InternalSandboxTaskRunner({
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
             Describe the sandbox work item you want the internal planner and
-            worker loop to record.
+            worker loop to record. If you select a provider, Eden records a
+            governed preflight only and does not make a live provider call.
           </p>
           <div className="mt-4 space-y-3">
             <input
@@ -153,6 +168,38 @@ export function InternalSandboxTaskRunner({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Optional task title"
+              className="w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <select
+                value={requestedActionType}
+                onChange={(event) => setRequestedActionType(event.target.value)}
+                className="w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+              >
+                {ownerRuntimeTaskRequestedActionOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={providerKey}
+                onChange={(event) => setProviderKey(event.target.value)}
+                className="w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+              >
+                <option value="">No provider preflight</option>
+                {ownerRuntimeProviderOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <input
+              type="text"
+              value={modelLabel}
+              onChange={(event) => setModelLabel(event.target.value)}
+              placeholder="Optional model label for a governed preflight"
               className="w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
             />
             <textarea
@@ -196,6 +243,10 @@ export function InternalSandboxTaskRunner({
                       </p>
                       <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
                         {task.taskTypeLabel} | {task.executionModeLabel}
+                        {task.requestedActionTypeLabel
+                          ? ` | ${task.requestedActionTypeLabel}`
+                          : ""}
+                        {task.providerLabel ? ` | ${task.providerLabel}` : ""}
                       </p>
                     </div>
                     <span
@@ -259,7 +310,8 @@ export function InternalSandboxTaskRunner({
 
                   {(task.workerActionPlan.length ||
                     task.workerArtifacts.length ||
-                    task.workerImplementationNotes.length) && (
+                    task.workerImplementationNotes.length ||
+                    task.agentRuns.length) && (
                     <div className="mt-4 grid gap-3 lg:grid-cols-3">
                       <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
@@ -311,6 +363,50 @@ export function InternalSandboxTaskRunner({
                           ))}
                         </div>
                       </div>
+
+                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          Governed runs
+                        </p>
+                        <div className="mt-3 space-y-2 text-sm text-eden-muted">
+                          {task.agentRuns.length ? (
+                            task.agentRuns.map((run) => (
+                              <div
+                                key={run.id}
+                                className="rounded-2xl border border-eden-edge bg-white px-3 py-2"
+                              >
+                                <p className="font-semibold text-eden-ink">
+                                  {run.runStatusLabel}
+                                </p>
+                                <p className="mt-1">{run.summary}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="rounded-2xl border border-eden-edge bg-white px-3 py-2">
+                              No governed run record stored.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {(task.resultSummary || task.resultStatusLabel) && (
+                    <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        Result capture
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                        {task.resultTypeLabel ?? "Recorded result"}
+                        {task.resultStatusLabel
+                          ? ` | ${task.resultStatusLabel}`
+                          : ""}
+                      </p>
+                      <p className="mt-2 text-sm text-eden-muted">
+                        {task.resultSummary ??
+                          task.resultPayloadSummary ??
+                          "No explicit result summary stored."}
+                      </p>
                     </div>
                   )}
 

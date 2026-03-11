@@ -395,3 +395,97 @@
 - Eden self-work remains owner-approved and queue-scoped; it is not unrestricted autonomy.
 - The self-work loop reuses real internal sandbox task records, but it does not execute real providers, containers, deployments, or background workers.
 - Active surfaces are more honest about overlay-backed behavior, but hybrid mock-first compatibility paths still exist in older flows until they are replaced or quarantined further.
+
+### Eden Build Supervisor v1 completed
+
+- Re-read `EDEN_MASTER_SPEC.md`, `PROJECT_ISOLATION_MODEL.md`, `AI_ORCHESTRATION_MODEL.md`, `CURRENT_STATE.md`, `TASK_QUEUE.md`, `HUMAN_ACTIONS_REQUIRED.md`, `EDEN_POST_DEPLOY_TIMELINE.md`, `EDEN_SELF_WORK_QUEUE.json`, `CHANGELOG_AGENT.md`, and `CODEX_TASK_EXECUTOR.md` before extending the control loop.
+- Inspected the current self-work loop, owner control panel, owner runtime page, and sandbox task flow before adding the supervisor layer.
+- Added build-supervisor spec and state files:
+  - `eden-system/specs/EDEN_BUILD_SUPERVISOR.md`
+  - `eden-system/state/EDEN_BUILD_SUPERVISOR_STATE.json`
+  - `eden-system/state/EDEN_CODEX_EXECUTION_PACKET.json`
+- Added build-supervisor shared types and server logic:
+  - `modules/core/agents/eden-build-supervisor-shared.ts`
+  - `modules/core/agents/eden-build-supervisor.ts`
+- The build-supervisor layer now:
+  - reads canonical Eden control inputs, self-work queue state, task queue context, human-required actions, and stop conditions
+  - identifies the next approved Codex-ready task while refusing tasks blocked by human-required action
+  - prepares a structured Codex execution packet in repo state
+  - ingests a completed supervisor task result
+  - refreshes managed summary sections in `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`
+- Added owner-only API and UI:
+  - `app/api/owner/project-runtimes/internal-sandbox/build-supervisor/route.ts`
+  - `ui/owner/owner-build-supervisor-panel.tsx`
+  - integrated into `app/(owner)/owner/runtimes/page.tsx`
+- Extended the owner control-input loader so the new build-supervisor spec, state, and packet files are tracked in the control-agent scaffold.
+- Verified after the build-supervisor implementation:
+  - `cmd /c npx prisma generate`
+  - `cmd /c npx prisma validate`
+  - `npm run lint`
+  - `npm run build`
+
+### Important limits after Eden Build Supervisor v1
+
+- The build supervisor is still supervised orchestration only. It does not execute Codex directly.
+- The build supervisor does not perform autonomous deployment, autonomous provider execution, or autonomous runtime provisioning.
+- Post-execution ingestion updates managed file sections, but it does not replace disciplined human review of the broader repo state.
+
+### Execution governance layer v1 completed
+
+- Re-read `EDEN_MASTER_SPEC.md`, `PROJECT_ISOLATION_MODEL.md`, `AI_ORCHESTRATION_MODEL.md`, `CURRENT_STATE.md`, `TASK_QUEUE.md`, `HUMAN_ACTIONS_REQUIRED.md`, `EDEN_POST_DEPLOY_TIMELINE.md`, `EDEN_SELF_WORK_QUEUE.json`, `CHANGELOG_AGENT.md`, and `CODEX_TASK_EXECUTOR.md` before extending the control plane again.
+- Inspected the current runtime schema, runtime service layer, provider scaffold, sandbox task runner, owner runtime UI, and owner-only APIs before changing code.
+- Extended Prisma schema with:
+  - enum: `ProjectRuntimeProviderApprovalStatus`
+  - enum: `ProjectRuntimeAgentActionType`
+  - enum: `ProjectRuntimeAgentRunStatus`
+  - enum: `ProjectRuntimeTaskResultType`
+  - enum: `ProjectRuntimeTaskResultStatus`
+  - enum update: `ProjectRuntimeSecretStatus` now includes `PENDING`
+  - model: `ProjectRuntimeProviderApproval`
+  - model: `ProjectRuntimeAgentRun`
+  - field additions on `ProjectRuntimeSecretBoundary` for `statusDetail` and `lastCheckedAt`
+  - field additions on `ProjectRuntimeTask` for provider metadata, requested action type, and explicit result capture
+- Extended provider adapter scaffolding in `modules/core/agents/eden-provider-adapters.ts` with:
+  - runtime approval-aware compatibility evaluation
+  - secret-readiness-aware compatibility evaluation
+  - provider execution preflight generation
+  - continued honest scaffold-only execution responses for live adapters
+- Extended `modules/core/services/project-runtime-service.ts` with:
+  - provider approval syncing from runtime allowlists
+  - owner-only provider approval updates
+  - owner-only secret-boundary readiness updates
+  - recent agent-run loading on runtime records
+  - sandbox task creation that can record governed provider preflight metadata
+  - first-class `ProjectRuntimeAgentRun` creation
+  - explicit sandbox task result capture
+- Added owner-only API routes:
+  - `app/api/owner/project-runtimes/[runtimeId]/provider-approvals/route.ts`
+  - `app/api/owner/project-runtimes/[runtimeId]/secret-boundaries/route.ts`
+- Extended owner-only UI:
+  - `ui/owner/owner-runtime-config-panel.tsx` now shows and updates provider approval gates and secret readiness, plus recent governed runs
+  - `ui/owner/internal-sandbox-task-runner.tsx` now accepts optional provider/model/action inputs and shows explicit result capture plus governed run summaries
+  - `ui/owner/owner-runtime-registry.tsx` now refreshes the runtime config panel on provider/secret updates
+- Generated additive migration:
+  - `prisma/migrations/20260311235930_provider_approval_secret_status_agent_run_v1/migration.sql`
+- Verified after the execution-governance implementation:
+  - `cmd /c npx prisma format`
+  - `cmd /c npx prisma generate`
+  - `cmd /c npx prisma validate`
+  - `npm run lint`
+  - `npm run build`
+
+### Important limits after execution governance layer v1
+
+- Provider approval gates, secret readiness, agent runs, and sandbox results are still control-plane records only.
+- No raw provider secret is stored or exposed.
+- No live provider execution was wired in this session.
+- No real isolated runtime, container, deploy job, or hosted preview was started by these changes.
+- Persistent verification of the new governance records still depends on applying the new migration to the active database and testing `/owner/runtimes` in that environment.
+
+### Build Supervisor Latest Result
+
+<!-- EDEN_BUILD_SUPERVISOR:START -->
+- No completed supervised task has been ingested yet.
+- Summary: No supervisor-ingested completion summary is recorded yet.
+- Next recommended task: Add sandbox task audit logging and async dispatch boundary metadata.
+<!-- EDEN_BUILD_SUPERVISOR:END -->

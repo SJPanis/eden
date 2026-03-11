@@ -18,6 +18,7 @@
     - `20260311213000_owner_runtime_lifecycle_audit_v1`
     - `20260311233000_runtime_launch_intent_deployment_history_v1`
     - `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`
+    - `20260311235930_provider_approval_secret_status_agent_run_v1`
   - mark the baseline as applied on the existing live database
   - then run `prisma migrate deploy` so Prisma can apply all pending migrations in order
 - Exact next commands from `C:\dev\Eden\eden-v1`:
@@ -33,9 +34,14 @@
   - save one runtime launch-intent update and confirm a deployment-history entry is stored persistently
   - add one manual deployment-history record and confirm it is visible in `/owner/runtimes`
   - save one runtime config-policy update and confirm secret-boundary metadata is created or refreshed
+  - save one provider approval update and confirm runtime compatibility plus audit entries persist
+  - save one secret-boundary readiness update and confirm `statusDetail` plus `lastCheckedAt` persist
+  - create one sandbox task with provider preflight selected and confirm agent-run plus explicit result-capture records persist
   - confirm the owner control-agent panel loads the new owner constitution file in the intended environment
   - confirm the new Eden self-work panel loads `EDEN_SELF_WORK_QUEUE.json` and `EDEN_POST_DEPLOY_TIMELINE.md` in `/owner/runtimes`
   - queue one approved Eden self-work item and confirm a real internal sandbox task row is created with the `[eden-self-work:<id>]` title prefix
+  - confirm the new build-supervisor panel can prepare `EDEN_CODEX_EXECUTION_PACKET.json`
+  - ingest one completed supervisor result and confirm the managed sections in `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md` refresh correctly
 
 ## Needed Before Production-Like Flows
 
@@ -50,3 +56,10 @@
 - Approve the owner-only internal "Eden inside Eden" sandbox as a formal product concept.
 - Decide where runtime secrets/config will live before any real runtime provisioning begins.
 - Decide whether future secret status updates should stay owner-mediated in Eden or move to an external secret manager control surface.
+
+## Build Supervisor Tracked Actions
+
+<!-- EDEN_BUILD_SUPERVISOR:START -->
+- No new supervisor-recorded human-required actions yet.
+- Current blocked-task count: 1.
+<!-- EDEN_BUILD_SUPERVISOR:END -->

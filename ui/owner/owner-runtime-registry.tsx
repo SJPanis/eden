@@ -425,7 +425,7 @@ export function OwnerRuntimeRegistry({
               />
 
               <OwnerRuntimeConfigPanel
-                key={`${runtime.id}-${runtime.configPolicy?.updatedAtLabel ?? "config-none"}-${runtime.secretBoundaries.length}-${runtime.providerCompatibility.map((provider) => provider.compatibilityStatus).join("-")}`}
+                key={`${runtime.id}-${runtime.configPolicy?.updatedAtLabel ?? "config-none"}-${runtime.secretBoundaries.map((boundary) => `${boundary.updatedAtLabel}-${boundary.status}-${boundary.lastCheckedAtLabel ?? "none"}`).join("_")}-${runtime.providerApprovals.map((approval) => approval.updatedAtLabel).join("_")}-${runtime.providerCompatibility.map((provider) => provider.compatibilityStatus).join("-")}`}
                 runtime={runtime}
               />
 

@@ -69,6 +69,35 @@ export const ownerRuntimeProviderOptions = [
   { value: "openai", label: "OpenAI" },
   { value: "anthropic", label: "Anthropic" },
 ] as const;
+export const ownerRuntimeProviderApprovalStatusOptions = [
+  { value: "review_required", label: "Review Required" },
+  { value: "approved", label: "Approved" },
+  { value: "denied", label: "Denied" },
+] as const;
+export const ownerRuntimeSecretStatusOptions = [
+  { value: "missing", label: "Missing" },
+  { value: "pending", label: "Pending" },
+  { value: "configured", label: "Configured" },
+  { value: "reserved", label: "Reserved" },
+] as const;
+export const ownerRuntimeTaskRequestedActionOptions = [
+  { value: "provider_preflight", label: "Provider Preflight" },
+  { value: "sandbox_test", label: "Sandbox Test" },
+  { value: "qa_validation", label: "QA Validation" },
+  { value: "implementation_review", label: "Implementation Review" },
+] as const;
+export const ownerRuntimeTaskResultTypeOptions = [
+  { value: "sandbox_plan", label: "Sandbox Plan" },
+  { value: "provider_preflight", label: "Provider Preflight" },
+  { value: "qa_result", label: "QA Result" },
+  { value: "execution_review", label: "Execution Review" },
+] as const;
+export const ownerRuntimeTaskResultStatusOptions = [
+  { value: "pass", label: "Pass" },
+  { value: "fail", label: "Fail" },
+  { value: "review_needed", label: "Review Needed" },
+  { value: "info", label: "Info" },
+] as const;
 
 export type OwnerRuntimeHealthCheckAction =
   (typeof ownerRuntimeHealthCheckActionOptions)[number]["value"];
@@ -90,6 +119,16 @@ export type OwnerRuntimeProviderPolicyMode =
   (typeof ownerRuntimeProviderPolicyModeOptions)[number]["value"];
 export type OwnerRuntimeProvider =
   (typeof ownerRuntimeProviderOptions)[number]["value"];
+export type OwnerRuntimeProviderApprovalStatus =
+  (typeof ownerRuntimeProviderApprovalStatusOptions)[number]["value"];
+export type OwnerRuntimeSecretStatus =
+  (typeof ownerRuntimeSecretStatusOptions)[number]["value"];
+export type OwnerRuntimeTaskRequestedAction =
+  (typeof ownerRuntimeTaskRequestedActionOptions)[number]["value"];
+export type OwnerRuntimeTaskResultType =
+  (typeof ownerRuntimeTaskResultTypeOptions)[number]["value"];
+export type OwnerRuntimeTaskResultStatus =
+  (typeof ownerRuntimeTaskResultStatusOptions)[number]["value"];
 
 export type EdenProjectRuntimeDomainLinkRecord = {
   id: string;
@@ -182,7 +221,24 @@ export type EdenProjectRuntimeSecretBoundaryRecord = {
   providerKey?: string | null;
   providerLabel?: string | null;
   boundaryReference?: string | null;
+  statusDetail?: string | null;
+  lastCheckedAtLabel?: string | null;
   updatedAtLabel: string;
+};
+
+export type EdenProjectRuntimeProviderApprovalRecord = {
+  id: string;
+  providerKey: string;
+  providerLabel: string;
+  approvalStatus: string;
+  approvalStatusLabel: string;
+  modelScope: string[];
+  capabilityScope: string[];
+  notes?: string | null;
+  reviewedAtLabel?: string | null;
+  updatedAtLabel: string;
+  actorUserId: string;
+  actorLabel: string;
 };
 
 export type EdenProjectRuntimeProviderCompatibilityRecord = {
@@ -194,6 +250,29 @@ export type EdenProjectRuntimeProviderCompatibilityRecord = {
   compatibilityStatusLabel: string;
   capabilityLabels: string[];
   reason: string;
+};
+
+export type EdenProjectRuntimeAgentRunRecord = {
+  id: string;
+  runtimeId: string;
+  taskId?: string | null;
+  actorUserId: string;
+  actorLabel: string;
+  providerKey?: string | null;
+  providerLabel?: string | null;
+  modelLabel?: string | null;
+  executionTargetLabel?: string | null;
+  requestedActionType: string;
+  requestedActionTypeLabel: string;
+  runStatus: string;
+  runStatusLabel: string;
+  summary: string;
+  detail?: string | null;
+  resultPayloadSummary?: string | null;
+  errorDetail?: string | null;
+  createdAtLabel: string;
+  updatedAtLabel: string;
+  completedAtLabel?: string | null;
 };
 
 export type EdenProjectRuntimeRecord = {
@@ -232,7 +311,9 @@ export type EdenProjectRuntimeRecord = {
   launchIntent?: EdenProjectRuntimeLaunchIntentRecord | null;
   configPolicy?: EdenProjectRuntimeConfigRecord | null;
   secretBoundaries: EdenProjectRuntimeSecretBoundaryRecord[];
+  providerApprovals: EdenProjectRuntimeProviderApprovalRecord[];
   providerCompatibility: EdenProjectRuntimeProviderCompatibilityRecord[];
+  agentRuns: EdenProjectRuntimeAgentRunRecord[];
   auditEntries: EdenProjectRuntimeAuditLogRecord[];
   deploymentHistory: EdenProjectRuntimeDeploymentRecord[];
 };
@@ -254,6 +335,11 @@ export type EdenProjectRuntimeTaskRecord = {
   creatorLabel: string;
   title: string;
   inputText: string;
+  providerKey?: string | null;
+  providerLabel?: string | null;
+  modelLabel?: string | null;
+  requestedActionType?: string | null;
+  requestedActionTypeLabel?: string | null;
   taskType: string;
   taskTypeLabel: string;
   status: string;
@@ -270,7 +356,14 @@ export type EdenProjectRuntimeTaskRecord = {
   workerArtifacts: EdenProjectRuntimeTaskArtifactRecord[];
   outputSummary?: string | null;
   outputLines: string[];
+  resultType?: string | null;
+  resultTypeLabel?: string | null;
+  resultStatus?: string | null;
+  resultStatusLabel?: string | null;
+  resultSummary?: string | null;
+  resultPayloadSummary?: string | null;
   failureDetail?: string | null;
+  agentRuns: EdenProjectRuntimeAgentRunRecord[];
   plannerCompletedAtLabel?: string | null;
   workerCompletedAtLabel?: string | null;
   completedAtLabel?: string | null;

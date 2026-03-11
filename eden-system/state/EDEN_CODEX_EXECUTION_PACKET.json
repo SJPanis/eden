@@ -1,0 +1,34 @@
+{
+  "version": "v1",
+  "status": "not_prepared",
+  "generatedAt": null,
+  "generatedBy": null,
+  "task": null,
+  "repoContext": {
+    "repoRoot": "C:\\dev\\Eden\\eden-v1",
+    "sourceOfTruthPaths": [
+      "eden-system/specs/EDEN_MASTER_SPEC.md",
+      "eden-system/specs/PROJECT_ISOLATION_MODEL.md",
+      "eden-system/specs/AI_ORCHESTRATION_MODEL.md",
+      "eden-system/specs/OWNER_CONTROL_CONSTITUTION.md",
+      "eden-system/specs/EDEN_BUILD_SUPERVISOR.md",
+      "eden-system/state/CURRENT_STATE.md",
+      "eden-system/state/TASK_QUEUE.md",
+      "eden-system/state/HUMAN_ACTIONS_REQUIRED.md",
+      "eden-system/state/EDEN_POST_DEPLOY_TIMELINE.md",
+      "eden-system/state/EDEN_SELF_WORK_QUEUE.json",
+      "eden-system/logs/CHANGELOG_AGENT.md",
+      "eden-system/prompts/CODEX_TASK_EXECUTOR.md"
+    ],
+    "currentStateSummary": [],
+    "taskQueueSummary": [],
+    "humanActionsSummary": [],
+    "timelineStopConditions": []
+  },
+  "likelyFiles": [],
+  "constraints": [],
+  "acceptanceCriteria": [],
+  "requiredStateUpdates": [],
+  "stopConditions": [],
+  "notes": []
+}

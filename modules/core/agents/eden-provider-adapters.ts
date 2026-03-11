@@ -51,11 +51,35 @@ export type EdenRuntimeProviderPolicySnapshot = {
   executionMode?: string | null;
   providerPolicyMode?: string | null;
   allowedProviders: string[];
+  providerApprovals: Array<{
+    providerKey: string;
+    approvalStatus: string;
+    modelScope: string[];
+    capabilityScope: string[];
+  }>;
   secretBoundaries: Array<{
     providerKey?: string | null;
     status: string;
     isRequired: boolean;
   }>;
+};
+
+export type EdenProviderExecutionPreflightRecord = {
+  providerKey: EdenProviderAdapterKey;
+  providerLabel: string;
+  ready: boolean;
+  runStatus:
+    | "preflight_blocked"
+    | "prepared"
+    | "review_required"
+    | "completed";
+  compatibilityStatus:
+    | "blocked"
+    | "approval_required"
+    | "awaiting_secret"
+    | "scaffold_allowed";
+  summary: string;
+  detail: string;
 };
 
 export type EdenProviderExecutionRequest = {
@@ -88,6 +112,55 @@ export async function executeWithEdenProviderAdapter(
   };
 }
 
+export function buildRuntimeProviderPreflight(
+  snapshot: EdenRuntimeProviderPolicySnapshot | null | undefined,
+  providerKey: string,
+): EdenProviderExecutionPreflightRecord | null {
+  const normalizedProviderKey = providerKey.trim().toLowerCase();
+  const compatibility = evaluateRuntimeProviderCompatibility(snapshot).find(
+    (record) => record.providerKey === normalizedProviderKey,
+  );
+
+  if (!compatibility) {
+    return null;
+  }
+
+  if (compatibility.compatibilityStatus === "scaffold_allowed") {
+    return {
+      providerKey: compatibility.providerKey,
+      providerLabel: compatibility.providerLabel,
+      ready: true,
+      runStatus: "prepared",
+      compatibilityStatus: compatibility.compatibilityStatus,
+      summary: `${compatibility.providerLabel} provider preflight passed runtime policy and secret-boundary checks.`,
+      detail:
+        "Provider use is approved for this runtime at the control-plane level, but live adapter execution remains scaffold-only in v1.",
+    };
+  }
+
+  if (compatibility.compatibilityStatus === "approval_required") {
+    return {
+      providerKey: compatibility.providerKey,
+      providerLabel: compatibility.providerLabel,
+      ready: false,
+      runStatus: "review_required",
+      compatibilityStatus: compatibility.compatibilityStatus,
+      summary: `${compatibility.providerLabel} provider preflight stopped for owner review.`,
+      detail: compatibility.reason,
+    };
+  }
+
+  return {
+    providerKey: compatibility.providerKey,
+    providerLabel: compatibility.providerLabel,
+    ready: false,
+    runStatus: "preflight_blocked",
+    compatibilityStatus: compatibility.compatibilityStatus,
+    summary: `${compatibility.providerLabel} provider preflight was blocked by runtime governance metadata.`,
+    detail: compatibility.reason,
+  };
+}
+
 export function evaluateRuntimeProviderCompatibility(
   snapshot: EdenRuntimeProviderPolicySnapshot | null | undefined,
 ): EdenProviderCompatibilityRecord[] {
@@ -96,6 +169,10 @@ export function evaluateRuntimeProviderCompatibility(
       snapshot?.allowedProviders.map((provider) => provider.toLowerCase()) ?? [],
     );
     const isAllowed = allowedProviders.has(adapter.providerKey);
+    const providerApproval = snapshot?.providerApprovals.find(
+      (approval) => approval.providerKey.toLowerCase() === adapter.providerKey,
+    );
+    const approvalStatus = providerApproval?.approvalStatus.toLowerCase() ?? null;
 
     if (!snapshot) {
       return {
@@ -125,7 +202,24 @@ export function evaluateRuntimeProviderCompatibility(
       };
     }
 
-    if (snapshot.providerPolicyMode === "owner_approval_required") {
+    if (approvalStatus === "denied") {
+      return {
+        providerKey: adapter.providerKey,
+        providerLabel: adapter.label,
+        adapterStatus: adapter.adapterStatus,
+        adapterStatusLabel: adapter.adapterStatusLabel,
+        compatibilityStatus: "blocked",
+        compatibilityStatusLabel: "Blocked",
+        capabilityLabels: [...adapter.capabilityLabels],
+        reason:
+          "The owner has explicitly denied this provider for the current runtime.",
+      };
+    }
+
+    if (
+      snapshot.providerPolicyMode === "owner_approval_required" &&
+      approvalStatus !== "approved"
+    ) {
       return {
         providerKey: adapter.providerKey,
         providerLabel: adapter.label,
@@ -139,6 +233,20 @@ export function evaluateRuntimeProviderCompatibility(
       };
     }
 
+    if (approvalStatus === "review_required") {
+      return {
+        providerKey: adapter.providerKey,
+        providerLabel: adapter.label,
+        adapterStatus: adapter.adapterStatus,
+        adapterStatusLabel: adapter.adapterStatusLabel,
+        compatibilityStatus: "approval_required",
+        compatibilityStatusLabel: "Approval Required",
+        capabilityLabels: [...adapter.capabilityLabels],
+        reason:
+          "The provider is allowlisted, but owner approval is still marked as review required for this runtime.",
+      };
+    }
+
     const providerSecrets = snapshot.secretBoundaries.filter(
       (boundary) =>
         boundary.providerKey?.toLowerCase() === adapter.providerKey &&
@@ -149,6 +257,9 @@ export function evaluateRuntimeProviderCompatibility(
     );
 
     if (!hasConfiguredSecret) {
+      const hasPendingSecret = providerSecrets.some((boundary) =>
+        ["pending", "reserved"].includes(boundary.status.toLowerCase()),
+      );
       return {
         providerKey: adapter.providerKey,
         providerLabel: adapter.label,
@@ -158,7 +269,9 @@ export function evaluateRuntimeProviderCompatibility(
         compatibilityStatusLabel: "Awaiting Secret",
         capabilityLabels: [...adapter.capabilityLabels],
         reason:
-          "Runtime policy allows this provider, but the required secret boundary is still missing or only reserved.",
+          hasPendingSecret
+            ? "Runtime policy allows this provider, but the required secret boundary is still pending or reserved."
+            : "Runtime policy allows this provider, but the required secret boundary is still missing.",
       };
     }
 

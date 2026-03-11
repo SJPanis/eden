@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "mode": "owner_review_required",
+  "packetPath": "eden-system/state/EDEN_CODEX_EXECUTION_PACKET.json",
+  "completedTaskIds": [
+    "secret_boundary_status_controls"
+  ],
+  "lastPreparedPacketTaskId": null,
+  "lastPreparedAt": null,
+  "packetStatus": "not_prepared",
+  "history": []
+}

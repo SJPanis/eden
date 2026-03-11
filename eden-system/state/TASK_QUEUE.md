@@ -60,14 +60,23 @@
 - [x] Add an owner constitution/control-agent scaffold tied to canonical Eden memory files.
 - [x] Add owner-only config/provider/secret-boundary visibility inside `/owner/runtimes`.
 - [x] Generate a Prisma migration for runtime config and secret-boundary metadata.
+- [x] Add owner-managed secret-boundary status updates so missing vs configured vs pending vs reserved can be maintained without exposing raw values.
+- [x] Add a provider approval gate that works with runtime config policy and future adapter execution.
+- [x] Add first-class agent run execution records for sandbox/provider governance attempts.
+- [x] Extend sandbox task records with explicit result capture for preflight, plan, and review outcomes.
+- [x] Add owner-only provider approval and secret readiness update APIs and UI inside `/owner/runtimes`.
+- [x] Generate a Prisma migration for provider approval gates, secret readiness detail, agent runs, and sandbox result capture.
 - [ ] Run `prisma migrate resolve --applied 20260311120000_pre_runtime_baseline` on the active database.
-- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, and `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1` create the runtime, task, audit, launch-intent, deployment-history, config-policy, and secret-boundary tables.
+- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`, and `20260311235930_provider_approval_secret_status_agent_run_v1` create the runtime, task, audit, launch-intent, deployment-history, config-policy, secret-boundary, provider-approval, and agent-run tables.
 - [ ] Execute the owner-only sandbox initializer against the migrated database and confirm the registry loads persistent data.
 - [ ] Create a sandbox task against the migrated database and confirm planner/worker outputs persist.
+- [ ] Create a sandbox task with provider preflight metadata against the migrated database and confirm agent-run and explicit result-capture records persist.
 - [ ] Save a runtime lifecycle update against the migrated database and confirm audit entries persist.
 - [ ] Save a runtime launch-intent update against the migrated database and confirm the generated deployment-history record persists.
 - [ ] Add a manual deployment-history entry against the migrated database and confirm it persists.
 - [ ] Save a runtime config-policy update against the migrated database and confirm secret-boundary metadata is created or refreshed.
+- [ ] Save a provider approval update against the migrated database and confirm compatibility plus audit entries persist.
+- [ ] Save a secret-boundary readiness update against the migrated database and confirm status detail plus last-checked metadata persist.
 
 ### Soon
 
@@ -75,8 +84,6 @@
 - [ ] Add an explicit async task dispatch boundary so sandbox tasks can graduate from synchronous metadata-only execution when real workers exist.
 - [ ] Add runtime launch/read actions that operate on runtime metadata instead of direct project blueprint state.
 - [ ] Add domain/link metadata for external domains and Eden-managed hosted URLs.
-- [ ] Add owner-managed secret-boundary status updates so missing vs configured vs reserved can be maintained without exposing raw values.
-- [ ] Add a provider approval gate that works with runtime config policy and future adapter execution.
 - [ ] Add project secret/config storage boundaries outside general business metadata.
 - [ ] Add launch-intent change auditing if launch metadata needs its own immutable audit stream beyond deployment-history records.
 - [ ] Expand runtime audit logging to cover runtime creation, visibility/access policy changes, target changes, and launch-related events.
@@ -100,6 +107,10 @@
 - [x] Add a canonical post-deploy timeline file readable by future Eden control agents.
 - [x] Add an owner-only self-work panel inside `/owner/runtimes`.
 - [x] Let the internal sandbox queue the next approved Eden self-work item into real `ProjectRuntimeTask` records.
+- [x] Add an owner-gated Eden Build Supervisor layer for next-task selection and Codex packet generation.
+- [x] Add a canonical Codex execution packet file and build-supervisor state file under `eden-system/state/`.
+- [x] Add post-execution ingestion support that can refresh managed sections in `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
+- [x] Add an owner-only build-supervisor panel inside `/owner/runtimes`.
 - [ ] Define scoped agent roles that operate on project runtime context instead of Eden core assumptions.
 - [ ] Require every future Codex task to update `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
 
@@ -109,8 +120,18 @@
 - [ ] Connect the owner constitution scaffold to a real Eden control-agent task flow without granting broad unsafe execution.
 - [ ] Add sandbox task audit logging for Eden self-work queue pulls and task completion state.
 - [ ] Add explicit review-required, blocked, and waiting transitions for the Eden self-work loop beyond the file-backed queue state.
+- [ ] Add an explicit owner review-acknowledgement step for build-supervisor completions before the next packet is considered actionable.
 - [ ] Add persistent execution logs and state checkpoints for agent work units.
 
 ### Later
 
 - [ ] Add asynchronous orchestration, retries, budgets, and approval gates for agent systems.
+
+## Build Supervisor Digest
+
+<!-- EDEN_BUILD_SUPERVISOR:START -->
+- Review mode: Owner review required after each self-work task.
+- Current recommended task: Add sandbox task audit logging and async dispatch boundary metadata.
+- Highest blocked approved task: Apply live runtime control-plane migrations and verify persistent runtime records.
+- Build-supervisor packet ready: no.
+<!-- EDEN_BUILD_SUPERVISOR:END -->

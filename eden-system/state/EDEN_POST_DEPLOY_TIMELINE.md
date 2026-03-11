@@ -10,8 +10,8 @@ Last updated: 2026-03-11
 
 ## Short-Horizon V1 Closeout
 
-- Add owner-managed secret-boundary status controls and provider approval gates.
 - Add sandbox task audit logging and explicit async-dispatch boundary metadata.
+- Verify provider approvals, secret readiness updates, agent runs, and sandbox result capture against the migrated live database.
 - Keep active owner and consumer surfaces honest about which ledger, runtime, and provider features remain metadata-only or development overlays.
 
 ## Post-V1 Stabilization

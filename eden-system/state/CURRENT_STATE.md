@@ -59,6 +59,7 @@ Prisma models exist for:
 - project runtimes and runtime domain links
 - project runtime launch intent metadata and deployment history records
 - project runtime config policies and secret boundary metadata
+- project runtime provider approval gates and agent run execution records
 - project runtime tasks for owner-only sandbox execution records
 - project runtime audit logs for owner lifecycle control actions
 
@@ -78,6 +79,8 @@ Prisma models exist for:
 - owner-only runtime launch-intent API exists at `/api/owner/project-runtimes/[runtimeId]/launch-intent`
 - owner-only runtime deployment-history API exists at `/api/owner/project-runtimes/[runtimeId]/deployment-history`
 - owner-only runtime config policy API exists at `/api/owner/project-runtimes/[runtimeId]/config`
+- owner-only runtime provider approval API exists at `/api/owner/project-runtimes/[runtimeId]/provider-approvals`
+- owner-only runtime secret-boundary readiness API exists at `/api/owner/project-runtimes/[runtimeId]/secret-boundaries`
 - owner runtime control page now shows an owner constitution/control-agent scaffold panel
 
 ## Architectural Reality
@@ -103,6 +106,7 @@ What is still mixed or transitional:
 - runtime lifecycle controls and audit logs are now modeled, but they still do not drive infrastructure actions
 - runtime launch intent and deployment history are now modeled, but they still do not represent real provisioning, release jobs, or domain activation
 - runtime config policy, secret boundaries, provider compatibility, and owner control doctrine are now modeled, but they still do not unlock real provider execution, secret storage, or autonomous runtime operations
+- provider approval gates, secret readiness detail, agent run records, and sandbox result capture are now modeled, but they still do not execute live provider calls or isolated runtime jobs
 - Ask Eden has both a newer tool-routed layer and a legacy Eden AI helper layer
 
 ## Biggest Gaps Against Intended Eden Direction
@@ -120,7 +124,7 @@ What is still mixed or transitional:
 - Prisma-backed acceptance verification cannot fully confirm ledger state because model queries returned `EACCES`.
 - Dev-server validation is noisy because another Next dev instance or lock already exists.
 - The live database still has no recorded Prisma migration history until the new baseline is marked as applied.
-- The runtime, sandbox task runner, runtime lifecycle audit, launch-intent/deployment-history, and config/secret-boundary migrations still have not been applied to the active database.
+- The runtime, sandbox task runner, runtime lifecycle audit, launch-intent/deployment-history, config/secret-boundary, and execution-governance migrations still have not been applied to the active database.
 - `middleware.ts` still uses the deprecated Next.js middleware convention instead of `proxy`.
 
 ## Minimal Cleanup Completed In This Session
@@ -205,6 +209,29 @@ What is still mixed or transitional:
   - no secret manager is implemented
   - secret visibility is limited to labels, policy references, and configured/missing status
 
+## Current Execution Governance Layer
+
+- `ProjectRuntimeProviderApproval` now exists in Prisma schema and migration output.
+- `ProjectRuntimeAgentRun` now exists in Prisma schema and migration output.
+- `ProjectRuntimeSecretBoundary` now carries explicit `statusDetail` and `lastCheckedAt` metadata.
+- `ProjectRuntimeTask` now carries:
+  - optional provider and model labels
+  - requested action type
+  - explicit result type, result status, result summary, and result payload
+- `/owner/runtimes` now lets the owner:
+  - update per-runtime provider approval gates
+  - update secret-boundary readiness status without exposing raw secret values
+  - inspect recent governed agent-run records
+  - create sandbox tasks that optionally record a provider preflight instead of implying live provider execution
+- The internal sandbox task runner now:
+  - records governed provider preflight compatibility against allowlist, approval, and secret readiness
+  - writes first-class `ProjectRuntimeAgentRun` records
+  - stores explicit task result capture for plan, QA/review, or provider-preflight outcomes
+- These execution-governance records remain honest control-plane data only:
+  - no live OpenAI or Anthropic call is made
+  - no container or workspace is started
+  - no hosted preview or deploy job is triggered
+
 ## Current Owner Control-Agent Scaffold
 
 - `eden-system/specs/OWNER_CONTROL_CONSTITUTION.md` now defines the first owner-aligned constitutional directive layer.
@@ -260,11 +287,31 @@ What is still mixed or transitional:
   - call live AI providers
   - mutate arbitrary repo areas outside the queued task scope
 
+## Current Build Supervisor
+
+- `eden-system/specs/EDEN_BUILD_SUPERVISOR.md` now defines the owner-gated build-supervisor model.
+- `eden-system/state/EDEN_BUILD_SUPERVISOR_STATE.json` now tracks completed supervisor task ids, packet state, and supervisor history.
+- `eden-system/state/EDEN_CODEX_EXECUTION_PACKET.json` now stores the latest canonical Codex execution packet.
+- `/owner/runtimes` now shows an owner-only build-supervisor panel that can:
+  - load the current supervisor state
+  - select the next Codex-ready Eden self-work task
+  - prepare a structured Codex packet
+  - ingest a completed task result
+  - refresh managed summary sections in the canonical state/log/action files
+- The supervisor is file-backed and owner-gated:
+  - it does not execute Codex directly
+  - it does not deploy Eden
+  - it does not call live providers
+  - it does not bypass human-required actions
+- Current supervisor reality:
+  - highest-priority approved task remains blocked by manual migration and database work
+  - the next Codex-ready implementation task is the first unblocked approved queue item after that human-gated blocker
+
 ## What "Eden V1 Complete" Means Now
 
 - Eden v1 is complete when the active control-plane surfaces are honest, persistent, owner-auditable, and scoped correctly.
 - This means Eden v1 should have:
-  - real runtime, task, lifecycle, audit, launch-intent, deployment-history, config-policy, and secret-boundary records
+  - real runtime, task, lifecycle, audit, launch-intent, deployment-history, config-policy, secret-boundary, provider-approval, and agent-run records
   - an owner-only internal sandbox runtime and task workflow
   - an owner-approved Eden self-work queue and review loop
   - no active UI that presents mock or metadata-only behavior as real infrastructure
@@ -289,6 +336,8 @@ What is still mixed or transitional:
   - `prisma/migrations/20260311233000_runtime_launch_intent_deployment_history_v1/migration.sql`
 - Runtime config and secret-boundary migration created:
   - `prisma/migrations/20260311235500_runtime_config_secret_boundary_provider_scaffold_v1/migration.sql`
+- Execution-governance migration created:
+  - `prisma/migrations/20260311235930_provider_approval_secret_status_agent_run_v1/migration.sql`
 - The baseline covers the pre-runtime schema only and excludes:
   - `ProjectRuntime`
   - `ProjectRuntimeDomainLink`
@@ -308,15 +357,25 @@ What is still mixed or transitional:
   - `No difference detected.`
 - Result:
   - the migration chain now has a valid predecessor on disk for `ProjectBlueprint`
-- the remaining work is manual migration-history reconciliation plus applying the runtime, task runner, lifecycle audit, launch/deployment-history, and config/secret-boundary migrations to the live database
+- the remaining work is manual migration-history reconciliation plus applying the runtime, task runner, lifecycle audit, launch/deployment-history, config/secret-boundary, and execution-governance migrations to the live database
 
 ## Next Recommended Implementation Target
 
-Reconcile the live database with the repaired migration history, then verify the owner runtime registry and Eden self-work loop against persistent runtime-control-plane tables.
+Use the new build supervisor to separate human-gated operational work from Codex-ready implementation work.
 
 Build next:
 
-1. mark `20260311120000_pre_runtime_baseline` as applied on the live database with Prisma Migrate
-2. run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, and `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1` create the runtime control-plane tables
-3. verify `/owner/runtimes` can register the internal sandbox, persist sandbox task records, persist runtime lifecycle audit entries, save launch intent, save deployment-history records, save runtime config policy records, and queue the next approved Eden self-work item against the live database
-4. then add owner-managed secret-boundary status updates, provider approval gates, and sandbox task audit logging so the self-work loop can distinguish ready, blocked, and review-required execution states more explicitly
+1. owner still needs to run the manual migration reconciliation and deploy sequence on the active database
+2. after that, verify `/owner/runtimes` can persist the runtime registry, lifecycle audit, launch intent, deployment history, config policy, provider approvals, secret readiness updates, agent runs, sandbox result capture, self-work queue pulls, and build-supervisor packet flow against the live database
+3. the next Codex-ready implementation target is `task_audit_and_queue_boundary`
+4. after that, add sandbox task audit logging and explicit async-dispatch boundary metadata so the self-work and supervisor layers can distinguish ready, blocked, queued, and completed execution more clearly
+
+## Build Supervisor Digest
+
+<!-- EDEN_BUILD_SUPERVISOR:START -->
+- Supervisor status: Packet needed.
+- Status detail: The next Codex-ready task is "Add sandbox task audit logging and async dispatch boundary metadata", but the packet still needs to be prepared.
+- Next Codex-ready task: task_audit_and_queue_boundary - Add sandbox task audit logging and async dispatch boundary metadata.
+- Packet state: not_prepared.
+- Last completed supervised task: None recorded yet.
+<!-- EDEN_BUILD_SUPERVISOR:END -->

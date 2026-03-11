@@ -46,6 +46,9 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as {
     title?: string;
     inputText?: string;
+    providerKey?: string | null;
+    modelLabel?: string | null;
+    requestedActionType?: string | null;
   };
   const result = await createOwnerInternalSandboxTask(
     {
@@ -59,6 +62,9 @@ export async function POST(request: Request) {
     {
       title: body.title,
       inputText: body.inputText ?? "",
+      providerKey: body.providerKey,
+      modelLabel: body.modelLabel,
+      requestedActionType: body.requestedActionType,
     },
   );
 

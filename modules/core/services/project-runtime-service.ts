@@ -1,12 +1,18 @@
 import "server-only";
 
 import { EdenRole, Prisma, UserStatus } from "@prisma/client";
-import { evaluateRuntimeProviderCompatibility } from "@/modules/core/agents/eden-provider-adapters";
+import {
+  buildRuntimeProviderPreflight,
+  evaluateRuntimeProviderCompatibility,
+} from "@/modules/core/agents/eden-provider-adapters";
+import type { EdenProviderExecutionPreflightRecord } from "@/modules/core/agents/eden-provider-adapters";
 import type {
   EdenProjectRuntimeAuditLogRecord,
+  EdenProjectRuntimeAgentRunRecord,
   EdenProjectRuntimeConfigRecord,
   EdenProjectRuntimeDeploymentRecord,
   EdenProjectRuntimeLaunchIntentRecord,
+  EdenProjectRuntimeProviderApprovalRecord,
   EdenProjectRuntimeProviderCompatibilityRecord,
   EdenProjectRuntimeRecord,
   EdenProjectRuntimeRegistryState,
@@ -23,7 +29,10 @@ import type {
   OwnerRuntimeLaunchTarget,
   OwnerRuntimeExecutionMode,
   OwnerRuntimeProvider,
+  OwnerRuntimeProviderApprovalStatus,
   OwnerRuntimeProviderPolicyMode,
+  OwnerRuntimeSecretStatus,
+  OwnerRuntimeTaskRequestedAction,
 } from "@/modules/core/projects/project-runtime-shared";
 import {
   edenInternalSandboxLeadAgentLabel,
@@ -65,6 +74,35 @@ const projectRuntimeRegistryInclude = {
   secretBoundaries: {
     orderBy: {
       createdAt: "asc",
+    },
+  },
+  providerApprovals: {
+    orderBy: {
+      createdAt: "asc",
+    },
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+    },
+  },
+  agentRuns: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 8,
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
     },
   },
   auditLogs: {
@@ -117,6 +155,20 @@ const projectRuntimeTaskInclude = {
       name: true,
       runtimeType: true,
       accessPolicy: true,
+    },
+  },
+  agentRuns: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
     },
   },
 } satisfies Prisma.ProjectRuntimeTaskInclude;
@@ -191,7 +243,36 @@ type ProjectRuntimeSecretVisibilityPolicyValue =
   | "OWNER_METADATA_ONLY"
   | "RUNTIME_BOUNDARY_ONLY";
 
-type ProjectRuntimeSecretStatusValue = "CONFIGURED" | "MISSING" | "RESERVED";
+type ProjectRuntimeProviderApprovalStatusValue =
+  | "REVIEW_REQUIRED"
+  | "APPROVED"
+  | "DENIED";
+type ProjectRuntimeSecretStatusValue =
+  | "CONFIGURED"
+  | "MISSING"
+  | "PENDING"
+  | "RESERVED";
+type ProjectRuntimeAgentActionTypeValue =
+  | "PROVIDER_PREFLIGHT"
+  | "SANDBOX_TEST"
+  | "QA_VALIDATION"
+  | "IMPLEMENTATION_REVIEW";
+type ProjectRuntimeAgentRunStatusValue =
+  | "PREFLIGHT_BLOCKED"
+  | "PREPARED"
+  | "COMPLETED"
+  | "FAILED"
+  | "REVIEW_REQUIRED";
+type ProjectRuntimeTaskResultTypeValue =
+  | "SANDBOX_PLAN"
+  | "PROVIDER_PREFLIGHT"
+  | "QA_RESULT"
+  | "EXECUTION_REVIEW";
+type ProjectRuntimeTaskResultStatusValue =
+  | "PASS"
+  | "FAIL"
+  | "REVIEW_NEEDED"
+  | "INFO";
 
 type ProjectRuntimeLifecycleStatus =
   | "REGISTERED"
@@ -810,6 +891,11 @@ export async function updateOwnerProjectRuntimeConfigPolicy(
         ownerOnlyEnforced: nextOwnerOnlyEnforced,
         internalOnlyEnforced: nextInternalOnlyEnforced,
       });
+      await syncProjectRuntimeProviderApprovals(transaction, {
+        runtimeId,
+        actorUserId: actor.id,
+        allowedProviders: nextAllowedProviders,
+      });
 
       const auditEntries = buildRuntimeConfigAuditEntries({
         runtimeId,
@@ -858,6 +944,389 @@ export async function updateOwnerProjectRuntimeConfigPolicy(
     });
   } catch (error) {
     logProjectRuntimeFailure("update_owner_project_runtime_config_policy", error);
+
+    return {
+      ok: false as const,
+      status: 503,
+      error: describeProjectRuntimeFailure(error),
+    };
+  }
+}
+
+export async function updateOwnerProjectRuntimeProviderApproval(
+  actor: EdenProjectRuntimeActor,
+  input: {
+    runtimeId: string;
+    providerKey: string;
+    approvalStatus: string;
+    modelScope?: string[] | null;
+    capabilityScope?: string[] | null;
+    notes?: string | null;
+  },
+) {
+  const prisma = getPrismaClient();
+  const runtimeId = input.runtimeId.trim();
+  const providerKey = parseProjectRuntimeProviderKey(input.providerKey);
+  const approvalStatus = parseProjectRuntimeProviderApprovalStatus(
+    input.approvalStatus,
+  );
+  const nextModelScope = normalizeRuntimeScopeList(input.modelScope);
+  const nextCapabilityScope = normalizeRuntimeScopeList(input.capabilityScope);
+  const nextNotes = normalizeRuntimePolicyText(input.notes);
+
+  if (!runtimeId) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Runtime id is required before saving provider approvals.",
+    };
+  }
+
+  if (!providerKey || !approvalStatus) {
+    return {
+      ok: false as const,
+      status: 400,
+      error:
+        "Select a valid provider and approval state before saving provider approval metadata.",
+    };
+  }
+
+  try {
+    return prisma.$transaction(async (transaction) => {
+      await upsertProjectRuntimeActor(transaction, actor);
+
+      const currentRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        select: {
+          id: true,
+          configPolicy: {
+            select: {
+              allowedProviders: true,
+            },
+          },
+          providerApprovals: {
+            where: {
+              providerKey,
+            },
+            take: 1,
+            select: {
+              id: true,
+              approvalStatus: true,
+              modelScope: true,
+              capabilityScope: true,
+              notes: true,
+            },
+          },
+        },
+      });
+
+      if (!currentRuntime) {
+        return {
+          ok: false as const,
+          status: 404,
+          error: "The requested runtime record could not be found.",
+        };
+      }
+
+      const isAllowlisted =
+        !currentRuntime.configPolicy ||
+        currentRuntime.configPolicy.allowedProviders.includes(providerKey);
+
+      if (!isAllowlisted) {
+        return {
+          ok: false as const,
+          status: 400,
+          error:
+            "Add the provider to the runtime allowlist before changing its approval gate.",
+        };
+      }
+
+      const currentApproval = currentRuntime.providerApprovals[0] ?? null;
+      const approvalChanged =
+        !currentApproval ||
+        currentApproval.approvalStatus !== approvalStatus ||
+        !areScopedListsEqual(currentApproval.modelScope, nextModelScope) ||
+        !areScopedListsEqual(
+          currentApproval.capabilityScope,
+          nextCapabilityScope,
+        ) ||
+        (currentApproval.notes ?? null) !== nextNotes;
+
+      if (!approvalChanged) {
+        const unchangedRuntime = await transaction.projectRuntime.findUnique({
+          where: {
+            id: runtimeId,
+          },
+          include: projectRuntimeRegistryInclude,
+        });
+
+        if (!unchangedRuntime) {
+          throw new Error(
+            "Eden could not reload the runtime record after a no-op provider approval update.",
+          );
+        }
+
+        return {
+          ok: true as const,
+          changed: false,
+          runtime: mapProjectRuntimeRecord(unchangedRuntime),
+        };
+      }
+
+      await transaction.projectRuntimeProviderApproval.upsert({
+        where: {
+          runtimeId_providerKey: {
+            runtimeId,
+            providerKey,
+          },
+        },
+        update: {
+          actorUserId: actor.id,
+          approvalStatus,
+          modelScope: nextModelScope,
+          capabilityScope: nextCapabilityScope,
+          notes: nextNotes,
+          reviewedAt: new Date(),
+        },
+        create: {
+          runtimeId,
+          actorUserId: actor.id,
+          providerKey,
+          approvalStatus,
+          modelScope: nextModelScope,
+          capabilityScope: nextCapabilityScope,
+          notes: nextNotes,
+          reviewedAt: new Date(),
+        },
+      });
+
+      await transaction.projectRuntimeAuditLog.createMany({
+        data: buildProviderApprovalAuditEntries({
+          runtimeId,
+          actorUserId: actor.id,
+          providerKey,
+          currentApproval,
+          nextApproval: {
+            approvalStatus,
+            modelScope: nextModelScope,
+            capabilityScope: nextCapabilityScope,
+            notes: nextNotes,
+          },
+        }),
+      });
+
+      const updatedRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        include: projectRuntimeRegistryInclude,
+      });
+
+      if (!updatedRuntime) {
+        throw new Error(
+          "Eden could not reload the runtime record after saving provider approval metadata.",
+        );
+      }
+
+      return {
+        ok: true as const,
+        changed: true,
+        runtime: mapProjectRuntimeRecord(updatedRuntime),
+      };
+    });
+  } catch (error) {
+    logProjectRuntimeFailure("update_owner_project_runtime_provider_approval", error);
+
+    return {
+      ok: false as const,
+      status: 503,
+      error: describeProjectRuntimeFailure(error),
+    };
+  }
+}
+
+export async function updateOwnerProjectRuntimeSecretBoundaryStatus(
+  actor: EdenProjectRuntimeActor,
+  input: {
+    runtimeId: string;
+    boundaryId: string;
+    status: string;
+    statusDetail?: string | null;
+    lastCheckedAction?: string | null;
+  },
+) {
+  const prisma = getPrismaClient();
+  const runtimeId = input.runtimeId.trim();
+  const boundaryId = input.boundaryId.trim();
+  const nextStatus = parseProjectRuntimeSecretStatus(input.status);
+  const nextStatusDetail = normalizeRuntimePolicyText(input.statusDetail);
+  const lastCheckedAction = normalizeRuntimeHealthCheckAction(
+    input.lastCheckedAction,
+  );
+
+  if (!runtimeId || !boundaryId) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Runtime id and boundary id are required before saving secret status.",
+    };
+  }
+
+  if (!nextStatus || !lastCheckedAction) {
+    return {
+      ok: false as const,
+      status: 400,
+      error:
+        "Select a valid secret readiness state and last-checked action before saving.",
+    };
+  }
+
+  try {
+    return prisma.$transaction(async (transaction) => {
+      await upsertProjectRuntimeActor(transaction, actor);
+
+      const currentBoundary = await transaction.projectRuntimeSecretBoundary.findUnique(
+        {
+          where: {
+            id: boundaryId,
+          },
+          select: {
+            id: true,
+            runtimeId: true,
+            label: true,
+            status: true,
+            statusDetail: true,
+            lastCheckedAt: true,
+          },
+        },
+      );
+
+      if (!currentBoundary || currentBoundary.runtimeId !== runtimeId) {
+        return {
+          ok: false as const,
+          status: 404,
+          error: "The requested secret-boundary record could not be found.",
+        };
+      }
+
+      const boundaryChanges: Prisma.ProjectRuntimeSecretBoundaryUpdateInput = {};
+      const auditEntries: Prisma.ProjectRuntimeAuditLogCreateManyInput[] = [];
+
+      if (currentBoundary.status !== nextStatus) {
+        boundaryChanges.status = nextStatus;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: `secretBoundaryStatus:${currentBoundary.label}`,
+            previousValue: currentBoundary.status,
+            nextValue: nextStatus,
+            detail: `Updated secret-boundary readiness for ${currentBoundary.label}.`,
+          }),
+        );
+      }
+
+      if ((currentBoundary.statusDetail ?? null) !== nextStatusDetail) {
+        boundaryChanges.statusDetail = nextStatusDetail;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: `secretBoundaryDetail:${currentBoundary.label}`,
+            previousValue: currentBoundary.statusDetail,
+            nextValue: nextStatusDetail,
+            detail: `Updated secret-boundary detail for ${currentBoundary.label}.`,
+          }),
+        );
+      }
+
+      if (lastCheckedAction === "set_now") {
+        const lastCheckedAt = new Date();
+        boundaryChanges.lastCheckedAt = lastCheckedAt;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: `secretBoundaryChecked:${currentBoundary.label}`,
+            previousValue: currentBoundary.lastCheckedAt?.toISOString() ?? null,
+            nextValue: lastCheckedAt.toISOString(),
+            detail: `Recorded a secret-boundary readiness check for ${currentBoundary.label}.`,
+          }),
+        );
+      }
+
+      if (lastCheckedAction === "clear" && currentBoundary.lastCheckedAt) {
+        boundaryChanges.lastCheckedAt = null;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: `secretBoundaryChecked:${currentBoundary.label}`,
+            previousValue: currentBoundary.lastCheckedAt.toISOString(),
+            nextValue: null,
+            detail: `Cleared the recorded secret-boundary readiness check for ${currentBoundary.label}.`,
+          }),
+        );
+      }
+
+      if (!auditEntries.length) {
+        const unchangedRuntime = await transaction.projectRuntime.findUnique({
+          where: {
+            id: runtimeId,
+          },
+          include: projectRuntimeRegistryInclude,
+        });
+
+        if (!unchangedRuntime) {
+          throw new Error(
+            "Eden could not reload the runtime record after a no-op secret-boundary update.",
+          );
+        }
+
+        return {
+          ok: true as const,
+          changed: false,
+          runtime: mapProjectRuntimeRecord(unchangedRuntime),
+        };
+      }
+
+      await transaction.projectRuntimeSecretBoundary.update({
+        where: {
+          id: boundaryId,
+        },
+        data: boundaryChanges,
+      });
+
+      await transaction.projectRuntimeAuditLog.createMany({
+        data: auditEntries,
+      });
+
+      const updatedRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        include: projectRuntimeRegistryInclude,
+      });
+
+      if (!updatedRuntime) {
+        throw new Error(
+          "Eden could not reload the runtime record after saving secret-boundary metadata.",
+        );
+      }
+
+      return {
+        ok: true as const,
+        changed: true,
+        runtime: mapProjectRuntimeRecord(updatedRuntime),
+      };
+    });
+  } catch (error) {
+    logProjectRuntimeFailure(
+      "update_owner_project_runtime_secret_boundary_status",
+      error,
+    );
 
     return {
       ok: false as const,
@@ -1080,6 +1549,9 @@ export async function createOwnerInternalSandboxTask(
   input: {
     title?: string | null;
     inputText: string;
+    providerKey?: string | null;
+    modelLabel?: string | null;
+    requestedActionType?: string | null;
   },
 ) {
   const prisma = getPrismaClient();
@@ -1092,8 +1564,31 @@ export async function createOwnerInternalSandboxTask(
       },
       select: {
         id: true,
+        name: true,
         accessPolicy: true,
         runtimeType: true,
+        configPolicy: {
+          select: {
+            executionMode: true,
+            providerPolicyMode: true,
+            allowedProviders: true,
+          },
+        },
+        secretBoundaries: {
+          select: {
+            providerKey: true,
+            status: true,
+            isRequired: true,
+          },
+        },
+        providerApprovals: {
+          select: {
+            providerKey: true,
+            approvalStatus: true,
+            modelScope: true,
+            capabilityScope: true,
+          },
+        },
       },
     });
 
@@ -1132,8 +1627,39 @@ export async function createOwnerInternalSandboxTask(
     await upsertProjectRuntimeActor(prisma, actor);
 
     const taskType = resolveProjectRuntimeTaskType(normalizedInput);
+    const providerKey = parseProjectRuntimeProviderKey(input.providerKey);
+    const modelLabel = normalizeSandboxTaskTitle(input.modelLabel);
+    const requestedActionType =
+      parseProjectRuntimeAgentActionType(input.requestedActionType) ??
+      (providerKey ? "PROVIDER_PREFLIGHT" : resolveSandboxTaskRequestedAction(taskType));
     const taskTitle =
       normalizeSandboxTaskTitle(input.title) ?? buildSandboxTaskTitle(normalizedInput);
+    const providerPreflight = providerKey
+      ? buildRuntimeProviderPreflight(
+          {
+            executionMode:
+              runtime.configPolicy?.executionMode.toLowerCase() ?? null,
+            providerPolicyMode:
+              runtime.configPolicy?.providerPolicyMode.toLowerCase() ?? null,
+            allowedProviders:
+              runtime.configPolicy?.allowedProviders.map((provider) =>
+                provider.toLowerCase(),
+              ) ?? [],
+            providerApprovals: runtime.providerApprovals.map((approval) => ({
+              providerKey: approval.providerKey.toLowerCase(),
+              approvalStatus: approval.approvalStatus.toLowerCase(),
+              modelScope: approval.modelScope,
+              capabilityScope: approval.capabilityScope,
+            })),
+            secretBoundaries: runtime.secretBoundaries.map((boundary) => ({
+              providerKey: boundary.providerKey?.toLowerCase() ?? null,
+              status: boundary.status.toLowerCase(),
+              isRequired: boundary.isRequired,
+            })),
+          },
+          providerKey.toLowerCase(),
+        )
+      : null;
 
     const createdTask = await prisma.projectRuntimeTask.create({
       data: {
@@ -1141,6 +1667,9 @@ export async function createOwnerInternalSandboxTask(
         creatorUserId: actor.id,
         title: taskTitle,
         inputText: normalizedInput,
+        providerKey,
+        modelLabel,
+        requestedActionType,
         taskType,
         status: "PLANNING",
         outputLines: [],
@@ -1173,10 +1702,17 @@ export async function createOwnerInternalSandboxTask(
       title: createdTask.title,
       inputText: createdTask.inputText,
       plannerPayload: plannerPayload.payload,
+      providerPreflight,
+    });
+    const taskResult = buildSandboxTaskResult({
+      taskType,
+      providerPreflight,
+      requestedActionType,
+      workerPayload: workerPayload.payload,
     });
     const workerCompletedAt = new Date();
 
-    const completedTask = await prisma.projectRuntimeTask.update({
+    await prisma.projectRuntimeTask.update({
       where: {
         id: createdTask.id,
       },
@@ -1186,15 +1722,59 @@ export async function createOwnerInternalSandboxTask(
         workerPayload: workerPayload.payload,
         outputSummary: workerPayload.outputSummary,
         outputLines: workerPayload.outputLines,
+        resultType: taskResult.resultType,
+        resultStatus: taskResult.resultStatus,
+        resultSummary: taskResult.resultSummary,
+        resultPayload: taskResult.resultPayload,
         workerCompletedAt,
         completedAt: workerCompletedAt,
       },
       include: projectRuntimeTaskInclude,
     });
 
+    const runSummary = providerPreflight
+      ? providerPreflight.summary
+      : `${edenInternalSandboxWorkerAgentLabel} completed a deterministic sandbox control-plane run.`;
+    const runDetail = providerPreflight
+      ? providerPreflight.detail
+      : "The internal sandbox task runner stored planner and worker records only. No live provider call, container execution, or hosted runtime action occurred.";
+    const runStatus = providerPreflight
+      ? mapProviderPreflightToAgentRunStatus(providerPreflight.runStatus)
+      : ("COMPLETED" satisfies ProjectRuntimeAgentRunStatusValue);
+
+    await prisma.projectRuntimeAgentRun.create({
+      data: {
+        runtimeId: edenOwnerInternalSandboxRuntimeId,
+        taskId: createdTask.id,
+        actorUserId: actor.id,
+        providerKey,
+        modelLabel,
+        executionTargetLabel: runtime.name,
+        requestedActionType,
+        runStatus,
+        summary: runSummary,
+        detail: runDetail,
+        resultPayload: taskResult.resultPayload,
+        completedAt: workerCompletedAt,
+      },
+    });
+
+    const reloadedTask = await prisma.projectRuntimeTask.findUnique({
+      where: {
+        id: createdTask.id,
+      },
+      include: projectRuntimeTaskInclude,
+    });
+
+    if (!reloadedTask) {
+      throw new Error(
+        "Eden could not reload the sandbox task after recording its governed execution result.",
+      );
+    }
+
     return {
       ok: true as const,
-      task: mapProjectRuntimeTaskRecord(completedTask),
+      task: mapProjectRuntimeTaskRecord(reloadedTask),
     };
   } catch (error) {
     if (createdTaskId) {
@@ -1206,6 +1786,10 @@ export async function createOwnerInternalSandboxTask(
           data: {
             status: "FAILED",
             failureDetail: getProjectRuntimeErrorMessage(error),
+            resultType: "EXECUTION_REVIEW",
+            resultStatus: "FAIL",
+            resultSummary:
+              "Sandbox task execution failed before Eden could complete its governed control-plane record.",
           },
         })
         .catch(() => undefined);
@@ -1447,6 +2031,11 @@ export async function registerOwnerInternalSandboxRuntime(
       ownerOnlyEnforced: true,
       internalOnlyEnforced: true,
     });
+    await syncProjectRuntimeProviderApprovals(transaction, {
+      runtimeId: edenOwnerInternalSandboxRuntimeId,
+      actorUserId: actor.id,
+      allowedProviders: ["OPENAI", "ANTHROPIC"],
+    });
 
     const runtime = await transaction.projectRuntime.findUnique({
       where: {
@@ -1570,6 +2159,12 @@ function mapProjectRuntimeRecord(
         runtime.configPolicy?.allowedProviders.map((provider) =>
           provider.toLowerCase(),
         ) ?? [],
+      providerApprovals: runtime.providerApprovals.map((approval) => ({
+        providerKey: approval.providerKey.toLowerCase(),
+        approvalStatus: approval.approvalStatus.toLowerCase(),
+        modelScope: approval.modelScope,
+        capabilityScope: approval.capabilityScope,
+      })),
       secretBoundaries: runtime.secretBoundaries.map((boundary) => ({
         providerKey: boundary.providerKey?.toLowerCase() ?? null,
         status: boundary.status.toLowerCase(),
@@ -1589,6 +2184,10 @@ function mapProjectRuntimeRecord(
         reason: compatibility.reason,
       }),
     ),
+    providerApprovals: runtime.providerApprovals.map(
+      mapProjectRuntimeProviderApprovalRecord,
+    ),
+    agentRuns: runtime.agentRuns.map(mapProjectRuntimeAgentRunRecord),
     auditEntries: runtime.auditLogs.map(mapProjectRuntimeAuditLogRecord),
     deploymentHistory: runtime.deploymentRecords.map(
       mapProjectRuntimeDeploymentRecord,
@@ -1668,7 +2267,61 @@ function mapProjectRuntimeSecretBoundaryRecord(
       ? formatEnumLabel(boundary.providerKey)
       : null,
     boundaryReference: boundary.boundaryReference,
+    statusDetail: boundary.statusDetail,
+    lastCheckedAtLabel: boundary.lastCheckedAt
+      ? formatTimestamp(boundary.lastCheckedAt)
+      : null,
     updatedAtLabel: formatTimestamp(boundary.updatedAt),
+  };
+}
+
+function mapProjectRuntimeProviderApprovalRecord(
+  approval: ProjectRuntimeRegistryRecord["providerApprovals"][number],
+): EdenProjectRuntimeProviderApprovalRecord {
+  return {
+    id: approval.id,
+    providerKey: approval.providerKey.toLowerCase(),
+    providerLabel: formatEnumLabel(approval.providerKey),
+    approvalStatus: approval.approvalStatus.toLowerCase(),
+    approvalStatusLabel: formatEnumLabel(approval.approvalStatus),
+    modelScope: approval.modelScope,
+    capabilityScope: approval.capabilityScope,
+    notes: approval.notes,
+    reviewedAtLabel: approval.reviewedAt
+      ? formatTimestamp(approval.reviewedAt)
+      : null,
+    updatedAtLabel: formatTimestamp(approval.updatedAt),
+    actorUserId: approval.actorUser.id,
+    actorLabel: `${approval.actorUser.displayName} (@${approval.actorUser.username})`,
+  };
+}
+
+function mapProjectRuntimeAgentRunRecord(
+  run:
+    | ProjectRuntimeRegistryRecord["agentRuns"][number]
+    | ProjectRuntimeTaskReadRecord["agentRuns"][number],
+): EdenProjectRuntimeAgentRunRecord {
+  return {
+    id: run.id,
+    runtimeId: run.runtimeId,
+    taskId: run.taskId,
+    actorUserId: run.actorUser.id,
+    actorLabel: `${run.actorUser.displayName} (@${run.actorUser.username})`,
+    providerKey: run.providerKey?.toLowerCase() ?? null,
+    providerLabel: run.providerKey ? formatEnumLabel(run.providerKey) : null,
+    modelLabel: run.modelLabel,
+    executionTargetLabel: run.executionTargetLabel,
+    requestedActionType: run.requestedActionType.toLowerCase(),
+    requestedActionTypeLabel: formatEnumLabel(run.requestedActionType),
+    runStatus: run.runStatus.toLowerCase(),
+    runStatusLabel: formatEnumLabel(run.runStatus),
+    summary: run.summary,
+    detail: run.detail,
+    resultPayloadSummary: summarizeJsonPayload(run.resultPayload),
+    errorDetail: run.errorDetail,
+    createdAtLabel: formatTimestamp(run.createdAt),
+    updatedAtLabel: formatTimestamp(run.updatedAt),
+    completedAtLabel: run.completedAt ? formatTimestamp(run.completedAt) : null,
   };
 }
 
@@ -1736,6 +2389,13 @@ function mapProjectRuntimeTaskRecord(
     creatorLabel: `${task.creatorUser.displayName} (@${task.creatorUser.username})`,
     title: task.title,
     inputText: task.inputText,
+    providerKey: task.providerKey?.toLowerCase() ?? null,
+    providerLabel: task.providerKey ? formatEnumLabel(task.providerKey) : null,
+    modelLabel: task.modelLabel,
+    requestedActionType: task.requestedActionType?.toLowerCase() ?? null,
+    requestedActionTypeLabel: task.requestedActionType
+      ? formatEnumLabel(task.requestedActionType)
+      : null,
     taskType: task.taskType.toLowerCase(),
     taskTypeLabel: formatEnumLabel(task.taskType),
     status: task.status.toLowerCase(),
@@ -1752,7 +2412,16 @@ function mapProjectRuntimeTaskRecord(
     workerArtifacts: workerPayload?.artifacts ?? [],
     outputSummary: task.outputSummary,
     outputLines: task.outputLines,
+    resultType: task.resultType?.toLowerCase() ?? null,
+    resultTypeLabel: task.resultType ? formatEnumLabel(task.resultType) : null,
+    resultStatus: task.resultStatus?.toLowerCase() ?? null,
+    resultStatusLabel: task.resultStatus
+      ? formatEnumLabel(task.resultStatus)
+      : null,
+    resultSummary: task.resultSummary,
+    resultPayloadSummary: summarizeJsonPayload(task.resultPayload),
     failureDetail: task.failureDetail,
+    agentRuns: task.agentRuns.map(mapProjectRuntimeAgentRunRecord),
     plannerCompletedAtLabel: task.plannerCompletedAt
       ? formatTimestamp(task.plannerCompletedAt)
       : null,
@@ -1822,6 +2491,7 @@ function buildSandboxWorkerPayload(input: {
   title: string;
   inputText: string;
   plannerPayload: SandboxPlannerPayload;
+  providerPreflight: ReturnType<typeof buildRuntimeProviderPreflight> | null;
 }) {
   const actionPlan = buildWorkerActionPlan(input.inputText, input.plannerPayload);
   const implementationNotes = buildWorkerImplementationNotes(
@@ -1831,8 +2501,13 @@ function buildSandboxWorkerPayload(input: {
   const artifacts = buildWorkerArtifacts(input.taskType, input.title, actionPlan);
   const executionNote =
     "Deterministic sandbox task runner only. Eden stored a planner record and worker result inside control-plane metadata without provisioning a real isolated runtime.";
+  const providerPreflightLine = input.providerPreflight
+    ? `Provider preflight: ${input.providerPreflight.summary}`
+    : null;
   const outputSummary =
-    input.taskType === "ANALYSIS"
+    input.providerPreflight
+      ? "Sandbox provider preflight recorded."
+      : input.taskType === "ANALYSIS"
       ? "Sandbox analysis record generated."
       : input.taskType === "QA_REVIEW"
         ? "Sandbox QA review plan generated."
@@ -1845,6 +2520,7 @@ function buildSandboxWorkerPayload(input: {
       `Task intent: ${input.plannerPayload.taskIntent}`,
       `Workstream: ${input.plannerPayload.workstream}`,
       executionNote,
+      ...(providerPreflightLine ? [providerPreflightLine] : []),
       ...actionPlan,
     ],
     payload: {
@@ -1861,6 +2537,96 @@ function buildSandboxWorkerPayload(input: {
       artifacts,
     } satisfies SandboxWorkerPayload,
   };
+}
+
+function buildSandboxTaskResult(input: {
+  taskType: "IMPLEMENTATION_PLAN" | "ANALYSIS" | "QA_REVIEW";
+  providerPreflight: ReturnType<typeof buildRuntimeProviderPreflight> | null;
+  requestedActionType: ProjectRuntimeAgentActionTypeValue;
+  workerPayload: SandboxWorkerPayload;
+}): {
+  resultType: ProjectRuntimeTaskResultTypeValue;
+  resultStatus: ProjectRuntimeTaskResultStatusValue;
+  resultSummary: string;
+  resultPayload: Prisma.JsonObject;
+} {
+  if (input.providerPreflight) {
+    return {
+      resultType: "PROVIDER_PREFLIGHT" satisfies ProjectRuntimeTaskResultTypeValue,
+      resultStatus: input.providerPreflight.ready
+        ? ("PASS" satisfies ProjectRuntimeTaskResultStatusValue)
+        : input.providerPreflight.compatibilityStatus === "approval_required"
+          ? ("REVIEW_NEEDED" satisfies ProjectRuntimeTaskResultStatusValue)
+          : ("FAIL" satisfies ProjectRuntimeTaskResultStatusValue),
+      resultSummary: input.providerPreflight.ready
+        ? `${input.providerPreflight.providerLabel} governance preflight passed. Live provider execution was not attempted.`
+        : input.providerPreflight.summary,
+      resultPayload: {
+        resultKind: "provider_preflight",
+        requestedActionType: input.requestedActionType,
+        providerKey: input.providerPreflight.providerKey,
+        providerLabel: input.providerPreflight.providerLabel,
+        compatibilityStatus: input.providerPreflight.compatibilityStatus,
+        ready: input.providerPreflight.ready,
+        detail: input.providerPreflight.detail,
+      } satisfies Prisma.JsonObject,
+    };
+  }
+
+  if (input.taskType === "QA_REVIEW") {
+    return {
+      resultType: "QA_RESULT" satisfies ProjectRuntimeTaskResultTypeValue,
+      resultStatus: "REVIEW_NEEDED" satisfies ProjectRuntimeTaskResultStatusValue,
+      resultSummary:
+        "Sandbox QA review metadata was recorded. Review is still required before any promotion or real execution step.",
+      resultPayload: {
+        resultKind: "qa_review",
+        requestedActionType: input.requestedActionType,
+        executionNote: input.workerPayload.executionNote,
+      } satisfies Prisma.JsonObject,
+    };
+  }
+
+  return {
+    resultType: "SANDBOX_PLAN" satisfies ProjectRuntimeTaskResultTypeValue,
+    resultStatus: "INFO" satisfies ProjectRuntimeTaskResultStatusValue,
+    resultSummary:
+      "Sandbox planner and worker output were stored as a control-plane record only.",
+    resultPayload: {
+      resultKind: "sandbox_plan",
+      requestedActionType: input.requestedActionType,
+      executionNote: input.workerPayload.executionNote,
+    } satisfies Prisma.JsonObject,
+  };
+}
+
+function resolveSandboxTaskRequestedAction(
+  taskType: "IMPLEMENTATION_PLAN" | "ANALYSIS" | "QA_REVIEW",
+): ProjectRuntimeAgentActionTypeValue {
+  if (taskType === "QA_REVIEW") {
+    return "QA_VALIDATION";
+  }
+
+  if (taskType === "ANALYSIS") {
+    return "IMPLEMENTATION_REVIEW";
+  }
+
+  return "SANDBOX_TEST";
+}
+
+function mapProviderPreflightToAgentRunStatus(
+  runStatus: EdenProviderExecutionPreflightRecord["runStatus"],
+): ProjectRuntimeAgentRunStatusValue {
+  switch (runStatus) {
+    case "completed":
+      return "COMPLETED";
+    case "review_required":
+      return "REVIEW_REQUIRED";
+    case "preflight_blocked":
+      return "PREFLIGHT_BLOCKED";
+    default:
+      return "PREPARED";
+  }
 }
 
 function extractSandboxTaskSignals(inputText: string) {
@@ -2310,6 +3076,79 @@ function parseProjectRuntimeProviderKeys(
   return Array.from(new Set(parsedValues));
 }
 
+function parseProjectRuntimeProviderApprovalStatus(
+  value: OwnerRuntimeProviderApprovalStatus | string,
+): ProjectRuntimeProviderApprovalStatusValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "review_required":
+      return "REVIEW_REQUIRED";
+    case "approved":
+      return "APPROVED";
+    case "denied":
+      return "DENIED";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeSecretStatus(
+  value: OwnerRuntimeSecretStatus | string,
+): ProjectRuntimeSecretStatusValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "configured":
+      return "CONFIGURED";
+    case "missing":
+      return "MISSING";
+    case "pending":
+      return "PENDING";
+    case "reserved":
+      return "RESERVED";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeAgentActionType(
+  value: OwnerRuntimeTaskRequestedAction | string | null | undefined,
+): ProjectRuntimeAgentActionTypeValue | null {
+  const normalized = value?.trim().toLowerCase();
+
+  switch (normalized) {
+    case "provider_preflight":
+      return "PROVIDER_PREFLIGHT";
+    case "sandbox_test":
+      return "SANDBOX_TEST";
+    case "qa_validation":
+      return "QA_VALIDATION";
+    case "implementation_review":
+      return "IMPLEMENTATION_REVIEW";
+    default:
+      return normalized ? null : null;
+  }
+}
+
+function normalizeRuntimeScopeList(values: string[] | null | undefined) {
+  return Array.from(
+    new Set(
+      (values ?? [])
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0),
+    ),
+  );
+}
+
+function areScopedListsEqual(currentValues: string[], nextValues: string[]) {
+  if (currentValues.length !== nextValues.length) {
+    return false;
+  }
+
+  return currentValues.every((value, index) => value === nextValues[index]);
+}
+
 function parseProjectRuntimeDeploymentEventType(
   value: OwnerRuntimeDeploymentEventType | string,
 ): ProjectRuntimeDeploymentEventTypeValue | null {
@@ -2634,6 +3473,99 @@ function buildRuntimeConfigAuditEntries(input: {
   return auditEntries;
 }
 
+function buildProviderApprovalAuditEntries(input: {
+  runtimeId: string;
+  actorUserId: string;
+  providerKey: EdenAiProviderValue;
+  currentApproval:
+    | {
+        approvalStatus: ProjectRuntimeProviderApprovalStatusValue;
+        modelScope: string[];
+        capabilityScope: string[];
+        notes: string | null;
+      }
+    | null;
+  nextApproval: {
+    approvalStatus: ProjectRuntimeProviderApprovalStatusValue;
+    modelScope: string[];
+    capabilityScope: string[];
+    notes: string | null;
+  };
+}) {
+  const auditEntries: Prisma.ProjectRuntimeAuditLogCreateManyInput[] = [];
+  const providerLabel = formatEnumLabel(input.providerKey);
+
+  if (
+    !input.currentApproval ||
+    input.currentApproval.approvalStatus !== input.nextApproval.approvalStatus
+  ) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: `providerApproval:${input.providerKey.toLowerCase()}`,
+        previousValue: input.currentApproval?.approvalStatus ?? null,
+        nextValue: input.nextApproval.approvalStatus,
+        detail: `Updated the ${providerLabel} provider approval gate from the owner runtime control surface.`,
+      }),
+    );
+  }
+
+  const previousScopeValue = input.currentApproval
+    ? formatRuntimeScopeAuditValue(
+        input.currentApproval.modelScope,
+        input.currentApproval.capabilityScope,
+      )
+    : null;
+  const nextScopeValue = formatRuntimeScopeAuditValue(
+    input.nextApproval.modelScope,
+    input.nextApproval.capabilityScope,
+  );
+
+  if (!input.currentApproval || previousScopeValue !== nextScopeValue) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: `providerApprovalScope:${input.providerKey.toLowerCase()}`,
+        previousValue: previousScopeValue,
+        nextValue: nextScopeValue,
+        detail: `Updated the ${providerLabel} provider scope constraints from the owner runtime control surface.`,
+      }),
+    );
+  }
+
+  if (
+    !input.currentApproval ||
+    (input.currentApproval.notes ?? null) !== input.nextApproval.notes
+  ) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: `providerApprovalNotes:${input.providerKey.toLowerCase()}`,
+        previousValue: input.currentApproval?.notes ?? null,
+        nextValue: input.nextApproval.notes,
+        detail: `Updated the ${providerLabel} provider approval notes from the owner runtime control surface.`,
+      }),
+    );
+  }
+
+  return auditEntries;
+}
+
+function formatRuntimeScopeAuditValue(
+  modelScope: string[],
+  capabilityScope: string[],
+) {
+  const modelValue = modelScope.length ? modelScope.join(", ") : "Any model";
+  const capabilityValue = capabilityScope.length
+    ? capabilityScope.join(", ")
+    : "Any capability";
+
+  return `Models: ${modelValue} | Capabilities: ${capabilityValue}`;
+}
+
 async function syncProjectRuntimeSecretBoundaries(
   transaction: Prisma.TransactionClient,
   input: {
@@ -2717,6 +3649,35 @@ async function syncProjectRuntimeSecretBoundaries(
         },
       });
     }
+  }
+}
+
+async function syncProjectRuntimeProviderApprovals(
+  transaction: Prisma.TransactionClient,
+  input: {
+    runtimeId: string;
+    actorUserId: string;
+    allowedProviders: EdenAiProviderValue[];
+  },
+) {
+  for (const provider of input.allowedProviders) {
+    await transaction.projectRuntimeProviderApproval.upsert({
+      where: {
+        runtimeId_providerKey: {
+          runtimeId: input.runtimeId,
+          providerKey: provider,
+        },
+      },
+      update: {},
+      create: {
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        providerKey: provider,
+        approvalStatus: "REVIEW_REQUIRED",
+        modelScope: [],
+        capabilityScope: [],
+      },
+    });
   }
 }
 
@@ -2868,11 +3829,13 @@ function isProjectRuntimeSchemaUnavailable(error: unknown) {
 
   return (
     message.includes("projectruntime") ||
+    message.includes("projectruntimeagentrun") ||
     message.includes("projectruntimeauditlog") ||
     message.includes("projectruntimeconfigpolicy") ||
     message.includes("projectruntimelaunchintent") ||
     message.includes("projectruntimedeploymentrecord") ||
     message.includes("projectruntimedomainlink") ||
+    message.includes("projectruntimeproviderapproval") ||
     message.includes("projectruntimesecretboundary") ||
     (message.includes("relation") && message.includes("does not exist")) ||
     (message.includes("table") && message.includes("does not exist"))
@@ -2891,6 +3854,7 @@ function isProjectRuntimeTaskSchemaUnavailable(error: unknown) {
 
   return (
     message.includes("projectruntimetask") ||
+    message.includes("projectruntimeagentrun") ||
     (message.includes("relation") && message.includes("does not exist")) ||
     (message.includes("table") && message.includes("does not exist"))
   );
@@ -2939,6 +3903,30 @@ function formatExecutionModeLabel(value: string) {
 }
 
 function formatProjectRuntimeAuditFieldLabel(fieldName: string) {
+  if (fieldName.startsWith("providerApproval:")) {
+    return `${formatEnumLabel(fieldName.split(":")[1] ?? "provider")} Approval`;
+  }
+
+  if (fieldName.startsWith("providerApprovalScope:")) {
+    return `${formatEnumLabel(fieldName.split(":")[1] ?? "provider")} Scope`;
+  }
+
+  if (fieldName.startsWith("providerApprovalNotes:")) {
+    return `${formatEnumLabel(fieldName.split(":")[1] ?? "provider")} Notes`;
+  }
+
+  if (fieldName.startsWith("secretBoundaryStatus:")) {
+    return "Secret Boundary Status";
+  }
+
+  if (fieldName.startsWith("secretBoundaryDetail:")) {
+    return "Secret Boundary Detail";
+  }
+
+  if (fieldName.startsWith("secretBoundaryChecked:")) {
+    return "Secret Boundary Check";
+  }
+
   if (fieldName === "statusDetail") {
     return "Status Detail";
   }
@@ -2997,7 +3985,8 @@ function formatProjectRuntimeAuditValueLabel(
   if (
     fieldName === "configScope" ||
     fieldName === "executionMode" ||
-    fieldName === "providerPolicyMode"
+    fieldName === "providerPolicyMode" ||
+    fieldName.startsWith("providerApproval:")
   ) {
     return formatEnumLabel(value);
   }
@@ -3011,6 +4000,42 @@ function formatProjectRuntimeAuditValueLabel(
   }
 
   return value;
+}
+
+function summarizeJsonPayload(payload: Prisma.JsonValue | null | undefined) {
+  if (!payload) {
+    return null;
+  }
+
+  if (typeof payload === "string") {
+    return payload;
+  }
+
+  if (Array.isArray(payload)) {
+    return payload.length ? JSON.stringify(payload[0]) : "[]";
+  }
+
+  if (typeof payload !== "object") {
+    return String(payload);
+  }
+
+  const summaryKeys = [
+    "summary",
+    "detail",
+    "executionNote",
+    "resultKind",
+    "providerLabel",
+  ] as const;
+
+  for (const key of summaryKeys) {
+    const candidate = payload[key];
+
+    if (typeof candidate === "string" && candidate.length > 0) {
+      return candidate;
+    }
+  }
+
+  return JSON.stringify(payload);
 }
 
 function formatTimestamp(timestamp: Date) {

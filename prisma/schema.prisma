@@ -150,6 +150,12 @@ enum EdenAiProvider {
   ANTHROPIC
 }
 
+enum ProjectRuntimeProviderApprovalStatus {
+  REVIEW_REQUIRED
+  APPROVED
+  DENIED
+}
+
 enum ProjectRuntimeConfigScope {
   OWNER_INTERNAL
   BUSINESS_RUNTIME
@@ -192,7 +198,23 @@ enum ProjectRuntimeSecretVisibilityPolicy {
 enum ProjectRuntimeSecretStatus {
   CONFIGURED
   MISSING
+  PENDING
   RESERVED
+}
+
+enum ProjectRuntimeAgentActionType {
+  PROVIDER_PREFLIGHT
+  SANDBOX_TEST
+  QA_VALIDATION
+  IMPLEMENTATION_REVIEW
+}
+
+enum ProjectRuntimeAgentRunStatus {
+  PREFLIGHT_BLOCKED
+  PREPARED
+  COMPLETED
+  FAILED
+  REVIEW_REQUIRED
 }
 
 enum ProjectRuntimeTaskType {
@@ -206,6 +228,20 @@ enum ProjectRuntimeTaskStatus {
   RUNNING
   COMPLETED
   FAILED
+}
+
+enum ProjectRuntimeTaskResultType {
+  SANDBOX_PLAN
+  PROVIDER_PREFLIGHT
+  QA_RESULT
+  EXECUTION_REVIEW
+}
+
+enum ProjectRuntimeTaskResultStatus {
+  PASS
+  FAIL
+  REVIEW_NEEDED
+  INFO
 }
 
 model User {
@@ -229,6 +265,8 @@ model User {
   createdProjectBlueprints        ProjectBlueprint[]               @relation("ProjectBlueprintCreator")
   createdProjectRuntimes          ProjectRuntime[]                 @relation("ProjectRuntimeCreator")
   createdProjectRuntimeTasks      ProjectRuntimeTask[]             @relation("ProjectRuntimeTaskCreator")
+  projectRuntimeProviderApprovals ProjectRuntimeProviderApproval[] @relation("ProjectRuntimeProviderApprovalActor")
+  projectRuntimeAgentRuns         ProjectRuntimeAgentRun[]         @relation("ProjectRuntimeAgentRunActor")
   projectRuntimeAuditLogs         ProjectRuntimeAuditLog[]         @relation("ProjectRuntimeAuditActor")
   projectRuntimeDeploymentRecords ProjectRuntimeDeploymentRecord[] @relation("ProjectRuntimeDeploymentActor")
   receivedLeavesGrants            OwnerLeavesGrant[]               @relation("OwnerLeavesGrantRecipient")
@@ -332,6 +370,8 @@ model ProjectRuntime {
   configPolicy      ProjectRuntimeConfigPolicy?
   secretBoundaries  ProjectRuntimeSecretBoundary[]
   tasks             ProjectRuntimeTask[]
+  providerApprovals ProjectRuntimeProviderApproval[]
+  agentRuns         ProjectRuntimeAgentRun[]
   auditLogs         ProjectRuntimeAuditLog[]
   deploymentRecords ProjectRuntimeDeploymentRecord[]
 
@@ -406,9 +446,11 @@ model ProjectRuntimeSecretBoundary {
   secretScope       ProjectRuntimeSecretScope
   visibilityPolicy  ProjectRuntimeSecretVisibilityPolicy
   status            ProjectRuntimeSecretStatus           @default(MISSING)
+  statusDetail      String?
   isRequired        Boolean                              @default(true)
   providerKey       EdenAiProvider?
   boundaryReference String?
+  lastCheckedAt     DateTime?
   createdAt         DateTime                             @default(now())
   updatedAt         DateTime                             @updatedAt
   runtime           ProjectRuntime                       @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
@@ -419,33 +461,89 @@ model ProjectRuntimeSecretBoundary {
   @@index([status, createdAt])
 }
 
+model ProjectRuntimeProviderApproval {
+  id              String                               @id @default(cuid())
+  runtimeId       String
+  actorUserId     String
+  providerKey     EdenAiProvider
+  approvalStatus  ProjectRuntimeProviderApprovalStatus @default(REVIEW_REQUIRED)
+  modelScope      String[]
+  capabilityScope String[]
+  notes           String?
+  reviewedAt      DateTime?
+  createdAt       DateTime                             @default(now())
+  updatedAt       DateTime                             @updatedAt
+  runtime         ProjectRuntime                       @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  actorUser       User                                 @relation("ProjectRuntimeProviderApprovalActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@unique([runtimeId, providerKey])
+  @@index([runtimeId, createdAt])
+  @@index([providerKey, createdAt])
+  @@index([approvalStatus, createdAt])
+}
+
 model ProjectRuntimeTask {
-  id                 String                   @id @default(cuid())
-  runtimeId          String
-  creatorUserId      String
-  title              String
-  inputText          String
-  taskType           ProjectRuntimeTaskType   @default(IMPLEMENTATION_PLAN)
-  status             ProjectRuntimeTaskStatus @default(PLANNING)
-  executionMode      String                   @default("synchronous_sandbox_v1")
-  plannerSummary     String?
-  plannerPayload     Json?
-  workerSummary      String?
-  workerPayload      Json?
-  outputSummary      String?
-  outputLines        String[]
-  failureDetail      String?
-  plannerCompletedAt DateTime?
-  workerCompletedAt  DateTime?
-  completedAt        DateTime?
-  createdAt          DateTime                 @default(now())
-  updatedAt          DateTime                 @updatedAt
-  runtime            ProjectRuntime           @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  creatorUser        User                     @relation("ProjectRuntimeTaskCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
+  id                  String                          @id @default(cuid())
+  runtimeId           String
+  creatorUserId       String
+  title               String
+  inputText           String
+  providerKey         EdenAiProvider?
+  modelLabel          String?
+  requestedActionType ProjectRuntimeAgentActionType?
+  taskType            ProjectRuntimeTaskType          @default(IMPLEMENTATION_PLAN)
+  status              ProjectRuntimeTaskStatus        @default(PLANNING)
+  executionMode       String                          @default("synchronous_sandbox_v1")
+  plannerSummary      String?
+  plannerPayload      Json?
+  workerSummary       String?
+  workerPayload       Json?
+  outputSummary       String?
+  outputLines         String[]
+  resultType          ProjectRuntimeTaskResultType?
+  resultStatus        ProjectRuntimeTaskResultStatus?
+  resultSummary       String?
+  resultPayload       Json?
+  failureDetail       String?
+  plannerCompletedAt  DateTime?
+  workerCompletedAt   DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime                        @default(now())
+  updatedAt           DateTime                        @updatedAt
+  runtime             ProjectRuntime                  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  creatorUser         User                            @relation("ProjectRuntimeTaskCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
+  agentRuns           ProjectRuntimeAgentRun[]
 
   @@index([runtimeId, createdAt])
   @@index([status, createdAt])
   @@index([taskType, createdAt])
+}
+
+model ProjectRuntimeAgentRun {
+  id                   String                        @id @default(cuid())
+  runtimeId            String
+  taskId               String?
+  actorUserId          String
+  providerKey          EdenAiProvider?
+  modelLabel           String?
+  executionTargetLabel String?
+  requestedActionType  ProjectRuntimeAgentActionType
+  runStatus            ProjectRuntimeAgentRunStatus  @default(PREPARED)
+  summary              String
+  detail               String?
+  resultPayload        Json?
+  errorDetail          String?
+  createdAt            DateTime                      @default(now())
+  updatedAt            DateTime                      @updatedAt
+  completedAt          DateTime?
+  runtime              ProjectRuntime                @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  task                 ProjectRuntimeTask?           @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  actorUser            User                          @relation("ProjectRuntimeAgentRunActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@index([runtimeId, createdAt])
+  @@index([taskId, createdAt])
+  @@index([runStatus, createdAt])
+  @@index([providerKey, createdAt])
 }
 
 model ProjectRuntimeAuditLog {

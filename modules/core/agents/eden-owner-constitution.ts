@@ -86,6 +86,24 @@ const ownerControlInputDescriptors = [
     purpose: "Canonical plan for what Eden should do after the current checkpoint is deployed.",
   },
   {
+    id: "build_supervisor_spec",
+    label: "Build supervisor spec",
+    repoPath: "eden-system/specs/EDEN_BUILD_SUPERVISOR.md",
+    purpose: "Decision rules, stop conditions, and packet contract for supervised build orchestration.",
+  },
+  {
+    id: "build_supervisor_state",
+    label: "Build supervisor state",
+    repoPath: "eden-system/state/EDEN_BUILD_SUPERVISOR_STATE.json",
+    purpose: "Durable supervisor progress, completed task ids, and packet-preparation state.",
+  },
+  {
+    id: "codex_execution_packet",
+    label: "Codex packet",
+    repoPath: "eden-system/state/EDEN_CODEX_EXECUTION_PACKET.json",
+    purpose: "Latest structured Codex execution packet prepared by the build supervisor.",
+  },
+  {
     id: "changelog",
     label: "Changelog",
     repoPath: "eden-system/logs/CHANGELOG_AGENT.md",
