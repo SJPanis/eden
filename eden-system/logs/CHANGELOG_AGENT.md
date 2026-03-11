@@ -196,3 +196,46 @@
 - No real container execution, background queue, preview deploy, or isolated runtime provisioning happens when a task is created.
 - The runtime and task runner migrations were generated but not applied in this session.
 - Persistent database verification of the sandbox task runner still depends on resolving the existing Prisma/database access issues and running the pending migration commands on the live database.
+
+### Owner runtime lifecycle actions and audit logging v1 completed
+
+- Re-read `EDEN_MASTER_SPEC.md`, `PROJECT_ISOLATION_MODEL.md`, `AI_ORCHESTRATION_MODEL.md`, `CURRENT_STATE.md`, `TASK_QUEUE.md`, `HUMAN_ACTIONS_REQUIRED.md`, `CHANGELOG_AGENT.md`, and `CODEX_TASK_EXECUTOR.md` before extending runtime control.
+- Inspected the current runtime schema, `project-runtime-service.ts`, owner runtime API routes, and `/owner/runtimes` UI before making changes.
+- Extended Prisma schema with:
+  - model: `ProjectRuntimeAuditLog`
+  - reverse relations from `User` and `ProjectRuntime`
+- Extended runtime shared types with:
+  - `EdenProjectRuntimeAuditLogRecord`
+  - owner runtime lifecycle status options
+  - owner runtime health-check action options
+- Extended `modules/core/services/project-runtime-service.ts` with:
+  - recent audit log loading on runtime registry records
+  - owner runtime lifecycle update handling
+  - per-field audit entry creation for `status`, `statusDetail`, and `lastHealthCheckAt`
+  - audit-aware runtime record mapping for `/owner/runtimes`
+- Added owner-only lifecycle update API route:
+  - `app/api/owner/project-runtimes/[runtimeId]/route.ts`
+- Added owner-only lifecycle and audit UI:
+  - `ui/owner/owner-runtime-lifecycle-panel.tsx`
+  - integrated into `ui/owner/owner-runtime-registry.tsx`
+- Preserved:
+  - existing `ProjectBlueprint` behavior
+  - existing runtime registry behavior
+  - existing internal sandbox task runner behavior
+- Generated additive migration:
+  - `prisma/migrations/20260311213000_owner_runtime_lifecycle_audit_v1/migration.sql`
+
+### Verification completed for runtime lifecycle and audit logging v1
+
+- `cmd /c npx prisma format` passed when pointed at the local schema engine binary.
+- `cmd /c npx prisma generate` passed.
+- `cmd /c npx prisma validate` passed.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+### Important limits after runtime lifecycle and audit logging v1
+
+- Runtime lifecycle actions are still metadata-only control-plane writes.
+- No container execution, health probe, deploy job, preview activation, or domain handoff happens when lifecycle metadata is updated.
+- The new lifecycle audit migration was generated but not applied in this session.
+- Persistent verification of runtime lifecycle updates and audit entries still depends on resolving the existing Prisma/database access issues and running the pending migration commands on the live database.

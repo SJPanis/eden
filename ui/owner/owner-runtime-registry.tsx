@@ -7,6 +7,7 @@ import type {
   EdenProjectRuntimeTaskRecord,
 } from "@/modules/core/projects/project-runtime-shared";
 import { edenOwnerInternalSandboxRuntimeId } from "@/modules/core/projects/project-runtime-shared";
+import { OwnerRuntimeLifecyclePanel } from "@/ui/owner/owner-runtime-lifecycle-panel";
 import { InternalSandboxTaskRunner } from "@/ui/owner/internal-sandbox-task-runner";
 
 type OwnerRuntimeRegistryProps = {
@@ -410,6 +411,11 @@ export function OwnerRuntimeRegistry({
                   </div>
                 </div>
               </div>
+
+              <OwnerRuntimeLifecyclePanel
+                key={`${runtime.id}-${runtime.updatedAtLabel}-${runtime.lastHealthCheckAtLabel ?? "none"}`}
+                runtime={runtime}
+              />
 
               {runtime.id === edenOwnerInternalSandboxRuntimeId ? (
                 <InternalSandboxTaskRunner

@@ -58,6 +58,7 @@ Prisma models exist for:
 - project blueprints, project agents, and project agent runs
 - project runtimes and runtime domain links
 - project runtime tasks for owner-only sandbox execution records
+- project runtime audit logs for owner lifecycle control actions
 
 ### Business/project flows
 
@@ -71,6 +72,7 @@ Prisma models exist for:
 - owner-only internal sandbox runtime initializer exists at `/api/owner/project-runtimes`
 - owner-only internal sandbox task runner exists inside `/owner/runtimes`
 - owner-only sandbox task API exists at `/api/owner/project-runtimes/internal-sandbox/tasks`
+- owner-only runtime lifecycle update API exists at `/api/owner/project-runtimes/[runtimeId]`
 
 ## Architectural Reality
 
@@ -92,23 +94,25 @@ What is still mixed or transitional:
 - project "hosting" and "publishing" still remain metadata/accounting concepts, not isolated runtime deployment
 - project runtime records are control-plane metadata only; they do not provision real containers, sandboxes, previews, or deploy targets
 - sandbox task execution is synchronous deterministic metadata only; it stores Lead/Planner and Worker outputs but does not run a real agent worker or isolated runtime
+- runtime lifecycle controls and audit logs are now modeled, but they still do not drive infrastructure actions
 - Ask Eden has both a newer tool-routed layer and a legacy Eden AI helper layer
 
 ## Biggest Gaps Against Intended Eden Direction
 
 1. True project runtime isolation still does not exist yet.
-2. Runtime metadata exists, but runtime provisioning, lifecycle execution, and deployment history do not.
+2. Runtime metadata and lifecycle audit logs exist, but runtime provisioning, lifecycle execution, and deployment history do not.
 3. Business/project code still conceptually lives inside the same app instead of separate runtimes.
 4. "Hosted inside Eden" is still modeled as balance/status metadata plus runtime registry metadata, not as a real isolated runtime system.
 5. Sandbox task execution records exist, but they are not a real queued worker system or runtime-backed execution engine.
-6. Persistent operational verification is incomplete because current database access is not fully confirmable from the audit environment.
+6. Runtime lifecycle changes are auditable, but they are still only metadata writes with no launch/deploy side effects.
+7. Persistent operational verification is incomplete because current database access is not fully confirmable from the audit environment.
 
 ## Current Blockers
 
 - Prisma-backed acceptance verification cannot fully confirm ledger state because model queries returned `EACCES`.
 - Dev-server validation is noisy because another Next dev instance or lock already exists.
 - The live database still has no recorded Prisma migration history until the new baseline is marked as applied.
-- The runtime and sandbox task runner migrations still have not been applied to the active database.
+- The runtime, sandbox task runner, and runtime lifecycle audit migrations still have not been applied to the active database.
 - `middleware.ts` still uses the deprecated Next.js middleware convention instead of `proxy`.
 
 ## Minimal Cleanup Completed In This Session
@@ -147,6 +151,19 @@ What is still mixed or transitional:
   - outputs are stored in the control plane only
 - No background queue, container dispatch, code execution, preview deployment, or domain activation is performed by this task runner.
 
+## Current Runtime Lifecycle Controls
+
+- The owner can now update runtime `status`, `statusDetail`, and `lastHealthCheckAt` from `/owner/runtimes`.
+- Lifecycle updates are owner-only control-plane actions exposed through `/api/owner/project-runtimes/[runtimeId]`.
+- Recent per-field audit entries are displayed inside each runtime card.
+- Audit records capture:
+  - the runtime field that changed
+  - previous and next values where available
+  - who performed the change
+  - when the change happened
+  - a short human-readable detail message
+- These lifecycle actions do not trigger a container, health probe, deployment job, preview publish, or linked domain action.
+
 ## Migration Chain Repair Status
 
 - Baseline migration created:
@@ -155,6 +172,8 @@ What is still mixed or transitional:
   - `prisma/migrations/20260311143000_project_runtime_control_plane/migration.sql`
 - Sandbox task runner migration created:
   - `prisma/migrations/20260311190000_internal_sandbox_task_runner_v1/migration.sql`
+- Runtime lifecycle audit migration created:
+  - `prisma/migrations/20260311213000_owner_runtime_lifecycle_audit_v1/migration.sql`
 - The baseline covers the pre-runtime schema only and excludes:
   - `ProjectRuntime`
   - `ProjectRuntimeDomainLink`
@@ -162,19 +181,21 @@ What is still mixed or transitional:
   - `ProjectRuntimeTask`
   - `ProjectRuntimeTaskType`
   - `ProjectRuntimeTaskStatus`
+- The lifecycle audit migration remains additive and depends on the runtime migration:
+  - `ProjectRuntimeAuditLog`
 - Verified by Prisma diff that the live database matches the pre-runtime schema exactly:
   - `No difference detected.`
 - Result:
   - the migration chain now has a valid predecessor on disk for `ProjectBlueprint`
-  - the remaining work is manual migration-history reconciliation plus applying the runtime and task runner migrations to the live database
+- the remaining work is manual migration-history reconciliation plus applying the runtime, task runner, and lifecycle audit migrations to the live database
 
 ## Next Recommended Implementation Target
 
-Reconcile the live database with the repaired migration history, then apply the runtime and task runner migrations.
+Reconcile the live database with the repaired migration history, then apply the runtime, task runner, and lifecycle audit migrations.
 
 Build next:
 
 1. mark `20260311120000_pre_runtime_baseline` as applied on the live database with Prisma Migrate
-2. run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane` and `20260311190000_internal_sandbox_task_runner_v1` create the runtime and task tables
-3. verify `/owner/runtimes` can register the internal sandbox and persist sandbox task records against the live database
-4. then add explicit runtime status transition actions and audit logging
+2. run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, and `20260311213000_owner_runtime_lifecycle_audit_v1` create the runtime, task, and audit tables
+3. verify `/owner/runtimes` can register the internal sandbox, persist sandbox task records, and persist runtime lifecycle audit entries against the live database
+4. then add runtime launch-intent and deployment-history metadata so Eden can model operational transitions beyond raw status fields

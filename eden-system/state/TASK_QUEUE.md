@@ -42,20 +42,24 @@
 - [x] Add a minimal owner UI for sandbox task creation, status inspection, and stored results inside the runtime registry surface.
 - [x] Add a deterministic Lead/Planner plus Worker execution record loop for sandbox tasks.
 - [x] Generate a Prisma migration for the internal sandbox task runner schema.
+- [x] Add owner actions to update runtime status, status detail, and last health check without touching project blueprint status.
+- [x] Add runtime lifecycle audit logging for status changes, status detail changes, and health check updates.
+- [x] Add recent runtime audit visibility to `/owner/runtimes`.
+- [x] Generate a Prisma migration for runtime lifecycle audit logging.
 - [ ] Run `prisma migrate resolve --applied 20260311120000_pre_runtime_baseline` on the active database.
-- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane` and `20260311190000_internal_sandbox_task_runner_v1` create the runtime and task tables.
+- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, and `20260311213000_owner_runtime_lifecycle_audit_v1` create the runtime, task, and audit tables.
 - [ ] Execute the owner-only sandbox initializer against the migrated database and confirm the registry loads persistent data.
 - [ ] Create a sandbox task against the migrated database and confirm planner/worker outputs persist.
+- [ ] Save a runtime lifecycle update against the migrated database and confirm audit entries persist.
 
 ### Soon
 
-- [ ] Add owner actions to update runtime status, status detail, and last health check without touching project blueprint status.
 - [ ] Add task lifecycle audit logging for sandbox task creation, completion, and failure.
 - [ ] Add an explicit async task dispatch boundary so sandbox tasks can graduate from synchronous metadata-only execution when real workers exist.
 - [ ] Add runtime launch/read actions that operate on runtime metadata instead of direct project blueprint state.
 - [ ] Add domain/link metadata for external domains and Eden-managed hosted URLs.
 - [ ] Add project secret/config storage boundaries outside general business metadata.
-- [ ] Add audit logging for runtime creation, status transitions, and visibility changes.
+- [ ] Expand runtime audit logging to cover runtime creation, visibility/access policy changes, target changes, and launch-related events.
 - [ ] Add a runtime-aware filter or drill-down from the owner control room into `/owner/runtimes`.
 
 ### Later

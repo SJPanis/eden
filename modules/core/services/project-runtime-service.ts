@@ -2,11 +2,13 @@ import "server-only";
 
 import { EdenRole, Prisma, UserStatus } from "@prisma/client";
 import type {
+  EdenProjectRuntimeAuditLogRecord,
   EdenProjectRuntimeRecord,
   EdenProjectRuntimeRegistryState,
   EdenProjectRuntimeTaskArtifactRecord,
   EdenProjectRuntimeTaskRecord,
   EdenProjectRuntimeTaskState,
+  OwnerRuntimeHealthCheckAction,
 } from "@/modules/core/projects/project-runtime-shared";
 import {
   edenInternalSandboxLeadAgentLabel,
@@ -43,6 +45,21 @@ const projectRuntimeRegistryInclude = {
       createdAt: "asc",
     },
   },
+  auditLogs: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 6,
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+    },
+  },
 } satisfies Prisma.ProjectRuntimeInclude;
 
 type ProjectRuntimeRegistryRecord = Prisma.ProjectRuntimeGetPayload<{
@@ -70,6 +87,19 @@ const projectRuntimeTaskInclude = {
 type ProjectRuntimeTaskReadRecord = Prisma.ProjectRuntimeTaskGetPayload<{
   include: typeof projectRuntimeTaskInclude;
 }>;
+
+type ProjectRuntimeLifecycleFieldName =
+  | "status"
+  | "statusDetail"
+  | "lastHealthCheckAt";
+
+type ProjectRuntimeLifecycleStatus =
+  | "REGISTERED"
+  | "CONFIGURING"
+  | "READY"
+  | "PAUSED"
+  | "ERROR"
+  | "ARCHIVED";
 
 type EdenProjectRuntimeActor = {
   id: string;
@@ -100,6 +130,198 @@ export async function loadOwnerProjectRuntimeRegistryState(): Promise<EdenProjec
     return {
       runtimes: [],
       unavailableReason: describeProjectRuntimeFailure(error),
+    };
+  }
+}
+
+export async function updateOwnerProjectRuntimeLifecycle(
+  actor: EdenProjectRuntimeActor,
+  input: {
+    runtimeId: string;
+    status: string;
+    statusDetail?: string | null;
+    healthCheckAction?: OwnerRuntimeHealthCheckAction | string | null;
+  },
+) {
+  const prisma = getPrismaClient();
+  const runtimeId = input.runtimeId.trim();
+  const nextStatus = parseProjectRuntimeLifecycleStatus(input.status);
+
+  if (!runtimeId) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Runtime id is required for lifecycle updates.",
+    };
+  }
+
+  if (!nextStatus) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Select a valid runtime status before saving lifecycle changes.",
+    };
+  }
+
+  const nextStatusDetail = normalizeRuntimeStatusDetail(input.statusDetail);
+  const healthCheckAction = normalizeRuntimeHealthCheckAction(
+    input.healthCheckAction,
+  );
+
+  if (!healthCheckAction) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Select a valid runtime health-check action before saving.",
+    };
+  }
+
+  try {
+    return prisma.$transaction(async (transaction) => {
+      await upsertProjectRuntimeActor(transaction, actor);
+
+      const currentRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        select: {
+          id: true,
+          status: true,
+          statusDetail: true,
+          lastHealthCheckAt: true,
+        },
+      });
+
+      if (!currentRuntime) {
+        return {
+          ok: false as const,
+          status: 404,
+          error: "The requested runtime record could not be found.",
+        };
+      }
+
+      const lifecycleChanges: Prisma.ProjectRuntimeUpdateInput = {};
+      const auditEntries: Prisma.ProjectRuntimeAuditLogCreateManyInput[] = [];
+
+      if (currentRuntime.status !== nextStatus) {
+        lifecycleChanges.status = nextStatus;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: "status",
+            previousValue: currentRuntime.status,
+            nextValue: nextStatus,
+            detail:
+              "Updated runtime status from the owner runtime control surface.",
+          }),
+        );
+      }
+
+      if ((currentRuntime.statusDetail ?? null) !== nextStatusDetail) {
+        lifecycleChanges.statusDetail = nextStatusDetail;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: "statusDetail",
+            previousValue: currentRuntime.statusDetail,
+            nextValue: nextStatusDetail,
+            detail:
+              "Updated runtime status detail from the owner runtime control surface.",
+          }),
+        );
+      }
+
+      if (healthCheckAction === "set_now") {
+        const nextHealthCheckAt = new Date();
+        lifecycleChanges.lastHealthCheckAt = nextHealthCheckAt;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: "lastHealthCheckAt",
+            previousValue: currentRuntime.lastHealthCheckAt?.toISOString() ?? null,
+            nextValue: nextHealthCheckAt.toISOString(),
+            detail:
+              "Recorded a runtime health-check timestamp from the owner runtime control surface.",
+          }),
+        );
+      }
+
+      if (healthCheckAction === "clear" && currentRuntime.lastHealthCheckAt) {
+        lifecycleChanges.lastHealthCheckAt = null;
+        auditEntries.push(
+          buildProjectRuntimeAuditEntry({
+            runtimeId,
+            actorUserId: actor.id,
+            fieldName: "lastHealthCheckAt",
+            previousValue: currentRuntime.lastHealthCheckAt.toISOString(),
+            nextValue: null,
+            detail:
+              "Cleared the recorded runtime health-check timestamp from the owner runtime control surface.",
+          }),
+        );
+      }
+
+      if (!auditEntries.length) {
+        const unchangedRuntime = await transaction.projectRuntime.findUnique({
+          where: {
+            id: runtimeId,
+          },
+          include: projectRuntimeRegistryInclude,
+        });
+
+        if (!unchangedRuntime) {
+          throw new Error(
+            "Eden could not reload the runtime record after a no-op lifecycle update.",
+          );
+        }
+
+        return {
+          ok: true as const,
+          changed: false,
+          runtime: mapProjectRuntimeRecord(unchangedRuntime),
+        };
+      }
+
+      await transaction.projectRuntime.update({
+        where: {
+          id: runtimeId,
+        },
+        data: lifecycleChanges,
+      });
+
+      await transaction.projectRuntimeAuditLog.createMany({
+        data: auditEntries,
+      });
+
+      const updatedRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        include: projectRuntimeRegistryInclude,
+      });
+
+      if (!updatedRuntime) {
+        throw new Error(
+          "Eden could not reload the runtime record after saving lifecycle changes.",
+        );
+      }
+
+      return {
+        ok: true as const,
+        changed: true,
+        runtime: mapProjectRuntimeRecord(updatedRuntime),
+      };
+    });
+  } catch (error) {
+    logProjectRuntimeFailure("update_owner_project_runtime_lifecycle", error);
+
+    return {
+      ok: false as const,
+      status: 503,
+      error: describeProjectRuntimeFailure(error),
     };
   }
 }
@@ -562,6 +784,31 @@ function mapProjectRuntimeRecord(
       isPrimary: link.isPrimary,
       isActive: link.isActive,
     })),
+    auditEntries: runtime.auditLogs.map(mapProjectRuntimeAuditLogRecord),
+  };
+}
+
+function mapProjectRuntimeAuditLogRecord(
+  entry: ProjectRuntimeRegistryRecord["auditLogs"][number],
+): EdenProjectRuntimeAuditLogRecord {
+  return {
+    id: entry.id,
+    fieldName: entry.fieldName,
+    fieldLabel: formatProjectRuntimeAuditFieldLabel(entry.fieldName),
+    previousValue: entry.previousValue,
+    previousValueLabel: formatProjectRuntimeAuditValueLabel(
+      entry.fieldName,
+      entry.previousValue,
+    ),
+    nextValue: entry.nextValue,
+    nextValueLabel: formatProjectRuntimeAuditValueLabel(
+      entry.fieldName,
+      entry.nextValue,
+    ),
+    detail: entry.detail,
+    actorUserId: entry.actorUser.id,
+    actorLabel: `${entry.actorUser.displayName} (@${entry.actorUser.username})`,
+    createdAtLabel: formatTimestamp(entry.createdAt),
   };
 }
 
@@ -944,6 +1191,68 @@ function normalizeSandboxTaskInput(inputText: string) {
   return inputText.replace(/\r\n/g, "\n").trim();
 }
 
+function buildProjectRuntimeAuditEntry(input: {
+  runtimeId: string;
+  actorUserId: string;
+  fieldName: ProjectRuntimeLifecycleFieldName;
+  previousValue: string | null;
+  nextValue: string | null;
+  detail: string;
+}) {
+  return {
+    runtimeId: input.runtimeId,
+    actorUserId: input.actorUserId,
+    fieldName: input.fieldName,
+    previousValue: input.previousValue,
+    nextValue: input.nextValue,
+    detail: input.detail,
+  } satisfies Prisma.ProjectRuntimeAuditLogCreateManyInput;
+}
+
+function parseProjectRuntimeLifecycleStatus(
+  value: string,
+): ProjectRuntimeLifecycleStatus | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "registered":
+      return "REGISTERED";
+    case "configuring":
+      return "CONFIGURING";
+    case "ready":
+      return "READY";
+    case "paused":
+      return "PAUSED";
+    case "error":
+      return "ERROR";
+    case "archived":
+      return "ARCHIVED";
+    default:
+      return null;
+  }
+}
+
+function normalizeRuntimeStatusDetail(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+function normalizeRuntimeHealthCheckAction(
+  value: OwnerRuntimeHealthCheckAction | string | null | undefined,
+): OwnerRuntimeHealthCheckAction | null {
+  const normalized = value?.trim().toLowerCase();
+
+  if (
+    normalized === "keep" ||
+    normalized === "set_now" ||
+    normalized === "clear"
+  ) {
+    return normalized;
+  }
+
+  return normalized ? null : "keep";
+}
+
 async function upsertProjectRuntimeActor(
   transaction: Prisma.TransactionClient | ReturnType<typeof getPrismaClient>,
   actor: EdenProjectRuntimeActor,
@@ -1006,6 +1315,7 @@ function isProjectRuntimeSchemaUnavailable(error: unknown) {
 
   return (
     message.includes("projectruntime") ||
+    message.includes("projectruntimeauditlog") ||
     message.includes("projectruntimedomainlink") ||
     (message.includes("relation") && message.includes("does not exist")) ||
     (message.includes("table") && message.includes("does not exist"))
@@ -1066,6 +1376,41 @@ function formatEnumLabel(value: string) {
 function formatExecutionModeLabel(value: string) {
   if (value === "synchronous_sandbox_v1") {
     return "Synchronous Sandbox v1";
+  }
+
+  return value;
+}
+
+function formatProjectRuntimeAuditFieldLabel(fieldName: string) {
+  if (fieldName === "statusDetail") {
+    return "Status Detail";
+  }
+
+  if (fieldName === "lastHealthCheckAt") {
+    return "Health Check";
+  }
+
+  return formatEnumLabel(fieldName);
+}
+
+function formatProjectRuntimeAuditValueLabel(
+  fieldName: string,
+  value: string | null,
+) {
+  if (value === null) {
+    return "Cleared";
+  }
+
+  if (fieldName === "status") {
+    return formatEnumLabel(value);
+  }
+
+  if (fieldName === "lastHealthCheckAt") {
+    const timestamp = new Date(value);
+
+    if (!Number.isNaN(timestamp.getTime())) {
+      return formatTimestamp(timestamp);
+    }
   }
 
   return value;

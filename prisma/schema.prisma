@@ -131,28 +131,29 @@ enum ProjectRuntimeTaskStatus {
 }
 
 model User {
-  id                         String                @id @default(cuid())
-  username                   String                @unique
+  id                         String                   @id @default(cuid())
+  username                   String                   @unique
   displayName                String
   passwordHash               String?
-  role                       EdenRole              @default(CONSUMER)
-  status                     UserStatus            @default(ACTIVE)
+  role                       EdenRole                 @default(CONSUMER)
+  status                     UserStatus               @default(ACTIVE)
   summary                    String?
-  edenBalanceCredits         Int                   @default(0)
-  createdAt                  DateTime              @default(now())
-  updatedAt                  DateTime              @updatedAt
-  ownedBusinesses            Business[]            @relation("BusinessOwner")
+  edenBalanceCredits         Int                      @default(0)
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  ownedBusinesses            Business[]               @relation("BusinessOwner")
   businessMemberships        BusinessMember[]
   authProviderAccounts       AuthProviderAccount[]
   serviceUsages              ServiceUsage[]
   creditsTopUpPayments       CreditsTopUpPayment[]
   internalLeavesUsages       InternalLeavesUsage[]
   projectAgentRuns           ProjectAgentRun[]
-  createdProjectBlueprints   ProjectBlueprint[]    @relation("ProjectBlueprintCreator")
-  createdProjectRuntimes     ProjectRuntime[]      @relation("ProjectRuntimeCreator")
-  createdProjectRuntimeTasks ProjectRuntimeTask[]  @relation("ProjectRuntimeTaskCreator")
-  receivedLeavesGrants       OwnerLeavesGrant[]    @relation("OwnerLeavesGrantRecipient")
-  issuedLeavesGrants         OwnerLeavesGrant[]    @relation("OwnerLeavesGrantIssuer")
+  createdProjectBlueprints   ProjectBlueprint[]       @relation("ProjectBlueprintCreator")
+  createdProjectRuntimes     ProjectRuntime[]         @relation("ProjectRuntimeCreator")
+  createdProjectRuntimeTasks ProjectRuntimeTask[]     @relation("ProjectRuntimeTaskCreator")
+  projectRuntimeAuditLogs    ProjectRuntimeAuditLog[] @relation("ProjectRuntimeAuditActor")
+  receivedLeavesGrants       OwnerLeavesGrant[]       @relation("OwnerLeavesGrantRecipient")
+  issuedLeavesGrants         OwnerLeavesGrant[]       @relation("OwnerLeavesGrantIssuer")
 }
 
 model AuthProviderAccount {
@@ -249,6 +250,7 @@ model ProjectRuntime {
   creatorUser       User                       @relation("ProjectRuntimeCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
   domainLinks       ProjectRuntimeDomainLink[]
   tasks             ProjectRuntimeTask[]
+  auditLogs         ProjectRuntimeAuditLog[]
 
   @@unique([projectId, environment, runtimeType])
   @@index([projectId, createdAt])
@@ -299,6 +301,23 @@ model ProjectRuntimeTask {
   @@index([runtimeId, createdAt])
   @@index([status, createdAt])
   @@index([taskType, createdAt])
+}
+
+model ProjectRuntimeAuditLog {
+  id            String         @id @default(cuid())
+  runtimeId     String
+  actorUserId   String
+  fieldName     String
+  previousValue String?
+  nextValue     String?
+  detail        String
+  createdAt     DateTime       @default(now())
+  runtime       ProjectRuntime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  actorUser     User           @relation("ProjectRuntimeAuditActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@index([runtimeId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([fieldName, createdAt])
 }
 
 model ProjectAgent {

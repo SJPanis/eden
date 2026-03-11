@@ -8,6 +8,22 @@ export const edenOwnerInternalSandboxDomainLinkId =
   "runtime-domain-eden-internal-sandbox-preview";
 export const edenInternalSandboxLeadAgentLabel = "Eden Sandbox Lead";
 export const edenInternalSandboxWorkerAgentLabel = "Eden Sandbox Worker";
+export const ownerRuntimeLifecycleStatusOptions = [
+  { value: "registered", label: "Registered" },
+  { value: "configuring", label: "Configuring" },
+  { value: "ready", label: "Ready" },
+  { value: "paused", label: "Paused" },
+  { value: "error", label: "Error" },
+  { value: "archived", label: "Archived" },
+] as const;
+export const ownerRuntimeHealthCheckActionOptions = [
+  { value: "keep", label: "Keep current timestamp" },
+  { value: "set_now", label: "Record health check now" },
+  { value: "clear", label: "Clear health check" },
+] as const;
+
+export type OwnerRuntimeHealthCheckAction =
+  (typeof ownerRuntimeHealthCheckActionOptions)[number]["value"];
 
 export type EdenProjectRuntimeDomainLinkRecord = {
   id: string;
@@ -18,6 +34,20 @@ export type EdenProjectRuntimeDomainLinkRecord = {
   urlLabel: string;
   isPrimary: boolean;
   isActive: boolean;
+};
+
+export type EdenProjectRuntimeAuditLogRecord = {
+  id: string;
+  fieldName: string;
+  fieldLabel: string;
+  previousValue?: string | null;
+  previousValueLabel?: string | null;
+  nextValue?: string | null;
+  nextValueLabel?: string | null;
+  detail: string;
+  actorUserId: string;
+  actorLabel: string;
+  createdAtLabel: string;
 };
 
 export type EdenProjectRuntimeRecord = {
@@ -53,6 +83,7 @@ export type EdenProjectRuntimeRecord = {
   updatedAtLabel: string;
   lastHealthCheckAtLabel?: string | null;
   domainLinks: EdenProjectRuntimeDomainLinkRecord[];
+  auditEntries: EdenProjectRuntimeAuditLogRecord[];
 };
 
 export type EdenProjectRuntimeRegistryState = {

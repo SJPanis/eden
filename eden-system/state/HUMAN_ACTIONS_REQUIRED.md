@@ -15,8 +15,9 @@
   - pending additive migrations are now on disk:
     - `20260311143000_project_runtime_control_plane`
     - `20260311190000_internal_sandbox_task_runner_v1`
+    - `20260311213000_owner_runtime_lifecycle_audit_v1`
   - mark the baseline as applied on the existing live database
-  - then run `prisma migrate deploy` so Prisma can apply both pending migrations in order
+  - then run `prisma migrate deploy` so Prisma can apply all pending migrations in order
 - Exact next commands from `C:\dev\Eden\eden-v1`:
   - `$env:PRISMA_SCHEMA_ENGINE_BINARY=(Resolve-Path 'node_modules/@prisma/engines/schema-engine-windows.exe')`
   - `cmd /c npx prisma migrate resolve --applied 20260311120000_pre_runtime_baseline`
@@ -26,6 +27,7 @@
   - manually verify `/owner/runtimes`
   - trigger the owner-only internal sandbox registration flow once in the intended environment
   - create one sandbox task and confirm Lead/Planner plus Worker output is stored persistently
+  - save one runtime lifecycle update and confirm a recent audit entry is stored persistently
 
 ## Needed Before Production-Like Flows
 
