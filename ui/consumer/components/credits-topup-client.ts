@@ -121,7 +121,7 @@ export async function startPaymentBackedCreditsTopUp(
       packageId,
     }),
   });
-  const payload = (await response.json().catch(() => ({}))) as EdenTopUpCheckoutResponse;
+  const payload = await readJsonResponseSafely<EdenTopUpCheckoutResponse>(response);
 
   if (!response.ok || !payload.ok || !payload.checkoutUrl) {
     throw new Error(payload.error || "Unable to start the payment-backed Leaves top-up.");
@@ -140,7 +140,7 @@ export async function confirmPaymentBackedCreditsTopUp(sessionId: string) {
       sessionId,
     }),
   });
-  const payload = (await response.json().catch(() => ({}))) as EdenTopUpConfirmationResponse;
+  const payload = await readJsonResponseSafely<EdenTopUpConfirmationResponse>(response);
 
   if (!response.ok || !payload.ok) {
     throw new Error(payload.error || "Unable to confirm the payment-backed Leaves top-up.");
@@ -252,4 +252,18 @@ export function buildTopUpFailureMessage(
         message ??
       `${selectedPackage.title} did not settle successfully. No Eden Leaves were added.`,
   };
+}
+
+async function readJsonResponseSafely<T>(response: Response): Promise<T> {
+  const responseText = await response.text().catch(() => "");
+
+  if (!responseText) {
+    return {} as T;
+  }
+
+  try {
+    return JSON.parse(responseText) as T;
+  } catch {
+    return {} as T;
+  }
 }

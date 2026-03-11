@@ -2,13 +2,13 @@ import type {
   EdenMockLog,
   EdenMockProject,
   EdenMockService,
-} from "@/modules/core/mock-data/platform-types";
+} from "../mock-data/platform-types";
 import {
   defaultServicePricingType,
   defaultServicePricingUnit,
   formatServicePricingLabel,
   normalizePricePerUse,
-} from "@/modules/core/services/service-pricing";
+} from "../services/service-pricing";
 
 export type EdenMockWorkspaceServiceInput = {
   name: string;

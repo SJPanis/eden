@@ -1,5 +1,5 @@
-import type { EdenMockCreatedBusinessState } from "@/modules/core/business/mock-created-business";
-import type { EdenMockWorkspaceServiceState } from "@/modules/core/business/mock-workspace-services";
+import type { EdenMockCreatedBusinessState } from "../business/mock-created-business";
+import type { EdenMockWorkspaceServiceState } from "../business/mock-workspace-services";
 import type {
   EdenMockAgentNode,
   EdenMockBusiness,
@@ -16,7 +16,7 @@ import type {
   EdenMockService,
   EdenMockTransaction,
   EdenMockUser,
-} from "@/modules/core/mock-data/platform-types";
+} from "./platform-types";
 
 export const defaultConsumerUserId = "user-01";
 export const defaultBusinessUserId = "user-02";
@@ -682,7 +682,7 @@ export const ownerDashboardBusinessIds = ["business-01", "business-02", "busines
 export const ownerDashboardServiceIds = ["service-02", "service-03", "service-05"];
 
 export function formatCredits(value: number) {
-  return formatLeaves(value);
+  return `${value.toLocaleString()} Leaves`;
 }
 
 export function getUserById(id: string) {
@@ -836,4 +836,3 @@ function getCreditsFromAmountLabel(amountLabel: string) {
 
   return Number.parseFloat(match[0].replace(/,/g, ""));
 }
-import { formatLeaves } from "@/modules/core/credits/eden-currency";

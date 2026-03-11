@@ -1,10 +1,9 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { getServerSession as getNextAuthServerSession } from "next-auth";
 import {
   createCreditsTopUpCheckoutSession,
 } from "@/modules/core/payments/stripe-topup-service";
-import { buildEdenAuthJsOptions } from "@/modules/core/session/authjs-config";
+import { getServerSession } from "@/modules/core/session/server";
 
 export const runtime = "nodejs";
 
@@ -14,20 +13,12 @@ export async function POST(request: Request) {
     packageId?: string;
   };
   const headerStore = await headers();
-  const authSession = (await getNextAuthServerSession(
-    buildEdenAuthJsOptions(),
-  )) as
-    | {
-        user?: {
-          id?: string;
-          username?: string;
-          name?: string | null;
-        };
-      }
-    | null;
+  const session = await getServerSession();
 
-  if (!authSession?.user?.id || !authSession.user.username) {
-    console.error("[eden][payments][checkout_create] missing_authenticated_session");
+  if (session.auth.source !== "persistent") {
+    console.error(
+      `[eden][payments][checkout_create] missing_authenticated_session source=${session.auth.source} resolver=${session.auth.resolver}`,
+    );
     return NextResponse.json(
       {
         ok: false,
@@ -39,9 +30,9 @@ export async function POST(request: Request) {
 
   try {
     const checkoutSession = await createCreditsTopUpCheckoutSession({
-      userId: authSession.user.id,
-      username: authSession.user.username,
-      displayName: authSession.user.name ?? authSession.user.username,
+      userId: session.user.id,
+      username: session.user.username,
+      displayName: session.user.displayName,
       origin: resolveOrigin(headerStore),
       returnPath: requestBody.returnPath ?? "/consumer",
       packageId: requestBody.packageId,

@@ -3,7 +3,7 @@ import type {
   EdenMockLog,
   EdenMockProject,
   EdenMockService,
-} from "@/modules/core/mock-data/platform-types";
+} from "../mock-data/platform-types";
 
 export type EdenMockBusinessCreationSource = "ask_eden" | "business_dashboard";
 
