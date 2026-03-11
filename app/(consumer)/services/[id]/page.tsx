@@ -1,4 +1,4 @@
-﻿import { isBusinessFrozen } from "@/modules/core/admin/mock-admin-state";
+import { isBusinessFrozen } from "@/modules/core/admin/mock-admin-state";
 import { getMockAdminState } from "@/modules/core/admin/server";
 import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
@@ -193,8 +193,8 @@ export default async function ServiceDetailPage({
     },
     {
       fallbackLabel: service?.pricingModel
-        ? `${service.pricingModel} pricing placeholder`
-        : "Pricing placeholder pending",
+        ? `${service.pricingModel} pricing not finalized`
+        : "Pricing details pending",
       includePricingModel: true,
     },
   );
@@ -212,7 +212,7 @@ export default async function ServiceDetailPage({
   const consumerAvailabilityDetail = businessFrozen
     ? "This service is currently blocked by an owner freeze on the linked business."
     : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
-      ? "This service is live in Eden discovery and can be run through the Eden Leaf&apos;s wallet flow right now."
+      ? "This service is live in Eden discovery and can be run through the Eden Leaves wallet flow right now."
       : pipelineStatusOverride === "ready" || pipelineSnapshot?.status === "ready"
         ? "This service is almost live. The current route remains a preview of the launch-ready experience."
         : "This route is still showing a pre-launch or preview state for the service.";
@@ -255,7 +255,7 @@ export default async function ServiceDetailPage({
         { label: "Price per use", value: pricingLabel },
         {
           label: "Pricing unit",
-          value: pricing.hasStoredPrice ? pricingUnitLabel : "Mock fallback usage rate",
+          value: pricing.hasStoredPrice ? pricingUnitLabel : "Fallback usage rate",
         },
         { label: "Admin State", value: businessFrozen ? "Business frozen" : "Active" },
         { label: "Status Source", value: service?.status ?? "Route override" },
@@ -275,7 +275,7 @@ export default async function ServiceDetailPage({
       note={
         businessFrozen
           ? "The linked business is currently under a local owner freeze overlay. Release and pricing context remain visible for inspection."
-          : `This route uses the current service record, visible pricing, and wallet-aware usage flow. The price shown below is the exact Eden Leaf&apos;s amount used for service runs, and ${edenLaunchLabels.noHiddenCheckout.toLowerCase()}`
+          : `This route uses the current service record, visible pricing, and wallet-aware usage flow. The price shown below is the exact Eden Leaves amount used for service runs, and ${edenLaunchLabels.noHiddenCheckout.toLowerCase()}`
       }
     >
       <div className="space-y-5">
@@ -363,7 +363,7 @@ export default async function ServiceDetailPage({
                 <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">{edenLaunchLabels.creditsOnlyBilling}</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Service runs deduct Leaf&apos;s from the wallet. Stripe only appears if the user explicitly chooses to top up.
+                  Service runs deduct Leaves from the wallet. Stripe only appears if the user explicitly chooses to top up.
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-white p-3">
@@ -395,7 +395,7 @@ export default async function ServiceDetailPage({
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                 <p className="text-sm font-semibold text-eden-ink">1. Check availability and price</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Eden shows whether the service is live and exactly what the Eden Leaf&apos;s price is before anything runs.
+                  Eden shows whether the service is live and exactly what the Eden Leaves price is before anything runs.
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -405,15 +405,15 @@ export default async function ServiceDetailPage({
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                <p className="text-sm font-semibold text-eden-ink">3. Add Leaf&apos;s only if needed</p>
+                <p className="text-sm font-semibold text-eden-ink">3. Add Leaves only if needed</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Add Leaf&apos;s through the wallet flow if your balance is low. {edenLaunchLabels.noHiddenCheckout}
+                  Add Leaves through the wallet flow if your balance is low. {edenLaunchLabels.noHiddenCheckout}
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                 <p className="text-sm font-semibold text-eden-ink">4. Run the service</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  A successful run deducts the visible Leaf&apos;s amount, records usage, and updates the wallet history immediately.
+                  A successful run deducts the visible Leaves amount, records usage, and updates the wallet history immediately.
                 </p>
               </div>
             </div>
@@ -465,7 +465,7 @@ export default async function ServiceDetailPage({
             businessFrozen
               ? "This service is currently under a local owner freeze through its linked business."
               : !service
-                ? "This route is still using a placeholder service shell. A canonical service record is required before usage can be recorded."
+                ? "This route is still using a temporary service shell. A canonical service record is required before usage can be recorded."
                 : undefined
           }
         />
@@ -478,7 +478,7 @@ export default async function ServiceDetailPage({
             <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
               {businessFrozen ? (
                 <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm leading-6 text-rose-700">
-                  The linked business is under a mocked owner freeze hold. Release state remains
+                  The linked business is under the current owner freeze overlay. Release state remains
                   visible for inspection.
                 </div>
               ) : null}
@@ -497,7 +497,7 @@ export default async function ServiceDetailPage({
                 <div className="rounded-2xl border border-eden-edge bg-white p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Updated</p>
                   <p className="mt-2 text-sm font-semibold text-eden-ink">
-                    {pipelineSnapshot?.updatedAtLabel ?? "Shared mock data"}
+                    {pipelineSnapshot?.updatedAtLabel ?? "Development seed data"}
                   </p>
                 </div>
               </div>
@@ -542,6 +542,8 @@ export default async function ServiceDetailPage({
     </DetailPlaceholderPanel>
   );
 }
+
+
 
 
 

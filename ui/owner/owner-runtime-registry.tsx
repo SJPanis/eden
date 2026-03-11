@@ -7,6 +7,7 @@ import type {
   EdenProjectRuntimeTaskRecord,
 } from "@/modules/core/projects/project-runtime-shared";
 import { edenOwnerInternalSandboxRuntimeId } from "@/modules/core/projects/project-runtime-shared";
+import { OwnerRuntimeConfigPanel } from "@/ui/owner/owner-runtime-config-panel";
 import { OwnerRuntimeLifecyclePanel } from "@/ui/owner/owner-runtime-lifecycle-panel";
 import { OwnerRuntimeLaunchPanel } from "@/ui/owner/owner-runtime-launch-panel";
 import { InternalSandboxTaskRunner } from "@/ui/owner/internal-sandbox-task-runner";
@@ -420,6 +421,11 @@ export function OwnerRuntimeRegistry({
 
               <OwnerRuntimeLaunchPanel
                 key={`${runtime.id}-${runtime.launchIntent?.updatedAtLabel ?? "launch-none"}-${runtime.deploymentHistory[0]?.createdAtLabel ?? "deploy-none"}`}
+                runtime={runtime}
+              />
+
+              <OwnerRuntimeConfigPanel
+                key={`${runtime.id}-${runtime.configPolicy?.updatedAtLabel ?? "config-none"}-${runtime.secretBoundaries.length}-${runtime.providerCompatibility.map((provider) => provider.compatibilityStatus).join("-")}`}
                 runtime={runtime}
               />
 

@@ -145,6 +145,56 @@ enum ProjectRuntimeDeploymentEventStatus {
   FAILED
 }
 
+enum EdenAiProvider {
+  OPENAI
+  ANTHROPIC
+}
+
+enum ProjectRuntimeConfigScope {
+  OWNER_INTERNAL
+  BUSINESS_RUNTIME
+  PUBLIC_RUNTIME
+}
+
+enum ProjectRuntimeExecutionMode {
+  CONTROL_PLANE_ONLY
+  SANDBOX_TASK_RUNNER_V1
+  FUTURE_RUNTIME_AGENT
+  EXTERNAL_RUNTIME_HANDOFF
+}
+
+enum ProjectRuntimeProviderPolicyMode {
+  EDEN_APPROVED_ONLY
+  RUNTIME_ALLOWLIST
+  OWNER_APPROVAL_REQUIRED
+}
+
+enum ProjectRuntimeSecretType {
+  PROVIDER_API_KEY
+  WEBHOOK_SECRET
+  DATABASE_URL
+  SERVICE_TOKEN
+  ENVIRONMENT_GROUP
+}
+
+enum ProjectRuntimeSecretScope {
+  RUNTIME_ONLY
+  BUSINESS_SHARED
+  OWNER_INTERNAL
+}
+
+enum ProjectRuntimeSecretVisibilityPolicy {
+  STATUS_ONLY
+  OWNER_METADATA_ONLY
+  RUNTIME_BOUNDARY_ONLY
+}
+
+enum ProjectRuntimeSecretStatus {
+  CONFIGURED
+  MISSING
+  RESERVED
+}
+
 enum ProjectRuntimeTaskType {
   IMPLEMENTATION_PLAN
   ANALYSIS
@@ -279,6 +329,8 @@ model ProjectRuntime {
   creatorUser       User                             @relation("ProjectRuntimeCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
   domainLinks       ProjectRuntimeDomainLink[]
   launchIntent      ProjectRuntimeLaunchIntent?
+  configPolicy      ProjectRuntimeConfigPolicy?
+  secretBoundaries  ProjectRuntimeSecretBoundary[]
   tasks             ProjectRuntimeTask[]
   auditLogs         ProjectRuntimeAuditLog[]
   deploymentRecords ProjectRuntimeDeploymentRecord[]
@@ -319,6 +371,52 @@ model ProjectRuntimeLaunchIntent {
 
   @@index([intentType, createdAt])
   @@index([intendedTarget, createdAt])
+}
+
+model ProjectRuntimeConfigPolicy {
+  id                    String                           @id @default(cuid())
+  runtimeId             String                           @unique
+  configScope           ProjectRuntimeConfigScope        @default(BUSINESS_RUNTIME)
+  executionMode         ProjectRuntimeExecutionMode      @default(CONTROL_PLANE_ONLY)
+  providerPolicyMode    ProjectRuntimeProviderPolicyMode @default(EDEN_APPROVED_ONLY)
+  allowedProviders      EdenAiProvider[]
+  defaultProvider       EdenAiProvider?
+  maxTaskBudgetLeaves   Int?
+  monthlyBudgetLeaves   Int?
+  modelPolicySummary    String?
+  secretPolicyReference String?
+  notes                 String?
+  ownerOnlyEnforced     Boolean                          @default(false)
+  internalOnlyEnforced  Boolean                          @default(false)
+  createdAt             DateTime                         @default(now())
+  updatedAt             DateTime                         @updatedAt
+  runtime               ProjectRuntime                   @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+
+  @@index([configScope, createdAt])
+  @@index([executionMode, createdAt])
+  @@index([providerPolicyMode, createdAt])
+}
+
+model ProjectRuntimeSecretBoundary {
+  id                String                               @id @default(cuid())
+  runtimeId         String
+  label             String
+  description       String?
+  secretType        ProjectRuntimeSecretType
+  secretScope       ProjectRuntimeSecretScope
+  visibilityPolicy  ProjectRuntimeSecretVisibilityPolicy
+  status            ProjectRuntimeSecretStatus           @default(MISSING)
+  isRequired        Boolean                              @default(true)
+  providerKey       EdenAiProvider?
+  boundaryReference String?
+  createdAt         DateTime                             @default(now())
+  updatedAt         DateTime                             @updatedAt
+  runtime           ProjectRuntime                       @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+
+  @@unique([runtimeId, label])
+  @@index([runtimeId, createdAt])
+  @@index([secretType, createdAt])
+  @@index([status, createdAt])
 }
 
 model ProjectRuntimeTask {

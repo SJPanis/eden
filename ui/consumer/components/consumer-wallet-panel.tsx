@@ -151,8 +151,8 @@ export function ConsumerWalletPanel({
           title: "Confirmation unavailable",
           detail:
             requestError instanceof Error
-            ? requestError.message
-            : "Unable to confirm the payment-backed Leaf’s top-up.",
+              ? requestError.message
+              : "Unable to confirm the payment-backed Leaves top-up.",
         });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
@@ -188,7 +188,7 @@ export function ConsumerWalletPanel({
     setStatusMessage({
       tone: "info",
       title: "Preparing checkout",
-      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Leaf’s will only be added after Eden receives settlement confirmation.`,
+      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Leaves will only be added after Eden receives settlement confirmation.`,
     });
 
     try {
@@ -200,7 +200,7 @@ export function ConsumerWalletPanel({
         detail:
           requestError instanceof Error
             ? requestError.message
-            : "Unable to start the payment-backed Leaf’s top-up.",
+            : "Unable to start the payment-backed Leaves top-up.",
       });
       setActiveTopUpAction(null);
     }
@@ -214,15 +214,21 @@ export function ConsumerWalletPanel({
             Eden Wallet
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight text-eden-ink md:text-3xl">
-            Spendable Leaf’s ready for discovery
+            Spendable Leaves ready for discovery
           </h2>
           <p className="mt-3 text-sm leading-7 text-eden-muted md:text-base">
-            Wallet activity on the consumer layer stays fully mocked, but it uses the same Eden
-            Leaf’s transaction path that powers service charges and top-ups across the platform.
+            Stripe checkout and webhook settlement can be live when configured, but the wallet
+            balance and recent activity shown here still run through Eden&apos;s current development
+            ledger overlay.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row" />
+      </div>
+
+      <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+        Honest state: top-up checkout can be real in this environment, but the wallet ledger shown
+        below is still the current overlay until a fully persistent consumer wallet replaces it.
       </div>
 
       <CreditsTopUpPackageSelector
@@ -241,7 +247,7 @@ export function ConsumerWalletPanel({
               {selectedPackage.packLabel} Pack selected
             </p>
             <p className="mt-1 text-sm text-eden-muted">
-              {selectedPackage.chargeLabel}. Leaf’s are added only after Stripe webhook settlement confirms the purchase.
+              {selectedPackage.chargeLabel}. Leaves are added only after Stripe webhook settlement confirms the purchase.
             </p>
           </div>
           {topUpConfig.paymentEnabled ? (
@@ -275,20 +281,20 @@ export function ConsumerWalletPanel({
               </p>
             </div>
             <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-              Add Leaf’s only when needed
+              Add Leaves only when needed
             </span>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
               <p className="text-sm font-semibold text-eden-ink">1. Pick a package</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Choose the amount of Eden Leaf’s you want to add to the wallet.
+                Choose the amount of Eden Leaves you want to add to the wallet.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">2. Add Leaf’s</p>
+              <p className="text-sm font-semibold text-eden-ink">2. Add Leaves</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Continue to checkout for the selected pack. Leaf’s appear only after the settlement flow completes.
+                Continue to checkout for the selected pack. Leaves appear only after the settlement flow completes.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -308,7 +314,7 @@ export function ConsumerWalletPanel({
             {formatCreditsValue(displayBalanceCredits)} of {edenSpendableLeavesLabel.toLowerCase()} ready for service runs
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
-            After you add Leaf’s here, open a service card and confirm the visible Eden Leaf’s price before you run it.
+            After you add Leaves here, open a service card and confirm the visible Eden Leaves price before you run it.
           </p>
           <div className="mt-4 rounded-2xl border border-eden-edge bg-white/92 p-3">
             <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Next action</p>
@@ -348,8 +354,8 @@ export function ConsumerWalletPanel({
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
-          ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time Leaf’s purchase here, and Leaf’s are added only after webhook settlement.`
-          : "Stripe Checkout is not available in this environment, so Leaf’s cannot be purchased from this wallet surface."}
+          ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time Leaves purchase here, and Leaves are added only after webhook settlement.`
+          : "Stripe Checkout is not available in this environment, so Leaves cannot be purchased from this wallet surface."}
       </div>
 
       {receipt ? (
@@ -406,7 +412,7 @@ export function ConsumerWalletPanel({
               Recent Wallet Activity
             </p>
             <p className="mt-2 text-sm leading-6 text-eden-muted">
-              Recent consumer top-ups and service charges from the mocked internal wallet.
+              Recent consumer top-ups and service charges from the current wallet overlay.
             </p>
           </div>
           <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
@@ -570,3 +576,9 @@ export function ConsumerWalletPanel({
 function formatCreditsValue(value: number) {
   return formatLeaves(value);
 }
+
+
+
+
+
+

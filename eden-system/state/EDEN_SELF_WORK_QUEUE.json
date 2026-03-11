@@ -1,0 +1,93 @@
+{
+  "version": "v1",
+  "mode": "owner_review_required",
+  "scope": {
+    "label": "Eden core self-improvement inside the owner sandbox",
+    "description": "Queue only Eden-core control-plane work. Read canonical specs and state first, create one scoped internal sandbox task at a time, record the result, and stop for owner review when the queue or runtime state requires it."
+  },
+  "queue": [
+    {
+      "id": "apply_live_runtime_migrations",
+      "title": "Apply live runtime control-plane migrations and verify persistent runtime records",
+      "chapter": "Chapter 02 - Project Isolation",
+      "lane": "immediate",
+      "approvalState": "approved",
+      "summary": "Reconcile live Prisma migration history, deploy the additive runtime migrations, and verify that owner runtime records, sandbox tasks, audit entries, launch intent, deployment history, and config boundaries persist in the active database.",
+      "acceptanceCriteria": [
+        "Baseline migration is resolved as applied on the active database.",
+        "All additive runtime-control-plane migrations are deployed successfully.",
+        "The internal sandbox runtime can be registered or reconciled against the migrated database.",
+        "One runtime lifecycle update, one launch-intent update, one deployment-history note, and one runtime config save persist successfully."
+      ],
+      "blockedBy": [
+        "Database access permissions and Prisma migrate execution still require human confirmation in the target environment."
+      ],
+      "requiresOwnerReview": true
+    },
+    {
+      "id": "secret_boundary_status_controls",
+      "title": "Add owner-managed secret-boundary status updates and provider approval gates",
+      "chapter": "Chapter 02 - Project Isolation",
+      "lane": "immediate",
+      "approvalState": "approved",
+      "summary": "Let the owner mark runtime secret boundaries as missing, reserved, or configured without exposing values, then gate provider use on explicit boundary readiness.",
+      "acceptanceCriteria": [
+        "The owner can update secret-boundary status metadata without exposing raw secrets.",
+        "Provider compatibility reflects both policy allowlist and secret-boundary readiness.",
+        "Owner runtime UI shows which approved providers remain blocked by secret status."
+      ],
+      "blockedBy": [],
+      "requiresOwnerReview": true
+    },
+    {
+      "id": "task_audit_and_queue_boundary",
+      "title": "Add sandbox task audit logging and async dispatch boundary metadata",
+      "chapter": "Chapter 03 - AI Orchestration",
+      "lane": "short_horizon",
+      "approvalState": "approved",
+      "summary": "Track who queued and completed internal sandbox tasks and add an explicit async-dispatch boundary so the task runner can evolve without pretending real background workers already exist.",
+      "acceptanceCriteria": [
+        "Sandbox task creation, completion, and failure events have an audit trail.",
+        "The runtime task model distinguishes synchronous control-plane records from future async dispatch states.",
+        "Owner surfaces show that queued work is still deterministic and sandbox-scoped unless real workers are added."
+      ],
+      "blockedBy": [],
+      "requiresOwnerReview": true
+    },
+    {
+      "id": "provider_execution_wiring_guarded",
+      "title": "Wire the first approved provider execution path behind policy and secret gates",
+      "chapter": "Chapter 03 - AI Orchestration",
+      "lane": "short_horizon",
+      "approvalState": "owner_review",
+      "summary": "Move one provider adapter from scaffold-only to guarded live execution only after policy, secret-boundary status, and approval checks are verified end to end.",
+      "acceptanceCriteria": [
+        "One approved provider can execute only when the runtime policy allows it.",
+        "A missing or blocked secret boundary prevents execution cleanly.",
+        "Owner audit history shows when provider execution was enabled or attempted."
+      ],
+      "blockedBy": [
+        "Real provider credentials and secret handling policy are not yet fully implemented."
+      ],
+      "requiresOwnerReview": true
+    },
+    {
+      "id": "runtime_provisioning_boundary",
+      "title": "Introduce the first real isolated runtime provisioning target",
+      "chapter": "Chapter 02 - Project Isolation",
+      "lane": "stabilization",
+      "approvalState": "blocked",
+      "summary": "Implement the first actual isolated runtime target for project execution, keeping Eden core separate from runtime code and process control.",
+      "acceptanceCriteria": [
+        "A runtime can be provisioned outside Eden core app execution.",
+        "Runtime failures cannot corrupt Eden core code or data paths directly.",
+        "Runtime status in Eden is driven by real infrastructure checks instead of metadata-only writes."
+      ],
+      "blockedBy": [
+        "Runtime strategy is not yet approved.",
+        "Secret storage and runtime infrastructure target are still undecided."
+      ],
+      "requiresOwnerReview": true
+    }
+  ]
+}

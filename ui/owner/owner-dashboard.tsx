@@ -463,7 +463,7 @@ export function OwnerDashboardPanel({
     ({
       id: "security-audit",
       title: "Audit logs",
-      description: "Open a placeholder trail of owner actions, ledger changes, and system escalations.",
+      description: "Open the current owner audit and escalation trail across runtime, ledger, and policy actions.",
       stateLabel: "Streaming",
       actionLabel: "Open Audit Logs",
     } satisfies EdenMockSecurityControl);
@@ -474,7 +474,7 @@ export function OwnerDashboardPanel({
         value: maintenanceMode ? "On" : "Off",
         detail: maintenanceMode
           ? "Mock maintenance mode is active across the platform shell."
-          : "Public routes continue in normal mock mode.",
+          : "Public routes continue in normal owner-overlay mode.",
       };
     }
 
@@ -577,9 +577,9 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-credits",
-      label: "Eden Leaf’s flow",
+      label: "Eden Leaves flow",
       value: `+${formatCredits(creditFlow.inflow)} / -${formatCredits(creditFlow.outflow)}`,
-      detail: "Shared placeholder Leaf’s movement across wallet top-ups, usage, reserves, and adjustments.",
+      detail: "Development ledger-overlay movement across wallet top-ups, usage, reserves, and adjustments.",
     },
     {
       id: "overview-health",
@@ -590,8 +590,8 @@ export function OwnerDashboardPanel({
           ? "Watch state"
           : "Stable",
       detail: maintenanceMode
-        ? "The owner layer has enabled a mock maintenance banner across the platform shell."
-        : "Mock aggregate platform health across routing, ledger, publish, and agent systems.",
+        ? "The owner layer has enabled a maintenance overlay banner across the platform shell."
+        : "Hybrid platform health across routing, ledger, publish, and agent systems.",
     },
     {
       id: "overview-usage-events",
@@ -599,17 +599,17 @@ export function OwnerDashboardPanel({
       value: `${usageMetrics.totalUsageEvents}`,
       detail:
         usageMetrics.source === "persistent"
-          ? "Persisted ServiceUsage rows recorded through the current mock execution boundary."
-          : "Fallback count derived from the shared mock usage ledger until persistent rows are available.",
+          ? "Persisted ServiceUsage rows recorded through the current execution boundary."
+          : "Fallback count derived from the shared usage ledger until persistent rows are available.",
     },
     {
       id: "overview-usage-credits",
-      label: "Spendable Leaf’s used",
+      label: "Spendable Leaves used",
       value: formatCredits(usageMetrics.totalCreditsUsed),
       detail:
         usageMetrics.source === "persistent"
-          ? "Spendable Leaf’s attached to persisted service usage events for early monetization reporting."
-          : "Spendable Leaf’s estimated from usage transactions while Prisma-backed usage records are unavailable.",
+          ? "Spendable Leaves attached to persisted service usage events for early monetization reporting."
+          : "Spendable Leaves estimated from usage transactions while Prisma-backed usage records are unavailable.",
     },
     {
       id: "overview-platform-earnings",
@@ -621,7 +621,7 @@ export function OwnerDashboardPanel({
       id: "overview-builder-earnings",
       label: `${edenEarnedLeavesLabel} accrued`,
       value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
-      detail: "Builder net earned Leaf’s projection after the Eden fee share using current service pricing.",
+      detail: "Builder net earned Leaves projection after the Eden fee share using current service pricing.",
     },
   ];
   const releaseSummaryCards = [
@@ -641,7 +641,7 @@ export function OwnerDashboardPanel({
       id: "release-summary-testing",
       label: "Testing queue",
       value: `${publishSummary.testingCount}`,
-      detail: "Businesses still in mocked QA and review.",
+      detail: "Businesses still in the current QA/testing overlay.",
     },
     {
       id: "release-summary-events",
@@ -654,24 +654,24 @@ export function OwnerDashboardPanel({
   ];
   const creditSummary = [
     {
-      label: "Leaf’s issued",
+      label: "Leaves issued",
       value: formatCredits(creditFlow.inflow),
-      detail: "Mock distribution to users, businesses, and owner test accounts.",
+      detail: "Development-overlay distribution to users, businesses, and owner test accounts.",
     },
     {
-      label: "Leaf’s consumed",
+      label: "Leaves consumed",
       value: formatCredits(creditFlow.outflow),
-      detail: "Placeholder usage from AI routing, service discovery, and workspace actions.",
+      detail: "Overlay usage from AI routing, service discovery, and workspace actions.",
     },
     {
       label: "Reserve held",
       value: formatCredits(creditFlow.reserve),
-      detail: "Leaf’s reserved for publish staging, safety holds, and owner review buffers.",
+      detail: "Leaves reserved for publish staging, safety holds, and owner review buffers.",
     },
     {
       label: "Net movement",
       value: `${creditFlow.net >= 0 ? "+" : "-"}${formatCredits(Math.abs(creditFlow.net))}`,
-      detail: "Net mock balance movement after inflow, usage, and owner-side adjustments.",
+      detail: "Net overlay balance movement after inflow, usage, and owner-side adjustments.",
     },
   ];
   const paymentSummaryCards = [
@@ -679,7 +679,7 @@ export function OwnerDashboardPanel({
       id: "payments-total",
       label: "Total top-ups",
       value: `${paymentMetrics.totalPayments}`,
-      detail: "Persistent Leaf’s top-up records tracked through the current owner payment ledger.",
+      detail: "Persistent Leaves top-up records tracked through the current owner payment ledger.",
     },
     {
       id: "payments-settled",
@@ -695,7 +695,7 @@ export function OwnerDashboardPanel({
     },
     {
       id: "payments-credits",
-      label: "Leaf’s settled",
+      label: "Leaves settled",
       value: formatCredits(paymentMetrics.totalCreditsSettled),
       detail: `${formatMoneyAmount(
         paymentMetrics.totalSettledAmountCents,
@@ -747,9 +747,9 @@ export function OwnerDashboardPanel({
     },
     {
       id: "payout-internal-use",
-      label: "Earned Leaf’s used internally",
+      label: "Earned Leaves used internally",
       value: formatCredits(payoutAccounting.totalInternalUseCredits),
-      detail: "Persistent internal-use records where builders reused earned Leaf’s inside Eden instead of leaving them in payout accounting.",
+      detail: "Persistent internal-use records where builders reused earned Leaves inside Eden instead of leaving them in payout accounting.",
     },
     {
       id: "payout-ready",
@@ -822,7 +822,7 @@ export function OwnerDashboardPanel({
       value: maintenanceMode ? "On" : "Off",
       detail: maintenanceMode
         ? "Platform shell maintenance banner is currently active."
-        : "Platform shell is running in normal mock mode.",
+        : "Platform shell is running in normal owner-overlay mode.",
       tone: maintenanceMode ? getAdminStateClasses("maintenance") : getAdminStateClasses("active"),
     },
     {
@@ -843,7 +843,7 @@ export function OwnerDashboardPanel({
       id: "admin-summary-events",
       label: "Recent release events",
       value: `${releaseEvents.length}`,
-      detail: "Latest shared mocked transitions currently visible to the control room.",
+      detail: "Latest shared release transitions currently visible to the control room.",
       tone: getReleaseStatusClasses(releaseEvents[0]?.newStatus ?? "draft"),
     },
   ];
@@ -986,8 +986,14 @@ export function OwnerDashboardPanel({
               Eden Control Room
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
-              Central owner console for monitoring the platform, release state, and mocked cross-layer activity.
+              Central owner console for monitoring the platform, runtime control plane, and the
+              remaining development overlays that still back older owner flows.
             </p>
+            <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+              Honest state: payments, payouts, runtime records, sandbox tasks, and several usage
+              metrics now persist. Release transitions, freeze toggles, and some ledger views still
+              include development overlays until those owner flows are replaced.
+            </div>
             <div className="mt-6 flex flex-wrap gap-2">
               {sectionLinks.map((link) => (
                 <a
@@ -1345,7 +1351,7 @@ export function OwnerDashboardPanel({
                         label={entry.isFrozen ? "Unfreeze Business" : "Freeze Business"}
                         detail={
                           entry.isFrozen
-                            ? "Remove the local business freeze flag and return this workspace to active mock mode."
+                            ? "Remove the local business freeze flag and return this workspace to the active owner overlay."
                             : "Mark this business as frozen in local admin state."
                         }
                         className={
@@ -1367,7 +1373,7 @@ export function OwnerDashboardPanel({
             id="services"
             eyebrow="Services"
             title="Service release visibility"
-            description="Relevant mocked services with current release state and latest transition context."
+            description="Relevant services with current release state and latest transition context."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
                 {services.length} monitored
@@ -1419,7 +1425,7 @@ export function OwnerDashboardPanel({
                     </p>
                     <p className="mt-2 text-sm leading-6 text-eden-muted">
                       {entry.latestEvent?.detail ??
-                        "No service-specific transition has been simulated yet."}
+                        "No service-specific transition has been recorded yet."}
                     </p>
                   </div>
                 </motion.article>
@@ -1432,7 +1438,7 @@ export function OwnerDashboardPanel({
           <ControlRoomSection
             id="release-activity"
             eyebrow="Release Activity"
-            title="Mocked pipeline event history"
+            title="Release transition history"
             description="Owner visibility into publish queue movement and recent status transitions across watched businesses."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -1516,7 +1522,7 @@ export function OwnerDashboardPanel({
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
                     {publishSummary.latestPublishEvent?.detail ??
-                      "The owner release feed will show publish history here after a mocked publish action is triggered."}
+                      "The owner release feed will show publish history here after a release transition is recorded through the current workflow path."}
                   </p>
                   <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
                     {publishSummary.latestPublishEvent
@@ -1610,11 +1616,11 @@ export function OwnerDashboardPanel({
           <ControlRoomSection
             id="transaction-flow"
             eyebrow="Transaction Flow"
-            title="Eden Leaf’s movement"
-            description="Owner-facing placeholder activity showing how spendable Leaf’s move across issuing, spending, holds, and adjustments."
+            title="Eden Leaves movement"
+            description="Owner-facing development ledger activity showing how spendable Leaves move across issuing, spending, holds, and adjustments."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-                Ledger mock mode
+                Development ledger overlay
               </span>
             }
           >
@@ -1637,7 +1643,7 @@ export function OwnerDashboardPanel({
               ))}
             </motion.div>
             <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaf’s activity</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaves activity</p>
               <div className="mt-4 space-y-3">
                 {creditActivity.map((activity) => (
                   <div
@@ -1656,7 +1662,7 @@ export function OwnerDashboardPanel({
                         </span>
                         {activity.simulated ? (
                           <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
-                            Local mock
+                            Overlay
                           </span>
                         ) : null}
                       </div>
@@ -1755,7 +1761,7 @@ export function OwnerDashboardPanel({
                               {index + 1}. {business.businessName}
                             </p>
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
-                              Earned Leaf’s {formatCredits(business.totalEarnedCredits)} | Ready{" "}
+                              Earned Leaves {formatCredits(business.totalEarnedCredits)} | Ready{" "}
                               {formatCredits(business.payoutReadyCredits)}
                             </p>
                             <p className="mt-1 text-xs text-eden-muted">
@@ -2027,7 +2033,7 @@ export function OwnerDashboardPanel({
                       Recent top-up payments
                     </p>
                     <p className="mt-2 text-sm leading-6 text-eden-muted">
-                      Owner inspection of pending, settled, failed, and canceled Eden Leaf’s top-ups.
+                      Owner inspection of pending, settled, failed, and canceled Eden Leaves top-ups.
                     </p>
                   </div>
                   <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -2389,7 +2395,7 @@ export function OwnerDashboardPanel({
                     <p className="mt-1 text-xs text-eden-muted">
                       {formatCredits(
                         payoutAccounting.statusOverview.internalUseCredits,
-                      )} reused from earned Leaf’s
+                      )} reused from earned Leaves
                     </p>
                   </div>
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -2411,10 +2417,10 @@ export function OwnerDashboardPanel({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Internal earned Leaf’s usage
+                    Internal earned Leaves usage
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    Recent business-side internal Eden use recorded against earned Leaf’s. These rows reduce remaining builder liability without creating a payout.
+                    Recent business-side internal Eden use recorded against earned Leaves. These rows reduce remaining builder liability without creating a payout.
                   </p>
                 </div>
                 <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -2464,7 +2470,7 @@ export function OwnerDashboardPanel({
                   ))
                 ) : (
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                    No internal earned-Leaf’s usage has been recorded yet.
+                    No internal earned-Leaves usage has been recorded yet.
                   </div>
                 )}
               </div>
@@ -2484,7 +2490,7 @@ export function OwnerDashboardPanel({
                       <p className="mt-2 text-lg font-semibold text-eden-ink">{usageMetrics.totalUsageEvents}</p>
                     </div>
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Spendable Leaf’s used</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Spendable Leaves used</p>
                       <p className="mt-2 text-lg font-semibold text-eden-ink">
                         {formatCredits(usageMetrics.totalCreditsUsed)}
                       </p>
@@ -2548,7 +2554,7 @@ export function OwnerDashboardPanel({
                       ))
                     ) : (
                       <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                        No service usage has been tracked yet. The leaderboard will populate after mocked service runs are recorded.
+                        No service usage has been tracked yet. The leaderboard will populate after service runs are recorded through the current execution paths.
                       </div>
                     )}
                   </div>
@@ -2615,7 +2621,7 @@ export function OwnerDashboardPanel({
                             <MockPayoutSettlementButton
                               businessId={business.businessId}
                               amountCredits={business.payoutReadyCredits}
-                              label="Record mock payout settlement"
+                              label="Record internal payout settlement"
                               detail={`Mark ${formatCredits(
                                 business.payoutReadyCredits,
                               )} as paid out for ${business.businessName}. This only writes an internal settlement record.`}
@@ -2796,8 +2802,8 @@ export function OwnerDashboardPanel({
                 businessId={simulationBusinessId}
                 description={
                   simulationBusiness
-                    ? `These development-only actions append local Eden Leaf’s events for ${simulationBusiness.name}.`
-                    : `These development-only actions append local Eden Leaf’s events for ${session.user.displayName}.`
+                    ? `These development-only actions append local Eden Leaves events for ${simulationBusiness.name}.`
+                    : `These development-only actions append local Eden Leaves events for ${session.user.displayName}.`
                 }
               />
             </div>
@@ -2812,7 +2818,7 @@ export function OwnerDashboardPanel({
             description="Mock owner logs covering routing, billing, publish, security, and agent events."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-                Live mock feed
+                Seeded overlay feed
               </span>
             }
           >
@@ -2857,7 +2863,7 @@ export function OwnerDashboardPanel({
             description="Development-only controls for freezing accounts, toggling maintenance mode, and reviewing audit visibility."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
-                Local mock mode
+                Owner overlay mode
               </span>
             }
           >
@@ -2892,7 +2898,7 @@ export function OwnerDashboardPanel({
                   {frozenBusinessesCount}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Business workspaces currently under a mocked owner freeze hold.
+                  Business workspaces currently under the owner freeze overlay.
                 </p>
               </motion.article>
               <motion.article
@@ -2920,8 +2926,8 @@ export function OwnerDashboardPanel({
                     label={maintenanceMode ? "Disable Maintenance Mode" : "Toggle Maintenance Mode"}
                     detail={
                       maintenanceMode
-                        ? "Turn off the current mock maintenance banner."
-                        : "Enable a mock maintenance banner across the platform shell."
+                        ? "Turn off the current maintenance overlay banner."
+                        : "Enable a maintenance overlay banner across the platform shell."
                     }
                     className={
                       maintenanceMode
@@ -2968,6 +2974,11 @@ export function OwnerDashboardPanel({
     </div>
   );
 }
+
+
+
+
+
 
 
 

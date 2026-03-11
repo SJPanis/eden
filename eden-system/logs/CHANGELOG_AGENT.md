@@ -289,3 +289,109 @@
 - Saving launch intent creates a deployment-history record, but that record describes owner intent only and not a real deploy action.
 - The new launch-intent/deployment-history migration was generated but not applied in this session.
 - Persistent verification of launch intent and deployment-history records still depends on resolving the existing Prisma/database access issues and running the pending migration commands on the live database.
+
+### Runtime config, secret-boundary, provider scaffold, and owner constitution v1 completed
+
+- Re-read `EDEN_MASTER_SPEC.md`, `PROJECT_ISOLATION_MODEL.md`, `AI_ORCHESTRATION_MODEL.md`, `CURRENT_STATE.md`, `TASK_QUEUE.md`, `HUMAN_ACTIONS_REQUIRED.md`, `CHANGELOG_AGENT.md`, and `CODEX_TASK_EXECUTOR.md` before extending the control-plane layer.
+- Inspected the current runtime schema, runtime service layer, owner runtime UI, lifecycle flow, launch-intent flow, deployment-history flow, and internal sandbox task runner before changing code.
+- Fixed the homepage/public-entry wording source so the shared public-facing terminology now uses `Leaves` instead of the broken `Leaf's` label in shared currency and launch-label surfaces.
+- Extended Prisma schema with:
+  - enums: `EdenAiProvider`, `ProjectRuntimeConfigScope`, `ProjectRuntimeExecutionMode`, `ProjectRuntimeProviderPolicyMode`
+  - enums: `ProjectRuntimeSecretType`, `ProjectRuntimeSecretScope`, `ProjectRuntimeSecretVisibilityPolicy`, `ProjectRuntimeSecretStatus`
+  - models: `ProjectRuntimeConfigPolicy`, `ProjectRuntimeSecretBoundary`
+- Extended runtime shared types with:
+  - config-scope, execution-mode, provider-policy, and provider option lists
+  - `EdenProjectRuntimeConfigRecord`
+  - `EdenProjectRuntimeSecretBoundaryRecord`
+  - `EdenProjectRuntimeProviderCompatibilityRecord`
+- Added provider adapter scaffolding in:
+  - `modules/core/agents/eden-provider-adapters.ts`
+  - approved providers are currently `OpenAI` and `Anthropic`
+  - adapter execution remains scaffold-only and returns honest "not wired yet" responses
+- Added the owner constitution/control-agent scaffold in:
+  - `eden-system/specs/OWNER_CONTROL_CONSTITUTION.md`
+  - `modules/core/agents/eden-owner-constitution.ts`
+- Added owner-only runtime config policy handling in `modules/core/services/project-runtime-service.ts`:
+  - runtime config-policy updates
+  - secret-boundary synchronization
+  - provider compatibility evaluation
+  - default config policy and secret-boundary seeding for the internal sandbox runtime
+- Added owner-only API route:
+  - `app/api/owner/project-runtimes/[runtimeId]/config/route.ts`
+- Added owner-only UI:
+  - `ui/owner/owner-runtime-config-panel.tsx`
+  - `ui/owner/owner-control-agent-panel.tsx`
+  - integrated into `app/(owner)/owner/runtimes/page.tsx`
+  - integrated into `ui/owner/owner-runtime-registry.tsx`
+- Preserved:
+  - existing `ProjectBlueprint` behavior
+  - existing runtime registry behavior
+  - existing sandbox task runner behavior
+  - existing lifecycle controls and audit entry behavior
+  - existing launch-intent and deployment-history behavior
+- Generated additive migration:
+  - `prisma/migrations/20260311235500_runtime_config_secret_boundary_provider_scaffold_v1/migration.sql`
+
+### Verification completed for runtime config, secret boundaries, and control-agent scaffold v1
+
+- `cmd /c npx prisma format` passed when pointed at the local schema engine binary.
+- `cmd /c npx prisma generate` passed.
+- `cmd /c npx prisma validate` passed.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+### Important limits after runtime config, secret boundaries, and control-agent scaffold v1
+
+- Runtime config policy and secret boundaries are metadata only.
+- No raw secret values are stored or exposed by this implementation.
+- Provider adapters are scaffold-only and do not make live outbound model calls.
+- The owner constitution/control-agent layer reads canonical Eden files, but it does not execute unrestricted supervisory actions.
+- The new config/secret-boundary migration was generated but not applied in this session.
+- Persistent verification of config-policy and secret-boundary records still depends on resolving the existing Prisma/database access issues and running the pending migration commands on the live database.
+
+### Active-surface honesty pass and Eden self-work loop completed
+
+- Re-read `EDEN_MASTER_SPEC.md`, `PROJECT_ISOLATION_MODEL.md`, `AI_ORCHESTRATION_MODEL.md`, `CURRENT_STATE.md`, `TASK_QUEUE.md`, `HUMAN_ACTIONS_REQUIRED.md`, `CHANGELOG_AGENT.md`, and `CODEX_TASK_EXECUTOR.md` before extending the control-plane layer again.
+- Audited active owner, runtime, consumer, and public-entry surfaces for remaining mock, placeholder, seeded, or misleading wording in the visible product flow.
+- Audit classification:
+  - safe to keep as clearly labeled control-plane or overlay state:
+    - `/owner/runtimes` runtime/task/lifecycle/launch/deployment/config surfaces
+    - owner overlay and seeded-feed indicators in older owner dashboard sections
+    - `/api/mock-*` compatibility routes that are still explicit about being mock or overlay paths
+  - should be relabeled to remain honest:
+    - owner release history wording that still said "mocked"
+    - active consumer pricing fallbacks that still said "placeholder" or "mock fallback"
+    - remaining active `Leaf's`/`Leaf’s` wording inconsistencies in the homepage and current product surfaces
+  - should be isolated behind legacy or non-active status for now:
+    - `ui/entry/eden-entry-panel.tsx`, which still contains older mock-session onboarding text but is not the active homepage
+  - preserved in this pass because they still support hybrid compatibility:
+    - mock-session, mock-transaction, and mock-pipeline service layers that older owner/business/consumer routes still depend on
+- Added canonical Eden self-work files:
+  - `eden-system/state/EDEN_SELF_WORK_QUEUE.json`
+  - `eden-system/state/EDEN_POST_DEPLOY_TIMELINE.md`
+- Added owner-only Eden self-work implementation:
+  - `modules/core/agents/eden-self-work-shared.ts`
+  - `modules/core/agents/eden-self-work-loop.ts`
+  - `app/api/owner/project-runtimes/internal-sandbox/self-work/route.ts`
+  - `ui/owner/owner-eden-self-work-panel.tsx`
+  - integrated into `app/(owner)/owner/runtimes/page.tsx`
+- The self-work loop now:
+  - reads canonical owner-control inputs and the new self-work queue/timeline files
+  - evaluates whether the internal sandbox runtime is ready
+  - queues the next approved Eden-core work item into the real internal sandbox task runner
+  - records output in normal `ProjectRuntimeTask` rows instead of a separate fake queue table
+- Performed focused honesty cleanup on active surfaces:
+  - removed the unused `nextApprovedItems` variable from `ui/owner/owner-eden-self-work-panel.tsx`
+  - relabeled owner release activity wording in `ui/owner/owner-dashboard.tsx`
+  - relabeled active consumer pricing fallbacks in `ui/consumer/consumer-home.tsx`, `ui/consumer/components/service-usage-panel.tsx`, and `app/(consumer)/services/[id]/page.tsx`
+- Verified after the honesty pass and self-work loop additions:
+  - `cmd /c npx prisma generate`
+  - `cmd /c npx prisma validate`
+  - `npm run lint`
+  - `npm run build`
+
+### Important limits after the honesty pass and self-work loop
+
+- Eden self-work remains owner-approved and queue-scoped; it is not unrestricted autonomy.
+- The self-work loop reuses real internal sandbox task records, but it does not execute real providers, containers, deployments, or background workers.
+- Active surfaces are more honest about overlay-backed behavior, but hybrid mock-first compatibility paths still exist in older flows until they are replaced or quarantined further.

@@ -7,6 +7,8 @@
 - [x] Audit repo structure, routes, auth, Prisma, business/project paths, and current health.
 - [x] Add canonical internal build-memory structure under `eden-system/`.
 - [x] Replace default README boilerplate with an accurate repo overview.
+- [x] Audit active owner, runtime, and consumer surfaces for misleading mock/demo wording in visible product flows.
+- [x] Relabel active owner and consumer surfaces so metadata-only and overlay-backed behavior stays honest.
 - [ ] Mark `eden-system/` as the canonical planning/state location and treat `eden-dev/` as legacy planning context.
 - [ ] Replace deprecated Next.js `middleware.ts` usage with the current `proxy` convention and re-verify route protection.
 - [ ] Add a lightweight automated smoke check for public, consumer, business, and owner route guards.
@@ -51,13 +53,21 @@
 - [x] Add owner-only launch-intent update APIs and UI inside `/owner/runtimes`.
 - [x] Add owner-only deployment-history visibility and manual record creation inside `/owner/runtimes`.
 - [x] Generate a Prisma migration for runtime launch-intent and deployment-history metadata.
+- [x] Fix the shared homepage currency wording so public entry uses "Leaves" instead of the broken "Leaf's" label.
+- [x] Add runtime config-policy metadata for scope, execution mode, provider policy, and budget guardrails.
+- [x] Add runtime secret-boundary metadata without storing raw secrets.
+- [x] Add provider adapter scaffolding for approved Eden AI providers.
+- [x] Add an owner constitution/control-agent scaffold tied to canonical Eden memory files.
+- [x] Add owner-only config/provider/secret-boundary visibility inside `/owner/runtimes`.
+- [x] Generate a Prisma migration for runtime config and secret-boundary metadata.
 - [ ] Run `prisma migrate resolve --applied 20260311120000_pre_runtime_baseline` on the active database.
-- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, and `20260311233000_runtime_launch_intent_deployment_history_v1` create the runtime, task, audit, launch-intent, and deployment-history tables.
+- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, and `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1` create the runtime, task, audit, launch-intent, deployment-history, config-policy, and secret-boundary tables.
 - [ ] Execute the owner-only sandbox initializer against the migrated database and confirm the registry loads persistent data.
 - [ ] Create a sandbox task against the migrated database and confirm planner/worker outputs persist.
 - [ ] Save a runtime lifecycle update against the migrated database and confirm audit entries persist.
 - [ ] Save a runtime launch-intent update against the migrated database and confirm the generated deployment-history record persists.
 - [ ] Add a manual deployment-history entry against the migrated database and confirm it persists.
+- [ ] Save a runtime config-policy update against the migrated database and confirm secret-boundary metadata is created or refreshed.
 
 ### Soon
 
@@ -65,8 +75,9 @@
 - [ ] Add an explicit async task dispatch boundary so sandbox tasks can graduate from synchronous metadata-only execution when real workers exist.
 - [ ] Add runtime launch/read actions that operate on runtime metadata instead of direct project blueprint state.
 - [ ] Add domain/link metadata for external domains and Eden-managed hosted URLs.
+- [ ] Add owner-managed secret-boundary status updates so missing vs configured vs reserved can be maintained without exposing raw values.
+- [ ] Add a provider approval gate that works with runtime config policy and future adapter execution.
 - [ ] Add project secret/config storage boundaries outside general business metadata.
-- [ ] Add structured runtime config/secret metadata boundaries for Eden-managed and external launch targets.
 - [ ] Add launch-intent change auditing if launch metadata needs its own immutable audit stream beyond deployment-history records.
 - [ ] Expand runtime audit logging to cover runtime creation, visibility/access policy changes, target changes, and launch-related events.
 - [ ] Add a runtime-aware filter or drill-down from the owner control room into `/owner/runtimes`.
@@ -82,12 +93,22 @@
 ### Now
 
 - [x] Add a deterministic owner-only Lead/Planner and Worker execution record loop inside the internal sandbox runtime.
+- [x] Add an owner-aligned constitution scaffold for future Eden supervisory control agents.
+- [x] Add a control-agent input loader for Eden specs, state, queue, and changelog.
+- [x] Add scaffolded approved-provider metadata for future runtime-scoped agent execution.
+- [x] Create a canonical owner-approved Eden self-work queue for post-deploy Eden-core work.
+- [x] Add a canonical post-deploy timeline file readable by future Eden control agents.
+- [x] Add an owner-only self-work panel inside `/owner/runtimes`.
+- [x] Let the internal sandbox queue the next approved Eden self-work item into real `ProjectRuntimeTask` records.
 - [ ] Define scoped agent roles that operate on project runtime context instead of Eden core assumptions.
 - [ ] Require every future Codex task to update `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
 
 ### Soon
 
 - [ ] Add planner/router, worker, QA, and ledger agent boundaries in implementation.
+- [ ] Connect the owner constitution scaffold to a real Eden control-agent task flow without granting broad unsafe execution.
+- [ ] Add sandbox task audit logging for Eden self-work queue pulls and task completion state.
+- [ ] Add explicit review-required, blocked, and waiting transitions for the Eden self-work loop beyond the file-backed queue state.
 - [ ] Add persistent execution logs and state checkpoints for agent work units.
 
 ### Later

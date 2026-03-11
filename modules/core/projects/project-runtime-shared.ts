@@ -49,6 +49,26 @@ export const ownerRuntimeDeploymentEventStatusOptions = [
   { value: "blocked", label: "Blocked" },
   { value: "failed", label: "Failed" },
 ] as const;
+export const ownerRuntimeConfigScopeOptions = [
+  { value: "owner_internal", label: "Owner Internal" },
+  { value: "business_runtime", label: "Business Runtime" },
+  { value: "public_runtime", label: "Public Runtime" },
+] as const;
+export const ownerRuntimeExecutionModeOptions = [
+  { value: "control_plane_only", label: "Control Plane Only" },
+  { value: "sandbox_task_runner_v1", label: "Sandbox Task Runner v1" },
+  { value: "future_runtime_agent", label: "Future Runtime Agent" },
+  { value: "external_runtime_handoff", label: "External Runtime Handoff" },
+] as const;
+export const ownerRuntimeProviderPolicyModeOptions = [
+  { value: "eden_approved_only", label: "Eden Approved Only" },
+  { value: "runtime_allowlist", label: "Runtime Allowlist" },
+  { value: "owner_approval_required", label: "Owner Approval Required" },
+] as const;
+export const ownerRuntimeProviderOptions = [
+  { value: "openai", label: "OpenAI" },
+  { value: "anthropic", label: "Anthropic" },
+] as const;
 
 export type OwnerRuntimeHealthCheckAction =
   (typeof ownerRuntimeHealthCheckActionOptions)[number]["value"];
@@ -62,6 +82,14 @@ export type OwnerRuntimeDeploymentEventType =
   (typeof ownerRuntimeDeploymentEventTypeOptions)[number]["value"];
 export type OwnerRuntimeDeploymentEventStatus =
   (typeof ownerRuntimeDeploymentEventStatusOptions)[number]["value"];
+export type OwnerRuntimeConfigScope =
+  (typeof ownerRuntimeConfigScopeOptions)[number]["value"];
+export type OwnerRuntimeExecutionMode =
+  (typeof ownerRuntimeExecutionModeOptions)[number]["value"];
+export type OwnerRuntimeProviderPolicyMode =
+  (typeof ownerRuntimeProviderPolicyModeOptions)[number]["value"];
+export type OwnerRuntimeProvider =
+  (typeof ownerRuntimeProviderOptions)[number]["value"];
 
 export type EdenProjectRuntimeDomainLinkRecord = {
   id: string;
@@ -115,6 +143,59 @@ export type EdenProjectRuntimeDeploymentRecord = {
   createdAtLabel: string;
 };
 
+export type EdenProjectRuntimeConfigRecord = {
+  id: string;
+  configScope: string;
+  configScopeLabel: string;
+  executionMode: string;
+  executionModeLabel: string;
+  providerPolicyMode: string;
+  providerPolicyModeLabel: string;
+  allowedProviders: string[];
+  allowedProviderLabels: string[];
+  defaultProvider?: string | null;
+  defaultProviderLabel?: string | null;
+  maxTaskBudgetLeaves?: number | null;
+  monthlyBudgetLeaves?: number | null;
+  modelPolicySummary?: string | null;
+  secretPolicyReference?: string | null;
+  notes?: string | null;
+  ownerOnlyEnforced: boolean;
+  internalOnlyEnforced: boolean;
+  createdAtLabel: string;
+  updatedAtLabel: string;
+};
+
+export type EdenProjectRuntimeSecretBoundaryRecord = {
+  id: string;
+  label: string;
+  description?: string | null;
+  secretType: string;
+  secretTypeLabel: string;
+  secretScope: string;
+  secretScopeLabel: string;
+  visibilityPolicy: string;
+  visibilityPolicyLabel: string;
+  status: string;
+  statusLabel: string;
+  isRequired: boolean;
+  providerKey?: string | null;
+  providerLabel?: string | null;
+  boundaryReference?: string | null;
+  updatedAtLabel: string;
+};
+
+export type EdenProjectRuntimeProviderCompatibilityRecord = {
+  providerKey: string;
+  providerLabel: string;
+  adapterStatus: string;
+  adapterStatusLabel: string;
+  compatibilityStatus: string;
+  compatibilityStatusLabel: string;
+  capabilityLabels: string[];
+  reason: string;
+};
+
 export type EdenProjectRuntimeRecord = {
   id: string;
   projectId: string;
@@ -149,6 +230,9 @@ export type EdenProjectRuntimeRecord = {
   lastHealthCheckAtLabel?: string | null;
   domainLinks: EdenProjectRuntimeDomainLinkRecord[];
   launchIntent?: EdenProjectRuntimeLaunchIntentRecord | null;
+  configPolicy?: EdenProjectRuntimeConfigRecord | null;
+  secretBoundaries: EdenProjectRuntimeSecretBoundaryRecord[];
+  providerCompatibility: EdenProjectRuntimeProviderCompatibilityRecord[];
   auditEntries: EdenProjectRuntimeAuditLogRecord[];
   deploymentHistory: EdenProjectRuntimeDeploymentRecord[];
 };

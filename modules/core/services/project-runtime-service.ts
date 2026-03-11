@@ -1,21 +1,29 @@
 import "server-only";
 
 import { EdenRole, Prisma, UserStatus } from "@prisma/client";
+import { evaluateRuntimeProviderCompatibility } from "@/modules/core/agents/eden-provider-adapters";
 import type {
   EdenProjectRuntimeAuditLogRecord,
+  EdenProjectRuntimeConfigRecord,
   EdenProjectRuntimeDeploymentRecord,
   EdenProjectRuntimeLaunchIntentRecord,
+  EdenProjectRuntimeProviderCompatibilityRecord,
   EdenProjectRuntimeRecord,
   EdenProjectRuntimeRegistryState,
+  EdenProjectRuntimeSecretBoundaryRecord,
   EdenProjectRuntimeTaskArtifactRecord,
   EdenProjectRuntimeTaskRecord,
   EdenProjectRuntimeTaskState,
+  OwnerRuntimeConfigScope,
   OwnerRuntimeDeploymentEventStatus,
   OwnerRuntimeDeploymentEventType,
   OwnerRuntimeHealthCheckAction,
   OwnerRuntimeLaunchIntentType,
   OwnerRuntimeLaunchMode,
   OwnerRuntimeLaunchTarget,
+  OwnerRuntimeExecutionMode,
+  OwnerRuntimeProvider,
+  OwnerRuntimeProviderPolicyMode,
 } from "@/modules/core/projects/project-runtime-shared";
 import {
   edenInternalSandboxLeadAgentLabel,
@@ -53,6 +61,12 @@ const projectRuntimeRegistryInclude = {
     },
   },
   launchIntent: true,
+  configPolicy: true,
+  secretBoundaries: {
+    orderBy: {
+      createdAt: "asc",
+    },
+  },
   auditLogs: {
     orderBy: {
       createdAt: "desc",
@@ -111,10 +125,7 @@ type ProjectRuntimeTaskReadRecord = Prisma.ProjectRuntimeTaskGetPayload<{
   include: typeof projectRuntimeTaskInclude;
 }>;
 
-type ProjectRuntimeLifecycleFieldName =
-  | "status"
-  | "statusDetail"
-  | "lastHealthCheckAt";
+type ProjectRuntimeAuditFieldName = string;
 
 type ProjectRuntimeLaunchIntentTypeValue =
   | "INTERNAL_PREVIEW"
@@ -125,6 +136,24 @@ type ProjectRuntimeLaunchModeValue =
   | "CONTROL_PLANE_ONLY"
   | "EDEN_MANAGED_PROMOTION"
   | "EXTERNAL_HANDOFF";
+
+type ProjectRuntimeConfigScopeValue =
+  | "OWNER_INTERNAL"
+  | "BUSINESS_RUNTIME"
+  | "PUBLIC_RUNTIME";
+
+type ProjectRuntimeExecutionModeValue =
+  | "CONTROL_PLANE_ONLY"
+  | "SANDBOX_TASK_RUNNER_V1"
+  | "FUTURE_RUNTIME_AGENT"
+  | "EXTERNAL_RUNTIME_HANDOFF";
+
+type ProjectRuntimeProviderPolicyModeValue =
+  | "EDEN_APPROVED_ONLY"
+  | "RUNTIME_ALLOWLIST"
+  | "OWNER_APPROVAL_REQUIRED";
+
+type EdenAiProviderValue = "OPENAI" | "ANTHROPIC";
 
 type ProjectRuntimeTargetValue =
   | "EDEN_INTERNAL"
@@ -144,6 +173,25 @@ type ProjectRuntimeDeploymentEventStatusValue =
   | "READY"
   | "BLOCKED"
   | "FAILED";
+
+type ProjectRuntimeSecretTypeValue =
+  | "PROVIDER_API_KEY"
+  | "WEBHOOK_SECRET"
+  | "DATABASE_URL"
+  | "SERVICE_TOKEN"
+  | "ENVIRONMENT_GROUP";
+
+type ProjectRuntimeSecretScopeValue =
+  | "RUNTIME_ONLY"
+  | "BUSINESS_SHARED"
+  | "OWNER_INTERNAL";
+
+type ProjectRuntimeSecretVisibilityPolicyValue =
+  | "STATUS_ONLY"
+  | "OWNER_METADATA_ONLY"
+  | "RUNTIME_BOUNDARY_ONLY";
+
+type ProjectRuntimeSecretStatusValue = "CONFIGURED" | "MISSING" | "RESERVED";
 
 type ProjectRuntimeLifecycleStatus =
   | "REGISTERED"
@@ -544,6 +592,272 @@ export async function updateOwnerProjectRuntimeLaunchIntent(
     });
   } catch (error) {
     logProjectRuntimeFailure("update_owner_project_runtime_launch_intent", error);
+
+    return {
+      ok: false as const,
+      status: 503,
+      error: describeProjectRuntimeFailure(error),
+    };
+  }
+}
+
+export async function updateOwnerProjectRuntimeConfigPolicy(
+  actor: EdenProjectRuntimeActor,
+  input: {
+    runtimeId: string;
+    configScope: string;
+    executionMode: string;
+    providerPolicyMode: string;
+    allowedProviders: string[];
+    defaultProvider?: string | null;
+    maxTaskBudgetLeaves?: number | string | null;
+    monthlyBudgetLeaves?: number | string | null;
+    modelPolicySummary?: string | null;
+    secretPolicyReference?: string | null;
+    notes?: string | null;
+    ownerOnlyEnforced?: boolean | null;
+    internalOnlyEnforced?: boolean | null;
+  },
+) {
+  const prisma = getPrismaClient();
+  const runtimeId = input.runtimeId.trim();
+  const nextConfigScope = parseProjectRuntimeConfigScope(input.configScope);
+  const nextExecutionMode = parseProjectRuntimeExecutionMode(input.executionMode);
+  const nextProviderPolicyMode = parseProjectRuntimeProviderPolicyMode(
+    input.providerPolicyMode,
+  );
+  const nextAllowedProviders = parseProjectRuntimeProviderKeys(
+    input.allowedProviders,
+  );
+  const nextDefaultProvider = parseProjectRuntimeProviderKey(
+    input.defaultProvider,
+  );
+  const nextMaxTaskBudgetLeaves = normalizeOptionalLeavesBudget(
+    input.maxTaskBudgetLeaves,
+  );
+  const nextMonthlyBudgetLeaves = normalizeOptionalLeavesBudget(
+    input.monthlyBudgetLeaves,
+  );
+  const nextModelPolicySummary = normalizeRuntimePolicyText(
+    input.modelPolicySummary,
+  );
+  const nextSecretPolicyReference = normalizeRuntimePolicyReference(
+    input.secretPolicyReference,
+  );
+  const nextNotes = normalizeRuntimePolicyText(input.notes);
+  const nextOwnerOnlyEnforced = Boolean(input.ownerOnlyEnforced);
+  const nextInternalOnlyEnforced = Boolean(input.internalOnlyEnforced);
+
+  if (!runtimeId) {
+    return {
+      ok: false as const,
+      status: 400,
+      error: "Runtime id is required before saving runtime config policy.",
+    };
+  }
+
+  if (!nextConfigScope || !nextExecutionMode || !nextProviderPolicyMode) {
+    return {
+      ok: false as const,
+      status: 400,
+      error:
+        "Select a valid runtime config scope, execution mode, and provider policy before saving.",
+    };
+  }
+
+  if (nextDefaultProvider && !nextAllowedProviders.includes(nextDefaultProvider)) {
+    return {
+      ok: false as const,
+      status: 400,
+      error:
+        "The default provider must also exist in the runtime allowlist before saving.",
+    };
+  }
+
+  if (
+    nextMaxTaskBudgetLeaves !== null &&
+    nextMonthlyBudgetLeaves !== null &&
+    nextMaxTaskBudgetLeaves > nextMonthlyBudgetLeaves
+  ) {
+    return {
+      ok: false as const,
+      status: 400,
+      error:
+        "Per-task budget cannot exceed the configured monthly budget guardrail.",
+    };
+  }
+
+  try {
+    return prisma.$transaction(async (transaction) => {
+      await upsertProjectRuntimeActor(transaction, actor);
+
+      const currentRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        select: {
+          id: true,
+          accessPolicy: true,
+          target: true,
+          configPolicy: {
+            select: {
+              id: true,
+              configScope: true,
+              executionMode: true,
+              providerPolicyMode: true,
+              allowedProviders: true,
+              defaultProvider: true,
+              maxTaskBudgetLeaves: true,
+              monthlyBudgetLeaves: true,
+              modelPolicySummary: true,
+              secretPolicyReference: true,
+              notes: true,
+              ownerOnlyEnforced: true,
+              internalOnlyEnforced: true,
+            },
+          },
+        },
+      });
+
+      if (!currentRuntime) {
+        return {
+          ok: false as const,
+          status: 404,
+          error: "The requested runtime record could not be found.",
+        };
+      }
+
+      const currentPolicy = currentRuntime.configPolicy;
+      const providerListChanged =
+        !currentPolicy ||
+        !areProviderListsEqual(currentPolicy.allowedProviders, nextAllowedProviders);
+      const policyChanged =
+        !currentPolicy ||
+        currentPolicy.configScope !== nextConfigScope ||
+        currentPolicy.executionMode !== nextExecutionMode ||
+        currentPolicy.providerPolicyMode !== nextProviderPolicyMode ||
+        providerListChanged ||
+        currentPolicy.defaultProvider !== nextDefaultProvider ||
+        currentPolicy.maxTaskBudgetLeaves !== nextMaxTaskBudgetLeaves ||
+        currentPolicy.monthlyBudgetLeaves !== nextMonthlyBudgetLeaves ||
+        (currentPolicy.modelPolicySummary ?? null) !== nextModelPolicySummary ||
+        (currentPolicy.secretPolicyReference ?? null) !==
+          nextSecretPolicyReference ||
+        (currentPolicy.notes ?? null) !== nextNotes ||
+        currentPolicy.ownerOnlyEnforced !== nextOwnerOnlyEnforced ||
+        currentPolicy.internalOnlyEnforced !== nextInternalOnlyEnforced;
+
+      if (!policyChanged) {
+        const unchangedRuntime = await transaction.projectRuntime.findUnique({
+          where: {
+            id: runtimeId,
+          },
+          include: projectRuntimeRegistryInclude,
+        });
+
+        if (!unchangedRuntime) {
+          throw new Error(
+            "Eden could not reload the runtime record after a no-op config policy update.",
+          );
+        }
+
+        return {
+          ok: true as const,
+          changed: false,
+          runtime: mapProjectRuntimeRecord(unchangedRuntime),
+        };
+      }
+
+      const configPolicyData = {
+        configScope: nextConfigScope,
+        executionMode: nextExecutionMode,
+        providerPolicyMode: nextProviderPolicyMode,
+        allowedProviders: nextAllowedProviders,
+        defaultProvider: nextDefaultProvider,
+        maxTaskBudgetLeaves: nextMaxTaskBudgetLeaves,
+        monthlyBudgetLeaves: nextMonthlyBudgetLeaves,
+        modelPolicySummary: nextModelPolicySummary,
+        secretPolicyReference: nextSecretPolicyReference,
+        notes: nextNotes,
+        ownerOnlyEnforced: nextOwnerOnlyEnforced,
+        internalOnlyEnforced: nextInternalOnlyEnforced,
+      } satisfies Omit<
+        Prisma.ProjectRuntimeConfigPolicyUncheckedCreateInput,
+        "id" | "runtimeId"
+      >;
+
+      if (currentPolicy) {
+        await transaction.projectRuntimeConfigPolicy.update({
+          where: {
+            runtimeId,
+          },
+          data: configPolicyData,
+        });
+      } else {
+        await transaction.projectRuntimeConfigPolicy.create({
+          data: {
+            runtimeId,
+            ...configPolicyData,
+          },
+        });
+      }
+
+      await syncProjectRuntimeSecretBoundaries(transaction, {
+        runtimeId,
+        runtimeAccessPolicy: currentRuntime.accessPolicy,
+        runtimeTarget: currentRuntime.target,
+        allowedProviders: nextAllowedProviders,
+        ownerOnlyEnforced: nextOwnerOnlyEnforced,
+        internalOnlyEnforced: nextInternalOnlyEnforced,
+      });
+
+      const auditEntries = buildRuntimeConfigAuditEntries({
+        runtimeId,
+        actorUserId: actor.id,
+        currentPolicy,
+        nextPolicy: {
+          configScope: nextConfigScope,
+          executionMode: nextExecutionMode,
+          providerPolicyMode: nextProviderPolicyMode,
+          allowedProviders: nextAllowedProviders,
+          defaultProvider: nextDefaultProvider,
+          maxTaskBudgetLeaves: nextMaxTaskBudgetLeaves,
+          monthlyBudgetLeaves: nextMonthlyBudgetLeaves,
+          modelPolicySummary: nextModelPolicySummary,
+          secretPolicyReference: nextSecretPolicyReference,
+          notes: nextNotes,
+          ownerOnlyEnforced: nextOwnerOnlyEnforced,
+          internalOnlyEnforced: nextInternalOnlyEnforced,
+        },
+      });
+
+      if (auditEntries.length) {
+        await transaction.projectRuntimeAuditLog.createMany({
+          data: auditEntries,
+        });
+      }
+
+      const updatedRuntime = await transaction.projectRuntime.findUnique({
+        where: {
+          id: runtimeId,
+        },
+        include: projectRuntimeRegistryInclude,
+      });
+
+      if (!updatedRuntime) {
+        throw new Error(
+          "Eden could not reload the runtime record after saving config policy changes.",
+        );
+      }
+
+      return {
+        ok: true as const,
+        changed: true,
+        runtime: mapProjectRuntimeRecord(updatedRuntime),
+      };
+    });
+  } catch (error) {
+    logProjectRuntimeFailure("update_owner_project_runtime_config_policy", error);
 
     return {
       ok: false as const,
@@ -1093,6 +1407,47 @@ export async function registerOwnerInternalSandboxRuntime(
       });
     }
 
+    const existingConfigPolicy =
+      await transaction.projectRuntimeConfigPolicy.findUnique({
+        where: {
+          runtimeId: edenOwnerInternalSandboxRuntimeId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+    if (!existingConfigPolicy) {
+      await transaction.projectRuntimeConfigPolicy.create({
+        data: {
+          runtimeId: edenOwnerInternalSandboxRuntimeId,
+          configScope: "OWNER_INTERNAL",
+          executionMode: "SANDBOX_TASK_RUNNER_V1",
+          providerPolicyMode: "EDEN_APPROVED_ONLY",
+          allowedProviders: ["OPENAI", "ANTHROPIC"],
+          defaultProvider: "OPENAI",
+          maxTaskBudgetLeaves: 250,
+          monthlyBudgetLeaves: 2500,
+          modelPolicySummary:
+            "Owner-aligned Eden sandbox planning and review only. Provider execution remains scaffolded until approved adapters and runtime boundaries are implemented.",
+          secretPolicyReference: "owner_internal_provider_credentials",
+          notes:
+            "Metadata only. This config policy does not unlock live provider execution or runtime autonomy.",
+          ownerOnlyEnforced: true,
+          internalOnlyEnforced: true,
+        },
+      });
+    }
+
+    await syncProjectRuntimeSecretBoundaries(transaction, {
+      runtimeId: edenOwnerInternalSandboxRuntimeId,
+      runtimeAccessPolicy: "OWNER_ONLY",
+      runtimeTarget: "EDEN_INTERNAL",
+      allowedProviders: ["OPENAI", "ANTHROPIC"],
+      ownerOnlyEnforced: true,
+      internalOnlyEnforced: true,
+    });
+
     const runtime = await transaction.projectRuntime.findUnique({
       where: {
         id: edenOwnerInternalSandboxRuntimeId,
@@ -1201,6 +1556,39 @@ function mapProjectRuntimeRecord(
     launchIntent: runtime.launchIntent
       ? mapProjectRuntimeLaunchIntentRecord(runtime.launchIntent)
       : null,
+    configPolicy: runtime.configPolicy
+      ? mapProjectRuntimeConfigRecord(runtime.configPolicy)
+      : null,
+    secretBoundaries: runtime.secretBoundaries.map(
+      mapProjectRuntimeSecretBoundaryRecord,
+    ),
+    providerCompatibility: evaluateRuntimeProviderCompatibility({
+      executionMode: runtime.configPolicy?.executionMode.toLowerCase() ?? null,
+      providerPolicyMode:
+        runtime.configPolicy?.providerPolicyMode.toLowerCase() ?? null,
+      allowedProviders:
+        runtime.configPolicy?.allowedProviders.map((provider) =>
+          provider.toLowerCase(),
+        ) ?? [],
+      secretBoundaries: runtime.secretBoundaries.map((boundary) => ({
+        providerKey: boundary.providerKey?.toLowerCase() ?? null,
+        status: boundary.status.toLowerCase(),
+        isRequired: boundary.isRequired,
+      })),
+    }).map(
+      (
+        compatibility,
+      ): EdenProjectRuntimeProviderCompatibilityRecord => ({
+        providerKey: compatibility.providerKey,
+        providerLabel: compatibility.providerLabel,
+        adapterStatus: compatibility.adapterStatus,
+        adapterStatusLabel: compatibility.adapterStatusLabel,
+        compatibilityStatus: compatibility.compatibilityStatus,
+        compatibilityStatusLabel: compatibility.compatibilityStatusLabel,
+        capabilityLabels: compatibility.capabilityLabels,
+        reason: compatibility.reason,
+      }),
+    ),
     auditEntries: runtime.auditLogs.map(mapProjectRuntimeAuditLogRecord),
     deploymentHistory: runtime.deploymentRecords.map(
       mapProjectRuntimeDeploymentRecord,
@@ -1223,6 +1611,64 @@ function mapProjectRuntimeLaunchIntentRecord(
     notes: intent.notes,
     createdAtLabel: formatTimestamp(intent.createdAt),
     updatedAtLabel: formatTimestamp(intent.updatedAt),
+  };
+}
+
+function mapProjectRuntimeConfigRecord(
+  configPolicy: NonNullable<ProjectRuntimeRegistryRecord["configPolicy"]>,
+): EdenProjectRuntimeConfigRecord {
+  return {
+    id: configPolicy.id,
+    configScope: configPolicy.configScope.toLowerCase(),
+    configScopeLabel: formatEnumLabel(configPolicy.configScope),
+    executionMode: configPolicy.executionMode.toLowerCase(),
+    executionModeLabel: formatEnumLabel(configPolicy.executionMode),
+    providerPolicyMode: configPolicy.providerPolicyMode.toLowerCase(),
+    providerPolicyModeLabel: formatEnumLabel(configPolicy.providerPolicyMode),
+    allowedProviders: configPolicy.allowedProviders.map((provider) =>
+      provider.toLowerCase(),
+    ),
+    allowedProviderLabels: configPolicy.allowedProviders.map((provider) =>
+      formatEnumLabel(provider),
+    ),
+    defaultProvider: configPolicy.defaultProvider?.toLowerCase() ?? null,
+    defaultProviderLabel: configPolicy.defaultProvider
+      ? formatEnumLabel(configPolicy.defaultProvider)
+      : null,
+    maxTaskBudgetLeaves: configPolicy.maxTaskBudgetLeaves,
+    monthlyBudgetLeaves: configPolicy.monthlyBudgetLeaves,
+    modelPolicySummary: configPolicy.modelPolicySummary,
+    secretPolicyReference: configPolicy.secretPolicyReference,
+    notes: configPolicy.notes,
+    ownerOnlyEnforced: configPolicy.ownerOnlyEnforced,
+    internalOnlyEnforced: configPolicy.internalOnlyEnforced,
+    createdAtLabel: formatTimestamp(configPolicy.createdAt),
+    updatedAtLabel: formatTimestamp(configPolicy.updatedAt),
+  };
+}
+
+function mapProjectRuntimeSecretBoundaryRecord(
+  boundary: ProjectRuntimeRegistryRecord["secretBoundaries"][number],
+): EdenProjectRuntimeSecretBoundaryRecord {
+  return {
+    id: boundary.id,
+    label: boundary.label,
+    description: boundary.description,
+    secretType: boundary.secretType.toLowerCase(),
+    secretTypeLabel: formatEnumLabel(boundary.secretType),
+    secretScope: boundary.secretScope.toLowerCase(),
+    secretScopeLabel: formatEnumLabel(boundary.secretScope),
+    visibilityPolicy: boundary.visibilityPolicy.toLowerCase(),
+    visibilityPolicyLabel: formatEnumLabel(boundary.visibilityPolicy),
+    status: boundary.status.toLowerCase(),
+    statusLabel: formatEnumLabel(boundary.status),
+    isRequired: boundary.isRequired,
+    providerKey: boundary.providerKey?.toLowerCase() ?? null,
+    providerLabel: boundary.providerKey
+      ? formatEnumLabel(boundary.providerKey)
+      : null,
+    boundaryReference: boundary.boundaryReference,
+    updatedAtLabel: formatTimestamp(boundary.updatedAt),
   };
 }
 
@@ -1649,7 +2095,7 @@ function normalizeSandboxTaskInput(inputText: string) {
 function buildProjectRuntimeAuditEntry(input: {
   runtimeId: string;
   actorUserId: string;
-  fieldName: ProjectRuntimeLifecycleFieldName;
+  fieldName: ProjectRuntimeAuditFieldName;
   previousValue: string | null;
   nextValue: string | null;
   detail: string;
@@ -1688,6 +2134,33 @@ function parseProjectRuntimeLifecycleStatus(
 }
 
 function normalizeRuntimeStatusDetail(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+function normalizeOptionalLeavesBudget(
+  value: number | string | null | undefined,
+) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsedValue =
+    typeof value === "number" ? value : Number.parseInt(value.trim(), 10);
+
+  if (!Number.isFinite(parsedValue) || parsedValue < 0) {
+    return null;
+  }
+
+  return Math.round(parsedValue);
+}
+
+function normalizeRuntimePolicyText(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+function normalizeRuntimePolicyReference(value: string | null | undefined) {
   const normalized = value?.trim();
   return normalized ? normalized : null;
 }
@@ -1742,6 +2215,59 @@ function parseProjectRuntimeLaunchMode(
   }
 }
 
+function parseProjectRuntimeConfigScope(
+  value: OwnerRuntimeConfigScope | string,
+): ProjectRuntimeConfigScopeValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "owner_internal":
+      return "OWNER_INTERNAL";
+    case "business_runtime":
+      return "BUSINESS_RUNTIME";
+    case "public_runtime":
+      return "PUBLIC_RUNTIME";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeExecutionMode(
+  value: OwnerRuntimeExecutionMode | string,
+): ProjectRuntimeExecutionModeValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "control_plane_only":
+      return "CONTROL_PLANE_ONLY";
+    case "sandbox_task_runner_v1":
+      return "SANDBOX_TASK_RUNNER_V1";
+    case "future_runtime_agent":
+      return "FUTURE_RUNTIME_AGENT";
+    case "external_runtime_handoff":
+      return "EXTERNAL_RUNTIME_HANDOFF";
+    default:
+      return null;
+  }
+}
+
+function parseProjectRuntimeProviderPolicyMode(
+  value: OwnerRuntimeProviderPolicyMode | string,
+): ProjectRuntimeProviderPolicyModeValue | null {
+  const normalized = value.trim().toLowerCase();
+
+  switch (normalized) {
+    case "eden_approved_only":
+      return "EDEN_APPROVED_ONLY";
+    case "runtime_allowlist":
+      return "RUNTIME_ALLOWLIST";
+    case "owner_approval_required":
+      return "OWNER_APPROVAL_REQUIRED";
+    default:
+      return null;
+  }
+}
+
 function parseProjectRuntimeLaunchTarget(
   value: OwnerRuntimeLaunchTarget | string,
 ): ProjectRuntimeTargetValue | null {
@@ -1757,6 +2283,31 @@ function parseProjectRuntimeLaunchTarget(
     default:
       return null;
   }
+}
+
+function parseProjectRuntimeProviderKey(
+  value: OwnerRuntimeProvider | string | null | undefined,
+): EdenAiProviderValue | null {
+  const normalized = value?.trim().toLowerCase();
+
+  switch (normalized) {
+    case "openai":
+      return "OPENAI";
+    case "anthropic":
+      return "ANTHROPIC";
+    default:
+      return normalized ? null : null;
+  }
+}
+
+function parseProjectRuntimeProviderKeys(
+  values: Array<OwnerRuntimeProvider | string>,
+) {
+  const parsedValues = values
+    .map((value) => parseProjectRuntimeProviderKey(value))
+    .filter((value): value is EdenAiProviderValue => Boolean(value));
+
+  return Array.from(new Set(parsedValues));
 }
 
 function parseProjectRuntimeDeploymentEventType(
@@ -1797,6 +2348,51 @@ function parseProjectRuntimeDeploymentEventStatus(
     default:
       return null;
   }
+}
+
+function areProviderListsEqual(
+  currentProviders: EdenAiProviderValue[],
+  nextProviders: EdenAiProviderValue[],
+) {
+  if (currentProviders.length !== nextProviders.length) {
+    return false;
+  }
+
+  return currentProviders.every((provider, index) => provider === nextProviders[index]);
+}
+
+function formatProviderListValue(providers: EdenAiProviderValue[]) {
+  if (!providers.length) {
+    return "No approved providers";
+  }
+
+  return providers.map((provider) => formatEnumLabel(provider)).join(", ");
+}
+
+function formatLeavesBudgetPolicy(
+  maxTaskBudgetLeaves: number | null,
+  monthlyBudgetLeaves: number | null,
+) {
+  const parts = [
+    maxTaskBudgetLeaves !== null
+      ? `Task ${maxTaskBudgetLeaves.toLocaleString()}`
+      : "Task unbounded",
+    monthlyBudgetLeaves !== null
+      ? `Monthly ${monthlyBudgetLeaves.toLocaleString()}`
+      : "Monthly unbounded",
+  ];
+
+  return parts.join(" | ");
+}
+
+function formatRuntimeBoundaryFlags(
+  ownerOnlyEnforced: boolean,
+  internalOnlyEnforced: boolean,
+) {
+  return [
+    ownerOnlyEnforced ? "Owner only enforced" : "Owner only not enforced",
+    internalOnlyEnforced ? "Internal only enforced" : "Internal only not enforced",
+  ].join(" | ");
 }
 
 function normalizeLaunchDestinationLabel(value: string | null | undefined) {
@@ -1842,6 +2438,372 @@ function buildLaunchIntentDeploymentDetail(input: {
   ].filter(Boolean);
 
   return details.join(" ");
+}
+
+function buildRuntimeConfigAuditEntries(input: {
+  runtimeId: string;
+  actorUserId: string;
+  currentPolicy:
+    | {
+        configScope: ProjectRuntimeConfigScopeValue;
+        executionMode: ProjectRuntimeExecutionModeValue;
+        providerPolicyMode: ProjectRuntimeProviderPolicyModeValue;
+        allowedProviders: EdenAiProviderValue[];
+        defaultProvider: EdenAiProviderValue | null;
+        maxTaskBudgetLeaves: number | null;
+        monthlyBudgetLeaves: number | null;
+        modelPolicySummary: string | null;
+        secretPolicyReference: string | null;
+        notes: string | null;
+        ownerOnlyEnforced: boolean;
+        internalOnlyEnforced: boolean;
+      }
+    | null;
+  nextPolicy: {
+    configScope: ProjectRuntimeConfigScopeValue;
+    executionMode: ProjectRuntimeExecutionModeValue;
+    providerPolicyMode: ProjectRuntimeProviderPolicyModeValue;
+    allowedProviders: EdenAiProviderValue[];
+    defaultProvider: EdenAiProviderValue | null;
+    maxTaskBudgetLeaves: number | null;
+    monthlyBudgetLeaves: number | null;
+    modelPolicySummary: string | null;
+    secretPolicyReference: string | null;
+    notes: string | null;
+    ownerOnlyEnforced: boolean;
+    internalOnlyEnforced: boolean;
+  };
+}) {
+  const auditEntries: Prisma.ProjectRuntimeAuditLogCreateManyInput[] = [];
+  const currentPolicy = input.currentPolicy;
+  const nextPolicy = input.nextPolicy;
+
+  if (!currentPolicy || currentPolicy.configScope !== nextPolicy.configScope) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "configScope",
+        previousValue: currentPolicy?.configScope ?? null,
+        nextValue: nextPolicy.configScope,
+        detail:
+          "Updated runtime config scope from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  if (
+    !currentPolicy ||
+    currentPolicy.executionMode !== nextPolicy.executionMode
+  ) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "executionMode",
+        previousValue: currentPolicy?.executionMode ?? null,
+        nextValue: nextPolicy.executionMode,
+        detail:
+          "Updated runtime execution mode from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  if (
+    !currentPolicy ||
+    currentPolicy.providerPolicyMode !== nextPolicy.providerPolicyMode
+  ) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "providerPolicyMode",
+        previousValue: currentPolicy?.providerPolicyMode ?? null,
+        nextValue: nextPolicy.providerPolicyMode,
+        detail:
+          "Updated runtime provider policy mode from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  if (
+    !currentPolicy ||
+    !areProviderListsEqual(currentPolicy.allowedProviders, nextPolicy.allowedProviders)
+  ) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "allowedProviders",
+        previousValue: currentPolicy
+          ? formatProviderListValue(currentPolicy.allowedProviders)
+          : null,
+        nextValue: formatProviderListValue(nextPolicy.allowedProviders),
+        detail:
+          "Updated the runtime provider allowlist from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  if (!currentPolicy || currentPolicy.defaultProvider !== nextPolicy.defaultProvider) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "defaultProvider",
+        previousValue: currentPolicy?.defaultProvider
+          ? formatEnumLabel(currentPolicy.defaultProvider)
+          : null,
+        nextValue: nextPolicy.defaultProvider
+          ? formatEnumLabel(nextPolicy.defaultProvider)
+          : null,
+        detail:
+          "Updated the runtime default provider from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  const previousBudgetValue = currentPolicy
+    ? formatLeavesBudgetPolicy(
+        currentPolicy.maxTaskBudgetLeaves,
+        currentPolicy.monthlyBudgetLeaves,
+      )
+    : null;
+  const nextBudgetValue = formatLeavesBudgetPolicy(
+    nextPolicy.maxTaskBudgetLeaves,
+    nextPolicy.monthlyBudgetLeaves,
+  );
+
+  if (!currentPolicy || previousBudgetValue !== nextBudgetValue) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "budgetPolicy",
+        previousValue: previousBudgetValue,
+        nextValue: nextBudgetValue,
+        detail:
+          "Updated runtime budget guardrails from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  if (
+    !currentPolicy ||
+    (currentPolicy.secretPolicyReference ?? null) !==
+      nextPolicy.secretPolicyReference
+  ) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "secretPolicyReference",
+        previousValue: currentPolicy?.secretPolicyReference ?? null,
+        nextValue: nextPolicy.secretPolicyReference,
+        detail:
+          "Updated the runtime secret policy reference from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  const previousBoundaryFlags = currentPolicy
+    ? formatRuntimeBoundaryFlags(
+        currentPolicy.ownerOnlyEnforced,
+        currentPolicy.internalOnlyEnforced,
+      )
+    : null;
+  const nextBoundaryFlags = formatRuntimeBoundaryFlags(
+    nextPolicy.ownerOnlyEnforced,
+    nextPolicy.internalOnlyEnforced,
+  );
+
+  if (!currentPolicy || previousBoundaryFlags !== nextBoundaryFlags) {
+    auditEntries.push(
+      buildProjectRuntimeAuditEntry({
+        runtimeId: input.runtimeId,
+        actorUserId: input.actorUserId,
+        fieldName: "configBoundaryFlags",
+        previousValue: previousBoundaryFlags,
+        nextValue: nextBoundaryFlags,
+        detail:
+          "Updated owner-only and internal-only config boundary flags from the owner runtime control surface.",
+      }),
+    );
+  }
+
+  return auditEntries;
+}
+
+async function syncProjectRuntimeSecretBoundaries(
+  transaction: Prisma.TransactionClient,
+  input: {
+    runtimeId: string;
+    runtimeAccessPolicy: "OWNER_ONLY" | "BUSINESS_MEMBERS" | "PUBLIC";
+    runtimeTarget: "EDEN_INTERNAL" | "EDEN_MANAGED" | "EXTERNAL_DOMAIN";
+    allowedProviders: EdenAiProviderValue[];
+    ownerOnlyEnforced: boolean;
+    internalOnlyEnforced: boolean;
+  },
+) {
+  const baseSecretScope = resolveRuntimeSecretScope(input);
+  const visibilityPolicy = resolveRuntimeSecretVisibilityPolicy(input);
+  const existingBoundaries = await transaction.projectRuntimeSecretBoundary.findMany({
+    where: {
+      runtimeId: input.runtimeId,
+    },
+    select: {
+      id: true,
+      label: true,
+      providerKey: true,
+      status: true,
+      isRequired: true,
+    },
+  });
+
+  const existingByLabel = new Map(
+    existingBoundaries.map((boundary) => [boundary.label, boundary]),
+  );
+
+  await upsertRuntimeSecretBoundary(transaction, {
+    runtimeId: input.runtimeId,
+    label: "Runtime environment bundle",
+    description:
+      "Metadata-only boundary for future environment variables and runtime-scoped configuration. No raw values are stored in Eden v1.",
+    secretType: "ENVIRONMENT_GROUP",
+    secretScope: baseSecretScope,
+    visibilityPolicy,
+    status: existingByLabel.get("Runtime environment bundle")?.status ?? "RESERVED",
+    isRequired: false,
+    providerKey: null,
+    boundaryReference: "RUNTIME_ENV_BUNDLE",
+  });
+
+  for (const provider of input.allowedProviders) {
+    const label = `${formatEnumLabel(provider)} provider credential`;
+    const existingBoundary = existingByLabel.get(label);
+
+    await upsertRuntimeSecretBoundary(transaction, {
+      runtimeId: input.runtimeId,
+      label,
+      description:
+        "Metadata-only credential boundary for a future approved AI provider adapter. No raw secret value is stored in Eden v1.",
+      secretType: "PROVIDER_API_KEY",
+      secretScope: baseSecretScope,
+      visibilityPolicy,
+      status: existingBoundary?.status ?? "MISSING",
+      isRequired: true,
+      providerKey: provider,
+      boundaryReference: `${provider}_API_KEY`,
+    });
+  }
+
+  const allowedProviderLabels = new Set(
+    input.allowedProviders.map((provider) => `${formatEnumLabel(provider)} provider credential`),
+  );
+
+  for (const boundary of existingBoundaries) {
+    if (
+      boundary.providerKey &&
+      !allowedProviderLabels.has(boundary.label) &&
+      boundary.isRequired
+    ) {
+      await transaction.projectRuntimeSecretBoundary.update({
+        where: {
+          id: boundary.id,
+        },
+        data: {
+          isRequired: false,
+          status: boundary.status === "CONFIGURED" ? "CONFIGURED" : "RESERVED",
+        },
+      });
+    }
+  }
+}
+
+async function upsertRuntimeSecretBoundary(
+  transaction: Prisma.TransactionClient,
+  input: {
+    runtimeId: string;
+    label: string;
+    description: string;
+    secretType: ProjectRuntimeSecretTypeValue;
+    secretScope: ProjectRuntimeSecretScopeValue;
+    visibilityPolicy: ProjectRuntimeSecretVisibilityPolicyValue;
+    status: ProjectRuntimeSecretStatusValue;
+    isRequired: boolean;
+    providerKey: EdenAiProviderValue | null;
+    boundaryReference: string;
+  },
+) {
+  await transaction.projectRuntimeSecretBoundary.upsert({
+    where: {
+      runtimeId_label: {
+        runtimeId: input.runtimeId,
+        label: input.label,
+      },
+    },
+    update: {
+      description: input.description,
+      secretType: input.secretType,
+      secretScope: input.secretScope,
+      visibilityPolicy: input.visibilityPolicy,
+      isRequired: input.isRequired,
+      providerKey: input.providerKey,
+      boundaryReference: input.boundaryReference,
+    },
+    create: {
+      runtimeId: input.runtimeId,
+      label: input.label,
+      description: input.description,
+      secretType: input.secretType,
+      secretScope: input.secretScope,
+      visibilityPolicy: input.visibilityPolicy,
+      status: input.status,
+      isRequired: input.isRequired,
+      providerKey: input.providerKey,
+      boundaryReference: input.boundaryReference,
+    },
+  });
+}
+
+function resolveRuntimeSecretScope(input: {
+  runtimeAccessPolicy: "OWNER_ONLY" | "BUSINESS_MEMBERS" | "PUBLIC";
+  runtimeTarget: "EDEN_INTERNAL" | "EDEN_MANAGED" | "EXTERNAL_DOMAIN";
+  ownerOnlyEnforced: boolean;
+  internalOnlyEnforced: boolean;
+}): ProjectRuntimeSecretScopeValue {
+  if (
+    input.ownerOnlyEnforced ||
+    input.internalOnlyEnforced ||
+    input.runtimeAccessPolicy === "OWNER_ONLY" ||
+    input.runtimeTarget === "EDEN_INTERNAL"
+  ) {
+    return "OWNER_INTERNAL";
+  }
+
+  if (input.runtimeTarget === "EXTERNAL_DOMAIN") {
+    return "RUNTIME_ONLY";
+  }
+
+  return "BUSINESS_SHARED";
+}
+
+function resolveRuntimeSecretVisibilityPolicy(input: {
+  runtimeAccessPolicy: "OWNER_ONLY" | "BUSINESS_MEMBERS" | "PUBLIC";
+  runtimeTarget: "EDEN_INTERNAL" | "EDEN_MANAGED" | "EXTERNAL_DOMAIN";
+  ownerOnlyEnforced: boolean;
+  internalOnlyEnforced: boolean;
+}): ProjectRuntimeSecretVisibilityPolicyValue {
+  if (
+    input.ownerOnlyEnforced ||
+    input.internalOnlyEnforced ||
+    input.runtimeAccessPolicy === "OWNER_ONLY" ||
+    input.runtimeTarget === "EDEN_INTERNAL"
+  ) {
+    return "OWNER_METADATA_ONLY";
+  }
+
+  return "STATUS_ONLY";
 }
 
 async function upsertProjectRuntimeActor(
@@ -1907,9 +2869,11 @@ function isProjectRuntimeSchemaUnavailable(error: unknown) {
   return (
     message.includes("projectruntime") ||
     message.includes("projectruntimeauditlog") ||
+    message.includes("projectruntimeconfigpolicy") ||
     message.includes("projectruntimelaunchintent") ||
     message.includes("projectruntimedeploymentrecord") ||
     message.includes("projectruntimedomainlink") ||
+    message.includes("projectruntimesecretboundary") ||
     (message.includes("relation") && message.includes("does not exist")) ||
     (message.includes("table") && message.includes("does not exist"))
   );
@@ -1983,6 +2947,38 @@ function formatProjectRuntimeAuditFieldLabel(fieldName: string) {
     return "Health Check";
   }
 
+  if (fieldName === "configScope") {
+    return "Config Scope";
+  }
+
+  if (fieldName === "executionMode") {
+    return "Execution Mode";
+  }
+
+  if (fieldName === "providerPolicyMode") {
+    return "Provider Policy";
+  }
+
+  if (fieldName === "allowedProviders") {
+    return "Allowed Providers";
+  }
+
+  if (fieldName === "defaultProvider") {
+    return "Default Provider";
+  }
+
+  if (fieldName === "budgetPolicy") {
+    return "Budget Policy";
+  }
+
+  if (fieldName === "secretPolicyReference") {
+    return "Secret Policy";
+  }
+
+  if (fieldName === "configBoundaryFlags") {
+    return "Boundary Flags";
+  }
+
   return formatEnumLabel(fieldName);
 }
 
@@ -1995,6 +2991,14 @@ function formatProjectRuntimeAuditValueLabel(
   }
 
   if (fieldName === "status") {
+    return formatEnumLabel(value);
+  }
+
+  if (
+    fieldName === "configScope" ||
+    fieldName === "executionMode" ||
+    fieldName === "providerPolicyMode"
+  ) {
     return formatEnumLabel(value);
   }
 
