@@ -16,6 +16,7 @@ const protectedPageRoutePrefixes: Array<{ prefix: string; role: EdenRole }> = [
 ];
 
 const protectedApiRoutePrefixes: Array<{ prefix: string; role: EdenRole }> = [
+  { prefix: "/api/eden-ai", role: "consumer" },
   { prefix: "/api/credits/top-up/checkout", role: "consumer" },
   { prefix: "/api/credits/top-up/confirm", role: "consumer" },
   { prefix: "/api/services/execute", role: "consumer" },
@@ -160,3 +161,5 @@ export function buildAuthSignInPath(targetPath: string) {
 function matchesRoutePrefix(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
+
+

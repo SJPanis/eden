@@ -1,4 +1,4 @@
-import { isBusinessFrozen } from "@/modules/core/admin/mock-admin-state";
+﻿import { isBusinessFrozen } from "@/modules/core/admin/mock-admin-state";
 import { getMockAdminState } from "@/modules/core/admin/server";
 import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
@@ -97,7 +97,7 @@ export default async function BusinessDetailPage({
   const summary =
     getFirstValue(resolvedSearchParams.summary) ??
     business?.summary ??
-    "This is a mocked business detail route connecting consumer discovery with owner-side inspection.";
+    "This business detail route connects consumer discovery, release visibility, and owner-side inspection.";
   const status =
     pipelineSnapshot
       ? getPipelineStatusLabel(pipelineSnapshot.status)
@@ -114,7 +114,7 @@ export default async function BusinessDetailPage({
     <DetailPlaceholderPanel
       eyebrow="Business Detail"
       title={name}
-      description="Business-facing placeholder route used by Ask Eden, owner inspection, and cross-layer exploration."
+      description="Business-facing route used by Ask Eden, owner inspection, and cross-layer exploration."
       status={displayStatus}
       statusTone={
         businessFrozen
@@ -149,8 +149,8 @@ export default async function BusinessDetailPage({
       backLabel="Back to Ask Eden"
       note={
         businessFrozen
-          ? "This page is intentionally mocked. The business is currently under a local owner freeze overlay while release data remains visible for inspection."
-          : "This page is intentionally mocked. It gives Eden a connected business-detail surface before real business profiles and service catalogs are wired in."
+          ? "The business is currently under a local owner freeze overlay while release data remains visible for inspection."
+          : "This route uses the current business profile and release context to connect discovery with the broader Eden platform."
       }
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
@@ -161,7 +161,7 @@ export default async function BusinessDetailPage({
           <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
             {businessFrozen ? (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm leading-6 text-rose-700">
-                This business is under a mocked owner freeze hold. Release history remains visible,
+                This business is under a local owner freeze hold. Release history remains visible,
                 but the workspace is flagged as frozen in the shared admin state.
               </div>
             ) : null}
@@ -217,7 +217,7 @@ export default async function BusinessDetailPage({
               ))
             ) : (
               <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
-                No mocked business release transitions have been recorded yet.
+                No business release transitions have been recorded yet.
               </div>
             )}
           </div>
@@ -226,3 +226,9 @@ export default async function BusinessDetailPage({
     </DetailPlaceholderPanel>
   );
 }
+
+
+
+
+
+

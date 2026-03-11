@@ -1,7 +1,7 @@
-import type { EdenIdeaResult } from "@/modules/eden-ai/eden-types";
+import type { EdenAiIdeaResult } from "@/modules/eden-ai/types";
 
 type AskEdenIdeaResultCardProps = {
-  idea: EdenIdeaResult;
+  idea: EdenAiIdeaResult;
   isSelected: boolean;
   onSelect: () => void;
   onAction: () => void;
@@ -51,7 +51,7 @@ export function AskEdenIdeaResultCard({
         }}
         className="mt-4 inline-flex items-center rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
       >
-        Start Building
+        {idea.actionLabel}
       </button>
     </article>
   );

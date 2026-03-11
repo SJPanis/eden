@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState, useTransition, type FormEvent } from "react";
@@ -24,7 +24,7 @@ const publicAudienceCards = [
     id: "consumers",
     label: "For consumers",
     detail:
-      "Explore published services, check visible pricing, add Eden Leaf’s only if needed, and run without hidden charges during service use.",
+      "Explore published services, check visible pricing, add Eden Leaf&apos;s only if needed, and run without hidden charges during service use.",
   },
 ];
 
@@ -41,9 +41,9 @@ const howEdenWorksSteps = [
   },
   {
     id: "run",
-    label: "3. Eden Leaf’s power usage",
+    label: "3. Eden Leaf&apos;s power usage",
     detail:
-      "Consumers top up Leaf’s first, then run services with no hidden checkout during usage.",
+      "Consumers top up Leaf&apos;s first, then run services with no hidden checkout during usage.",
   },
 ];
 
@@ -166,7 +166,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
               Eden connects builders who publish services with consumers who discover, fund, and
-              use them through Eden Leaf’s. Pricing is visible before every run, and service usage
+              use them through Eden Leaf&apos;s. Pricing is visible before every run, and service usage
               stays {edenLaunchLabels.creditsOnlyBilling.toLowerCase()} with no hidden charges
               during service use.
             </p>
@@ -193,7 +193,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     How Eden works
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    One loop connects builder publishing, consumer discovery, and Leaf’s-funded
+                    One loop connects builder publishing, consumer discovery, and Leaf&apos;s-funded
                     service usage.
                   </p>
                 </div>
@@ -218,7 +218,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     Who Eden is for
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    Builders publish and improve services. Consumers discover them, top up Leaf’s,
+                    Builders publish and improve services. Consumers discover them, top up Leaf&apos;s,
                     and run them confidently.
                   </p>
                 </div>
@@ -379,3 +379,5 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
     </div>
   );
 }
+
+

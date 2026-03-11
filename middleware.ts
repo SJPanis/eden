@@ -78,6 +78,7 @@ export const config = {
     "/consumer/:path*",
     "/business/:path*",
     "/owner/:path*",
+    "/api/eden-ai",
     "/api/credits/top-up/checkout",
     "/api/credits/top-up/confirm",
     "/api/services/execute",
@@ -94,3 +95,5 @@ export const config = {
     "/api/mock-state",
   ],
 };
+
+

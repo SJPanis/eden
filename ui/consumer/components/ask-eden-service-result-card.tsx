@@ -1,8 +1,8 @@
-import type { EdenServiceResult } from "@/modules/eden-ai/eden-types";
+import type { EdenAiServiceResult } from "@/modules/eden-ai/types";
 import { edenLaunchLabels } from "@/ui/consumer/components/service-affordability-shared";
 
 type AskEdenServiceResultCardProps = {
-  service: EdenServiceResult;
+  service: EdenAiServiceResult;
   availabilityLabel: string;
   pricingLabel: string;
   trustLabel: string;

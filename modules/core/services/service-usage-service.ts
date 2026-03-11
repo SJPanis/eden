@@ -300,6 +300,27 @@ export async function loadRecentUsageByUser(
   return records.slice(0, options.limit ?? 6).map(mapUsageRecordToEvent);
 }
 
+export async function loadPersistedServiceUsageTransactions(options: {
+  userId?: string | null;
+  limit?: number;
+} = {}) {
+  try {
+    const repo = createPrismaServiceUsageRepo(getPrismaClient());
+    const records = await repo.listAll();
+
+    return records
+      .filter((record) => record.usageType === "live_service_execution")
+      .filter((record) =>
+        options.userId ? record.userId === options.userId : true,
+      )
+      .slice(0, options.limit ?? records.length)
+      .map(mapUsageRecordToTransaction);
+  } catch (error) {
+    logServiceUsageFailure("load_persisted_usage_transactions", error);
+    return [];
+  }
+}
+
 export async function loadPerServiceUsageByUser(
   userId: string,
   options: EdenServiceUsageOptions = {},
@@ -909,6 +930,31 @@ function mapUsageRecordToEvent(record: EdenResolvedUsageRecord): EdenServiceUsag
     timestampLabel: formatUsageTimestamp(record.createdAt),
     source: record.source,
   };
+}
+
+function mapUsageRecordToTransaction(record: EdenRepoServiceUsageRecord) {
+  return {
+    id: buildUsageTransactionId(record),
+    userId: record.userId ?? undefined,
+    businessId: record.businessId,
+    serviceId: record.serviceId,
+    title: `${record.serviceTitle} run completed`,
+    amountLabel: `-${record.creditsUsed} Leafâ€™s`,
+    creditsDelta: -record.creditsUsed,
+    direction: "outflow" as const,
+    kind: "usage" as const,
+    detail: `Live service run completed for ${record.serviceTitle}. Eden recorded the usage and updated builder/platform accounting.`,
+    timestamp: formatUsageTimestamp(record.createdAt),
+    simulated: false,
+  };
+}
+
+function buildUsageTransactionId(record: EdenRepoServiceUsageRecord) {
+  if (record.executionKey) {
+    return `live-service-usage-${record.executionKey}`;
+  }
+
+  return `service-usage-${record.id}`;
 }
 
 function resolveUsageUserMeta(

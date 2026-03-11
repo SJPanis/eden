@@ -1,4 +1,4 @@
-import { isBusinessFrozen } from "@/modules/core/admin/mock-admin-state";
+﻿import { isBusinessFrozen } from "@/modules/core/admin/mock-admin-state";
 import { getMockAdminState } from "@/modules/core/admin/server";
 import { getMockCreatedBusiness } from "@/modules/core/business/server";
 import { getMockWorkspaceServices } from "@/modules/core/business/workspace-services-server";
@@ -166,7 +166,7 @@ export default async function ServiceDetailPage({
   const summary =
     getFirstValue(resolvedSearchParams.summary) ??
     service?.summary ??
-    "This is a mocked service detail surface used to connect Ask Eden and owner inspection routes.";
+    "This service detail route connects marketplace discovery, usage pricing, and owner inspection context.";
   const status =
     pipelineStatusOverride
       ? getPipelineStatusLabel(pipelineStatusOverride)
@@ -212,7 +212,7 @@ export default async function ServiceDetailPage({
   const consumerAvailabilityDetail = businessFrozen
     ? "This service is currently blocked by an owner freeze on the linked business."
     : pipelineStatusOverride === "published" || pipelineSnapshot?.status === "published"
-      ? "This service is live in Eden discovery and can be run through the Eden Leaf’s wallet flow right now."
+      ? "This service is live in Eden discovery and can be run through the Eden Leaf&apos;s wallet flow right now."
       : pipelineStatusOverride === "ready" || pipelineSnapshot?.status === "ready"
         ? "This service is almost live. The current route remains a preview of the launch-ready experience."
         : "This route is still showing a pre-launch or preview state for the service.";
@@ -244,7 +244,7 @@ export default async function ServiceDetailPage({
     <DetailPlaceholderPanel
       eyebrow="Service Detail"
       title={title}
-      description="Consumer-facing placeholder route for a service surfaced through Ask Eden or owner inspection."
+      description="Consumer-facing service route surfaced through Ask Eden, marketplace discovery, and owner inspection."
       status={displayStatus}
       statusTone={businessFrozen ? "danger" : getServiceStatusTone(status)}
       tags={displayTags}
@@ -274,8 +274,8 @@ export default async function ServiceDetailPage({
       backLabel="Back to Ask Eden"
       note={
         businessFrozen
-          ? "All content on this page is mocked. The linked business is currently under a local owner freeze overlay."
-          : `All content on this page is mocked. The price shown below is the exact Eden Leaf’s amount used for service runs, and ${edenLaunchLabels.noHiddenCheckout.toLowerCase()}`
+          ? "The linked business is currently under a local owner freeze overlay. Release and pricing context remain visible for inspection."
+          : `This route uses the current service record, visible pricing, and wallet-aware usage flow. The price shown below is the exact Eden Leaf&apos;s amount used for service runs, and ${edenLaunchLabels.noHiddenCheckout.toLowerCase()}`
       }
     >
       <div className="space-y-5">
@@ -356,14 +356,14 @@ export default async function ServiceDetailPage({
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
                   {pricing.hasStoredPrice
                     ? `Consumers see ${pricingUnitLabel} before the service can run.`
-                    : "This route is still using a mocked fallback usage rate."}
+                    : "This route is currently using a fallback usage rate until a stored service price is available."}
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-white p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">{edenLaunchLabels.creditsOnlyBilling}</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Service runs deduct Leaf’s from the wallet. Stripe only appears if the user explicitly chooses to top up.
+                  Service runs deduct Leaf&apos;s from the wallet. Stripe only appears if the user explicitly chooses to top up.
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-white p-3">
@@ -395,7 +395,7 @@ export default async function ServiceDetailPage({
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                 <p className="text-sm font-semibold text-eden-ink">1. Check availability and price</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Eden shows whether the service is live and exactly what the Eden Leaf’s price is before anything runs.
+                  Eden shows whether the service is live and exactly what the Eden Leaf&apos;s price is before anything runs.
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -405,15 +405,15 @@ export default async function ServiceDetailPage({
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                <p className="text-sm font-semibold text-eden-ink">3. Add Leaf’s only if needed</p>
+                <p className="text-sm font-semibold text-eden-ink">3. Add Leaf&apos;s only if needed</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  Add Leaf’s through the wallet flow if your balance is low. {edenLaunchLabels.noHiddenCheckout}
+                  Add Leaf&apos;s through the wallet flow if your balance is low. {edenLaunchLabels.noHiddenCheckout}
                 </p>
               </div>
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                 <p className="text-sm font-semibold text-eden-ink">4. Run the service</p>
                 <p className="mt-2 text-sm leading-6 text-eden-muted">
-                  A successful run deducts the visible Leaf’s amount, records usage, and updates the wallet history immediately.
+                  A successful run deducts the visible Leaf&apos;s amount, records usage, and updates the wallet history immediately.
                 </p>
               </div>
             </div>
@@ -463,7 +463,7 @@ export default async function ServiceDetailPage({
           disabled={businessFrozen || !service}
           disabledReason={
             businessFrozen
-              ? "This service is currently under a mocked owner freeze through its linked business."
+              ? "This service is currently under a local owner freeze through its linked business."
               : !service
                 ? "This route is still using a placeholder service shell. A canonical service record is required before usage can be recorded."
                 : undefined
@@ -532,7 +532,7 @@ export default async function ServiceDetailPage({
                 ))
               ) : (
                 <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
-                  No mocked service transitions have been recorded yet.
+                  No service transitions have been recorded yet.
                 </div>
               )}
             </div>
@@ -542,3 +542,13 @@ export default async function ServiceDetailPage({
     </DetailPlaceholderPanel>
   );
 }
+
+
+
+
+
+
+
+
+
+

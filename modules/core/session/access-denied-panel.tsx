@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { roleMeta, type EdenRole } from "@/modules/core/config/role-nav";
 
 type AccessDeniedPanelProps = {
@@ -23,11 +23,11 @@ export function AccessDeniedPanel({
           Access Control
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
-          Access blocked for this mock session
+          Access blocked for this session
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-eden-muted md:text-base">
-          This route is currently protected by the mocked role-access layer. Switch the active mock
-          session in the header to retry with a permitted role.
+          This route is protected by Eden&apos;s role-access layer. If you are using a local mock
+          session, switch roles in the header before retrying.
         </p>
       </section>
 
@@ -41,14 +41,10 @@ export function AccessDeniedPanel({
               Target route: <span className="font-semibold text-eden-ink">{targetPath}</span>
             </p>
             <p>
-              Current mock role:{" "}
-              <span className="font-semibold text-eden-ink">{roleMeta[currentRole].label}</span>
+              Current role: <span className="font-semibold text-eden-ink">{roleMeta[currentRole].label}</span>
             </p>
             <p>
-              Required role:{" "}
-              <span className="font-semibold text-eden-ink">
-                {requiredRoles.map((role) => roleMeta[role].label).join(" or ")}
-              </span>
+              Required role: <span className="font-semibold text-eden-ink">{requiredRoles.map((role) => roleMeta[role].label).join(" or ")}</span>
             </p>
           </div>
 
@@ -70,14 +66,15 @@ export function AccessDeniedPanel({
 
         <aside className="rounded-[28px] border border-eden-edge bg-white/84 p-5 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)]">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-            Mock-only note
+            Local mode note
           </p>
           <p className="mt-4 text-sm leading-6 text-eden-muted">
-            This access layer is intentionally mocked. No real login, database auth, passkeys, or
-            hardware checks are involved yet.
+            Production routes use real authentication and server-backed role checks. Local mock
+            sessions can still be used for development-only testing.
           </p>
         </aside>
       </div>
     </div>
   );
 }
+

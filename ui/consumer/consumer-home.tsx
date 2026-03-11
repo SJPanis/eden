@@ -1,17 +1,18 @@
-"use client";
+﻿"use client";
 
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { createEdenAgent } from "@/modules/eden-ai/eden-agent";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
 import type {
-  EdenAgentResponse,
-  EdenBusinessResult,
-  EdenIdeaResult,
-  EdenServiceResult,
-} from "@/modules/eden-ai/eden-types";
+  EdenAiAction,
+  EdenAiBusinessResult,
+  EdenAiIdeaResult,
+  EdenAiRequest,
+  EdenAiRouteResult,
+  EdenAiServiceResult,
+} from "@/modules/eden-ai/types";
 import {
   type EdenDiscoverySnapshot,
   categories,
@@ -76,7 +77,7 @@ type EdenResultLane = "service" | "business" | "idea";
 type EdenTurn = {
   id: string;
   prompt: string;
-  response: EdenAgentResponse;
+  response: EdenAiRouteResult;
 };
 
 type SelectedResult = {
@@ -104,8 +105,6 @@ type SelectedResultDetails = {
     detail: string;
   }>;
 };
-
-const edenAgent = createEdenAgent();
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 14 },
@@ -187,6 +186,41 @@ function buildSearchParams(values: Record<string, string | undefined>) {
 
   const queryString = searchParams.toString();
   return queryString ? `?${queryString}` : "";
+}
+
+async function readJsonResponseSafely(response: Response) {
+  const rawText = await response.text();
+
+  if (!rawText) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(rawText) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+async function requestEdenAi(body: EdenAiRequest) {
+  const response = await fetch("/api/eden-ai", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const payload = await readJsonResponseSafely(response);
+
+  if (!response.ok || payload.ok !== true || !payload.result) {
+    throw new Error(
+      typeof payload.error === "string"
+        ? payload.error
+        : "Ask Eden could not complete this request.",
+    );
+  }
+
+  return payload.result as EdenAiRouteResult;
 }
 
 function toTitleCase(input: string) {
@@ -272,7 +306,7 @@ function getLinkedDiscoveryBusiness(
 }
 
 function getConsumerServiceDiscoveryState(
-  service: Pick<EdenServiceResult, "id" | "title" | "category" | "description">,
+  service: Pick<EdenAiServiceResult, "id" | "title" | "category" | "description">,
   discoverySnapshot: EdenDiscoverySnapshot,
   currentBalanceCredits: number,
 ) {
@@ -301,7 +335,7 @@ function getConsumerServiceDiscoveryState(
 }
 
 function buildServiceDetailHref(
-  service: Pick<EdenServiceResult, "id" | "title" | "category" | "description">,
+  service: Pick<EdenAiServiceResult, "id" | "title" | "category" | "description">,
   discoverySnapshot: EdenDiscoverySnapshot,
 ) {
   const linkedService = getLinkedDiscoveryService(discoverySnapshot, service.id);
@@ -324,7 +358,7 @@ function buildServiceDetailHref(
 }
 
 function buildBusinessDetailHref(
-  business: EdenBusinessResult,
+  business: EdenAiBusinessResult,
   discoverySnapshot: EdenDiscoverySnapshot,
 ) {
   const linkedBusiness =
@@ -346,10 +380,10 @@ function buildBusinessDetailHref(
   })}`;
 }
 
-function getDefaultSelectedResult(response: EdenAgentResponse): SelectedResult | null {
+function getDefaultSelectedResult(response: EdenAiRouteResult): SelectedResult | null {
   const prioritizedLanes = new Set<EdenResultLane>();
 
-  for (const route of response.routeDecision.routes) {
+  for (const route of response.lanes) {
     if (route === "service_search") {
       prioritizedLanes.add("service");
       continue;
@@ -368,16 +402,16 @@ function getDefaultSelectedResult(response: EdenAgentResponse): SelectedResult |
   prioritizedLanes.add("idea");
 
   for (const lane of prioritizedLanes) {
-    if (lane === "service" && response.outputs.recommendedServices[0]) {
-      return { lane, id: response.outputs.recommendedServices[0].id };
+    if (lane === "service" && response.results.services[0]) {
+      return { lane, id: response.results.services[0].id };
     }
 
-    if (lane === "business" && response.outputs.businessMatches[0]) {
-      return { lane, id: response.outputs.businessMatches[0].id };
+    if (lane === "business" && response.results.businesses[0]) {
+      return { lane, id: response.results.businesses[0].id };
     }
 
-    if (lane === "idea" && response.outputs.ideasToBuild[0]) {
-      return { lane, id: response.outputs.ideasToBuild[0].id };
+    if (lane === "idea" && response.results.ideas[0]) {
+      return { lane, id: response.results.ideas[0].id };
     }
   }
 
@@ -385,7 +419,7 @@ function getDefaultSelectedResult(response: EdenAgentResponse): SelectedResult |
 }
 
 function getSelectedServiceDetails(
-  service: EdenServiceResult,
+  service: EdenAiServiceResult,
   discoverySnapshot: EdenDiscoverySnapshot,
   currentBalanceCredits: number,
 ): SelectedResultDetails {
@@ -455,7 +489,7 @@ function getSelectedServiceDetails(
 }
 
 function getSelectedBusinessDetails(
-  business: EdenBusinessResult,
+  business: EdenAiBusinessResult,
   discoverySnapshot: EdenDiscoverySnapshot,
 ): SelectedResultDetails {
   return {
@@ -469,11 +503,15 @@ function getSelectedBusinessDetails(
     actionLabel: "Open Business",
     href: buildBusinessDetailHref(business, discoverySnapshot),
     supportingText:
-      "Use this mocked business surface to preview how Ask Eden can move from routing to business exploration.",
+      "Use this business surface to inspect the current marketplace profile and continue from Ask Eden into the broader platform.",
   };
 }
 
-function buildBusinessCreationHref(idea: EdenIdeaResult) {
+function buildBusinessCreationHref(idea: EdenAiIdeaResult) {
+  if (idea.projectArtifact?.created && idea.projectArtifact.projectId) {
+    return "/business";
+  }
+
   const searchParams = new URLSearchParams({
     source: "ask_eden",
     ideaTitle: idea.title,
@@ -483,7 +521,7 @@ function buildBusinessCreationHref(idea: EdenIdeaResult) {
   return `/business/create?${searchParams.toString()}`;
 }
 
-function getSelectedIdeaDetails(idea: EdenIdeaResult): SelectedResultDetails {
+function getSelectedIdeaDetails(idea: EdenAiIdeaResult): SelectedResultDetails {
   return {
     lane: "idea",
     laneLabel: "Idea",
@@ -495,12 +533,14 @@ function getSelectedIdeaDetails(idea: EdenIdeaResult): SelectedResultDetails {
     actionLabel: "Start Building",
     href: buildBusinessCreationHref(idea),
     supportingText:
-      "This keeps the build lane interactive while the underlying AI adapter remains a mocked placeholder.",
+      idea.projectArtifact?.created
+        ? "This project is already staged in the Business workspace, so the next step is to open the builder surface and continue operating it."
+        : "This idea is still a proposed build path until you stage it inside the Business workspace.",
   };
 }
 
 function getSelectedResultDetails(
-  response: EdenAgentResponse,
+  response: EdenAiRouteResult,
   selection: SelectedResult | null,
   discoverySnapshot: EdenDiscoverySnapshot,
   currentBalanceCredits: number,
@@ -510,16 +550,16 @@ function getSelectedResultDetails(
   }
 
   if (selection.lane === "service") {
-    const service = response.outputs.recommendedServices.find((item) => item.id === selection.id);
+    const service = response.results.services.find((item) => item.id === selection.id);
     return service ? getSelectedServiceDetails(service, discoverySnapshot, currentBalanceCredits) : null;
   }
 
   if (selection.lane === "business") {
-    const business = response.outputs.businessMatches.find((item) => item.id === selection.id);
+    const business = response.results.businesses.find((item) => item.id === selection.id);
     return business ? getSelectedBusinessDetails(business, discoverySnapshot) : null;
   }
 
-  const idea = response.outputs.ideasToBuild.find((item) => item.id === selection.id);
+  const idea = response.results.ideas.find((item) => item.id === selection.id);
   return idea ? getSelectedIdeaDetails(idea) : null;
 }
 
@@ -802,10 +842,8 @@ export function ConsumerHomePanel({
     setAssistantStateText("Routing your request across discovery lanes...");
 
     try {
-      const response = await edenAgent.ask({
+      const response = await requestEdenAi({
         prompt: submittedPrompt,
-        timestamp: new Date().toISOString(),
-        discoverySnapshot,
       });
       const defaultSelection = getDefaultSelectedResult(response);
 
@@ -818,12 +856,97 @@ export function ConsumerHomePanel({
         },
       ]);
       setSelectedResult(defaultSelection);
-      setAssistantStateText("Results are ready. Explore the cards and open a mock direction.");
-    } catch {
-      setAssistantStateText("Ask Eden could not complete this request. Please try again.");
+      setAssistantStateText(
+        response.actionOutcome?.message ??
+          "Results are ready. Explore the cards and continue from a live or proposed Eden action.",
+      );
+    } catch (error) {
+      setAssistantStateText(
+        error instanceof Error
+          ? error.message
+          : "Ask Eden could not complete this request. Please try again.",
+      );
     } finally {
       setIsThinking(false);
       setPendingPrompt("");
+    }
+  }
+
+  function buildSelectedContext() {
+    const context: {
+      businessId?: string;
+      projectId?: string;
+      agentId?: string;
+      serviceId?: string;
+    } = {};
+
+    if (selectedResult?.lane === "service") {
+      context.serviceId = selectedResult.id;
+    }
+
+    if (selectedResult?.lane === "business") {
+      context.businessId = selectedResult.id;
+    }
+
+    if (selectedResult?.lane === "idea" && latestTurn?.response.results.project?.projectId) {
+      context.projectId = latestTurn.response.results.project.projectId;
+      if (latestTurn.response.results.project.businessId) {
+        context.businessId = latestTurn.response.results.project.businessId;
+      }
+    }
+
+    if (latestTurn?.response.results.project?.businessId && !context.businessId) {
+      context.businessId = latestTurn.response.results.project.businessId;
+    }
+
+    return Object.keys(context).length > 0 ? context : undefined;
+  }
+
+  async function handleAskEdenAction(action: EdenAiAction) {
+    if (!latestTurn || isThinking) {
+      return;
+    }
+
+    if (action.href) {
+      handleResultAction(action.label, action.label, action.href);
+      return;
+    }
+
+    setIsThinking(true);
+    setAssistantStateText(`${action.label} is running through the Eden operator layer...`);
+
+    try {
+      const response = await requestEdenAi({
+        prompt: latestTurn.prompt,
+        selectedContext: buildSelectedContext(),
+        requestedAction: {
+          type: action.type,
+          targetId: action.targetId,
+          payload: action.payload,
+        },
+      });
+
+      setTurns((currentTurns) => [
+        ...currentTurns,
+        {
+          id: `turn-${currentTurns.length + 1}`,
+          prompt: latestTurn.prompt,
+          response,
+        },
+      ]);
+      setSelectedResult(getDefaultSelectedResult(response));
+      setAssistantStateText(
+        response.actionOutcome?.message ??
+          `${action.label} completed through the Eden operator layer.`,
+      );
+    } catch (error) {
+      setAssistantStateText(
+        error instanceof Error
+          ? error.message
+          : `${action.label} could not complete right now.`,
+      );
+    } finally {
+      setIsThinking(false);
     }
   }
 
@@ -833,7 +956,7 @@ export function ConsumerHomePanel({
   }
 
   function handleResultAction(actionLabel: string, label: string, href: string) {
-    setAssistantStateText(`${actionLabel} opened for ${label} (placeholder route).`);
+    setAssistantStateText(`${actionLabel} opened for ${label} .`);
     router.push(href);
   }
 
@@ -1039,7 +1162,7 @@ export function ConsumerHomePanel({
                 </p>
                 {latestTurn ? (
                   <p className="text-xs text-eden-muted">
-                    Route confidence: {latestTurn.response.routeDecision.confidence}
+                    Route confidence: {latestTurn.response.confidence}
                   </p>
                 ) : null}
               </div>
@@ -1067,7 +1190,7 @@ export function ConsumerHomePanel({
               {!isThinking && latestTurn ? (
                 <>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {latestTurn.response.routeDecision.routes.map((route) => (
+                    {latestTurn.response.lanes.map((route) => (
                       <span
                         key={route}
                         className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-xs text-eden-muted"
@@ -1075,6 +1198,9 @@ export function ConsumerHomePanel({
                         {route.replace("_", " ")}
                       </span>
                     ))}
+                    <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-xs text-eden-muted">
+                      Grounding: {latestTurn.response.groundingMode}
+                    </span>
                   </div>
 
                   <AnimatePresence mode="wait" initial={false}>
@@ -1090,6 +1216,37 @@ export function ConsumerHomePanel({
                     </motion.p>
                   </AnimatePresence>
 
+                  {latestTurn.response.nextActions.length > 0 ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {latestTurn.response.nextActions.map((action) => (
+                        <button
+                          key={`${latestTurn.id}-${action.type}-${action.label}`}
+                          type="button"
+                          disabled={!action.enabled || isThinking}
+                          onClick={() => {
+                            void handleAskEdenAction(action);
+                          }}
+                          className="rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {action.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {latestTurn.response.warnings.length > 0 ? (
+                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3">
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-amber-700">
+                        Grounding notes
+                      </p>
+                      <ul className="mt-2 space-y-1 text-sm text-amber-900/80">
+                        {latestTurn.response.warnings.map((warning) => (
+                          <li key={`${latestTurn.id}-${warning}`}>{warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
                   <div className="mt-5 grid gap-3 xl:grid-cols-3">
                     <section className="rounded-xl border border-eden-edge bg-white/70 p-3">
                       <div className="flex items-start justify-between gap-3">
@@ -1102,7 +1259,7 @@ export function ConsumerHomePanel({
                           </p>
                         </div>
                         <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
-                          {latestTurn.response.outputs.recommendedServices.length} ready
+                          {latestTurn.response.results.services.length} ready
                         </span>
                       </div>
                       <motion.div
@@ -1113,7 +1270,7 @@ export function ConsumerHomePanel({
                         transition={{ staggerChildren: 0.08, delayChildren: 0.04 }}
                         className="mt-3 space-y-2"
                       >
-                        {latestTurn.response.outputs.recommendedServices.map((service) => {
+                        {latestTurn.response.results.services.map((service) => {
                           const serviceDiscoveryState = getConsumerServiceDiscoveryState(
                             service,
                             discoverySnapshot,
@@ -1161,11 +1318,11 @@ export function ConsumerHomePanel({
                         <div>
                           <h3 className="text-sm font-semibold text-eden-ink">Business matches</h3>
                           <p className="mt-1 text-xs text-eden-muted">
-                            Open a business card to preview the mocked match surface.
+                            Open a business card to inspect the matched business surface and current publish state.
                           </p>
                         </div>
                         <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
-                          {latestTurn.response.outputs.businessMatches.length} ready
+                          {latestTurn.response.results.businesses.length} ready
                         </span>
                       </div>
                       <motion.div
@@ -1176,7 +1333,7 @@ export function ConsumerHomePanel({
                         transition={{ staggerChildren: 0.08, delayChildren: 0.08 }}
                         className="mt-3 space-y-2"
                       >
-                        {latestTurn.response.outputs.businessMatches.map((business) => (
+                        {latestTurn.response.results.businesses.map((business) => (
                           <motion.div key={business.id} variants={responseCardVariants}>
                             <AskEdenBusinessResultCard
                               business={business}
@@ -1205,11 +1362,11 @@ export function ConsumerHomePanel({
                             Ideas you could build
                           </h3>
                           <p className="mt-1 text-xs text-eden-muted">
-                            Choose an idea card to stage a mocked build direction.
+                            Choose an idea card to stage or inspect the project-build path Eden mapped from your prompt.
                           </p>
                         </div>
                         <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
-                          {latestTurn.response.outputs.ideasToBuild.length} ready
+                          {latestTurn.response.results.ideas.length} ready
                         </span>
                       </div>
                       <motion.div
@@ -1220,7 +1377,7 @@ export function ConsumerHomePanel({
                         transition={{ staggerChildren: 0.08, delayChildren: 0.12 }}
                         className="mt-3 space-y-2"
                       >
-                        {latestTurn.response.outputs.ideasToBuild.map((idea) => (
+                        {latestTurn.response.results.ideas.map((idea) => (
                           <motion.div key={idea.id} variants={responseCardVariants}>
                             <AskEdenIdeaResultCard
                               idea={idea}
@@ -1250,12 +1407,12 @@ export function ConsumerHomePanel({
                               Turn the response into a discovery flow
                             </h3>
                             <p className="mt-1 text-sm text-eden-muted">
-                              Every card remains mocked, but the panel now behaves like an
-                              interactive system with selection, preview, and placeholder actions.
+                              Ask Eden now keeps service discovery, wallet context, and project
+                              actions inside one grounded operator surface.
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            {latestTurn.response.routeDecision.routes.map((route) => (
+                            {latestTurn.response.lanes.map((route) => (
                               <span
                                 key={`preview-${route}`}
                                 className="rounded-full border border-eden-edge bg-white/85 px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-eden-muted"
@@ -1383,8 +1540,8 @@ export function ConsumerHomePanel({
                                   </p>
                                   <div className="mt-2 flex flex-wrap gap-2">
                                     {(
-                                      latestTurn.response.routeDecision.signals.length
-                                        ? latestTurn.response.routeDecision.signals
+                                      latestTurn.response.trace?.signals?.length
+                                        ? latestTurn.response.trace?.signals
                                         : ["No explicit signals captured"]
                                     )
                                       .slice(0, 4)
@@ -1400,12 +1557,15 @@ export function ConsumerHomePanel({
                                 </div>
                                 <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                    Mock mode
+                                    Grounding mode
                                   </p>
                                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                                    All cards, previews, and actions stay placeholder-driven so
-                                    real models can plug into the existing `modules/eden-ai/`
-                                    routing layer later.
+                                    This response is currently marked as{" "}
+                                    <span className="font-semibold text-eden-ink">
+                                      {latestTurn.response.groundingMode}
+                                    </span>
+                                    , so Eden is distinguishing live platform state from proposed
+                                    or simulated output instead of pretending everything is confirmed.
                                   </p>
                                 </div>
                               </div>
@@ -1419,8 +1579,8 @@ export function ConsumerHomePanel({
                               transition={{ duration: 0.2, ease: "easeOut" }}
                               className="mt-4 rounded-2xl border border-dashed border-eden-edge bg-white/82 p-4 text-sm text-eden-muted"
                             >
-                              Select a service, business, or idea card to inspect the mock
-                              details here.
+                              Select a service, business, or idea card to inspect the grounded
+                              details and next step here.
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -1577,3 +1737,7 @@ export function ConsumerHomePanel({
     </div>
   );
 }
+
+
+
+

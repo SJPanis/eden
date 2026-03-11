@@ -1,4 +1,4 @@
-export type EdenRole = "consumer" | "business" | "owner";
+﻿export type EdenRole = "consumer" | "business" | "owner";
 
 type EdenRoleMeta = {
   label: string;
@@ -18,7 +18,7 @@ export const roleMeta: Record<EdenRole, EdenRoleMeta> = {
     label: "Consumer",
     heading: "AI Search and Service Browser",
     subheading:
-      "Search published AI services, compare visible pricing, and spend Eden Leaf’s to run them inside Eden.",
+      "Search published AI services, compare visible pricing, and spend Eden Leaf's to run them inside Eden.",
   },
   business: {
     label: "Business",
@@ -39,3 +39,4 @@ export const topNavItems: EdenTopNavItem[] = [
   { label: "Business", href: "/business", accessLabel: "Business and owner", allowedRoles: ["business", "owner"] },
   { label: "Owner", href: "/owner", accessLabel: "Owner only", allowedRoles: ["owner"] },
 ];
+

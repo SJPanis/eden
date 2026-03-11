@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { ReactNode } from "react";
 import { useTransition } from "react";
@@ -166,7 +166,7 @@ export function RoleShell({
                     {creditsSummary.businessBalanceLabel ? (
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.12em] text-eden-muted">
-                          {activeBusinessName ? "Workspace Leaf’s" : "Business Leaf’s"}
+                          {activeBusinessName ? "Workspace Leaf's" : "Business Leaf's"}
                         </p>
                         <p className="mt-1 text-sm font-semibold text-eden-ink">
                           {creditsSummary.businessBalanceLabel}
@@ -322,3 +322,4 @@ export function RoleShell({
     </div>
   );
 }
+

@@ -1,7 +1,7 @@
-import type { EdenBusinessResult } from "@/modules/eden-ai/eden-types";
+import type { EdenAiBusinessResult } from "@/modules/eden-ai/types";
 
 type AskEdenBusinessResultCardProps = {
-  business: EdenBusinessResult;
+  business: EdenAiBusinessResult;
   isSelected: boolean;
   onSelect: () => void;
   onAction: () => void;
@@ -61,7 +61,7 @@ export function AskEdenBusinessResultCard({
         }}
         className="mt-4 inline-flex items-center rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
       >
-        Open Business
+        {business.actionLabel}
       </button>
     </article>
   );

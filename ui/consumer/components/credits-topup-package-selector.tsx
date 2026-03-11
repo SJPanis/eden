@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { EdenCreditsTopUpPackage } from "@/modules/core/payments/payment-runtime";
 
@@ -33,7 +33,7 @@ export function CreditsTopUpPackageSelector({
             Top-up packages
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
-            Choose a package before starting a mock or payment-backed wallet top-up.
+            Choose a package before continuing to Stripe Checkout for a real Eden wallet top-up.
           </p>
         </div>
         <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
@@ -92,7 +92,7 @@ export function CreditsTopUpPackageSelector({
                 {pkg.chargeLabel}
               </p>
               <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
-                About {creditsPerDollar} Leaf’s per $1
+                About {creditsPerDollar} Leaf&apos;s per $1
               </p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">{pkg.detail}</p>
             </button>
@@ -133,3 +133,6 @@ export function CreditsTopUpPackageSelector({
     </div>
   );
 }
+
+
+
