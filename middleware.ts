@@ -90,7 +90,7 @@ export const config = {
     "/api/mock-assistant-history",
     "/api/mock-internal-leaves-usage",
     "/api/owner/leaves-grants",
-    "/api/owner/project-runtimes",
+    "/api/owner/project-runtimes/:path*",
     "/api/mock-admin",
     "/api/mock-payout-settlements",
     "/api/mock-state",

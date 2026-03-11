@@ -12,14 +12,20 @@
   - the on-disk migration chain starts with the runtime migration, which references `ProjectBlueprint` but does not create it
 - Required repair sequence:
   - baseline migration is now present on disk: `20260311120000_pre_runtime_baseline`
-  - mark that baseline as applied on the existing live database
-  - then apply `20260311143000_project_runtime_control_plane`
+  - pending additive migrations are now on disk:
+    - `20260311143000_project_runtime_control_plane`
+    - `20260311190000_internal_sandbox_task_runner_v1`
+  - mark the baseline as applied on the existing live database
+  - then run `prisma migrate deploy` so Prisma can apply both pending migrations in order
 - Exact next commands from `C:\dev\Eden\eden-v1`:
   - `$env:PRISMA_SCHEMA_ENGINE_BINARY=(Resolve-Path 'node_modules/@prisma/engines/schema-engine-windows.exe')`
   - `cmd /c npx prisma migrate resolve --applied 20260311120000_pre_runtime_baseline`
   - `cmd /c npx prisma migrate deploy`
   - `cmd /c npx prisma migrate status`
-- After the baseline and runtime migration are in place, manually verify `/owner/runtimes` and trigger the owner-only internal sandbox registration flow once in the intended environment.
+- After the baseline and pending migrations are in place:
+  - manually verify `/owner/runtimes`
+  - trigger the owner-only internal sandbox registration flow once in the intended environment
+  - create one sandbox task and confirm Lead/Planner plus Worker output is stored persistently
 
 ## Needed Before Production-Like Flows
 

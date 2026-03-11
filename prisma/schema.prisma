@@ -117,28 +117,42 @@ enum ProjectRuntimeDomainLinkType {
   LINKED_EXTERNAL
 }
 
+enum ProjectRuntimeTaskType {
+  IMPLEMENTATION_PLAN
+  ANALYSIS
+  QA_REVIEW
+}
+
+enum ProjectRuntimeTaskStatus {
+  PLANNING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
 model User {
-  id                       String                @id @default(cuid())
-  username                 String                @unique
-  displayName              String
-  passwordHash             String?
-  role                     EdenRole              @default(CONSUMER)
-  status                   UserStatus            @default(ACTIVE)
-  summary                  String?
-  edenBalanceCredits       Int                   @default(0)
-  createdAt                DateTime              @default(now())
-  updatedAt                DateTime              @updatedAt
-  ownedBusinesses          Business[]            @relation("BusinessOwner")
-  businessMemberships      BusinessMember[]
-  authProviderAccounts     AuthProviderAccount[]
-  serviceUsages            ServiceUsage[]
-  creditsTopUpPayments     CreditsTopUpPayment[]
-  internalLeavesUsages     InternalLeavesUsage[]
-  projectAgentRuns         ProjectAgentRun[]
-  createdProjectBlueprints ProjectBlueprint[]    @relation("ProjectBlueprintCreator")
-  createdProjectRuntimes   ProjectRuntime[]      @relation("ProjectRuntimeCreator")
-  receivedLeavesGrants     OwnerLeavesGrant[]    @relation("OwnerLeavesGrantRecipient")
-  issuedLeavesGrants       OwnerLeavesGrant[]    @relation("OwnerLeavesGrantIssuer")
+  id                         String                @id @default(cuid())
+  username                   String                @unique
+  displayName                String
+  passwordHash               String?
+  role                       EdenRole              @default(CONSUMER)
+  status                     UserStatus            @default(ACTIVE)
+  summary                    String?
+  edenBalanceCredits         Int                   @default(0)
+  createdAt                  DateTime              @default(now())
+  updatedAt                  DateTime              @updatedAt
+  ownedBusinesses            Business[]            @relation("BusinessOwner")
+  businessMemberships        BusinessMember[]
+  authProviderAccounts       AuthProviderAccount[]
+  serviceUsages              ServiceUsage[]
+  creditsTopUpPayments       CreditsTopUpPayment[]
+  internalLeavesUsages       InternalLeavesUsage[]
+  projectAgentRuns           ProjectAgentRun[]
+  createdProjectBlueprints   ProjectBlueprint[]    @relation("ProjectBlueprintCreator")
+  createdProjectRuntimes     ProjectRuntime[]      @relation("ProjectRuntimeCreator")
+  createdProjectRuntimeTasks ProjectRuntimeTask[]  @relation("ProjectRuntimeTaskCreator")
+  receivedLeavesGrants       OwnerLeavesGrant[]    @relation("OwnerLeavesGrantRecipient")
+  issuedLeavesGrants         OwnerLeavesGrant[]    @relation("OwnerLeavesGrantIssuer")
 }
 
 model AuthProviderAccount {
@@ -234,6 +248,7 @@ model ProjectRuntime {
   project           ProjectBlueprint           @relation(fields: [projectId], references: [id], onDelete: Cascade)
   creatorUser       User                       @relation("ProjectRuntimeCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
   domainLinks       ProjectRuntimeDomainLink[]
+  tasks             ProjectRuntimeTask[]
 
   @@unique([projectId, environment, runtimeType])
   @@index([projectId, createdAt])
@@ -255,6 +270,35 @@ model ProjectRuntimeDomainLink {
 
   @@unique([runtimeId, hostname, pathPrefix])
   @@index([runtimeId, createdAt])
+}
+
+model ProjectRuntimeTask {
+  id                 String                   @id @default(cuid())
+  runtimeId          String
+  creatorUserId      String
+  title              String
+  inputText          String
+  taskType           ProjectRuntimeTaskType   @default(IMPLEMENTATION_PLAN)
+  status             ProjectRuntimeTaskStatus @default(PLANNING)
+  executionMode      String                   @default("synchronous_sandbox_v1")
+  plannerSummary     String?
+  plannerPayload     Json?
+  workerSummary      String?
+  workerPayload      Json?
+  outputSummary      String?
+  outputLines        String[]
+  failureDetail      String?
+  plannerCompletedAt DateTime?
+  workerCompletedAt  DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  runtime            ProjectRuntime           @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  creatorUser        User                     @relation("ProjectRuntimeTaskCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
+
+  @@index([runtimeId, createdAt])
+  @@index([status, createdAt])
+  @@index([taskType, createdAt])
 }
 
 model ProjectAgent {

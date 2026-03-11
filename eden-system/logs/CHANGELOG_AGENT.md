@@ -156,3 +156,43 @@
 - Apply pending migrations:
   - `prisma migrate deploy`
 - Then verify the owner runtime registry against the migrated database.
+
+### Internal sandbox task runner v1 completed
+
+- Re-read `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `EDEN_MASTER_SPEC.md` before extending the runtime control-plane work.
+- Extended Prisma schema with:
+  - enums: `ProjectRuntimeTaskType`, `ProjectRuntimeTaskStatus`
+  - model: `ProjectRuntimeTask`
+  - reverse relations from `User` and `ProjectRuntime`
+- Added shared runtime task types and stable sandbox Lead/Planner and Worker labels in `modules/core/projects/project-runtime-shared.ts`.
+- Extended `modules/core/services/project-runtime-service.ts` with:
+  - sandbox task state reads
+  - owner-only sandbox task creation
+  - deterministic Lead/Planner execution record building
+  - deterministic Worker result generation
+  - sandbox task failure handling and schema-unavailable reporting
+- Added owner-only API route:
+  - `app/api/owner/project-runtimes/internal-sandbox/tasks/route.ts`
+- Added minimal owner UI:
+  - `ui/owner/internal-sandbox-task-runner.tsx`
+  - integrated into `ui/owner/owner-runtime-registry.tsx`
+  - wired through `app/(owner)/owner/runtimes/page.tsx`
+- Extended middleware matching so nested owner runtime API paths remain protected:
+  - `/api/owner/project-runtimes/:path*`
+- Generated additive migration:
+  - `prisma/migrations/20260311190000_internal_sandbox_task_runner_v1/migration.sql`
+
+### Verification completed for sandbox task runner v1
+
+- `cmd /c npx prisma format` passed when pointed at the local schema engine binary.
+- `cmd /c npx prisma generate` passed.
+- `cmd /c npx prisma validate` passed.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+### Important limits after sandbox task runner v1
+
+- The sandbox task runner is metadata only and synchronous in v1.
+- No real container execution, background queue, preview deploy, or isolated runtime provisioning happens when a task is created.
+- The runtime and task runner migrations were generated but not applied in this session.
+- Persistent database verification of the sandbox task runner still depends on resolving the existing Prisma/database access issues and running the pending migration commands on the live database.

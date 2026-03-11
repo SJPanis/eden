@@ -2,12 +2,18 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { EdenProjectRuntimeRecord } from "@/modules/core/projects/project-runtime-shared";
+import type {
+  EdenProjectRuntimeRecord,
+  EdenProjectRuntimeTaskRecord,
+} from "@/modules/core/projects/project-runtime-shared";
 import { edenOwnerInternalSandboxRuntimeId } from "@/modules/core/projects/project-runtime-shared";
+import { InternalSandboxTaskRunner } from "@/ui/owner/internal-sandbox-task-runner";
 
 type OwnerRuntimeRegistryProps = {
   initialRuntimes: EdenProjectRuntimeRecord[];
+  initialSandboxTasks: EdenProjectRuntimeTaskRecord[];
   initialUnavailableReason?: string | null;
+  initialSandboxTaskUnavailableReason?: string | null;
 };
 
 function getRuntimeStatusClasses(status: string) {
@@ -28,7 +34,9 @@ function getRuntimeStatusClasses(status: string) {
 
 export function OwnerRuntimeRegistry({
   initialRuntimes,
+  initialSandboxTasks,
   initialUnavailableReason,
+  initialSandboxTaskUnavailableReason,
 }: OwnerRuntimeRegistryProps) {
   const router = useRouter();
   const [feedback, setFeedback] = useState<{
@@ -37,7 +45,9 @@ export function OwnerRuntimeRegistry({
   } | null>(null);
   const [isPending, startTransition] = useTransition();
   const ownerOnlyCount = initialRuntimes.filter((runtime) => runtime.isOwnerOnly).length;
-  const internalOnlyCount = initialRuntimes.filter((runtime) => runtime.isInternalOnly).length;
+  const internalOnlyCount = initialRuntimes.filter(
+    (runtime) => runtime.isInternalOnly,
+  ).length;
   const activeDomainCount = initialRuntimes.reduce(
     (count, runtime) =>
       count + runtime.domainLinks.filter((link) => link.isActive).length,
@@ -150,8 +160,8 @@ export function OwnerRuntimeRegistry({
               Internal sandbox
             </p>
             <p className="mt-2 text-sm leading-6 text-eden-muted">
-              Register the first owner-only runtime record for the private “Eden
-              inside Eden” sandbox. This creates a dedicated internal business,
+              Register the first owner-only runtime record for the private
+              {" \"Eden inside Eden\" "}sandbox. This creates a dedicated internal business,
               project blueprint, and runtime metadata record so future isolation
               work has a concrete control-plane anchor.
             </p>
@@ -400,12 +410,20 @@ export function OwnerRuntimeRegistry({
                   </div>
                 </div>
               </div>
+
+              {runtime.id === edenOwnerInternalSandboxRuntimeId ? (
+                <InternalSandboxTaskRunner
+                  runtime={runtime}
+                  initialTasks={initialSandboxTasks}
+                  initialUnavailableReason={initialSandboxTaskUnavailableReason}
+                />
+              ) : null}
             </article>
           ))
         ) : (
           <div className="rounded-[28px] border border-eden-edge bg-white p-6 text-sm leading-6 text-eden-muted">
             No runtime metadata records exist yet. Register the internal sandbox to
-            establish Eden’s first project runtime control-plane record.
+            establish Eden&apos;s first project runtime control-plane record.
           </div>
         )}
       </div>

@@ -37,13 +37,21 @@
 - [x] Generate a Prisma migration for the runtime control-plane schema.
 - [x] Create a baseline pre-runtime Prisma migration earlier than the runtime migration.
 - [x] Verify the live database matches the pre-runtime schema before baselining.
+- [x] Add a sandbox runtime task model tied to `ProjectRuntime`.
+- [x] Add owner-only sandbox task list/create APIs scoped to the Eden Internal Sandbox Runtime.
+- [x] Add a minimal owner UI for sandbox task creation, status inspection, and stored results inside the runtime registry surface.
+- [x] Add a deterministic Lead/Planner plus Worker execution record loop for sandbox tasks.
+- [x] Generate a Prisma migration for the internal sandbox task runner schema.
 - [ ] Run `prisma migrate resolve --applied 20260311120000_pre_runtime_baseline` on the active database.
-- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane` creates the runtime tables.
+- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane` and `20260311190000_internal_sandbox_task_runner_v1` create the runtime and task tables.
 - [ ] Execute the owner-only sandbox initializer against the migrated database and confirm the registry loads persistent data.
+- [ ] Create a sandbox task against the migrated database and confirm planner/worker outputs persist.
 
 ### Soon
 
 - [ ] Add owner actions to update runtime status, status detail, and last health check without touching project blueprint status.
+- [ ] Add task lifecycle audit logging for sandbox task creation, completion, and failure.
+- [ ] Add an explicit async task dispatch boundary so sandbox tasks can graduate from synchronous metadata-only execution when real workers exist.
 - [ ] Add runtime launch/read actions that operate on runtime metadata instead of direct project blueprint state.
 - [ ] Add domain/link metadata for external domains and Eden-managed hosted URLs.
 - [ ] Add project secret/config storage boundaries outside general business metadata.
@@ -60,6 +68,7 @@
 
 ### Now
 
+- [x] Add a deterministic owner-only Lead/Planner and Worker execution record loop inside the internal sandbox runtime.
 - [ ] Define scoped agent roles that operate on project runtime context instead of Eden core assumptions.
 - [ ] Require every future Codex task to update `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
 

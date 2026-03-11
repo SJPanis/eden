@@ -57,6 +57,7 @@ Prisma models exist for:
 - pipeline records and events
 - project blueprints, project agents, and project agent runs
 - project runtimes and runtime domain links
+- project runtime tasks for owner-only sandbox execution records
 
 ### Business/project flows
 
@@ -68,6 +69,8 @@ Prisma models exist for:
 - Ask Eden can propose and create project artifacts
 - owner-only runtime registry surface exists at `/owner/runtimes`
 - owner-only internal sandbox runtime initializer exists at `/api/owner/project-runtimes`
+- owner-only internal sandbox task runner exists inside `/owner/runtimes`
+- owner-only sandbox task API exists at `/api/owner/project-runtimes/internal-sandbox/tasks`
 
 ## Architectural Reality
 
@@ -88,6 +91,7 @@ What is still mixed or transitional:
 - some ledger and usage paths are persistent while UI fallbacks remain mock-authoritative
 - project "hosting" and "publishing" still remain metadata/accounting concepts, not isolated runtime deployment
 - project runtime records are control-plane metadata only; they do not provision real containers, sandboxes, previews, or deploy targets
+- sandbox task execution is synchronous deterministic metadata only; it stores Lead/Planner and Worker outputs but does not run a real agent worker or isolated runtime
 - Ask Eden has both a newer tool-routed layer and a legacy Eden AI helper layer
 
 ## Biggest Gaps Against Intended Eden Direction
@@ -96,14 +100,15 @@ What is still mixed or transitional:
 2. Runtime metadata exists, but runtime provisioning, lifecycle execution, and deployment history do not.
 3. Business/project code still conceptually lives inside the same app instead of separate runtimes.
 4. "Hosted inside Eden" is still modeled as balance/status metadata plus runtime registry metadata, not as a real isolated runtime system.
-5. Persistent operational verification is incomplete because current database access is not fully confirmable from the audit environment.
+5. Sandbox task execution records exist, but they are not a real queued worker system or runtime-backed execution engine.
+6. Persistent operational verification is incomplete because current database access is not fully confirmable from the audit environment.
 
 ## Current Blockers
 
 - Prisma-backed acceptance verification cannot fully confirm ledger state because model queries returned `EACCES`.
 - Dev-server validation is noisy because another Next dev instance or lock already exists.
 - The live database still has no recorded Prisma migration history until the new baseline is marked as applied.
-- The runtime migration still has not been applied to the active database.
+- The runtime and sandbox task runner migrations still have not been applied to the active database.
 - `middleware.ts` still uses the deprecated Next.js middleware convention instead of `proxy`.
 
 ## Minimal Cleanup Completed In This Session
@@ -125,28 +130,51 @@ What is still mixed or transitional:
   - internal preview link placeholder: `sandbox.eden.internal/owner-sandbox`
 - The runtime record is explicitly metadata-only and marks no real isolated runtime as deployed.
 
+## Current Internal Sandbox Task Runner
+
+- `ProjectRuntimeTask` now exists in Prisma schema and migration output.
+- Sandbox tasks are tied to `ProjectRuntime`, not to Eden core UI state.
+- The owner can create and inspect sandbox tasks from the internal sandbox runtime card inside `/owner/runtimes`.
+- Task records capture:
+  - task title and input
+  - task type and status
+  - Lead/Planner summary plus structured planning payload
+  - Worker summary plus stored result payload
+  - output lines, artifacts, and failure detail when needed
+- The v1 execution loop is intentionally minimal:
+  - Lead/Planner converts owner input into a structured execution record
+  - Worker produces a deterministic implementation plan, analysis record, or QA review plan
+  - outputs are stored in the control plane only
+- No background queue, container dispatch, code execution, preview deployment, or domain activation is performed by this task runner.
+
 ## Migration Chain Repair Status
 
 - Baseline migration created:
   - `prisma/migrations/20260311120000_pre_runtime_baseline/migration.sql`
 - Runtime migration retained unchanged:
   - `prisma/migrations/20260311143000_project_runtime_control_plane/migration.sql`
+- Sandbox task runner migration created:
+  - `prisma/migrations/20260311190000_internal_sandbox_task_runner_v1/migration.sql`
 - The baseline covers the pre-runtime schema only and excludes:
   - `ProjectRuntime`
   - `ProjectRuntimeDomainLink`
+- The task runner migration remains additive and depends on the runtime migration:
+  - `ProjectRuntimeTask`
+  - `ProjectRuntimeTaskType`
+  - `ProjectRuntimeTaskStatus`
 - Verified by Prisma diff that the live database matches the pre-runtime schema exactly:
   - `No difference detected.`
 - Result:
   - the migration chain now has a valid predecessor on disk for `ProjectBlueprint`
-  - the remaining work is manual migration-history reconciliation plus applying the runtime migration to the live database
+  - the remaining work is manual migration-history reconciliation plus applying the runtime and task runner migrations to the live database
 
 ## Next Recommended Implementation Target
 
-Reconcile the live database with the repaired migration history, then apply the runtime migration.
+Reconcile the live database with the repaired migration history, then apply the runtime and task runner migrations.
 
 Build next:
 
 1. mark `20260311120000_pre_runtime_baseline` as applied on the live database with Prisma Migrate
-2. run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane` creates the runtime tables
-3. verify `/owner/runtimes` can register the internal sandbox against the live database
+2. run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane` and `20260311190000_internal_sandbox_task_runner_v1` create the runtime and task tables
+3. verify `/owner/runtimes` can register the internal sandbox and persist sandbox task records against the live database
 4. then add explicit runtime status transition actions and audit logging

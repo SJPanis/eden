@@ -1,12 +1,18 @@
 import Link from "next/link";
-import { loadOwnerProjectRuntimeRegistryState } from "@/modules/core/services";
+import {
+  loadOwnerInternalSandboxTaskState,
+  loadOwnerProjectRuntimeRegistryState,
+} from "@/modules/core/services";
 import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
 import { OwnerRuntimeRegistry } from "@/ui/owner/owner-runtime-registry";
 
 export default async function OwnerRuntimesPage() {
   await requireMockAccess(layerAccessRules.owner ?? [], "/owner/runtimes");
-  const registry = await loadOwnerProjectRuntimeRegistryState();
+  const [registry, sandboxTaskState] = await Promise.all([
+    loadOwnerProjectRuntimeRegistryState(),
+    loadOwnerInternalSandboxTaskState(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -37,6 +43,8 @@ export default async function OwnerRuntimesPage() {
       <OwnerRuntimeRegistry
         initialRuntimes={registry.runtimes}
         initialUnavailableReason={registry.unavailableReason}
+        initialSandboxTasks={sandboxTaskState.tasks}
+        initialSandboxTaskUnavailableReason={sandboxTaskState.unavailableReason}
       />
     </div>
   );
