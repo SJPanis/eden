@@ -43,7 +43,7 @@ export function OwnerLeavesGrantButton({
           };
 
           if (!response.ok || !payload.ok) {
-            setFeedback(payload.error ?? "Unable to grant Eden Leaves right now.");
+            setFeedback(payload.error ?? "Unable to grant Eden Leaf’s right now.");
             return;
           }
 
@@ -53,7 +53,7 @@ export function OwnerLeavesGrantButton({
           router.refresh();
         })
         .catch(() => {
-          setFeedback("Unable to grant Eden Leaves right now.");
+          setFeedback("Unable to grant Eden Leaf’s right now.");
         });
     });
   }
@@ -67,10 +67,10 @@ export function OwnerLeavesGrantButton({
         className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${className ?? "border-sky-200 bg-sky-50 hover:border-sky-300 hover:bg-sky-100"}`}
       >
         <p className="text-sm font-semibold text-eden-ink">
-          {isPending ? "Granting Leaves..." : `Grant ${formatCredits(amountCredits)}`}
+          {isPending ? "Granting Leaf’s..." : `Grant ${formatCredits(amountCredits)}`}
         </p>
         <p className="mt-1 text-xs leading-5 text-eden-muted">
-          Record a visible owner-funded Leaves grant for this account.
+          Record a visible owner-funded Leaf’s grant for this account.
         </p>
       </button>
       {feedback ? <p className="text-xs leading-5 text-eden-muted">{feedback}</p> : null}

@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Only the owner can grant Eden Leaves manually.",
+        error: "Only the owner can grant Eden Leaf’s manually.",
       },
       { status: 403 },
     );
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Select a user and a positive Leaves amount before recording a manual grant.",
+        error: "Select a user and a positive Leaf’s amount before recording a manual grant.",
       },
       { status: 400 },
     );

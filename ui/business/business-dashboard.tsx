@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -672,7 +672,7 @@ export function BusinessDashboardPanel({
         )}.`
       : activeServicePricing.hasStoredPrice
         ? `Consumers will see ${activeServicePricingLabel} before they decide. Publish the service to expose the wallet cue in discovery.`
-        : "Set a visible Eden Leaves price so consumers can compare the run cost to their wallet before they decide.";
+        : "Set a visible Eden Leaf’s price so consumers can compare the run cost to their wallet before they decide.";
   const publishLaunchSummaryCards = [
     {
       id: "launch-summary-state",
@@ -694,8 +694,8 @@ export function BusinessDashboardPanel({
         ? activeServicePricingLabel
         : "Price needs review",
       detail: activeServicePricing.hasStoredPrice
-        ? `Consumers see this exact Eden Leaves rate before they run the service.`
-        : "Set a per-use Eden Leaves price so the launch flow and earnings model are explicit.",
+        ? `Consumers see this exact Eden Leaf’s rate before they run the service.`
+        : "Set a per-use Eden Leaf’s price so the launch flow and earnings model are explicit.",
     },
     {
       id: "launch-summary-consumer",
@@ -732,8 +732,8 @@ export function BusinessDashboardPanel({
       label: edenLaunchLabels.visiblePricing,
       value: activeServicePricing.hasStoredPrice ? activeServicePricingLabel : "Price needs review",
       detail: activeServicePricing.hasStoredPrice
-        ? `Consumers see the exact Eden Leaves price before they run. ${edenLaunchLabels.noHiddenCheckout}`
-        : "Add a visible Eden Leaves price so the consumer decision stays explicit.",
+        ? `Consumers see the exact Eden Leaf’s price before they run. ${edenLaunchLabels.noHiddenCheckout}`
+        : "Add a visible Eden Leaf’s price so the consumer decision stays explicit.",
     },
     {
       id: "consumer-launch-wallet",
@@ -753,7 +753,7 @@ export function BusinessDashboardPanel({
       detail:
         releaseStatus === "published"
           ? "This is the same trust-first guidance consumers see across marketplace cards, Ask Eden, and service detail."
-          : "Once published, the marketplace will show the same price-visible, Leaves-only decision flow to consumers.",
+          : "Once published, the marketplace will show the same price-visible, Leaf’s-only decision flow to consumers.",
     },
   ];
   const billingUsage: BillingUsageItem[] = businessProfile
@@ -766,13 +766,13 @@ export function BusinessDashboardPanel({
         },
         {
           id: "billing-usage-02",
-          label: "Operator spendable Leaves",
+          label: "Operator spendable Leaf’s",
           value: formatCredits(billingSnapshot?.userBalanceCredits ?? session.user.edenBalanceCredits),
           detail: "Current mock operator wallet shown alongside workspace billing context.",
         },
         {
           id: "billing-usage-03",
-          label: "Spendable Leaves used",
+          label: "Spendable Leaf’s used",
           value: `${formatCredits(billingSnapshot?.usageCredits ?? 0)} this cycle`,
           detail: "Derived from the shared mocked transaction stream tied to this business workspace.",
         },
@@ -816,37 +816,37 @@ export function BusinessDashboardPanel({
       id: "payout-total-earned",
       label: `${edenEarnedLeavesLabel} total`,
       value: formatCredits(payoutAccounting.totalEarnedCredits),
-      detail: "Builder-side earned Leaves accrued from priced service usage across this workspace.",
+      detail: "Builder-side earned Leaf’s accrued from priced service usage across this workspace.",
     },
     {
       id: "payout-internal-used",
       label: `${edenEarnedLeavesLabel} used internally`,
       value: formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits),
-      detail: "Earned Leaves already spent on internal Eden work instead of remaining payout/accounting balance.",
+      detail: "Earned Leaf’s already spent on internal Eden work instead of remaining payout/accounting balance.",
     },
     {
       id: "payout-unpaid",
       label: `${edenEarnedLeavesLabel} unpaid`,
       value: formatCredits(payoutAccounting.unpaidEarningsCredits),
-      detail: "Earned Leaves still owed after persistent payout settlements and internal Eden use are applied.",
+      detail: "Earned Leaf’s still owed after persistent payout settlements and internal Eden use are applied.",
     },
     {
       id: "payout-internal-available",
       label: "Available for Eden use",
       value: formatCredits(payoutAccounting.availableForInternalUseCredits),
-      detail: "Remaining earned Leaves that can still be used internally inside Eden without touching the spendable wallet.",
+      detail: "Remaining earned Leaf’s that can still be used internally inside Eden without touching the spendable wallet.",
     },
     {
       id: "payout-ready",
-      label: "Earned Leaves ready",
+      label: "Earned Leaf’s ready",
       value: formatCredits(payoutAccounting.payoutReadyCredits),
-      detail: "Accrued earned Leaves available after the current internal reserve holdback.",
+      detail: "Accrued earned Leaf’s available after the current internal reserve holdback.",
     },
     {
       id: "payout-fee-share",
       label: edenPlatformFeeLeavesLabel,
       value: formatCredits(payoutAccounting.edenFeeShareCredits),
-      detail: "Platform fee Leaves derived from the same pricing-based usage accounting.",
+      detail: "Platform fee Leaf’s derived from the same pricing-based usage accounting.",
     },
     {
       id: "payout-pending",
@@ -1892,9 +1892,9 @@ export function BusinessDashboardPanel({
         <motion.div variants={sectionVariants}>
           <WorkspaceSection
             id="billing"
-            eyebrow="Balances / Eden Leaves"
+            eyebrow="Balances / Eden Leaf’s"
             title="Balance, usage, and fee clarity"
-            description="The billing layer is still placeholder-only, but the workspace now exposes spendable Leaves, earned Leaves, usage, hosting, and fee visibility together."
+            description="The billing layer is still placeholder-only, but the workspace now exposes spendable Leaf’s, earned Leaf’s, usage, hosting, and fee visibility together."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
                 Transparent fees
@@ -1925,7 +1925,7 @@ export function BusinessDashboardPanel({
                     <p className="mt-2 text-sm leading-6 text-current/80">
                       {releaseStatus === "published"
                         ? `${consumerAffordability.hint} ${edenLaunchLabels.noHiddenCheckout}`
-                        : "Consumers will see the same visible-price, Leaves-only guidance after this service is published."}
+                        : "Consumers will see the same visible-price, Leaf’s-only guidance after this service is published."}
                     </p>
                   </div>
                   <span className="rounded-full border border-current/20 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
@@ -2198,10 +2198,10 @@ export function BusinessDashboardPanel({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                      Internal earned Leaves use
+                      Internal earned Leaf’s use
                     </p>
                     <p className="mt-2 text-sm leading-6 text-eden-muted">
-                      Builders can now reuse earned Leaves for internal Eden work without converting them into the spendable wallet or an external payout.
+                      Builders can now reuse earned Leaf’s for internal Eden work without converting them into the spendable wallet or an external payout.
                     </p>
                   </div>
                   <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -2223,7 +2223,7 @@ export function BusinessDashboardPanel({
                   </div>
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                      Remaining earned Leaves
+                      Remaining earned Leaf’s
                     </p>
                     <p className="mt-2 text-lg font-semibold text-eden-ink">
                       {formatCredits(payoutAccounting.availableForInternalUseCredits)}
@@ -2240,12 +2240,12 @@ export function BusinessDashboardPanel({
                     label={
                       internalUseSuggestedAmount > 0
                         ? `Use ${formatCredits(internalUseSuggestedAmount)} internally`
-                        : "No earned Leaves available for internal use"
+                        : "No earned Leaf’s available for internal use"
                     }
                     detail={
                       internalUseSuggestedAmount > 0
-                        ? "Record an internal Eden-use event against earned Leaves. This does not change the spendable wallet and does not create an external payout."
-                        : "Earned Leaves must accrue through priced service usage before internal Eden use can be recorded."
+                        ? "Record an internal Eden-use event against earned Leaf’s. This does not change the spendable wallet and does not create an external payout."
+                        : "Earned Leaf’s must accrue through priced service usage before internal Eden use can be recorded."
                     }
                     reference={`business-internal-use-${activeBusinessId}`}
                     notes={`Business workspace internal Eden use for ${businessProfile?.name ?? activeBusinessId}`}
@@ -2261,7 +2261,7 @@ export function BusinessDashboardPanel({
                       Internal use history
                     </p>
                     <p className="mt-2 text-sm leading-6 text-eden-muted">
-                      Persistent internal Eden-use rows for this business. These entries reduce remaining earned Leaves without touching Stripe-funded spendable Leaves.
+                      Persistent internal Eden-use rows for this business. These entries reduce remaining earned Leaf’s without touching Stripe-funded spendable Leaf’s.
                     </p>
                   </div>
                   <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -2308,7 +2308,7 @@ export function BusinessDashboardPanel({
                     ))
                   ) : (
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                      No internal earned-Leaves usage has been recorded for this business yet.
+                      No internal earned-Leaf’s usage has been recorded for this business yet.
                     </div>
                   )}
                 </div>
@@ -2549,7 +2549,7 @@ export function BusinessDashboardPanel({
                             <div>
                               <p className="text-sm font-semibold text-eden-ink">{event.serviceTitle}</p>
                               <p className="mt-1 text-sm leading-6 text-eden-muted">
-                                {formatCredits(event.creditsUsed)} of spendable Leaves used through {event.usageType.replace(/_/g, " ")}.
+                                {formatCredits(event.creditsUsed)} of spendable Leaf’s used through {event.usageType.replace(/_/g, " ")}.
                               </p>
                               <p className="mt-1 text-xs text-eden-muted">
                                 Gross estimate: {formatCredits(event.estimatedGrossCredits)}
@@ -2834,7 +2834,7 @@ export function BusinessDashboardPanel({
                               </span>
                             </div>
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
-                              Used {event.serviceTitle} for {formatCredits(event.creditsUsed)} of spendable Leaves.
+                              Used {event.serviceTitle} for {formatCredits(event.creditsUsed)} of spendable Leaf’s.
                             </p>
                             <p className="mt-1 text-xs text-eden-muted">
                               Estimated customer value:{" "}
@@ -2867,7 +2867,7 @@ export function BusinessDashboardPanel({
             <div className="mt-4">
               <MockTransactionControls
                 businessId={activeBusinessId}
-                description={`These development-only actions append local Eden Leaves events for ${businessProfile.name}.`}
+                description={`These development-only actions append local Eden Leaf’s events for ${businessProfile.name}.`}
               />
             </div>
           </WorkspaceSection>

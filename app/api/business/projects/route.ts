@@ -254,7 +254,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             ok: false,
-            error: "Insufficient earned Leaves available for this agent run.",
+            error: "Insufficient earned Leaf’s available for this agent run.",
             insufficientBalance: true,
             previousAvailableCredits: payoutAccounting.availableForInternalUseCredits,
             nextAvailableCredits: payoutAccounting.availableForInternalUseCredits,
@@ -335,7 +335,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             ok: false,
-            error: "A positive Leaves amount is required to fund hosting.",
+            error: "A positive Leaf’s amount is required to fund hosting.",
           },
           { status: 400 },
         );
@@ -361,7 +361,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             ok: false,
-            error: "Insufficient earned Leaves available for Eden use.",
+            error: "Insufficient earned Leaf’s available for Eden use.",
             insufficientBalance: true,
             previousAvailableCredits: payoutAccounting.availableForInternalUseCredits,
             nextAvailableCredits: payoutAccounting.availableForInternalUseCredits,
@@ -383,7 +383,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             ok: false,
-            error: "Unable to record the hosting Leaves usage.",
+            error: "Unable to record the hosting Leaf’s usage.",
           },
           { status: 500 },
         );

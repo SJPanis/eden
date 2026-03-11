@@ -24,7 +24,7 @@ const publicAudienceCards = [
     id: "consumers",
     label: "For consumers",
     detail:
-      "Explore published services, check visible pricing, add Eden Leaves only if needed, and run without hidden charges during service use.",
+      "Explore published services, check visible pricing, add Eden Leaf’s only if needed, and run without hidden charges during service use.",
   },
 ];
 
@@ -41,9 +41,9 @@ const howEdenWorksSteps = [
   },
   {
     id: "run",
-    label: "3. Eden Leaves power usage",
+    label: "3. Eden Leaf’s power usage",
     detail:
-      "Consumers top up Leaves first, then run services with no hidden checkout during usage.",
+      "Consumers top up Leaf’s first, then run services with no hidden checkout during usage.",
   },
 ];
 
@@ -114,10 +114,13 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
       }
 
       if (response.error) {
+        console.error("[eden-auth] credentials sign-in response error", response.error);
         setSubmitError(
           response.error === "CredentialsSignin"
             ? "Invalid username or password."
-            : "Eden could not complete sign-in. Please try again.",
+            : response.error === "Configuration" || response.error === "CallbackRouteError"
+              ? "Sign-in is temporarily unavailable. Please try again in a moment."
+              : "Eden could not complete sign-in. Please try again.",
         );
         setSuccessNote(null);
         return;
@@ -163,7 +166,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
               Eden connects builders who publish services with consumers who discover, fund, and
-              use them through Eden Leaves. Pricing is visible before every run, and service usage
+              use them through Eden Leaf’s. Pricing is visible before every run, and service usage
               stays {edenLaunchLabels.creditsOnlyBilling.toLowerCase()} with no hidden charges
               during service use.
             </p>
@@ -190,7 +193,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     How Eden works
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    One loop connects builder publishing, consumer discovery, and Leaves-funded
+                    One loop connects builder publishing, consumer discovery, and Leaf’s-funded
                     service usage.
                   </p>
                 </div>
@@ -215,7 +218,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     Who Eden is for
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    Builders publish and improve services. Consumers discover them, top up Leaves,
+                    Builders publish and improve services. Consumers discover them, top up Leaf’s,
                     and run them confidently.
                   </p>
                 </div>

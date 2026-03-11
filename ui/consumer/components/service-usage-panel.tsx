@@ -193,7 +193,7 @@ export function ServiceUsagePanel({
     availabilityDetail ??
     (disabled
       ? "This service is not currently available for a consumer run."
-      : "This service can be run immediately through the Eden Leaves wallet flow.");
+      : "This service can be run immediately through the Eden Leaf’s wallet flow.");
   const runDecisionSummary = disabled
     ? {
         toneClass: "border-amber-200 bg-amber-50",
@@ -300,7 +300,7 @@ export function ServiceUsagePanel({
           detail:
             requestError instanceof Error
               ? requestError.message
-              : "Unable to confirm the payment-backed Leaves top-up.",
+              : "Unable to confirm the payment-backed Leaf’s top-up.",
         });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
@@ -363,7 +363,7 @@ export function ServiceUsagePanel({
       if (!response.ok || !payload.ok) {
         if (payload.insufficientBalance) {
           throw new Error(
-            `Insufficient Eden Leaves. This run requires ${formatCreditsValue(payload.requiredCredits ?? requiredCredits)}, and your current balance is ${formatCreditsValue(payload.currentBalanceCredits ?? displayBalanceCredits)}.`,
+            `Insufficient Eden Leaf’s. This run requires ${formatCreditsValue(payload.requiredCredits ?? requiredCredits)}, and your current balance is ${formatCreditsValue(payload.currentBalanceCredits ?? displayBalanceCredits)}.`,
           );
         }
         throw new Error(payload.error || "Unable to record mocked service usage.");
@@ -385,7 +385,7 @@ export function ServiceUsagePanel({
       setActivity({
         kind: "usage",
         amountCredits: chargedCredits,
-        amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `-${chargedCredits} Leaves`),
+        amountLabel: formatLeavesAmountLabel(payload.amountLabel ?? `-${chargedCredits} Leaf’s`),
         previousBalanceCredits,
         nextBalanceCredits,
         title: payload.transactionTitle ?? `${serviceTitle} usage settled`,
@@ -419,7 +419,7 @@ export function ServiceUsagePanel({
     setStatusMessage({
       tone: "info",
       title: "Preparing checkout",
-      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Leaves will only be added after Eden receives settlement confirmation.`,
+      detail: `${selectedPackage.title} is being prepared for Stripe Checkout. Leaf’s will only be added after Eden receives settlement confirmation.`,
     });
 
     try {
@@ -431,7 +431,7 @@ export function ServiceUsagePanel({
         detail:
           requestError instanceof Error
             ? requestError.message
-            : "Unable to start the payment-backed Leaves top-up.",
+            : "Unable to start the payment-backed Leaf’s top-up.",
       });
       setActiveAction(null);
     }
@@ -449,7 +449,7 @@ export function ServiceUsagePanel({
           </h2>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
             {summary ||
-              "Run this service through Eden's mocked usage path. The visible Eden Leaves price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
+              "Run this service through Eden's mocked usage path. The visible Eden Leaf’s price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
           </p>
         </div>
 
@@ -502,7 +502,7 @@ export function ServiceUsagePanel({
                 First-time run flow
               </p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                The same decision sequence applies every time: check the visible price, compare it to your wallet, add Leaves only if needed, then run the service.
+                The same decision sequence applies every time: check the visible price, compare it to your wallet, add Leaf’s only if needed, then run the service.
               </p>
             </div>
             <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -513,7 +513,7 @@ export function ServiceUsagePanel({
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
               <p className="text-sm font-semibold text-eden-ink">1. Check price</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                {pricingLabel} is the exact Eden Leaves amount used for the run.
+                {pricingLabel} is the exact Eden Leaf’s amount used for the run.
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -523,9 +523,9 @@ export function ServiceUsagePanel({
               </p>
             </div>
             <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">3. Add Leaves only if needed</p>
+              <p className="text-sm font-semibold text-eden-ink">3. Add Leaf’s only if needed</p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">
-                Checkout appears only during Add Leaves. Service runs never trigger a hidden payment.
+                Checkout appears only during Add Leaf’s. Service runs never trigger a hidden payment.
               </p>
             </div>
           </div>
@@ -570,7 +570,7 @@ export function ServiceUsagePanel({
             {edenLaunchLabels.creditsOnlyBilling}
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
-            Each run uses the visible Leaves price below. Wallet top-ups are the only time a payment-backed checkout can appear.
+            Each run uses the visible Leaf’s price below. Wallet top-ups are the only time a payment-backed checkout can appear.
           </p>
         </div>
         <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
@@ -579,7 +579,7 @@ export function ServiceUsagePanel({
             Explicit top-up, explicit run
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
-            Service use deducts Leaves only. Checkout is only used when you choose to add Leaves to the wallet.
+            Service use deducts Leaf’s only. Checkout is only used when you choose to add Leaf’s to the wallet.
           </p>
         </div>
       </div>
@@ -632,13 +632,13 @@ export function ServiceUsagePanel({
 
       <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 text-sm leading-6 text-eden-muted">
         {topUpConfig.paymentEnabled
-          ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Leaves first, and Stripe top-ups only add Leaves after webhook settlement confirms the purchase.`
-          : "Stripe Checkout is not available in this environment, so Leaves cannot be purchased from this service route."}
+          ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Leaf’s first, and Stripe top-ups only add Leaf’s after webhook settlement confirms the purchase.`
+          : "Stripe Checkout is not available in this environment, so Leaf’s cannot be purchased from this service route."}
       </div>
 
       {!hasSufficientBalance ? (
         <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
-          Your Eden Leaves balance is below the required service price. {edenLaunchLabels.addCredits} first, then return to the visible {edenLaunchLabels.runService} action to complete the Leaves-only flow.
+          Your Eden Leaf’s balance is below the required service price. {edenLaunchLabels.addCredits} first, then return to the visible {edenLaunchLabels.runService} action to complete the Leaf’s-only flow.
         </div>
       ) : null}
 

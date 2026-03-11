@@ -228,7 +228,7 @@ export async function publishProjectBlueprint(projectId: string) {
   if (remainingLeaves <= 0) {
     return {
       ok: false as const,
-      error: "Fund hosting with earned Leaves before publishing this project.",
+      error: "Fund hosting with earned Leaf’s before publishing this project.",
     };
   }
 
@@ -365,7 +365,7 @@ export async function runProjectBlueprintTest(input: {
     `Prompt: ${input.prompt}`,
     `Team: ${teamSummary}`,
     project.hostingRemainingLeaves > 0
-      ? `Hosting bank: ${project.hostingRemainingLeaves} Leaves remain available for launch.`
+      ? `Hosting bank: ${project.hostingRemainingLeaves} Leaf’s remain available for launch.`
       : "Hosting bank: fund hosting before going live.",
     project.isPublished
       ? "Publish state: ready for a consumer-facing launch snapshot."

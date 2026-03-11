@@ -267,7 +267,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Insufficient Eden Leaves for this live service run.",
+        error: "Insufficient Eden Leaf’s for this live service run.",
         insufficientBalance: true,
         requiredCredits,
         currentBalanceCredits,
@@ -315,7 +315,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Eden could not record this paid service run. No Leaves were charged.",
+        error: "Eden could not record this paid service run. No Leaf’s were charged.",
       },
       { status: 503 },
     );
@@ -377,7 +377,7 @@ function buildUsageTransaction(input: {
     businessId: input.businessId,
     serviceId: input.serviceId,
     title: `${input.serviceTitle} run completed`,
-    amountLabel: `-${input.requiredCredits} Leaves`,
+    amountLabel: `-${input.requiredCredits} Leaf’s`,
     creditsDelta: -input.requiredCredits,
     direction: "outflow",
     kind: "usage",

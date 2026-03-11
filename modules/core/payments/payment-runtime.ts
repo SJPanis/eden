@@ -29,7 +29,7 @@ const baseCreditsTopUpPackages = [
     packLabel: "Starter",
     creditsAmount: 250,
     amountCents: 1000,
-    title: "250 Leaves",
+    title: "250 Leaf’s",
     detail: "Best for lightweight discovery and a few priced service runs.",
   },
   {
@@ -37,7 +37,7 @@ const baseCreditsTopUpPackages = [
     packLabel: "Balanced",
     creditsAmount: 1000,
     amountCents: 3500,
-    title: "1000 Leaves",
+    title: "1000 Leaf’s",
     detail: "Best for repeat consumer usage and steady marketplace exploration.",
   },
   {
@@ -45,7 +45,7 @@ const baseCreditsTopUpPackages = [
     packLabel: "High Balance",
     creditsAmount: 2500,
     amountCents: 8000,
-    title: "2500 Leaves",
+    title: "2500 Leaf’s",
     detail: "Best for heavy testing, business scouting, and repeated high-value service use.",
   },
 ] as const;

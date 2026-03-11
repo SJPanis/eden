@@ -18,7 +18,7 @@ const simulationActions: Array<{
 }> = [
   {
     id: "add_credits",
-    label: "Add Leaves",
+    label: "Add Leaf’s",
     detail: "Post a local wallet top-up.",
   },
   {
@@ -105,7 +105,7 @@ export function MockTransactionControls({
           >
             <p className="text-sm font-semibold text-eden-ink">Reset Mock Ledger</p>
             <p className="mt-1 text-xs leading-5 text-eden-muted">
-              Clear all simulated Eden Leaves activity and restore the default mocked ledger state.
+              Clear all simulated Eden Leaf’s activity and restore the default mocked ledger state.
             </p>
           </button>
         </div>

@@ -156,7 +156,7 @@ export function OwnerPayoutDetailPanel({
       id: "payout-summary-unpaid",
       label: "Unpaid total",
       value: formatCredits(payoutAccounting.unpaidEarningsCredits),
-      detail: `${formatCredits(payoutAccounting.pendingSettlementCredits)} pending settlement Leaves.`,
+      detail: `${formatCredits(payoutAccounting.pendingSettlementCredits)} pending settlement Leaf’s.`,
     },
     {
       id: "payout-summary-internal-use",
@@ -210,7 +210,7 @@ export function OwnerPayoutDetailPanel({
             ? "Persistent settlements"
             : "No settlements yet",
         ]}
-        summary={`This route reuses the current business payout accounting, internal earned-Leaves usage, and persistent settlement history for ${businessProfile.name}. Builder earnings are still internal-only, but settlement rows and internal Eden use now adjust what Eden considers paid out, unpaid, and payout-ready.`}
+        summary={`This route reuses the current business payout accounting, internal earned-Leaf’s usage, and persistent settlement history for ${businessProfile.name}. Builder earnings are still internal-only, but settlement rows and internal Eden use now adjust what Eden considers paid out, unpaid, and payout-ready.`}
         metadata={[
           { label: "Owner", value: businessOwner?.displayName ?? "Unknown owner" },
           { label: "Total earned", value: formatCredits(payoutAccounting.totalEarnedCredits) },
@@ -368,7 +368,7 @@ export function OwnerPayoutDetailPanel({
                     {payoutAccounting.statusOverview.internalUseCount}
                   </p>
                   <p className="mt-1 text-xs text-eden-muted">
-                    {formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leaves
+                    {formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leaf’s
                   </p>
                 </div>
                 <div className="rounded-2xl border border-eden-edge bg-white p-3">
@@ -530,10 +530,10 @@ export function OwnerPayoutDetailPanel({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Internal earned Leaves usage
+                    Internal earned Leaf’s usage
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    Persistent internal Eden-use rows for this business. These reduce remaining earned Leaves without creating an external payout.
+                    Persistent internal Eden-use rows for this business. These reduce remaining earned Leaf’s without creating an external payout.
                   </p>
                 </div>
                 <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -578,7 +578,7 @@ export function OwnerPayoutDetailPanel({
                   ))
                 ) : (
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                    No internal earned-Leaves usage has been recorded for this business yet.
+                    No internal earned-Leaf’s usage has been recorded for this business yet.
                   </div>
                 )}
               </div>

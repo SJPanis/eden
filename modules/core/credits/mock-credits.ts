@@ -426,9 +426,9 @@ export function buildSimulationTransaction(options: {
       id: `${prefix}-add-credits`,
       ...scope,
       title: businessId
-        ? `Workspace Leaves top-up (${packageTitle})`
-        : `Wallet Leaves top-up (${packageTitle})`,
-      amountLabel: `+${creditsAmount} Leaves`,
+        ? `Workspace Leaf’s top-up (${packageTitle})`
+        : `Wallet Leaf’s top-up (${packageTitle})`,
+      amountLabel: `+${creditsAmount} Leaf’s`,
       creditsDelta: creditsAmount,
       direction: "inflow",
       kind: "wallet",
@@ -449,7 +449,7 @@ export function buildSimulationTransaction(options: {
       id: `${prefix}-purchase`,
       ...scope,
       title: businessId ? "Mock service purchase settled" : "Mock consumer purchase settled",
-      amountLabel: businessId ? "+180 Leaves" : "-120 Leaves",
+      amountLabel: businessId ? "+180 Leaf’s" : "-120 Leaf’s",
       creditsDelta: businessId ? 180 : -120,
       direction: businessId ? "inflow" : "outflow",
       kind: businessId ? "wallet" : "usage",
@@ -466,7 +466,7 @@ export function buildSimulationTransaction(options: {
       id: `${prefix}-hosting`,
       ...scope,
       title: businessId ? "Hosting fee applied" : "Subscription fee applied",
-      amountLabel: businessId ? "-18 Leaves" : "-12 Leaves",
+      amountLabel: businessId ? "-18 Leaf’s" : "-12 Leaf’s",
       creditsDelta: businessId ? -18 : -12,
       direction: "outflow",
       kind: businessId ? "hosting" : "fee",
@@ -495,7 +495,7 @@ export function buildSimulationTransaction(options: {
       : businessId
         ? "Service usage settled"
         : "Discovery usage settled",
-    amountLabel: `-${usageCredits} Leaves`,
+    amountLabel: `-${usageCredits} Leaf’s`,
     creditsDelta: -usageCredits,
     direction: "outflow",
     kind: "usage",
@@ -524,7 +524,7 @@ export function buildPaymentTopUpTransaction(input: {
     id: `payment-topup-${input.sessionId}`,
     userId: input.userId ?? undefined,
     title: `${input.providerLabel} top-up settled`,
-    amountLabel: `+${input.creditsAmount} Leaves`,
+    amountLabel: `+${input.creditsAmount} Leaf’s`,
     creditsDelta: input.creditsAmount,
     direction: "inflow",
     kind: "wallet",

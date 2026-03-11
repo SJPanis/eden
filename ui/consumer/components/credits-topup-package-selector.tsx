@@ -92,7 +92,7 @@ export function CreditsTopUpPackageSelector({
                 {pkg.chargeLabel}
               </p>
               <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
-                About {creditsPerDollar} Leaves per $1
+                About {creditsPerDollar} Leaf’s per $1
               </p>
               <p className="mt-2 text-sm leading-6 text-eden-muted">{pkg.detail}</p>
             </button>

@@ -435,7 +435,7 @@ function getSelectedServiceDetails(
       {
         label: edenLaunchLabels.visiblePricing,
         value: launchDetails.pricingLabel,
-        detail: "The same Eden Leaves price is shown before the service run begins.",
+        detail: "The same Eden Leaf’s price is shown before the service run begins.",
       },
       {
         label: "Wallet position",
@@ -570,19 +570,19 @@ export function ConsumerHomePanel({
         id: "consumer-launch-price",
         label: edenLaunchLabels.visiblePricing,
         value: "Shown before every run",
-        detail: "Each service detail page shows the exact Eden Leaves price before usage begins.",
+        detail: "Each service detail page shows the exact Eden Leaf’s price before usage begins.",
       },
       {
         id: "consumer-launch-wallet",
         label: "Wallet balance",
         value: formatCredits(currentBalanceCredits),
-        detail: "Top up once, then reuse Eden Leaves across discovery and service runs.",
+        detail: "Top up once, then reuse Eden Leaf’s across discovery and service runs.",
       },
       {
         id: "consumer-launch-payments",
         label: edenLaunchLabels.creditsOnlyBilling,
         value: "Top-up only",
-        detail: "Checkout appears only when you explicitly add Leaves. Service runs deduct only the visible wallet price.",
+        detail: "Checkout appears only when you explicitly add Leaf’s. Service runs deduct only the visible wallet price.",
       },
     ],
     [currentBalanceCredits, discoverySnapshot.marketplaceServices.length],
@@ -599,11 +599,11 @@ export function ConsumerHomePanel({
         id: "consumer-step-compare",
         label: "2. Compare price to your wallet",
         detail:
-          "Check the Eden Leaves price against your current balance before you decide to run the service.",
+          "Check the Eden Leaf’s price against your current balance before you decide to run the service.",
       },
       {
         id: "consumer-step-topup",
-        label: "3. Add Leaves only if needed",
+        label: "3. Add Leaf’s only if needed",
         detail:
           "Top up through the wallet if your balance is too low. Checkout appears only during this explicit step.",
       },
@@ -639,7 +639,7 @@ export function ConsumerHomePanel({
       return {
         title: "Open Service to preview the first run flow",
         detail:
-          "Published marketplace services still use fallback pricing in this environment, so the wallet and service detail screens explain the Leaves flow step by step.",
+          "Published marketplace services still use fallback pricing in this environment, so the wallet and service detail screens explain the Leaf’s flow step by step.",
         cue: edenLaunchLabels.openService,
       };
     }
@@ -650,7 +650,7 @@ export function ConsumerHomePanel({
     ) {
       return {
         title: "You can run a published service now",
-        detail: `${lowestPricedService.service.title} is already within your wallet balance. Open the service, confirm the visible price, and run it through Eden Leaves.`,
+        detail: `${lowestPricedService.service.title} is already within your wallet balance. Open the service, confirm the visible price, and run it through Eden Leaf’s.`,
         cue: `${edenLaunchLabels.openService}, then ${edenLaunchLabels.runService}`,
       };
     }
@@ -675,13 +675,13 @@ export function ConsumerHomePanel({
         id: "header-consumers",
         label: "For consumers",
         detail:
-          "Consumers open published services, compare the visible price to their wallet, then add Leaves only if needed.",
+          "Consumers open published services, compare the visible price to their wallet, then add Leaf’s only if needed.",
       },
       {
         id: "header-billing",
         label: edenLaunchLabels.creditsOnlyBilling,
         detail:
-          "Service runs use wallet Leaves only, and no hidden checkout appears during service use.",
+          "Service runs use wallet Leaf’s only, and no hidden checkout appears during service use.",
       },
     ],
     [],
@@ -861,7 +861,7 @@ export function ConsumerHomePanel({
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-eden-muted">
               Eden connects builders who publish services with consumers who explore them, top up
-              Eden Leaves only if needed, and run with no hidden charges during service use.
+              Eden Leaf’s only if needed, and run with no hidden charges during service use.
             </p>
           </div>
           <div className="flex flex-col items-start gap-3 lg:items-end">
@@ -922,7 +922,7 @@ export function ConsumerHomePanel({
               Discover, top up, and use services with visible credit pricing
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-eden-muted">
-              Eden&apos;s consumer loop is simple: discover a published service, check the visible Eden Leaves price, top up only if needed, and run the service through the wallet flow.
+              Eden&apos;s consumer loop is simple: discover a published service, check the visible Eden Leaf’s price, top up only if needed, and run the service through the wallet flow.
             </p>
           </div>
           <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
@@ -1020,7 +1020,7 @@ export function ConsumerHomePanel({
             </div>
           </form>
           <p className="mt-3 text-sm text-eden-muted">
-            Ask Eden helps you discover published services, visible pricing, and the same Leaves-only run flow shown across the marketplace.
+            Ask Eden helps you discover published services, visible pricing, and the same Leaf’s-only run flow shown across the marketplace.
           </p>
         </motion.section>
 
@@ -1098,7 +1098,7 @@ export function ConsumerHomePanel({
                             Recommended services
                           </h3>
                           <p className="mt-1 text-xs text-eden-muted">
-                            Open Service to inspect published state, visible pricing, and the Leaves-only run flow.
+                            Open Service to inspect published state, visible pricing, and the Leaf’s-only run flow.
                           </p>
                         </div>
                         <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
@@ -1474,7 +1474,7 @@ export function ConsumerHomePanel({
           >
             <DiscoveryRail
               title="Recommended Services"
-              subtitle="Published services with visible Eden Leaves pricing and no hidden checkout during runs. Services your wallet likely covers appear first."
+              subtitle="Published services with visible Eden Leaf’s pricing and no hidden checkout during runs. Services your wallet likely covers appear first."
               badgeLabel={
                 recommendedServicesReadyCount
                   ? `${recommendedServicesReadyCount} ready now`

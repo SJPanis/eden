@@ -58,7 +58,7 @@ export async function createCreditsTopUpCheckoutSession(input: {
           currency: selectedPackage.currency,
           unit_amount: selectedPackage.amountCents,
           product_data: {
-            name: `Eden Leaves Top-up (${selectedPackage.title})`,
+            name: `Eden Leaf’s Top-up (${selectedPackage.title})`,
             description: selectedPackage.detail,
           },
         },
@@ -204,7 +204,7 @@ function requireStripeClient() {
   const stripe = getStripeClient();
 
   if (!stripe) {
-    throw new Error("Stripe Checkout is not configured. Set STRIPE_SECRET_KEY to enable real Leaves top-ups.");
+    throw new Error("Stripe Checkout is not configured. Set STRIPE_SECRET_KEY to enable real Leaf’s top-ups.");
   }
 
   return stripe;
@@ -217,7 +217,7 @@ function ensurePaymentBackedTopUpEnabled() {
 
   if (!hasStripeTopUpRuntimeConfig()) {
     throw new Error(
-      "Stripe Checkout is not fully configured. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to enable real Leaves top-ups.",
+      "Stripe Checkout is not fully configured. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to enable real Leaf’s top-ups.",
     );
   }
 }

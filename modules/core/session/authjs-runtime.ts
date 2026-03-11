@@ -20,17 +20,7 @@ export function shouldAttemptAuthJsProviderResolution(
   return Boolean(resolveAuthJsSecret());
 }
 
-export function shouldEnableAuthJsCredentialsProvider(
-  input = process.env.EDEN_ENABLE_AUTHJS_CREDENTIALS_PROVIDER,
-) {
-  if (input === "true") {
-    return true;
-  }
-
-  if (input === "false") {
-    return false;
-  }
-
+export function shouldEnableAuthJsCredentialsProvider() {
   return true;
 }
 

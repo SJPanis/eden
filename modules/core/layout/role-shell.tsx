@@ -166,7 +166,7 @@ export function RoleShell({
                     {creditsSummary.businessBalanceLabel ? (
                       <div>
                         <p className="text-[11px] uppercase tracking-[0.12em] text-eden-muted">
-                          {activeBusinessName ? "Workspace Leaves" : "Business Leaves"}
+                          {activeBusinessName ? "Workspace Leaf’s" : "Business Leaf’s"}
                         </p>
                         <p className="mt-1 text-sm font-semibold text-eden-ink">
                           {creditsSummary.businessBalanceLabel}

@@ -151,7 +151,7 @@ export function LiveServiceExecutionPanel({
           payload.previousBalanceCredits ?? currentBalanceCredits,
         nextBalanceCredits: payload.nextBalanceCredits ?? currentBalanceCredits,
         amountLabel: formatLeavesAmountLabel(
-          payload.amountLabel ?? `-${requiredCredits} Leaves`,
+          payload.amountLabel ?? `-${requiredCredits} Leaf’s`,
         ),
         transactionTitle:
           payload.transactionTitle ?? `${serviceTitle} run completed`,
@@ -280,7 +280,7 @@ export function LiveServiceExecutionPanel({
           ) : null}
           {!disabled && !hasSufficientBalance ? (
             <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
-              This live run needs {formatLeaves(requiredCredits)}. Add Leaves first, then return here to run the service once the wallet is ready.
+              This live run needs {formatLeaves(requiredCredits)}. Add Leaf’s first, then return here to run the service once the wallet is ready.
             </div>
           ) : null}
           {errorMessage ? (
@@ -303,7 +303,7 @@ export function LiveServiceExecutionPanel({
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
-                  Spendable Leaves
+                  Spendable Leaf’s
                 </p>
                 <p className="mt-2 text-sm font-semibold text-eden-ink">
                   {formatLeaves(requiredCredits)} debited on success

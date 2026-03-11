@@ -269,7 +269,7 @@ function buildBusinessTagline(input: EdenPersistentBusinessWrite) {
 function buildServiceSummary(input: EdenPersistentServiceDraftWrite) {
   const pricingSummary =
     typeof input.pricePerUse === "number" && input.pricePerUse > 0
-      ? `${input.pricePerUse.toLocaleString()} ${input.pricingUnit ?? "Leaves"} per use`
+      ? `${input.pricePerUse.toLocaleString()} ${input.pricingUnit ?? "Leaf’s"} per use`
       : input.pricingModel
         ? `${input.pricingModel.toLowerCase()} pricing placeholders`
         : "placeholder pricing options";

@@ -207,13 +207,13 @@ export function ProjectBlueprintPanel({
           result.action === "fund_hosting"
             ? `Hosting funded. ${
                 typeof result.nextAvailableCredits === "number"
-                  ? `${formatCredits(result.nextAvailableCredits)} earned Leaves remain available for Eden use.`
+                  ? `${formatCredits(result.nextAvailableCredits)} earned Leaf’s remain available for Eden use.`
                   : "The project hosting bank has been topped up."
               }`
             : result.action === "run_agent"
               ? `Agent run completed. ${
                   typeof result.nextAvailableCredits === "number"
-                    ? `${formatCredits(result.nextAvailableCredits)} earned Leaves remain available for Eden use.`
+                    ? `${formatCredits(result.nextAvailableCredits)} earned Leaf’s remain available for Eden use.`
                     : "The output is now attached to the project workspace."
                 }`
             : result.action === "publish_project"
@@ -396,7 +396,7 @@ export function ProjectBlueprintPanel({
             {formatCredits(hostingBalanceTotal)}
           </p>
           <p className="mt-1 text-xs text-eden-muted">
-            Shared remaining hosting Leaves across this business.
+            Shared remaining hosting Leaf’s across this business.
           </p>
         </div>
       </div>
@@ -601,7 +601,7 @@ export function ProjectBlueprintPanel({
                   </button>
                 </div>
                 <p className="mt-3 text-xs leading-5 text-eden-muted">
-                  Hosting is funded from earned Leaves only. This does not use the spendable wallet and does not create an external payout.
+                  Hosting is funded from earned Leaf’s only. This does not use the spendable wallet and does not create an external payout.
                 </p>
               </>
             ) : null}
@@ -718,7 +718,7 @@ export function ProjectBlueprintPanel({
               Runnable project agent
             </p>
             <p className="mt-2 text-sm leading-6 text-eden-muted">
-              Run one agent inside Eden using the current project context. This is a controlled execution pass funded from earned Leaves available for Eden use.
+              Run one agent inside Eden using the current project context. This is a controlled execution pass funded from earned Leaf’s available for Eden use.
             </p>
             {selectedProject ? (
               <>
@@ -733,7 +733,7 @@ export function ProjectBlueprintPanel({
                     )}
                     {selectedProject.agents.map((agent) => (
                       <option key={agent.id} value={agent.id}>
-                        {agent.name} · {agent.roleTitle}
+                        {agent.name} Â· {agent.roleTitle}
                       </option>
                     ))}
                   </select>
@@ -745,7 +745,7 @@ export function ProjectBlueprintPanel({
                       {formatCredits(edenProjectAgentRunLeavesCost)}
                     </p>
                     <p className="mt-1 text-xs">
-                      {formatCredits(currentAvailableForInternalUseCredits)} earned Leaves remain available for Eden use.
+                      {formatCredits(currentAvailableForInternalUseCredits)} earned Leaf’s remain available for Eden use.
                     </p>
                   </div>
                 </div>
@@ -758,7 +758,7 @@ export function ProjectBlueprintPanel({
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-xs leading-5 text-eden-muted">
-                    This does not touch the consumer wallet. It records a visible internal Leaves use event against builder earnings.
+                    This does not touch the consumer wallet. It records a visible internal Leaf’s use event against builder earnings.
                   </p>
                   <button
                     type="button"
@@ -784,7 +784,7 @@ export function ProjectBlueprintPanel({
                             {agentRunResult.outputTitle}
                           </p>
                           <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
-                            {agentRunResult.agentName} · {agentRunResult.agentRoleTitle}
+                            {agentRunResult.agentName} Â· {agentRunResult.agentRoleTitle}
                           </p>
                         </div>
                         <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
@@ -881,7 +881,7 @@ export function ProjectBlueprintPanel({
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-xs leading-5 text-eden-muted">
-                    Current affordability for hosting: {formatCredits(currentAvailableForInternalUseCredits)} earned Leaves available for Eden use.
+                    Current affordability for hosting: {formatCredits(currentAvailableForInternalUseCredits)} earned Leaf’s available for Eden use.
                   </p>
                   <button
                     type="button"

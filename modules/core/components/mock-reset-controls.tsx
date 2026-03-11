@@ -55,7 +55,7 @@ export function MockResetControls({
           {
             id: "ledger" as const,
             label: "Reset Mock Ledger",
-            detail: "Clear simulated Eden Leaves activity and restore the default mocked ledger state.",
+            detail: "Clear simulated Eden Leaf’s activity and restore the default mocked ledger state.",
             tone: "border-rose-200 bg-rose-50 hover:border-rose-300 hover:bg-rose-100",
             request: {
               url: "/api/mock-transactions",

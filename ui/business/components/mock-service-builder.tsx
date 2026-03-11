@@ -36,7 +36,7 @@ const pricingOptions = [
   "One-time purchase",
   "Usage-based",
   "Lead generation",
-  "Eden Leaves",
+  "Eden Leaf’s",
 ];
 const edenAgent = createEdenAgent();
 

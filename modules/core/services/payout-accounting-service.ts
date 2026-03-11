@@ -297,7 +297,7 @@ function buildPayoutAccountingSnapshot(
     edenFeeShareCredits,
     pendingSettlementCredits: settlementHistory.totalPendingCredits,
     accountingRuleLabel:
-      "Payout accounting is still internal-only. Spendable Leaves fund service usage, earned Leaves accrue separately for builders, internal Eden-use records reduce the remaining earned balance, Eden fee share is tracked independently, and persistent payout settlement records reduce paid-out and unpaid balances without enabling real payout rails yet.",
+      "Payout accounting is still internal-only. Spendable Leaf’s fund service usage, earned Leaf’s accrue separately for builders, internal Eden-use records reduce the remaining earned balance, Eden fee share is tracked independently, and persistent payout settlement records reduce paid-out and unpaid balances without enabling real payout rails yet.",
     payoutStatusLabel: buildPayoutStatusLabel({
       unpaidEarningsCredits,
       payoutReadyCredits,

@@ -31,7 +31,7 @@ const eveningResetDefinition: EdenLiveServiceExecutionDefinition = {
   badgeLabel: "Live service available",
   runnerTitle: "Run a real Evening Reset Session",
   runnerDescription:
-    "Share how your day feels and Eden will generate a concrete evening reset plan before any Leaves are deducted.",
+    "Share how your day feels and Eden will generate a concrete evening reset plan before any Leaf’s are deducted.",
   inputLabel: "What kind of reset do you need tonight?",
   inputPlaceholder:
     "Example: I feel overstimulated after work, my mind is racing, and I need a gentle way to slow down before bed.",

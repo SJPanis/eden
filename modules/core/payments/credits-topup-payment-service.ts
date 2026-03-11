@@ -86,7 +86,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       status: "processing",
       payment: null,
       message:
-        "Payment submitted. Eden is waiting for Stripe webhook settlement before Leaves are added.",
+        "Payment submitted. Eden is waiting for Stripe webhook settlement before Leaf’s are added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 
@@ -100,7 +100,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       payment,
       message:
         payment.failureReason ??
-        "Stripe did not settle this top-up. No Eden Leaves were added.",
+        "Stripe did not settle this top-up. No Eden Leaf’s were added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 
@@ -110,7 +110,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       payment,
       message:
         payment.failureReason ??
-        "This Stripe Checkout session was canceled before Eden Leaves were added.",
+        "This Stripe Checkout session was canceled before Eden Leaf’s were added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 
@@ -119,7 +119,7 @@ export async function loadCreditsTopUpConfirmationResult(input: {
       status: "processing",
       payment,
       message:
-        "Payment submitted. Eden is waiting for Stripe webhook settlement before Leaves are added.",
+        "Payment submitted. Eden is waiting for Stripe webhook settlement before Leaf’s are added.",
     } satisfies EdenCreditsTopUpConfirmationResult;
   }
 
@@ -240,14 +240,14 @@ function resolveAndValidateSettledTopUpPackage(
   const selectedPackage = findCreditsTopUpPackage(packageId);
 
   if (!selectedPackage) {
-    throw new Error("Stripe Checkout session does not reference a valid Eden Leaves package.");
+    throw new Error("Stripe Checkout session does not reference a valid Eden Leaf’s package.");
   }
 
   const rawCredits = session.metadata?.edenTopUpCredits;
   const parsedCredits = rawCredits ? Number.parseInt(rawCredits, 10) : NaN;
 
   if (Number.isFinite(parsedCredits) && parsedCredits !== selectedPackage.creditsAmount) {
-    throw new Error("Stripe Checkout metadata credits do not match the selected Eden Leaves package.");
+    throw new Error("Stripe Checkout metadata credits do not match the selected Eden Leaf’s package.");
   }
 
   if (
@@ -255,7 +255,7 @@ function resolveAndValidateSettledTopUpPackage(
     session.amount_total > 0 &&
     session.amount_total !== selectedPackage.amountCents
   ) {
-    throw new Error("Stripe Checkout amount does not match the selected Eden Leaves package.");
+    throw new Error("Stripe Checkout amount does not match the selected Eden Leaf’s package.");
   }
 
   if (
@@ -263,7 +263,7 @@ function resolveAndValidateSettledTopUpPackage(
     session.currency.trim().length > 0 &&
     session.currency.toLowerCase() !== selectedPackage.currency
   ) {
-    throw new Error("Stripe Checkout currency does not match the selected Eden Leaves package.");
+    throw new Error("Stripe Checkout currency does not match the selected Eden Leaf’s package.");
   }
 
   if (existingPayment) {

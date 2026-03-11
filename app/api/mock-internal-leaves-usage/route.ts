@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "A business id and positive internal Leaves amount are required.",
+        error: "A business id and positive internal Leaf’s amount are required.",
       },
       { status: 400 },
     );
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Only builders can use earned Leaves internally.",
+        error: "Only builders can use earned Leaf’s internally.",
       },
       { status: 403 },
     );
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Insufficient earned Leaves for internal Eden use.",
+        error: "Insufficient earned Leaf’s for internal Eden use.",
         insufficientBalance: true,
         amountCredits,
         previousAvailableCredits,
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Unable to record the internal earned Leaves usage.",
+        error: "Unable to record the internal earned Leaf’s usage.",
       },
       { status: 500 },
     );

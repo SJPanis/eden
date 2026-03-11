@@ -184,6 +184,6 @@ function logInternalLeavesUsageFailure(operation: string, error: unknown) {
   }
 
   const detail =
-    error instanceof Error ? error.message : "Unknown internal Leaves usage error";
+    error instanceof Error ? error.message : "Unknown internal Leaf’s usage error";
   console.warn(`[eden][internal-leaves-usage][${operation}] ${detail}`);
 }

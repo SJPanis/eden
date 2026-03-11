@@ -335,7 +335,7 @@ function buildPaymentEventMetadataSummary(eventLog: EdenRepoPaymentEventLogRecor
   }
 
   if (metadata.creditsAmount) {
-    summary.push(`Leaves: ${metadata.creditsAmount}`);
+    summary.push(`Leaf’s: ${metadata.creditsAmount}`);
   }
 
   if (metadata.amountCents && metadata.currency) {
@@ -396,7 +396,7 @@ function resolvePaymentPackageInfo(
 
   return {
     id: null,
-    title: `${payment.creditsAmount.toLocaleString()} Leaves`,
+    title: `${payment.creditsAmount.toLocaleString()} Leaf’s`,
     detail: "Derived from the persisted payment record.",
     chargeLabel: formatMoneyAmount(payment.amountCents, payment.currency),
   };

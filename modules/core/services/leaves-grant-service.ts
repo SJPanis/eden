@@ -72,8 +72,8 @@ export async function loadOwnerLeavesGrantTransactions(limit = 40): Promise<Eden
   return grants.map((grant) => ({
     id: `owner-leaves-grant-${grant.id}`,
     userId: grant.userId,
-    title: "Owner Leaves grant",
-    amountLabel: `+${grant.amountCredits} Leaves`,
+    title: "Owner Leaf’s grant",
+    amountLabel: `+${grant.amountCredits} Leaf’s`,
     creditsDelta: grant.amountCredits,
     direction: "inflow",
     kind: "adjustment",
@@ -95,7 +95,7 @@ function buildGrantDetail(grant: {
     displayName: string;
   };
 }) {
-  const baseDetail = `${grant.grantedByUser.displayName} granted ${grant.amountCredits.toLocaleString()} Leaves to ${grant.user.displayName}.`;
+  const baseDetail = `${grant.grantedByUser.displayName} granted ${grant.amountCredits.toLocaleString()} Leaf’s to ${grant.user.displayName}.`;
   return grant.note ? `${baseDetail} ${grant.note}` : baseDetail;
 }
 

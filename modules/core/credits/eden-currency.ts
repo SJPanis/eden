@@ -1,8 +1,8 @@
-export const edenCurrencyName = "Eden Leaves";
-export const edenCurrencyUnit = "Leaves";
-export const edenSpendableLeavesLabel = "Spendable Leaves";
-export const edenEarnedLeavesLabel = "Earned Leaves";
-export const edenPlatformFeeLeavesLabel = "Eden fee Leaves";
+export const edenCurrencyName = "Eden Leaf’s";
+export const edenCurrencyUnit = "Leaf’s";
+export const edenSpendableLeavesLabel = "Spendable Leaf’s";
+export const edenEarnedLeavesLabel = "Earned Leaf’s";
+export const edenPlatformFeeLeavesLabel = "Eden fee Leaf’s";
 
 export function formatLeaves(value: number) {
   return `${value.toLocaleString()} ${edenCurrencyUnit}`;

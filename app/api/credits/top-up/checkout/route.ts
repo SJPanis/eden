@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Authentication is required before Eden can create a Leaves checkout session.",
+        error: "Authentication is required before Eden can create a Leaf’s checkout session.",
       },
       { status: 401 },
     );
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Unable to create a payment-backed Leaves checkout session.",
+            : "Unable to create a payment-backed Leaf’s checkout session.",
       },
       { status: 400 },
     );

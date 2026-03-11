@@ -54,19 +54,19 @@ export function MockInternalLeavesUsageButton({
           };
 
           if (!response.ok || !payload.ok) {
-            setFeedback(payload.error ?? "Unable to record internal earned Leaves usage.");
+            setFeedback(payload.error ?? "Unable to record internal earned Leaf’s usage.");
             return;
           }
 
           setFeedback(
             typeof payload.nextAvailableCredits === "number"
-              ? `Recorded. ${payload.nextAvailableCredits.toLocaleString()} earned Leaves remain available for Eden use.`
-              : "Recorded internal earned Leaves usage.",
+              ? `Recorded. ${payload.nextAvailableCredits.toLocaleString()} earned Leaf’s remain available for Eden use.`
+              : "Recorded internal earned Leaf’s usage.",
           );
           router.refresh();
         })
         .catch(() => {
-          setFeedback("Unable to record internal earned Leaves usage.");
+          setFeedback("Unable to record internal earned Leaf’s usage.");
         });
     });
   }

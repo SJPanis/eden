@@ -62,7 +62,7 @@ export async function POST(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Unable to confirm the payment-backed Leaves top-up.",
+            : "Unable to confirm the payment-backed Leaf’s top-up.",
       },
       { status: 400 },
     );
