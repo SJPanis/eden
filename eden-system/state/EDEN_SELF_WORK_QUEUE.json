@@ -41,15 +41,30 @@
     },
     {
       "id": "task_audit_and_queue_boundary",
-      "title": "Add sandbox task audit logging and async dispatch boundary metadata",
+      "title": "Add async dispatch boundary and execution interface scaffolding",
       "chapter": "Chapter 03 - AI Orchestration",
       "lane": "short_horizon",
       "approvalState": "approved",
-      "summary": "Track who queued and completed internal sandbox tasks and add an explicit async-dispatch boundary so the task runner can evolve without pretending real background workers already exist.",
+      "summary": "Add explicit dispatch boundary records, session-isolated execution roles, and OpenClaw-style browser/tool/provider adapter scaffolding so sandbox work can move through governed execution preparation without claiming live workers already exist.",
       "acceptanceCriteria": [
-        "Sandbox task creation, completion, and failure events have an audit trail.",
-        "The runtime task model distinguishes synchronous control-plane records from future async dispatch states.",
-        "Owner surfaces show that queued work is still deterministic and sandbox-scoped unless real workers are added."
+        "Sandbox tasks leave explicit dispatch-boundary records that distinguish ready, blocked, and review-required execution intent.",
+        "Execution sessions and roles are represented as owner-only runtime metadata.",
+        "Owner surfaces show that browser, tool, and provider execution remain scaffolded or preflight-only unless a live path is verified."
+      ],
+      "blockedBy": [],
+      "requiresOwnerReview": true
+    },
+    {
+      "id": "sandbox_task_lifecycle_audit_logging",
+      "title": "Add sandbox task lifecycle audit logging",
+      "chapter": "Chapter 03 - AI Orchestration",
+      "lane": "short_horizon",
+      "approvalState": "approved",
+      "summary": "Record who created, updated, failed, and prepared dispatch for internal sandbox tasks so the execution console and self-work loop have immutable lifecycle traces.",
+      "acceptanceCriteria": [
+        "Sandbox task creation, completion, failure, and dispatch-preparation events have a durable audit trail.",
+        "Owner surfaces show recent task lifecycle audit entries without mixing them into runtime lifecycle audit rows.",
+        "The build-supervisor and self-work loop can point to task-audit evidence when reporting what was actually queued or reviewed."
       ],
       "blockedBy": [],
       "requiresOwnerReview": true

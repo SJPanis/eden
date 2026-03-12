@@ -217,6 +217,56 @@ enum ProjectRuntimeAgentRunStatus {
   REVIEW_REQUIRED
 }
 
+enum ProjectRuntimeDispatchStatus {
+  QUEUED
+  READY
+  BLOCKED
+  DISPATCHED
+  COMPLETED
+  FAILED
+  REVIEW_REQUIRED
+}
+
+enum ProjectRuntimeDispatchMode {
+  CONTROL_PLANE_PREFLIGHT
+  OWNER_REVIEW_GATE
+  ASYNC_WORKER_HANDOFF
+}
+
+enum ProjectRuntimeExecutionRole {
+  OWNER_SUPERVISOR
+  RUNTIME_LEAD
+  TOOL_WORKER
+  BROWSER_WORKER
+  QA_REVIEWER
+}
+
+enum ProjectRuntimeExecutionSessionType {
+  SANDBOX_TASK
+  TOOL_EXECUTION
+  BROWSER_EXECUTION
+  PROVIDER_EXECUTION
+}
+
+enum ProjectRuntimeExecutionSessionStatus {
+  PREPARED
+  BLOCKED
+  REVIEW_REQUIRED
+  CLOSED
+}
+
+enum ProjectRuntimeExecutionAdapterKind {
+  PROVIDER
+  TOOL
+  BROWSER
+}
+
+enum ProjectRuntimeExecutionAdapterMode {
+  PREFLIGHT_ONLY
+  SCAFFOLD_ONLY
+  FUTURE_LIVE
+}
+
 enum ProjectRuntimeTaskType {
   IMPLEMENTATION_PLAN
   ANALYSIS
@@ -267,6 +317,8 @@ model User {
   createdProjectRuntimeTasks      ProjectRuntimeTask[]             @relation("ProjectRuntimeTaskCreator")
   projectRuntimeProviderApprovals ProjectRuntimeProviderApproval[] @relation("ProjectRuntimeProviderApprovalActor")
   projectRuntimeAgentRuns         ProjectRuntimeAgentRun[]         @relation("ProjectRuntimeAgentRunActor")
+  projectRuntimeDispatchRecords   ProjectRuntimeDispatchRecord[]   @relation("ProjectRuntimeDispatchActor")
+  projectRuntimeExecutionSessions ProjectRuntimeExecutionSession[] @relation("ProjectRuntimeExecutionSessionActor")
   projectRuntimeAuditLogs         ProjectRuntimeAuditLog[]         @relation("ProjectRuntimeAuditActor")
   projectRuntimeDeploymentRecords ProjectRuntimeDeploymentRecord[] @relation("ProjectRuntimeDeploymentActor")
   receivedLeavesGrants            OwnerLeavesGrant[]               @relation("OwnerLeavesGrantRecipient")
@@ -372,6 +424,8 @@ model ProjectRuntime {
   tasks             ProjectRuntimeTask[]
   providerApprovals ProjectRuntimeProviderApproval[]
   agentRuns         ProjectRuntimeAgentRun[]
+  executionSessions ProjectRuntimeExecutionSession[]
+  dispatchRecords   ProjectRuntimeDispatchRecord[]
   auditLogs         ProjectRuntimeAuditLog[]
   deploymentRecords ProjectRuntimeDeploymentRecord[]
 
@@ -513,6 +567,7 @@ model ProjectRuntimeTask {
   runtime             ProjectRuntime                  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   creatorUser         User                            @relation("ProjectRuntimeTaskCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
   agentRuns           ProjectRuntimeAgentRun[]
+  dispatchRecords     ProjectRuntimeDispatchRecord[]
 
   @@index([runtimeId, createdAt])
   @@index([status, createdAt])
@@ -544,6 +599,68 @@ model ProjectRuntimeAgentRun {
   @@index([taskId, createdAt])
   @@index([runStatus, createdAt])
   @@index([providerKey, createdAt])
+}
+
+model ProjectRuntimeExecutionSession {
+  id                  String                               @id @default(cuid())
+  runtimeId           String
+  actorUserId         String
+  sessionLabel        String
+  sessionType         ProjectRuntimeExecutionSessionType
+  executionRole       ProjectRuntimeExecutionRole
+  adapterKind         ProjectRuntimeExecutionAdapterKind
+  adapterMode         ProjectRuntimeExecutionAdapterMode   @default(PREFLIGHT_ONLY)
+  providerKey         EdenAiProvider?
+  status              ProjectRuntimeExecutionSessionStatus @default(PREPARED)
+  allowedCapabilities String[]
+  ownerOnly           Boolean                              @default(false)
+  internalOnly        Boolean                              @default(false)
+  notes               String?
+  createdAt           DateTime                             @default(now())
+  updatedAt           DateTime                             @updatedAt
+  runtime             ProjectRuntime                       @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  actorUser           User                                 @relation("ProjectRuntimeExecutionSessionActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+  dispatchRecords     ProjectRuntimeDispatchRecord[]
+
+  @@index([runtimeId, createdAt])
+  @@index([status, createdAt])
+  @@index([executionRole, createdAt])
+}
+
+model ProjectRuntimeDispatchRecord {
+  id             String                             @id @default(cuid())
+  runtimeId      String
+  taskId         String?
+  actorUserId    String
+  sessionId      String?
+  providerKey    EdenAiProvider?
+  modelLabel     String?
+  dispatchStatus ProjectRuntimeDispatchStatus       @default(QUEUED)
+  dispatchMode   ProjectRuntimeDispatchMode         @default(CONTROL_PLANE_PREFLIGHT)
+  executionRole  ProjectRuntimeExecutionRole
+  adapterKind    ProjectRuntimeExecutionAdapterKind
+  adapterKey     String
+  adapterMode    ProjectRuntimeExecutionAdapterMode @default(PREFLIGHT_ONLY)
+  summary        String
+  detail         String?
+  dispatchReason String?
+  blockingReason String?
+  reviewRequired Boolean                            @default(false)
+  resultPayload  Json?
+  preparedAt     DateTime                           @default(now())
+  dispatchedAt   DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime                           @default(now())
+  updatedAt      DateTime                           @updatedAt
+  runtime        ProjectRuntime                     @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  task           ProjectRuntimeTask?                @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  actorUser      User                               @relation("ProjectRuntimeDispatchActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+  session        ProjectRuntimeExecutionSession?    @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([runtimeId, createdAt])
+  @@index([taskId, createdAt])
+  @@index([dispatchStatus, createdAt])
+  @@index([adapterKind, createdAt])
 }
 
 model ProjectRuntimeAuditLog {

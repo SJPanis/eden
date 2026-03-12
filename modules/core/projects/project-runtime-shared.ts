@@ -69,6 +69,18 @@ export const ownerRuntimeProviderOptions = [
   { value: "openai", label: "OpenAI" },
   { value: "anthropic", label: "Anthropic" },
 ] as const;
+export const ownerRuntimeExecutionRoleOptions = [
+  { value: "owner_supervisor", label: "Owner Supervisor" },
+  { value: "runtime_lead", label: "Runtime Lead" },
+  { value: "tool_worker", label: "Tool Worker" },
+  { value: "browser_worker", label: "Browser Worker" },
+  { value: "qa_reviewer", label: "QA Reviewer" },
+] as const;
+export const ownerRuntimeExecutionAdapterOptions = [
+  { value: "tool_adapter", label: "Tool Adapter" },
+  { value: "browser_adapter", label: "Browser Adapter" },
+  { value: "provider_adapter", label: "Provider Adapter" },
+] as const;
 export const ownerRuntimeProviderApprovalStatusOptions = [
   { value: "review_required", label: "Review Required" },
   { value: "approved", label: "Approved" },
@@ -119,6 +131,10 @@ export type OwnerRuntimeProviderPolicyMode =
   (typeof ownerRuntimeProviderPolicyModeOptions)[number]["value"];
 export type OwnerRuntimeProvider =
   (typeof ownerRuntimeProviderOptions)[number]["value"];
+export type OwnerRuntimeExecutionRole =
+  (typeof ownerRuntimeExecutionRoleOptions)[number]["value"];
+export type OwnerRuntimeExecutionAdapter =
+  (typeof ownerRuntimeExecutionAdapterOptions)[number]["value"];
 export type OwnerRuntimeProviderApprovalStatus =
   (typeof ownerRuntimeProviderApprovalStatusOptions)[number]["value"];
 export type OwnerRuntimeSecretStatus =
@@ -275,6 +291,68 @@ export type EdenProjectRuntimeAgentRunRecord = {
   completedAtLabel?: string | null;
 };
 
+export type EdenProjectRuntimeExecutionSessionRecord = {
+  id: string;
+  actorUserId: string;
+  actorLabel: string;
+  sessionLabel: string;
+  sessionType: string;
+  sessionTypeLabel: string;
+  executionRole: string;
+  executionRoleLabel: string;
+  adapterKind: string;
+  adapterKindLabel: string;
+  adapterMode: string;
+  adapterModeLabel: string;
+  providerKey?: string | null;
+  providerLabel?: string | null;
+  status: string;
+  statusLabel: string;
+  allowedCapabilities: string[];
+  ownerOnly: boolean;
+  internalOnly: boolean;
+  notes?: string | null;
+  createdAtLabel: string;
+  updatedAtLabel: string;
+};
+
+export type EdenProjectRuntimeDispatchRecord = {
+  id: string;
+  runtimeId: string;
+  taskId?: string | null;
+  taskTitle?: string | null;
+  actorUserId: string;
+  actorLabel: string;
+  sessionId?: string | null;
+  sessionLabel?: string | null;
+  providerKey?: string | null;
+  providerLabel?: string | null;
+  modelLabel?: string | null;
+  dispatchStatus: string;
+  dispatchStatusLabel: string;
+  dispatchMode: string;
+  dispatchModeLabel: string;
+  executionRole: string;
+  executionRoleLabel: string;
+  adapterKind: string;
+  adapterKindLabel: string;
+  adapterKey: string;
+  adapterLabel: string;
+  adapterMode: string;
+  adapterModeLabel: string;
+  summary: string;
+  detail?: string | null;
+  dispatchReason?: string | null;
+  blockingReason?: string | null;
+  reviewRequired: boolean;
+  resultPayloadSummary?: string | null;
+  preparedAtLabel: string;
+  dispatchedAtLabel?: string | null;
+  completedAtLabel?: string | null;
+  createdAtLabel: string;
+  updatedAtLabel: string;
+};
+
 export type EdenProjectRuntimeRecord = {
   id: string;
   projectId: string;
@@ -314,6 +392,8 @@ export type EdenProjectRuntimeRecord = {
   providerApprovals: EdenProjectRuntimeProviderApprovalRecord[];
   providerCompatibility: EdenProjectRuntimeProviderCompatibilityRecord[];
   agentRuns: EdenProjectRuntimeAgentRunRecord[];
+  executionSessions: EdenProjectRuntimeExecutionSessionRecord[];
+  dispatchHistory: EdenProjectRuntimeDispatchRecord[];
   auditEntries: EdenProjectRuntimeAuditLogRecord[];
   deploymentHistory: EdenProjectRuntimeDeploymentRecord[];
 };
@@ -364,6 +444,7 @@ export type EdenProjectRuntimeTaskRecord = {
   resultPayloadSummary?: string | null;
   failureDetail?: string | null;
   agentRuns: EdenProjectRuntimeAgentRunRecord[];
+  dispatchRecords: EdenProjectRuntimeDispatchRecord[];
   plannerCompletedAtLabel?: string | null;
   workerCompletedAtLabel?: string | null;
   completedAtLabel?: string | null;

@@ -482,10 +482,61 @@
 - No real isolated runtime, container, deploy job, or hosted preview was started by these changes.
 - Persistent verification of the new governance records still depends on applying the new migration to the active database and testing `/owner/runtimes` in that environment.
 
+### OpenClaw-style execution interface scaffolding v1 completed
+
+- Re-read the canonical Eden specs, state files, self-work queue, build-supervisor state, and Codex executor prompt before extending the runtime layer again.
+- Inspected the current runtime schema, sandbox task runner, provider-governance flow, owner runtime UI, self-work loop, and build-supervisor state before changing code.
+- Extended Prisma schema with:
+  - enums: `ProjectRuntimeDispatchStatus`, `ProjectRuntimeDispatchMode`
+  - enums: `ProjectRuntimeExecutionRole`, `ProjectRuntimeExecutionSessionType`, `ProjectRuntimeExecutionSessionStatus`
+  - enums: `ProjectRuntimeExecutionAdapterKind`, `ProjectRuntimeExecutionAdapterMode`
+  - models: `ProjectRuntimeExecutionSession`, `ProjectRuntimeDispatchRecord`
+- Added Eden-native execution adapter scaffolding in:
+  - `modules/core/agents/eden-execution-adapters.ts`
+  - tool, browser, and provider adapters now have honest scaffold/preflight metadata and runtime-boundary checks
+- Extended shared runtime types in:
+  - `modules/core/projects/project-runtime-shared.ts`
+  - added execution role options, adapter options, execution-session records, and dispatch-record read models
+- Extended `modules/core/services/project-runtime-service.ts` so the sandbox task runner now:
+  - computes an execution-governance snapshot from runtime policy, provider approvals, and secret readiness
+  - resolves an intended execution role and adapter path for each sandbox task
+  - records `ProjectRuntimeExecutionSession` rows
+  - records `ProjectRuntimeDispatchRecord` rows
+  - writes agent-run summaries from governed dispatch preflight instead of implying live execution
+- Added owner-only execution console UI:
+  - `ui/owner/owner-runtime-execution-console.tsx`
+  - integrated into `ui/owner/owner-runtime-registry.tsx`
+- Extended the internal sandbox task runner UI in:
+  - `ui/owner/internal-sandbox-task-runner.tsx`
+  - task creation now captures execution role and adapter intent
+  - stored task cards now show dispatch-boundary metadata alongside planner/worker output
+- Extended the owner-only sandbox task API in:
+  - `app/api/owner/project-runtimes/internal-sandbox/tasks/route.ts`
+- Generated additive migration:
+  - `prisma/migrations/20260311235959_openclaw_execution_interface_scaffolding_v1/migration.sql`
+- Updated canonical queue/state/timeline files so:
+  - the previous combined dispatch/audit queue item now honestly reflects the completed execution-interface scope
+  - sandbox task lifecycle audit logging is separated into its own follow-up task
+
+### Verification completed for execution interface scaffolding v1
+
+- `cmd /c npx prisma format` passed when pointed at the local schema engine binary.
+- `cmd /c npx prisma generate` passed.
+- `cmd /c npx prisma validate` passed.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+### Important limits after execution interface scaffolding v1
+
+- Dispatch records and execution sessions are still control-plane metadata only.
+- Tool adapter, browser adapter, and provider adapter execution remain scaffolded or preflight-only.
+- No live browser automation, tool execution, provider execution, async worker queue, or container runtime was added in this session.
+- Persistent verification of the new execution-interface records still depends on applying the new migration to the active database and testing `/owner/runtimes` in that environment.
+
 ### Build Supervisor Latest Result
 
 <!-- EDEN_BUILD_SUPERVISOR:START -->
 - No completed supervised task has been ingested yet.
 - Summary: No supervisor-ingested completion summary is recorded yet.
-- Next recommended task: Add sandbox task audit logging and async dispatch boundary metadata.
+- Next recommended task: Add sandbox task lifecycle audit logging.
 <!-- EDEN_BUILD_SUPERVISOR:END -->

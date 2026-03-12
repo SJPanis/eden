@@ -67,7 +67,7 @@
 - [x] Add owner-only provider approval and secret readiness update APIs and UI inside `/owner/runtimes`.
 - [x] Generate a Prisma migration for provider approval gates, secret readiness detail, agent runs, and sandbox result capture.
 - [ ] Run `prisma migrate resolve --applied 20260311120000_pre_runtime_baseline` on the active database.
-- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`, and `20260311235930_provider_approval_secret_status_agent_run_v1` create the runtime, task, audit, launch-intent, deployment-history, config-policy, secret-boundary, provider-approval, and agent-run tables.
+- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`, `20260311235930_provider_approval_secret_status_agent_run_v1`, and `20260311235959_openclaw_execution_interface_scaffolding_v1` create the runtime, task, audit, launch-intent, deployment-history, config-policy, secret-boundary, provider-approval, agent-run, execution-session, and dispatch tables.
 - [ ] Execute the owner-only sandbox initializer against the migrated database and confirm the registry loads persistent data.
 - [ ] Create a sandbox task against the migrated database and confirm planner/worker outputs persist.
 - [ ] Create a sandbox task with provider preflight metadata against the migrated database and confirm agent-run and explicit result-capture records persist.
@@ -77,11 +77,12 @@
 - [ ] Save a runtime config-policy update against the migrated database and confirm secret-boundary metadata is created or refreshed.
 - [ ] Save a provider approval update against the migrated database and confirm compatibility plus audit entries persist.
 - [ ] Save a secret-boundary readiness update against the migrated database and confirm status detail plus last-checked metadata persist.
+- [ ] Create a sandbox task with tool-adapter dispatch selected against the migrated database and confirm `ProjectRuntimeExecutionSession` plus `ProjectRuntimeDispatchRecord` rows persist.
+- [ ] Create a sandbox task with browser-adapter dispatch selected against the migrated database and confirm the dispatch record stops in `review required` state without implying live browser automation.
 
 ### Soon
 
-- [ ] Add task lifecycle audit logging for sandbox task creation, completion, and failure.
-- [ ] Add an explicit async task dispatch boundary so sandbox tasks can graduate from synchronous metadata-only execution when real workers exist.
+- [x] Add an explicit async task dispatch boundary so sandbox tasks can graduate from synchronous metadata-only execution when real workers exist.
 - [ ] Add runtime launch/read actions that operate on runtime metadata instead of direct project blueprint state.
 - [ ] Add domain/link metadata for external domains and Eden-managed hosted URLs.
 - [ ] Add project secret/config storage boundaries outside general business metadata.
@@ -111,7 +112,10 @@
 - [x] Add a canonical Codex execution packet file and build-supervisor state file under `eden-system/state/`.
 - [x] Add post-execution ingestion support that can refresh managed sections in `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
 - [x] Add an owner-only build-supervisor panel inside `/owner/runtimes`.
-- [ ] Define scoped agent roles that operate on project runtime context instead of Eden core assumptions.
+- [x] Define scoped execution roles that operate on project runtime context instead of Eden core assumptions.
+- [x] Add owner-visible execution console/history for governed dispatch, sessions, and recent run state.
+- [x] Add browser/tool/provider execution adapter scaffolding for governed dispatch preflight.
+- [ ] Add sandbox task lifecycle audit logging for creation, completion, failure, and dispatch preparation.
 - [ ] Require every future Codex task to update `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
 
 ### Soon
@@ -131,7 +135,7 @@
 
 <!-- EDEN_BUILD_SUPERVISOR:START -->
 - Review mode: Owner review required after each self-work task.
-- Current recommended task: Add sandbox task audit logging and async dispatch boundary metadata.
+- Current recommended task: Add sandbox task lifecycle audit logging.
 - Highest blocked approved task: Apply live runtime control-plane migrations and verify persistent runtime records.
 - Build-supervisor packet ready: no.
 <!-- EDEN_BUILD_SUPERVISOR:END -->

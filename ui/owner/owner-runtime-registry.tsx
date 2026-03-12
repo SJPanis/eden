@@ -8,6 +8,7 @@ import type {
 } from "@/modules/core/projects/project-runtime-shared";
 import { edenOwnerInternalSandboxRuntimeId } from "@/modules/core/projects/project-runtime-shared";
 import { OwnerRuntimeConfigPanel } from "@/ui/owner/owner-runtime-config-panel";
+import { OwnerRuntimeExecutionConsole } from "@/ui/owner/owner-runtime-execution-console";
 import { OwnerRuntimeLifecyclePanel } from "@/ui/owner/owner-runtime-lifecycle-panel";
 import { OwnerRuntimeLaunchPanel } from "@/ui/owner/owner-runtime-launch-panel";
 import { InternalSandboxTaskRunner } from "@/ui/owner/internal-sandbox-task-runner";
@@ -426,6 +427,11 @@ export function OwnerRuntimeRegistry({
 
               <OwnerRuntimeConfigPanel
                 key={`${runtime.id}-${runtime.configPolicy?.updatedAtLabel ?? "config-none"}-${runtime.secretBoundaries.map((boundary) => `${boundary.updatedAtLabel}-${boundary.status}-${boundary.lastCheckedAtLabel ?? "none"}`).join("_")}-${runtime.providerApprovals.map((approval) => approval.updatedAtLabel).join("_")}-${runtime.providerCompatibility.map((provider) => provider.compatibilityStatus).join("-")}`}
+                runtime={runtime}
+              />
+
+              <OwnerRuntimeExecutionConsole
+                key={`${runtime.id}-${runtime.dispatchHistory.map((record) => `${record.id}-${record.dispatchStatus}-${record.updatedAtLabel}`).join("_")}-${runtime.executionSessions.map((session) => `${session.id}-${session.status}-${session.updatedAtLabel}`).join("_")}`}
                 runtime={runtime}
               />
 

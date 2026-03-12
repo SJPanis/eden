@@ -10,7 +10,8 @@ Last updated: 2026-03-11
 
 ## Short-Horizon V1 Closeout
 
-- Add sandbox task audit logging and explicit async-dispatch boundary metadata.
+- Verify dispatch/session history from the new execution-interface layer against the migrated live database.
+- Add sandbox task lifecycle audit logging.
 - Verify provider approvals, secret readiness updates, agent runs, and sandbox result capture against the migrated live database.
 - Keep active owner and consumer surfaces honest about which ledger, runtime, and provider features remain metadata-only or development overlays.
 

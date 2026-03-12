@@ -3,7 +3,8 @@
   "mode": "owner_review_required",
   "packetPath": "eden-system/state/EDEN_CODEX_EXECUTION_PACKET.json",
   "completedTaskIds": [
-    "secret_boundary_status_controls"
+    "secret_boundary_status_controls",
+    "task_audit_and_queue_boundary"
   ],
   "lastPreparedPacketTaskId": null,
   "lastPreparedAt": null,

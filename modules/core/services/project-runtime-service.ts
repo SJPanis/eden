@@ -5,12 +5,19 @@ import {
   buildRuntimeProviderPreflight,
   evaluateRuntimeProviderCompatibility,
 } from "@/modules/core/agents/eden-provider-adapters";
-import type { EdenProviderExecutionPreflightRecord } from "@/modules/core/agents/eden-provider-adapters";
+import {
+  buildRuntimeExecutionDispatchPreflight,
+  type EdenExecutionDispatchPreflightRecord,
+  type EdenExecutionAdapterKey,
+  type EdenRuntimeExecutionGovernanceSnapshot,
+} from "@/modules/core/agents/eden-execution-adapters";
 import type {
   EdenProjectRuntimeAuditLogRecord,
   EdenProjectRuntimeAgentRunRecord,
   EdenProjectRuntimeConfigRecord,
+  EdenProjectRuntimeDispatchRecord,
   EdenProjectRuntimeDeploymentRecord,
+  EdenProjectRuntimeExecutionSessionRecord,
   EdenProjectRuntimeLaunchIntentRecord,
   EdenProjectRuntimeProviderApprovalRecord,
   EdenProjectRuntimeProviderCompatibilityRecord,
@@ -28,6 +35,8 @@ import type {
   OwnerRuntimeLaunchMode,
   OwnerRuntimeLaunchTarget,
   OwnerRuntimeExecutionMode,
+  OwnerRuntimeExecutionAdapter,
+  OwnerRuntimeExecutionRole,
   OwnerRuntimeProvider,
   OwnerRuntimeProviderApprovalStatus,
   OwnerRuntimeProviderPolicyMode,
@@ -105,6 +114,48 @@ const projectRuntimeRegistryInclude = {
       },
     },
   },
+  executionSessions: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 8,
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+    },
+  },
+  dispatchRecords: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 10,
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+      task: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      session: {
+        select: {
+          id: true,
+          sessionLabel: true,
+        },
+      },
+    },
+  },
   auditLogs: {
     orderBy: {
       createdAt: "desc",
@@ -167,6 +218,32 @@ const projectRuntimeTaskInclude = {
           id: true,
           username: true,
           displayName: true,
+        },
+      },
+    },
+  },
+  dispatchRecords: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+      task: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      session: {
+        select: {
+          id: true,
+          sessionLabel: true,
         },
       },
     },
@@ -263,6 +340,42 @@ type ProjectRuntimeAgentRunStatusValue =
   | "COMPLETED"
   | "FAILED"
   | "REVIEW_REQUIRED";
+type ProjectRuntimeDispatchStatusValue =
+  | "QUEUED"
+  | "READY"
+  | "BLOCKED"
+  | "DISPATCHED"
+  | "COMPLETED"
+  | "FAILED"
+  | "REVIEW_REQUIRED";
+type ProjectRuntimeDispatchModeValue =
+  | "CONTROL_PLANE_PREFLIGHT"
+  | "OWNER_REVIEW_GATE"
+  | "ASYNC_WORKER_HANDOFF";
+type ProjectRuntimeExecutionRoleValue =
+  | "OWNER_SUPERVISOR"
+  | "RUNTIME_LEAD"
+  | "TOOL_WORKER"
+  | "BROWSER_WORKER"
+  | "QA_REVIEWER";
+type ProjectRuntimeExecutionSessionTypeValue =
+  | "SANDBOX_TASK"
+  | "TOOL_EXECUTION"
+  | "BROWSER_EXECUTION"
+  | "PROVIDER_EXECUTION";
+type ProjectRuntimeExecutionSessionStatusValue =
+  | "PREPARED"
+  | "BLOCKED"
+  | "REVIEW_REQUIRED"
+  | "CLOSED";
+type ProjectRuntimeExecutionAdapterKindValue =
+  | "PROVIDER"
+  | "TOOL"
+  | "BROWSER";
+type ProjectRuntimeExecutionAdapterModeValue =
+  | "PREFLIGHT_ONLY"
+  | "SCAFFOLD_ONLY"
+  | "FUTURE_LIVE";
 type ProjectRuntimeTaskResultTypeValue =
   | "SANDBOX_PLAN"
   | "PROVIDER_PREFLIGHT"
@@ -1552,6 +1665,8 @@ export async function createOwnerInternalSandboxTask(
     providerKey?: string | null;
     modelLabel?: string | null;
     requestedActionType?: string | null;
+    executionRole?: string | null;
+    adapterKey?: string | null;
   },
 ) {
   const prisma = getPrismaClient();
@@ -1567,11 +1682,15 @@ export async function createOwnerInternalSandboxTask(
         name: true,
         accessPolicy: true,
         runtimeType: true,
+        target: true,
+        visibility: true,
         configPolicy: {
           select: {
             executionMode: true,
             providerPolicyMode: true,
             allowedProviders: true,
+            ownerOnlyEnforced: true,
+            internalOnlyEnforced: true,
           },
         },
         secretBoundaries: {
@@ -1632,34 +1751,30 @@ export async function createOwnerInternalSandboxTask(
     const requestedActionType =
       parseProjectRuntimeAgentActionType(input.requestedActionType) ??
       (providerKey ? "PROVIDER_PREFLIGHT" : resolveSandboxTaskRequestedAction(taskType));
+    const executionRole =
+      parseProjectRuntimeExecutionRole(input.executionRole) ??
+      resolveSandboxExecutionRole({
+        taskType,
+        providerKey,
+        requestedActionType,
+      });
+    const adapterKey =
+      parseProjectRuntimeExecutionAdapterKey(input.adapterKey) ??
+      resolveSandboxExecutionAdapterKey({
+        providerKey,
+        requestedActionType,
+      });
     const taskTitle =
       normalizeSandboxTaskTitle(input.title) ?? buildSandboxTaskTitle(normalizedInput);
-    const providerPreflight = providerKey
-      ? buildRuntimeProviderPreflight(
-          {
-            executionMode:
-              runtime.configPolicy?.executionMode.toLowerCase() ?? null,
-            providerPolicyMode:
-              runtime.configPolicy?.providerPolicyMode.toLowerCase() ?? null,
-            allowedProviders:
-              runtime.configPolicy?.allowedProviders.map((provider) =>
-                provider.toLowerCase(),
-              ) ?? [],
-            providerApprovals: runtime.providerApprovals.map((approval) => ({
-              providerKey: approval.providerKey.toLowerCase(),
-              approvalStatus: approval.approvalStatus.toLowerCase(),
-              modelScope: approval.modelScope,
-              capabilityScope: approval.capabilityScope,
-            })),
-            secretBoundaries: runtime.secretBoundaries.map((boundary) => ({
-              providerKey: boundary.providerKey?.toLowerCase() ?? null,
-              status: boundary.status.toLowerCase(),
-              isRequired: boundary.isRequired,
-            })),
-          },
-          providerKey.toLowerCase(),
-        )
-      : null;
+    const executionGovernanceSnapshot = buildRuntimeExecutionGovernanceSnapshot(
+      runtime,
+    );
+    const dispatchPreflight = buildRuntimeExecutionDispatchPreflight({
+      snapshot: executionGovernanceSnapshot,
+      adapterKey,
+      providerKey: providerKey?.toLowerCase() ?? null,
+    });
+    const providerPreflight = dispatchPreflight?.providerPreflight ?? null;
 
     const createdTask = await prisma.projectRuntimeTask.create({
       data: {
@@ -1703,6 +1818,7 @@ export async function createOwnerInternalSandboxTask(
       inputText: createdTask.inputText,
       plannerPayload: plannerPayload.payload,
       providerPreflight,
+      dispatchPreflight,
     });
     const taskResult = buildSandboxTaskResult({
       taskType,
@@ -1732,15 +1848,81 @@ export async function createOwnerInternalSandboxTask(
       include: projectRuntimeTaskInclude,
     });
 
-    const runSummary = providerPreflight
-      ? providerPreflight.summary
-      : `${edenInternalSandboxWorkerAgentLabel} completed a deterministic sandbox control-plane run.`;
-    const runDetail = providerPreflight
-      ? providerPreflight.detail
-      : "The internal sandbox task runner stored planner and worker records only. No live provider call, container execution, or hosted runtime action occurred.";
-    const runStatus = providerPreflight
-      ? mapProviderPreflightToAgentRunStatus(providerPreflight.runStatus)
-      : ("COMPLETED" satisfies ProjectRuntimeAgentRunStatusValue);
+    const executionSession = dispatchPreflight
+      ? await prisma.projectRuntimeExecutionSession.create({
+          data: {
+            runtimeId: edenOwnerInternalSandboxRuntimeId,
+            actorUserId: actor.id,
+            sessionLabel: buildSandboxExecutionSessionLabel({
+              taskTitle: createdTask.title,
+              executionRole,
+              adapterKey: dispatchPreflight.adapterKey,
+            }),
+            sessionType: resolveSandboxExecutionSessionType(
+              dispatchPreflight.adapterKind,
+            ),
+            executionRole,
+            adapterKind: mapDispatchAdapterKindToSchemaValue(
+              dispatchPreflight.adapterKind,
+            ),
+            adapterMode: mapDispatchAdapterModeToSchemaValue(
+              dispatchPreflight.adapterMode,
+            ),
+            providerKey,
+            status: mapDispatchStatusToExecutionSessionStatus(
+              dispatchPreflight.dispatchStatus,
+            ),
+            allowedCapabilities: dispatchPreflight.capabilityLabels,
+            ownerOnly: true,
+            internalOnly: true,
+            notes: dispatchPreflight.detail,
+          },
+        })
+      : null;
+
+    const dispatchRecord = dispatchPreflight
+      ? await prisma.projectRuntimeDispatchRecord.create({
+          data: {
+            runtimeId: edenOwnerInternalSandboxRuntimeId,
+            taskId: createdTask.id,
+            actorUserId: actor.id,
+            sessionId: executionSession?.id ?? null,
+            providerKey,
+            modelLabel,
+            dispatchStatus: mapDispatchStatusToSchemaValue(
+              dispatchPreflight.dispatchStatus,
+            ),
+            dispatchMode: resolveSandboxDispatchMode(dispatchPreflight),
+            executionRole,
+            adapterKind: mapDispatchAdapterKindToSchemaValue(
+              dispatchPreflight.adapterKind,
+            ),
+            adapterKey: dispatchPreflight.adapterKey,
+            adapterMode: mapDispatchAdapterModeToSchemaValue(
+              dispatchPreflight.adapterMode,
+            ),
+            summary: dispatchPreflight.summary,
+            detail: dispatchPreflight.detail,
+            dispatchReason: dispatchPreflight.dispatchReason,
+            blockingReason: dispatchPreflight.blockingReason,
+            reviewRequired: dispatchPreflight.reviewRequired,
+            resultPayload: buildSandboxDispatchResultPayload({
+              dispatchPreflight,
+              requestedActionType,
+            }),
+          },
+        })
+      : null;
+
+    const runSummary = dispatchPreflight
+      ? dispatchPreflight.summary
+      : `${edenInternalSandboxWorkerAgentLabel} recorded a deterministic sandbox control-plane run.`;
+    const runDetail = dispatchPreflight
+      ? dispatchPreflight.detail
+      : "The internal sandbox task runner stored planner and worker records only. No live provider call, tool execution, browser automation, or hosted runtime action occurred.";
+    const runStatus = dispatchPreflight
+      ? mapDispatchPreflightToAgentRunStatus(dispatchPreflight.dispatchStatus)
+      : ("PREPARED" satisfies ProjectRuntimeAgentRunStatusValue);
 
     await prisma.projectRuntimeAgentRun.create({
       data: {
@@ -1754,8 +1936,9 @@ export async function createOwnerInternalSandboxTask(
         runStatus,
         summary: runSummary,
         detail: runDetail,
-        resultPayload: taskResult.resultPayload,
-        completedAt: workerCompletedAt,
+        resultPayload:
+          dispatchRecord?.resultPayload ?? taskResult.resultPayload,
+        completedAt: runStatus === "COMPLETED" ? workerCompletedAt : null,
       },
     });
 
@@ -2188,6 +2371,12 @@ function mapProjectRuntimeRecord(
       mapProjectRuntimeProviderApprovalRecord,
     ),
     agentRuns: runtime.agentRuns.map(mapProjectRuntimeAgentRunRecord),
+    executionSessions: runtime.executionSessions.map(
+      mapProjectRuntimeExecutionSessionRecord,
+    ),
+    dispatchHistory: runtime.dispatchRecords.map(
+      mapProjectRuntimeDispatchRecord,
+    ),
     auditEntries: runtime.auditLogs.map(mapProjectRuntimeAuditLogRecord),
     deploymentHistory: runtime.deploymentRecords.map(
       mapProjectRuntimeDeploymentRecord,
@@ -2325,6 +2514,82 @@ function mapProjectRuntimeAgentRunRecord(
   };
 }
 
+function mapProjectRuntimeExecutionSessionRecord(
+  session: ProjectRuntimeRegistryRecord["executionSessions"][number],
+): EdenProjectRuntimeExecutionSessionRecord {
+  return {
+    id: session.id,
+    actorUserId: session.actorUser.id,
+    actorLabel: `${session.actorUser.displayName} (@${session.actorUser.username})`,
+    sessionLabel: session.sessionLabel,
+    sessionType: session.sessionType.toLowerCase(),
+    sessionTypeLabel: formatEnumLabel(session.sessionType),
+    executionRole: session.executionRole.toLowerCase(),
+    executionRoleLabel: formatEnumLabel(session.executionRole),
+    adapterKind: session.adapterKind.toLowerCase(),
+    adapterKindLabel: formatEnumLabel(session.adapterKind),
+    adapterMode: session.adapterMode.toLowerCase(),
+    adapterModeLabel: formatEnumLabel(session.adapterMode),
+    providerKey: session.providerKey?.toLowerCase() ?? null,
+    providerLabel: session.providerKey ? formatEnumLabel(session.providerKey) : null,
+    status: session.status.toLowerCase(),
+    statusLabel: formatEnumLabel(session.status),
+    allowedCapabilities: session.allowedCapabilities,
+    ownerOnly: session.ownerOnly,
+    internalOnly: session.internalOnly,
+    notes: session.notes,
+    createdAtLabel: formatTimestamp(session.createdAt),
+    updatedAtLabel: formatTimestamp(session.updatedAt),
+  };
+}
+
+function mapProjectRuntimeDispatchRecord(
+  record:
+    | ProjectRuntimeRegistryRecord["dispatchRecords"][number]
+    | ProjectRuntimeTaskReadRecord["dispatchRecords"][number],
+): EdenProjectRuntimeDispatchRecord {
+  return {
+    id: record.id,
+    runtimeId: record.runtimeId,
+    taskId: record.taskId,
+    taskTitle: record.task?.title ?? null,
+    actorUserId: record.actorUser.id,
+    actorLabel: `${record.actorUser.displayName} (@${record.actorUser.username})`,
+    sessionId: record.session?.id ?? null,
+    sessionLabel: record.session?.sessionLabel ?? null,
+    providerKey: record.providerKey?.toLowerCase() ?? null,
+    providerLabel: record.providerKey ? formatEnumLabel(record.providerKey) : null,
+    modelLabel: record.modelLabel,
+    dispatchStatus: record.dispatchStatus.toLowerCase(),
+    dispatchStatusLabel: formatEnumLabel(record.dispatchStatus),
+    dispatchMode: record.dispatchMode.toLowerCase(),
+    dispatchModeLabel: formatEnumLabel(record.dispatchMode),
+    executionRole: record.executionRole.toLowerCase(),
+    executionRoleLabel: formatEnumLabel(record.executionRole),
+    adapterKind: record.adapterKind.toLowerCase(),
+    adapterKindLabel: formatEnumLabel(record.adapterKind),
+    adapterKey: record.adapterKey,
+    adapterLabel: formatExecutionAdapterLabel(record.adapterKey),
+    adapterMode: record.adapterMode.toLowerCase(),
+    adapterModeLabel: formatEnumLabel(record.adapterMode),
+    summary: record.summary,
+    detail: record.detail,
+    dispatchReason: record.dispatchReason,
+    blockingReason: record.blockingReason,
+    reviewRequired: record.reviewRequired,
+    resultPayloadSummary: summarizeJsonPayload(record.resultPayload),
+    preparedAtLabel: formatTimestamp(record.preparedAt),
+    dispatchedAtLabel: record.dispatchedAt
+      ? formatTimestamp(record.dispatchedAt)
+      : null,
+    completedAtLabel: record.completedAt
+      ? formatTimestamp(record.completedAt)
+      : null,
+    createdAtLabel: formatTimestamp(record.createdAt),
+    updatedAtLabel: formatTimestamp(record.updatedAt),
+  };
+}
+
 function mapProjectRuntimeAuditLogRecord(
   entry: ProjectRuntimeRegistryRecord["auditLogs"][number],
 ): EdenProjectRuntimeAuditLogRecord {
@@ -2422,6 +2687,7 @@ function mapProjectRuntimeTaskRecord(
     resultPayloadSummary: summarizeJsonPayload(task.resultPayload),
     failureDetail: task.failureDetail,
     agentRuns: task.agentRuns.map(mapProjectRuntimeAgentRunRecord),
+    dispatchRecords: task.dispatchRecords.map(mapProjectRuntimeDispatchRecord),
     plannerCompletedAtLabel: task.plannerCompletedAt
       ? formatTimestamp(task.plannerCompletedAt)
       : null,
@@ -2492,6 +2758,7 @@ function buildSandboxWorkerPayload(input: {
   inputText: string;
   plannerPayload: SandboxPlannerPayload;
   providerPreflight: ReturnType<typeof buildRuntimeProviderPreflight> | null;
+  dispatchPreflight: EdenExecutionDispatchPreflightRecord | null;
 }) {
   const actionPlan = buildWorkerActionPlan(input.inputText, input.plannerPayload);
   const implementationNotes = buildWorkerImplementationNotes(
@@ -2504,9 +2771,18 @@ function buildSandboxWorkerPayload(input: {
   const providerPreflightLine = input.providerPreflight
     ? `Provider preflight: ${input.providerPreflight.summary}`
     : null;
+  const dispatchPreflightLine = input.dispatchPreflight
+    ? `Execution dispatch preflight: ${input.dispatchPreflight.summary}`
+    : null;
   const outputSummary =
     input.providerPreflight
       ? "Sandbox provider preflight recorded."
+      : input.dispatchPreflight &&
+          input.dispatchPreflight.adapterKind === "browser"
+        ? "Sandbox browser-dispatch preflight recorded."
+      : input.dispatchPreflight &&
+          input.dispatchPreflight.adapterKind === "tool"
+        ? "Sandbox tool-dispatch preflight recorded."
       : input.taskType === "ANALYSIS"
       ? "Sandbox analysis record generated."
       : input.taskType === "QA_REVIEW"
@@ -2520,6 +2796,7 @@ function buildSandboxWorkerPayload(input: {
       `Task intent: ${input.plannerPayload.taskIntent}`,
       `Workstream: ${input.plannerPayload.workstream}`,
       executionNote,
+      ...(dispatchPreflightLine ? [dispatchPreflightLine] : []),
       ...(providerPreflightLine ? [providerPreflightLine] : []),
       ...actionPlan,
     ],
@@ -2614,19 +2891,219 @@ function resolveSandboxTaskRequestedAction(
   return "SANDBOX_TEST";
 }
 
-function mapProviderPreflightToAgentRunStatus(
-  runStatus: EdenProviderExecutionPreflightRecord["runStatus"],
+function resolveSandboxExecutionRole(input: {
+  taskType: "IMPLEMENTATION_PLAN" | "ANALYSIS" | "QA_REVIEW";
+  providerKey: EdenAiProviderValue | null;
+  requestedActionType: ProjectRuntimeAgentActionTypeValue;
+}): ProjectRuntimeExecutionRoleValue {
+  if (input.requestedActionType === "QA_VALIDATION" || input.taskType === "QA_REVIEW") {
+    return "QA_REVIEWER";
+  }
+
+  if (input.providerKey) {
+    return "TOOL_WORKER";
+  }
+
+  if (input.requestedActionType === "IMPLEMENTATION_REVIEW") {
+    return "RUNTIME_LEAD";
+  }
+
+  return "TOOL_WORKER";
+}
+
+function resolveSandboxExecutionAdapterKey(input: {
+  providerKey: EdenAiProviderValue | null;
+  requestedActionType: ProjectRuntimeAgentActionTypeValue;
+}): EdenExecutionAdapterKey {
+  if (input.providerKey) {
+    return "provider_adapter";
+  }
+
+  if (input.requestedActionType === "QA_VALIDATION") {
+    return "browser_adapter";
+  }
+
+  return "tool_adapter";
+}
+
+function resolveSandboxExecutionSessionType(
+  adapterKind: EdenExecutionDispatchPreflightRecord["adapterKind"],
+): ProjectRuntimeExecutionSessionTypeValue {
+  if (adapterKind === "provider") {
+    return "PROVIDER_EXECUTION";
+  }
+
+  if (adapterKind === "browser") {
+    return "BROWSER_EXECUTION";
+  }
+
+  return "TOOL_EXECUTION";
+}
+
+function buildSandboxExecutionSessionLabel(input: {
+  taskTitle: string;
+  executionRole: ProjectRuntimeExecutionRoleValue;
+  adapterKey: string;
+}) {
+  return `${formatEnumLabel(input.executionRole)} | ${formatExecutionAdapterLabel(input.adapterKey)} | ${input.taskTitle}`;
+}
+
+function buildRuntimeExecutionGovernanceSnapshot(runtime: {
+  id: string;
+  name: string;
+  accessPolicy: "OWNER_ONLY" | "BUSINESS_MEMBERS" | "PUBLIC";
+  target: "EDEN_INTERNAL" | "EDEN_MANAGED" | "EXTERNAL_DOMAIN";
+  visibility: "PRIVATE_INTERNAL" | "PRIVATE_PREVIEW" | "PUBLIC_LAUNCH";
+  runtimeType: "INTERNAL_SANDBOX" | "INTERNAL_PREVIEW" | "EDEN_MANAGED_INSTANCE" | "EXTERNAL_LINKED_DOMAIN";
+  configPolicy: {
+    executionMode: ProjectRuntimeExecutionModeValue;
+    providerPolicyMode: ProjectRuntimeProviderPolicyModeValue;
+    allowedProviders: EdenAiProviderValue[];
+    ownerOnlyEnforced: boolean;
+    internalOnlyEnforced: boolean;
+  } | null;
+  secretBoundaries: Array<{
+    providerKey: EdenAiProviderValue | null;
+    status: ProjectRuntimeSecretStatusValue;
+    isRequired: boolean;
+  }>;
+  providerApprovals: Array<{
+    providerKey: EdenAiProviderValue;
+    approvalStatus: ProjectRuntimeProviderApprovalStatusValue;
+    modelScope: string[];
+    capabilityScope: string[];
+  }>;
+}): EdenRuntimeExecutionGovernanceSnapshot {
+  return {
+    runtimeId: runtime.id,
+    runtimeName: runtime.name,
+    accessPolicy: runtime.accessPolicy.toLowerCase(),
+    target: runtime.target.toLowerCase(),
+    visibility: runtime.visibility.toLowerCase(),
+    executionMode: runtime.configPolicy?.executionMode.toLowerCase() ?? null,
+    providerPolicyMode: runtime.configPolicy?.providerPolicyMode.toLowerCase() ?? null,
+    allowedProviders:
+      runtime.configPolicy?.allowedProviders.map((provider) =>
+        provider.toLowerCase(),
+      ) ?? [],
+    ownerOnlyEnforced:
+      runtime.configPolicy?.ownerOnlyEnforced ?? runtime.accessPolicy === "OWNER_ONLY",
+    internalOnlyEnforced:
+      runtime.configPolicy?.internalOnlyEnforced ??
+      (runtime.target === "EDEN_INTERNAL" ||
+        runtime.visibility === "PRIVATE_INTERNAL" ||
+        runtime.runtimeType === "INTERNAL_SANDBOX"),
+    providerApprovals: runtime.providerApprovals.map((approval) => ({
+      providerKey: approval.providerKey.toLowerCase(),
+      approvalStatus: approval.approvalStatus.toLowerCase(),
+      modelScope: approval.modelScope,
+      capabilityScope: approval.capabilityScope,
+    })),
+    secretBoundaries: runtime.secretBoundaries.map((boundary) => ({
+      providerKey: boundary.providerKey?.toLowerCase() ?? null,
+      status: boundary.status.toLowerCase(),
+      isRequired: boundary.isRequired,
+    })),
+  };
+}
+
+function mapDispatchPreflightToAgentRunStatus(
+  dispatchStatus: EdenExecutionDispatchPreflightRecord["dispatchStatus"],
 ): ProjectRuntimeAgentRunStatusValue {
-  switch (runStatus) {
-    case "completed":
-      return "COMPLETED";
+  switch (dispatchStatus) {
+    case "blocked":
+      return "PREFLIGHT_BLOCKED";
     case "review_required":
       return "REVIEW_REQUIRED";
-    case "preflight_blocked":
-      return "PREFLIGHT_BLOCKED";
     default:
       return "PREPARED";
   }
+}
+
+function mapDispatchStatusToExecutionSessionStatus(
+  dispatchStatus: EdenExecutionDispatchPreflightRecord["dispatchStatus"],
+): ProjectRuntimeExecutionSessionStatusValue {
+  switch (dispatchStatus) {
+    case "blocked":
+      return "BLOCKED";
+    case "review_required":
+      return "REVIEW_REQUIRED";
+    default:
+      return "PREPARED";
+  }
+}
+
+function mapDispatchStatusToSchemaValue(
+  dispatchStatus: EdenExecutionDispatchPreflightRecord["dispatchStatus"],
+): ProjectRuntimeDispatchStatusValue {
+  switch (dispatchStatus) {
+    case "blocked":
+      return "BLOCKED";
+    case "review_required":
+      return "REVIEW_REQUIRED";
+    default:
+      return "READY";
+  }
+}
+
+function resolveSandboxDispatchMode(
+  dispatchPreflight: EdenExecutionDispatchPreflightRecord,
+): ProjectRuntimeDispatchModeValue {
+  if (dispatchPreflight.reviewRequired) {
+    return "OWNER_REVIEW_GATE";
+  }
+
+  if (dispatchPreflight.adapterKind === "tool") {
+    return "ASYNC_WORKER_HANDOFF";
+  }
+
+  return "CONTROL_PLANE_PREFLIGHT";
+}
+
+function mapDispatchAdapterKindToSchemaValue(
+  adapterKind: EdenExecutionDispatchPreflightRecord["adapterKind"],
+): ProjectRuntimeExecutionAdapterKindValue {
+  if (adapterKind === "provider") {
+    return "PROVIDER";
+  }
+
+  if (adapterKind === "browser") {
+    return "BROWSER";
+  }
+
+  return "TOOL";
+}
+
+function mapDispatchAdapterModeToSchemaValue(
+  adapterMode: EdenExecutionDispatchPreflightRecord["adapterMode"],
+): ProjectRuntimeExecutionAdapterModeValue {
+  if (adapterMode === "future_live") {
+    return "FUTURE_LIVE";
+  }
+
+  if (adapterMode === "preflight_only") {
+    return "PREFLIGHT_ONLY";
+  }
+
+  return "SCAFFOLD_ONLY";
+}
+
+function buildSandboxDispatchResultPayload(input: {
+  dispatchPreflight: EdenExecutionDispatchPreflightRecord;
+  requestedActionType: ProjectRuntimeAgentActionTypeValue;
+}) {
+  return {
+    resultKind: "dispatch_preflight",
+    requestedActionType: input.requestedActionType,
+    adapterKey: input.dispatchPreflight.adapterKey,
+    adapterKind: input.dispatchPreflight.adapterKind,
+    adapterMode: input.dispatchPreflight.adapterMode,
+    dispatchStatus: input.dispatchPreflight.dispatchStatus,
+    reviewRequired: input.dispatchPreflight.reviewRequired,
+    providerKey: input.dispatchPreflight.providerPreflight?.providerKey ?? null,
+    providerLabel: input.dispatchPreflight.providerPreflight?.providerLabel ?? null,
+    detail: input.dispatchPreflight.detail,
+  } satisfies Prisma.JsonObject;
 }
 
 function extractSandboxTaskSignals(inputText: string) {
@@ -3074,6 +3551,43 @@ function parseProjectRuntimeProviderKeys(
     .filter((value): value is EdenAiProviderValue => Boolean(value));
 
   return Array.from(new Set(parsedValues));
+}
+
+function parseProjectRuntimeExecutionRole(
+  value: OwnerRuntimeExecutionRole | string | null | undefined,
+): ProjectRuntimeExecutionRoleValue | null {
+  const normalized = value?.trim().toLowerCase();
+
+  switch (normalized) {
+    case "owner_supervisor":
+      return "OWNER_SUPERVISOR";
+    case "runtime_lead":
+      return "RUNTIME_LEAD";
+    case "tool_worker":
+      return "TOOL_WORKER";
+    case "browser_worker":
+      return "BROWSER_WORKER";
+    case "qa_reviewer":
+      return "QA_REVIEWER";
+    default:
+      return normalized ? null : null;
+  }
+}
+
+function parseProjectRuntimeExecutionAdapterKey(
+  value: OwnerRuntimeExecutionAdapter | string | null | undefined,
+): EdenExecutionAdapterKey | null {
+  const normalized = value?.trim().toLowerCase();
+
+  if (
+    normalized === "tool_adapter" ||
+    normalized === "browser_adapter" ||
+    normalized === "provider_adapter"
+  ) {
+    return normalized;
+  }
+
+  return normalized ? null : null;
 }
 
 function parseProjectRuntimeProviderApprovalStatus(
@@ -3837,6 +4351,8 @@ function isProjectRuntimeSchemaUnavailable(error: unknown) {
     message.includes("projectruntimedomainlink") ||
     message.includes("projectruntimeproviderapproval") ||
     message.includes("projectruntimesecretboundary") ||
+    message.includes("projectruntimeexecutionsession") ||
+    message.includes("projectruntimedispatchrecord") ||
     (message.includes("relation") && message.includes("does not exist")) ||
     (message.includes("table") && message.includes("does not exist"))
   );
@@ -3855,6 +4371,8 @@ function isProjectRuntimeTaskSchemaUnavailable(error: unknown) {
   return (
     message.includes("projectruntimetask") ||
     message.includes("projectruntimeagentrun") ||
+    message.includes("projectruntimeexecutionsession") ||
+    message.includes("projectruntimedispatchrecord") ||
     (message.includes("relation") && message.includes("does not exist")) ||
     (message.includes("table") && message.includes("does not exist"))
   );
@@ -3900,6 +4418,22 @@ function formatExecutionModeLabel(value: string) {
   }
 
   return value;
+}
+
+function formatExecutionAdapterLabel(value: string) {
+  if (value === "tool_adapter") {
+    return "Tool Adapter";
+  }
+
+  if (value === "browser_adapter") {
+    return "Browser Adapter";
+  }
+
+  if (value === "provider_adapter") {
+    return "Provider Adapter";
+  }
+
+  return formatEnumLabel(value);
 }
 
 function formatProjectRuntimeAuditFieldLabel(fieldName: string) {

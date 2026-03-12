@@ -7,6 +7,8 @@ import type {
   EdenProjectRuntimeTaskRecord,
 } from "@/modules/core/projects/project-runtime-shared";
 import {
+  ownerRuntimeExecutionAdapterOptions,
+  ownerRuntimeExecutionRoleOptions,
   ownerRuntimeProviderOptions,
   ownerRuntimeTaskRequestedActionOptions,
 } from "@/modules/core/projects/project-runtime-shared";
@@ -45,6 +47,8 @@ export function InternalSandboxTaskRunner({
   const [modelLabel, setModelLabel] = useState("");
   const [requestedActionType, setRequestedActionType] =
     useState("sandbox_test");
+  const [executionRole, setExecutionRole] = useState("tool_worker");
+  const [adapterKey, setAdapterKey] = useState("tool_adapter");
   const [feedback, setFeedback] = useState<{
     tone: "success" | "error";
     text: string;
@@ -68,6 +72,8 @@ export function InternalSandboxTaskRunner({
             providerKey: providerKey || null,
             modelLabel: modelLabel || null,
             requestedActionType,
+            executionRole,
+            adapterKey,
           }),
         },
       );
@@ -91,10 +97,12 @@ export function InternalSandboxTaskRunner({
       setProviderKey("");
       setModelLabel("");
       setRequestedActionType("sandbox_test");
+      setExecutionRole("tool_worker");
+      setAdapterKey("tool_adapter");
       setFeedback({
         tone: "success",
         text:
-          "Sandbox task recorded. Planner, worker, result, and any governed preflight record were stored in the control plane only.",
+          "Sandbox task recorded. Planner, worker, result, and governed dispatch/session preflight records were stored in the control plane only.",
       });
       startTransition(() => {
         router.refresh();
@@ -130,8 +138,9 @@ export function InternalSandboxTaskRunner({
       </div>
 
       <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-        Execution mode: synchronous sandbox v1. Eden stores a planner record and
-        worker result in the control plane for owner review.
+        Execution mode: synchronous sandbox v1 plus governed async-boundary
+        metadata. Eden stores planner, worker, dispatch, and session records for
+        owner review without starting a live worker.
       </div>
 
       {initialUnavailableReason ? (
@@ -159,8 +168,9 @@ export function InternalSandboxTaskRunner({
           </p>
           <p className="mt-2 text-sm leading-6 text-eden-muted">
             Describe the sandbox work item you want the internal planner and
-            worker loop to record. If you select a provider, Eden records a
-            governed preflight only and does not make a live provider call.
+            worker loop to record. Select the intended execution role and adapter
+            so Eden can also capture a governed dispatch/session record. Provider
+            and browser paths remain preflight-only in v1.
           </p>
           <div className="mt-4 space-y-3">
             <input
@@ -183,12 +193,36 @@ export function InternalSandboxTaskRunner({
                 ))}
               </select>
               <select
+                value={executionRole}
+                onChange={(event) => setExecutionRole(event.target.value)}
+                className="w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+              >
+                {ownerRuntimeExecutionRoleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <select
                 value={providerKey}
                 onChange={(event) => setProviderKey(event.target.value)}
                 className="w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
               >
                 <option value="">No provider preflight</option>
                 {ownerRuntimeProviderOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={adapterKey}
+                onChange={(event) => setAdapterKey(event.target.value)}
+                className="w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+              >
+                {ownerRuntimeExecutionAdapterOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -247,6 +281,9 @@ export function InternalSandboxTaskRunner({
                           ? ` | ${task.requestedActionTypeLabel}`
                           : ""}
                         {task.providerLabel ? ` | ${task.providerLabel}` : ""}
+                        {task.dispatchRecords[0]
+                          ? ` | ${task.dispatchRecords[0].adapterLabel}`
+                          : ""}
                       </p>
                     </div>
                     <span
@@ -311,7 +348,8 @@ export function InternalSandboxTaskRunner({
                   {(task.workerActionPlan.length ||
                     task.workerArtifacts.length ||
                     task.workerImplementationNotes.length ||
-                    task.agentRuns.length) && (
+                    task.agentRuns.length ||
+                    task.dispatchRecords.length) && (
                     <div className="mt-4 grid gap-3 lg:grid-cols-3">
                       <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
@@ -384,6 +422,39 @@ export function InternalSandboxTaskRunner({
                           ) : (
                             <div className="rounded-2xl border border-eden-edge bg-white px-3 py-2">
                               No governed run record stored.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          Dispatch boundary
+                        </p>
+                        <div className="mt-3 space-y-2 text-sm text-eden-muted">
+                          {task.dispatchRecords.length ? (
+                            task.dispatchRecords.map((record) => (
+                              <div
+                                key={record.id}
+                                className="rounded-2xl border border-eden-edge bg-white px-3 py-2"
+                              >
+                                <p className="font-semibold text-eden-ink">
+                                  {record.dispatchStatusLabel}
+                                </p>
+                                <p className="mt-1">
+                                  {record.executionRoleLabel} |{" "}
+                                  {record.adapterLabel}
+                                </p>
+                                <p className="mt-1">
+                                  {record.dispatchReason ??
+                                    record.blockingReason ??
+                                    record.summary}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="rounded-2xl border border-eden-edge bg-white px-3 py-2">
+                              No dispatch metadata stored.
                             </div>
                           )}
                         </div>

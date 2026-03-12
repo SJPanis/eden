@@ -60,6 +60,7 @@ Prisma models exist for:
 - project runtime launch intent metadata and deployment history records
 - project runtime config policies and secret boundary metadata
 - project runtime provider approval gates and agent run execution records
+- project runtime execution sessions and dispatch records
 - project runtime tasks for owner-only sandbox execution records
 - project runtime audit logs for owner lifecycle control actions
 
@@ -82,6 +83,7 @@ Prisma models exist for:
 - owner-only runtime provider approval API exists at `/api/owner/project-runtimes/[runtimeId]/provider-approvals`
 - owner-only runtime secret-boundary readiness API exists at `/api/owner/project-runtimes/[runtimeId]/secret-boundaries`
 - owner runtime control page now shows an owner constitution/control-agent scaffold panel
+- owner runtime control page now shows an execution console for dispatch/session history
 
 ## Architectural Reality
 
@@ -125,6 +127,7 @@ What is still mixed or transitional:
 - Dev-server validation is noisy because another Next dev instance or lock already exists.
 - The live database still has no recorded Prisma migration history until the new baseline is marked as applied.
 - The runtime, sandbox task runner, runtime lifecycle audit, launch-intent/deployment-history, config/secret-boundary, and execution-governance migrations still have not been applied to the active database.
+- The new execution-interface migration for dispatch records and execution sessions also still has not been applied to the active database.
 - `middleware.ts` still uses the deprecated Next.js middleware convention instead of `proxy`.
 
 ## Minimal Cleanup Completed In This Session
@@ -232,6 +235,30 @@ What is still mixed or transitional:
   - no container or workspace is started
   - no hosted preview or deploy job is triggered
 
+## Current Execution Interface Layer
+
+- `ProjectRuntimeExecutionSession` now exists in Prisma schema and migration output.
+- `ProjectRuntimeDispatchRecord` now exists in Prisma schema and migration output.
+- `/owner/runtimes` now exposes an owner-visible execution console for:
+  - governed dispatch history
+  - session-isolated execution role records
+  - recent governed run history
+- The internal sandbox task runner now records:
+  - intended execution role
+  - intended adapter path (`tool`, `browser`, or `provider`)
+  - explicit dispatch status (`ready`, `blocked`, or `review required`)
+  - session-scoped capability sets
+  - adapter/detail text explaining what is still scaffolded
+- Eden now has OpenClaw-style execution-interface scaffolding without claiming live execution:
+  - tool dispatch can be marked ready at the async boundary
+  - browser dispatch remains review-gated
+  - provider dispatch reuses approval and secret-boundary governance, then stops at preflight/review
+- These records remain governance and history only:
+  - no live browser automation runs
+  - no live tool execution runs
+  - no live provider call is made
+  - no async worker queue or container worker exists yet
+
 ## Current Owner Control-Agent Scaffold
 
 - `eden-system/specs/OWNER_CONTROL_CONSTITUTION.md` now defines the first owner-aligned constitutional directive layer.
@@ -312,6 +339,7 @@ What is still mixed or transitional:
 - Eden v1 is complete when the active control-plane surfaces are honest, persistent, owner-auditable, and scoped correctly.
 - This means Eden v1 should have:
   - real runtime, task, lifecycle, audit, launch-intent, deployment-history, config-policy, secret-boundary, provider-approval, and agent-run records
+  - real execution-session and dispatch-boundary records for owner-governed sandbox work
   - an owner-only internal sandbox runtime and task workflow
   - an owner-approved Eden self-work queue and review loop
   - no active UI that presents mock or metadata-only behavior as real infrastructure
@@ -338,6 +366,8 @@ What is still mixed or transitional:
   - `prisma/migrations/20260311235500_runtime_config_secret_boundary_provider_scaffold_v1/migration.sql`
 - Execution-governance migration created:
   - `prisma/migrations/20260311235930_provider_approval_secret_status_agent_run_v1/migration.sql`
+- Execution-interface migration created:
+  - `prisma/migrations/20260311235959_openclaw_execution_interface_scaffolding_v1/migration.sql`
 - The baseline covers the pre-runtime schema only and excludes:
   - `ProjectRuntime`
   - `ProjectRuntimeDomainLink`
@@ -357,7 +387,7 @@ What is still mixed or transitional:
   - `No difference detected.`
 - Result:
   - the migration chain now has a valid predecessor on disk for `ProjectBlueprint`
-- the remaining work is manual migration-history reconciliation plus applying the runtime, task runner, lifecycle audit, launch/deployment-history, config/secret-boundary, and execution-governance migrations to the live database
+- the remaining work is manual migration-history reconciliation plus applying the runtime, task runner, lifecycle audit, launch/deployment-history, config/secret-boundary, execution-governance, and execution-interface migrations to the live database
 
 ## Next Recommended Implementation Target
 
@@ -367,15 +397,15 @@ Build next:
 
 1. owner still needs to run the manual migration reconciliation and deploy sequence on the active database
 2. after that, verify `/owner/runtimes` can persist the runtime registry, lifecycle audit, launch intent, deployment history, config policy, provider approvals, secret readiness updates, agent runs, sandbox result capture, self-work queue pulls, and build-supervisor packet flow against the live database
-3. the next Codex-ready implementation target is `task_audit_and_queue_boundary`
-4. after that, add sandbox task audit logging and explicit async-dispatch boundary metadata so the self-work and supervisor layers can distinguish ready, blocked, queued, and completed execution more clearly
+3. the next Codex-ready implementation target is `sandbox_task_lifecycle_audit_logging`
+4. after that, add immutable sandbox task lifecycle audit records so the self-work and supervisor layers can point to concrete queue, dispatch-preparation, completion, and failure evidence
 
 ## Build Supervisor Digest
 
 <!-- EDEN_BUILD_SUPERVISOR:START -->
 - Supervisor status: Packet needed.
-- Status detail: The next Codex-ready task is "Add sandbox task audit logging and async dispatch boundary metadata", but the packet still needs to be prepared.
-- Next Codex-ready task: task_audit_and_queue_boundary - Add sandbox task audit logging and async dispatch boundary metadata.
+- Status detail: The next Codex-ready task is "Add sandbox task lifecycle audit logging", but the packet still needs to be prepared.
+- Next Codex-ready task: sandbox_task_lifecycle_audit_logging - Add sandbox task lifecycle audit logging.
 - Packet state: not_prepared.
 - Last completed supervised task: None recorded yet.
 <!-- EDEN_BUILD_SUPERVISOR:END -->

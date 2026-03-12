@@ -19,6 +19,7 @@
     - `20260311233000_runtime_launch_intent_deployment_history_v1`
     - `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`
     - `20260311235930_provider_approval_secret_status_agent_run_v1`
+    - `20260311235959_openclaw_execution_interface_scaffolding_v1`
   - mark the baseline as applied on the existing live database
   - then run `prisma migrate deploy` so Prisma can apply all pending migrations in order
 - Exact next commands from `C:\dev\Eden\eden-v1`:
@@ -37,6 +38,8 @@
   - save one provider approval update and confirm runtime compatibility plus audit entries persist
   - save one secret-boundary readiness update and confirm `statusDetail` plus `lastCheckedAt` persist
   - create one sandbox task with provider preflight selected and confirm agent-run plus explicit result-capture records persist
+  - create one sandbox task with tool-adapter dispatch selected and confirm a `ProjectRuntimeExecutionSession` plus `ProjectRuntimeDispatchRecord` persist
+  - create one sandbox task with browser-adapter dispatch selected and confirm the dispatch record lands in `review required` state without implying live browser automation
   - confirm the owner control-agent panel loads the new owner constitution file in the intended environment
   - confirm the new Eden self-work panel loads `EDEN_SELF_WORK_QUEUE.json` and `EDEN_POST_DEPLOY_TIMELINE.md` in `/owner/runtimes`
   - queue one approved Eden self-work item and confirm a real internal sandbox task row is created with the `[eden-self-work:<id>]` title prefix

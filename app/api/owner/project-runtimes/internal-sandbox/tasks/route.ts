@@ -49,6 +49,8 @@ export async function POST(request: Request) {
     providerKey?: string | null;
     modelLabel?: string | null;
     requestedActionType?: string | null;
+    executionRole?: string | null;
+    adapterKey?: string | null;
   };
   const result = await createOwnerInternalSandboxTask(
     {
@@ -65,6 +67,8 @@ export async function POST(request: Request) {
       providerKey: body.providerKey,
       modelLabel: body.modelLabel,
       requestedActionType: body.requestedActionType,
+      executionRole: body.executionRole,
+      adapterKey: body.adapterKey,
     },
   );
 
