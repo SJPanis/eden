@@ -4,6 +4,8 @@ import { EdenRole, Prisma, UserStatus } from "@prisma/client";
 import {
   buildRuntimeProviderPreflight,
   evaluateRuntimeProviderCompatibility,
+  executeWithEdenProviderAdapter,
+  getEdenProviderExecutionAvailability,
 } from "@/modules/core/agents/eden-provider-adapters";
 import {
   buildRuntimeExecutionDispatchPreflight,
@@ -375,10 +377,12 @@ type ProjectRuntimeExecutionAdapterKindValue =
 type ProjectRuntimeExecutionAdapterModeValue =
   | "PREFLIGHT_ONLY"
   | "SCAFFOLD_ONLY"
+  | "LIVE_GUARDED"
   | "FUTURE_LIVE";
 type ProjectRuntimeTaskResultTypeValue =
   | "SANDBOX_PLAN"
   | "PROVIDER_PREFLIGHT"
+  | "LIVE_PROVIDER_RESULT"
   | "QA_RESULT"
   | "EXECUTION_REVIEW";
 type ProjectRuntimeTaskResultStatusValue =
@@ -1988,6 +1992,524 @@ export async function createOwnerInternalSandboxTask(
   }
 }
 
+export async function executeOwnerInternalSandboxTaskLiveProvider(
+  actor: EdenProjectRuntimeActor,
+  input: {
+    taskId: string;
+  },
+) {
+  const prisma = getPrismaClient();
+  const taskId = input.taskId.trim();
+
+  if (!taskId) {
+    return {
+      ok: false as const,
+      status: 400,
+      error:
+        "Task id is required before Eden can run the live sandbox provider path.",
+    };
+  }
+
+  try {
+    await upsertProjectRuntimeActor(prisma, actor);
+
+    const taskRecord = await prisma.projectRuntimeTask.findUnique({
+      where: {
+        id: taskId,
+      },
+      include: {
+        dispatchRecords: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 12,
+          select: {
+            id: true,
+            executionRole: true,
+            adapterKind: true,
+            adapterKey: true,
+            adapterMode: true,
+          },
+        },
+        runtime: {
+          select: {
+            id: true,
+            name: true,
+            accessPolicy: true,
+            runtimeType: true,
+            target: true,
+            visibility: true,
+            configPolicy: {
+              select: {
+                executionMode: true,
+                providerPolicyMode: true,
+                allowedProviders: true,
+                ownerOnlyEnforced: true,
+                internalOnlyEnforced: true,
+              },
+            },
+            secretBoundaries: {
+              select: {
+                id: true,
+                label: true,
+                providerKey: true,
+                status: true,
+                isRequired: true,
+                boundaryReference: true,
+              },
+            },
+            providerApprovals: {
+              select: {
+                providerKey: true,
+                approvalStatus: true,
+                modelScope: true,
+                capabilityScope: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!taskRecord) {
+      return {
+        ok: false as const,
+        status: 404,
+        error: "The requested sandbox task could not be found.",
+      };
+    }
+
+    if (
+      taskRecord.runtimeId !== edenOwnerInternalSandboxRuntimeId ||
+      taskRecord.runtime.accessPolicy !== "OWNER_ONLY" ||
+      taskRecord.runtime.runtimeType !== "INTERNAL_SANDBOX"
+    ) {
+      return {
+        ok: false as const,
+        status: 409,
+        error:
+          "Live provider execution is limited to the owner-only Eden Internal Sandbox Runtime.",
+      };
+    }
+
+    const requestedActionType =
+      taskRecord.requestedActionType ??
+      ("PROVIDER_PREFLIGHT" satisfies ProjectRuntimeAgentActionTypeValue);
+    const latestProviderDispatch =
+      taskRecord.dispatchRecords.find(
+        (record) =>
+          record.adapterKind === "PROVIDER" ||
+          record.adapterKey === "provider_adapter",
+      ) ?? null;
+    const executionRole =
+      latestProviderDispatch?.executionRole ??
+      resolveSandboxExecutionRole({
+        taskType: taskRecord.taskType,
+        providerKey: taskRecord.providerKey,
+        requestedActionType,
+      });
+    const providerKey = taskRecord.providerKey;
+    const governanceSnapshot = buildRuntimeExecutionGovernanceSnapshot(
+      taskRecord.runtime,
+    );
+    const dispatchPreflight = buildRuntimeExecutionDispatchPreflight({
+      snapshot: governanceSnapshot,
+      adapterKey: "provider_adapter",
+      providerKey: providerKey?.toLowerCase() ?? null,
+    });
+    const providerPreflight = dispatchPreflight?.providerPreflight ?? null;
+    const providerAvailability = providerKey
+      ? getEdenProviderExecutionAvailability(providerKey.toLowerCase())
+      : null;
+    const providerApproval = providerKey
+      ? taskRecord.runtime.providerApprovals.find(
+          (approval) => approval.providerKey === providerKey,
+        ) ?? null
+      : null;
+    const modelLabel = resolveLiveSandboxExecutionModel({
+      taskModelLabel: taskRecord.modelLabel,
+      providerAvailability,
+      approvedModelScope: providerApproval?.modelScope ?? [],
+    });
+    const modelScopeBlockReason = resolveLiveSandboxModelScopeBlockReason({
+      providerKey,
+      modelLabel,
+      approvedModelScope: providerApproval?.modelScope ?? [],
+    });
+    const providerBoundary = providerKey
+      ? taskRecord.runtime.secretBoundaries.find(
+          (boundary) =>
+            boundary.providerKey === providerKey && boundary.isRequired,
+        ) ?? null
+      : null;
+    const blockedOutcome = resolveLiveSandboxProviderBlockedOutcome({
+      taskTitle: taskRecord.title,
+      providerKey,
+      latestProviderDispatch,
+      providerPreflight,
+      providerAvailability,
+      modelLabel,
+      modelScopeBlockReason,
+      providerBoundaryLabel: providerBoundary?.label ?? null,
+    });
+
+    if (blockedOutcome) {
+      const completedAt = new Date();
+      const updatedTask = await prisma.$transaction(async (transaction) => {
+        const executionSession =
+          await transaction.projectRuntimeExecutionSession.create({
+            data: {
+              runtimeId: taskRecord.runtimeId,
+              actorUserId: actor.id,
+              sessionLabel: buildLiveSandboxExecutionSessionLabel({
+                taskTitle: taskRecord.title,
+                providerLabel:
+                  providerAvailability?.providerLabel ??
+                  formatEnumLabel(providerKey ?? "provider"),
+              }),
+              sessionType: "PROVIDER_EXECUTION",
+              executionRole,
+              adapterKind: "PROVIDER",
+              adapterMode: blockedOutcome.adapterMode,
+              providerKey,
+              status: blockedOutcome.sessionStatus,
+              allowedCapabilities:
+                dispatchPreflight?.capabilityLabels ?? ["Provider policy validation"],
+              ownerOnly: true,
+              internalOnly: true,
+              notes: blockedOutcome.detail,
+            },
+          });
+
+        await transaction.projectRuntimeDispatchRecord.create({
+          data: {
+            runtimeId: taskRecord.runtimeId,
+            taskId: taskRecord.id,
+            actorUserId: actor.id,
+            sessionId: executionSession.id,
+            providerKey,
+            modelLabel,
+            dispatchStatus: blockedOutcome.dispatchStatus,
+            dispatchMode: "OWNER_REVIEW_GATE",
+            executionRole,
+            adapterKind: "PROVIDER",
+            adapterKey: "provider_adapter",
+            adapterMode: blockedOutcome.adapterMode,
+            summary: blockedOutcome.summary,
+            detail: blockedOutcome.detail,
+            dispatchReason:
+              "Owner triggered the governed live provider execution path from the internal sandbox task runner.",
+            blockingReason: blockedOutcome.blockingReason,
+            reviewRequired: blockedOutcome.reviewRequired,
+            resultPayload: blockedOutcome.resultPayload,
+            completedAt,
+          },
+        });
+
+        await transaction.projectRuntimeAgentRun.create({
+          data: {
+            runtimeId: taskRecord.runtimeId,
+            taskId: taskRecord.id,
+            actorUserId: actor.id,
+            providerKey,
+            modelLabel,
+            executionTargetLabel: taskRecord.runtime.name,
+            requestedActionType,
+            runStatus: blockedOutcome.runStatus,
+            summary: blockedOutcome.summary,
+            detail: blockedOutcome.detail,
+            resultPayload: blockedOutcome.resultPayload,
+            completedAt,
+          },
+        });
+
+        await transaction.projectRuntimeTask.update({
+          where: {
+            id: taskRecord.id,
+          },
+          data: {
+            resultType: "LIVE_PROVIDER_RESULT",
+            resultStatus: blockedOutcome.taskResultStatus,
+            resultSummary: blockedOutcome.summary,
+            resultPayload: blockedOutcome.resultPayload,
+            failureDetail:
+              blockedOutcome.taskResultStatus === "FAIL"
+                ? blockedOutcome.detail
+                : null,
+            outputSummary:
+              blockedOutcome.taskResultStatus === "FAIL"
+                ? "Live provider execution was blocked or failed before a real response was stored."
+                : "Live provider execution remains review-gated.",
+            outputLines: appendSandboxTaskOutputLines(taskRecord.outputLines, [
+              "Live provider execution attempt was recorded.",
+              blockedOutcome.summary,
+              blockedOutcome.detail,
+            ]),
+          },
+        });
+
+        const reloadedTask = await transaction.projectRuntimeTask.findUnique({
+          where: {
+            id: taskRecord.id,
+          },
+          include: projectRuntimeTaskInclude,
+        });
+
+        if (!reloadedTask) {
+          throw new Error(
+            "Eden could not reload the sandbox task after recording the blocked live provider attempt.",
+          );
+        }
+
+        return reloadedTask;
+      });
+
+      return {
+        ok: true as const,
+        attempted: false,
+        executed: false,
+        blocked: true,
+        message: blockedOutcome.summary,
+        task: mapProjectRuntimeTaskRecord(updatedTask),
+      };
+    }
+
+    if (!providerAvailability || !providerKey) {
+      return {
+        ok: false as const,
+        status: 409,
+        error:
+          "Eden could not resolve the live provider execution path for this sandbox task.",
+      };
+    }
+
+    const preparedAt = new Date();
+    const preparedRecords = await prisma.$transaction(async (transaction) => {
+      const executionSession = await transaction.projectRuntimeExecutionSession.create(
+        {
+          data: {
+            runtimeId: taskRecord.runtimeId,
+            actorUserId: actor.id,
+            sessionLabel: buildLiveSandboxExecutionSessionLabel({
+              taskTitle: taskRecord.title,
+              providerLabel: providerAvailability.providerLabel,
+            }),
+            sessionType: "PROVIDER_EXECUTION",
+            executionRole,
+            adapterKind: "PROVIDER",
+            adapterMode: "LIVE_GUARDED",
+            providerKey,
+            status: "PREPARED",
+            allowedCapabilities:
+              dispatchPreflight?.capabilityLabels ?? ["Provider policy validation"],
+            ownerOnly: true,
+            internalOnly: true,
+            notes:
+              "Owner triggered Eden's first live provider execution path for the internal sandbox task.",
+          },
+        },
+      );
+
+      const dispatchRecord = await transaction.projectRuntimeDispatchRecord.create({
+        data: {
+          runtimeId: taskRecord.runtimeId,
+          taskId: taskRecord.id,
+          actorUserId: actor.id,
+          sessionId: executionSession.id,
+          providerKey,
+          modelLabel,
+          dispatchStatus: "DISPATCHED",
+          dispatchMode: "OWNER_REVIEW_GATE",
+          executionRole,
+          adapterKind: "PROVIDER",
+          adapterKey: "provider_adapter",
+          adapterMode: "LIVE_GUARDED",
+          summary: `${providerAvailability.providerLabel} live provider execution dispatched for sandbox task owner review.`,
+          detail:
+            "The owner explicitly triggered the first live sandbox provider path. Eden is now waiting for the provider response before recording a final result.",
+          dispatchReason:
+            "Owner-triggered live provider execution inside the governed internal sandbox path.",
+          reviewRequired: true,
+          resultPayload: {
+            resultKind: "live_provider_dispatch",
+            providerKey: providerAvailability.providerKey,
+            providerLabel: providerAvailability.providerLabel,
+            model: modelLabel,
+            taskId: taskRecord.id,
+          },
+          dispatchedAt: preparedAt,
+        },
+      });
+
+      const agentRun = await transaction.projectRuntimeAgentRun.create({
+        data: {
+          runtimeId: taskRecord.runtimeId,
+          taskId: taskRecord.id,
+          actorUserId: actor.id,
+          providerKey,
+          modelLabel,
+          executionTargetLabel: taskRecord.runtime.name,
+          requestedActionType,
+          runStatus: "PREPARED",
+          summary: `${providerAvailability.providerLabel} live provider execution was prepared for the internal sandbox task.`,
+          detail:
+            "Governance checks passed, so Eden created a real provider execution attempt and now awaits the provider response.",
+          resultPayload: {
+            resultKind: "live_provider_dispatch",
+            providerKey: providerAvailability.providerKey,
+            providerLabel: providerAvailability.providerLabel,
+            model: modelLabel,
+          },
+        },
+      });
+
+      return {
+        sessionId: executionSession.id,
+        dispatchId: dispatchRecord.id,
+        runId: agentRun.id,
+      };
+    });
+
+    const plannerPayload = parseSandboxPlannerPayload(taskRecord.plannerPayload);
+    const workerPayload = parseSandboxWorkerPayload(taskRecord.workerPayload);
+    const executionResult = await executeWithEdenProviderAdapter({
+      providerKey: providerAvailability.providerKey,
+      model: modelLabel,
+      prompt: buildLiveSandboxProviderExecutionPrompt({
+        taskTitle: taskRecord.title,
+        inputText: taskRecord.inputText,
+        requestedActionType,
+        plannerPayload,
+        workerPayload,
+        existingOutputLines: taskRecord.outputLines,
+      }),
+      runtimeId: taskRecord.runtimeId,
+      taskId: taskRecord.id,
+      taskTitle: taskRecord.title,
+      instructions: buildLiveSandboxProviderExecutionInstructions(),
+    });
+    const completedAt = new Date();
+
+    const finalTask = await prisma.$transaction(async (transaction) => {
+      const runSummary = executionResult.ok
+        ? `${executionResult.providerLabel} returned a live sandbox result for owner review.`
+        : executionResult.error;
+      const runDetail = executionResult.detail;
+      const taskResultSummary = executionResult.ok
+        ? `${executionResult.providerLabel} live sandbox execution completed and stored a real provider result for owner review.`
+        : executionResult.error;
+      const taskResultPayload = executionResult.resultPayload as Prisma.InputJsonValue;
+      const updatedOutputLines = appendSandboxTaskOutputLines(
+        taskRecord.outputLines,
+        executionResult.ok
+          ? [
+              `Live provider execution completed via ${executionResult.providerLabel}.`,
+              `Model: ${executionResult.model}`,
+              `Summary: ${executionResult.summary}`,
+            ]
+          : [
+              `Live provider execution failed via ${providerAvailability.providerLabel}.`,
+              executionResult.error,
+              executionResult.detail,
+            ],
+      );
+
+      await transaction.projectRuntimeExecutionSession.update({
+        where: {
+          id: preparedRecords.sessionId,
+        },
+        data: {
+          status: "CLOSED",
+          notes: runDetail,
+        },
+      });
+
+      await transaction.projectRuntimeDispatchRecord.update({
+        where: {
+          id: preparedRecords.dispatchId,
+        },
+        data: {
+          dispatchStatus: executionResult.ok ? "COMPLETED" : "FAILED",
+          summary: runSummary,
+          detail: runDetail,
+          blockingReason: executionResult.ok ? null : executionResult.error,
+          reviewRequired: executionResult.ok,
+          resultPayload: taskResultPayload,
+          completedAt,
+        },
+      });
+
+      await transaction.projectRuntimeAgentRun.update({
+        where: {
+          id: preparedRecords.runId,
+        },
+        data: {
+          runStatus: executionResult.ok ? "COMPLETED" : "FAILED",
+          summary: runSummary,
+          detail: runDetail,
+          resultPayload: taskResultPayload,
+          errorDetail: executionResult.ok ? null : executionResult.error,
+          completedAt,
+        },
+      });
+
+      await transaction.projectRuntimeTask.update({
+        where: {
+          id: taskRecord.id,
+        },
+        data: {
+          resultType: "LIVE_PROVIDER_RESULT",
+          resultStatus: executionResult.ok ? "REVIEW_NEEDED" : "FAIL",
+          resultSummary: taskResultSummary,
+          resultPayload: taskResultPayload,
+          failureDetail: executionResult.ok ? null : executionResult.error,
+          outputSummary: executionResult.ok
+            ? `${executionResult.providerLabel} live sandbox result recorded.`
+            : `${providerAvailability.providerLabel} live sandbox execution failed.`,
+          outputLines: updatedOutputLines,
+        },
+      });
+
+      const reloadedTask = await transaction.projectRuntimeTask.findUnique({
+        where: {
+          id: taskRecord.id,
+        },
+        include: projectRuntimeTaskInclude,
+      });
+
+      if (!reloadedTask) {
+        throw new Error(
+          "Eden could not reload the sandbox task after storing the live provider result.",
+        );
+      }
+
+      return reloadedTask;
+    });
+
+    return {
+      ok: true as const,
+      attempted: true,
+      executed: executionResult.ok,
+      blocked: false,
+      message: executionResult.ok
+        ? `${providerAvailability.providerLabel} live sandbox execution completed. Owner review is still required.`
+        : executionResult.error,
+      task: mapProjectRuntimeTaskRecord(finalTask),
+    };
+  } catch (error) {
+    logProjectRuntimeFailure(
+      "execute_owner_internal_sandbox_task_live_provider",
+      error,
+    );
+
+    return {
+      ok: false as const,
+      status: 503,
+      error: describeProjectRuntimeTaskFailure(error),
+    };
+  }
+}
+
 export async function registerOwnerInternalSandboxRuntime(
   actor: EdenProjectRuntimeActor,
 ) {
@@ -2634,18 +3156,8 @@ function mapProjectRuntimeDeploymentRecord(
 function mapProjectRuntimeTaskRecord(
   task: ProjectRuntimeTaskReadRecord,
 ): EdenProjectRuntimeTaskRecord {
-  const plannerPayload =
-    task.plannerPayload &&
-    typeof task.plannerPayload === "object" &&
-    !Array.isArray(task.plannerPayload)
-      ? (task.plannerPayload as SandboxPlannerPayload)
-      : null;
-  const workerPayload =
-    task.workerPayload &&
-    typeof task.workerPayload === "object" &&
-    !Array.isArray(task.workerPayload)
-      ? (task.workerPayload as SandboxWorkerPayload)
-      : null;
+  const plannerPayload = parseSandboxPlannerPayload(task.plannerPayload);
+  const workerPayload = parseSandboxWorkerPayload(task.workerPayload);
 
   return {
     id: task.id,
@@ -2718,6 +3230,379 @@ type SandboxWorkerPayload = {
   implementationNotes: string[];
   artifacts: EdenProjectRuntimeTaskArtifactRecord[];
 };
+
+type LiveSandboxProviderBlockedOutcome = {
+  dispatchStatus: "BLOCKED" | "REVIEW_REQUIRED";
+  sessionStatus: "BLOCKED" | "REVIEW_REQUIRED";
+  runStatus: "PREFLIGHT_BLOCKED" | "REVIEW_REQUIRED";
+  taskResultStatus: "FAIL" | "REVIEW_NEEDED";
+  summary: string;
+  detail: string;
+  blockingReason: string | null;
+  reviewRequired: boolean;
+  adapterMode: ProjectRuntimeExecutionAdapterModeValue;
+  resultPayload: Prisma.JsonObject;
+};
+
+function parseSandboxPlannerPayload(
+  payload: Prisma.JsonValue | null | undefined,
+): SandboxPlannerPayload | null {
+  return payload && typeof payload === "object" && !Array.isArray(payload)
+    ? (payload as SandboxPlannerPayload)
+    : null;
+}
+
+function parseSandboxWorkerPayload(
+  payload: Prisma.JsonValue | null | undefined,
+): SandboxWorkerPayload | null {
+  return payload && typeof payload === "object" && !Array.isArray(payload)
+    ? (payload as SandboxWorkerPayload)
+    : null;
+}
+
+function buildLiveSandboxExecutionSessionLabel(input: {
+  taskTitle: string;
+  providerLabel: string;
+}) {
+  return `Live Provider | ${input.providerLabel} | ${input.taskTitle}`;
+}
+
+function buildLiveSandboxProviderExecutionInstructions() {
+  return [
+    "You are Eden's guarded provider worker operating inside the owner-only internal sandbox runtime.",
+    "Stay strictly inside the provided task scope and do not claim code execution, browser automation, deployment, or infrastructure actions occurred unless the task brief explicitly says they already happened.",
+    "Produce a concise owner-reviewable response with these headings: Summary, Result, Review.",
+  ].join(" ");
+}
+
+function buildLiveSandboxProviderExecutionPrompt(input: {
+  taskTitle: string;
+  inputText: string;
+  requestedActionType: ProjectRuntimeAgentActionTypeValue;
+  plannerPayload: SandboxPlannerPayload | null;
+  workerPayload: SandboxWorkerPayload | null;
+  existingOutputLines: string[];
+}) {
+  const promptSections = [
+    "Runtime scope: Eden Internal Sandbox Runtime (owner-only, internal-only).",
+    `Task title: ${input.taskTitle}`,
+    `Requested action type: ${formatEnumLabel(input.requestedActionType)}`,
+    `Task brief:\n${input.inputText}`,
+  ];
+
+  if (input.plannerPayload) {
+    promptSections.push(
+      `Planner summary:\n- Workstream: ${input.plannerPayload.workstream}\n- Intent: ${input.plannerPayload.taskIntent}\n- Work items: ${input.plannerPayload.workItems.join("; ")}`,
+    );
+  }
+
+  if (input.workerPayload) {
+    promptSections.push(
+      `Current sandbox worker record:\n- Result type: ${input.workerPayload.resultType}\n- Action plan: ${input.workerPayload.actionPlan.join("; ")}\n- Notes: ${input.workerPayload.implementationNotes.join("; ")}`,
+    );
+  }
+
+  if (input.existingOutputLines.length) {
+    promptSections.push(
+      `Current stored sandbox output lines:\n${input.existingOutputLines
+        .slice(-6)
+        .map((line) => `- ${line}`)
+        .join("\n")}`,
+    );
+  }
+
+  promptSections.push(
+    "Return a bounded result for owner review. Do not act as if Eden already deployed or executed code outside the records above.",
+  );
+
+  return promptSections.join("\n\n");
+}
+
+function resolveLiveSandboxExecutionModel(input: {
+  taskModelLabel?: string | null;
+  providerAvailability: ReturnType<typeof getEdenProviderExecutionAvailability> | null;
+  approvedModelScope: string[];
+}) {
+  const taskModelLabel = normalizeSandboxTaskTitle(input.taskModelLabel);
+
+  if (taskModelLabel) {
+    return taskModelLabel;
+  }
+
+  const approvedScope = input.approvedModelScope
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (approvedScope.length === 1) {
+    return approvedScope[0]!;
+  }
+
+  return input.providerAvailability?.defaultModel ?? "gpt-4.1";
+}
+
+function resolveLiveSandboxModelScopeBlockReason(input: {
+  providerKey: EdenAiProviderValue | null;
+  modelLabel: string;
+  approvedModelScope: string[];
+}) {
+  if (!input.providerKey) {
+    return "No provider is stored for this sandbox task.";
+  }
+
+  const approvedScope = Array.from(
+    new Set(
+      input.approvedModelScope.map((value) => value.trim()).filter(Boolean),
+    ),
+  );
+
+  if (!approvedScope.length) {
+    return null;
+  }
+
+  const normalizedModel = input.modelLabel.trim().toLowerCase();
+
+  if (
+    approvedScope.some((candidate) => candidate.toLowerCase() === normalizedModel)
+  ) {
+    return null;
+  }
+
+  return `${formatEnumLabel(
+    input.providerKey,
+  )} provider approval scopes this runtime to ${approvedScope.join(
+    ", ",
+  )}, but the live sandbox task resolved model ${input.modelLabel}.`;
+}
+
+function resolveLiveSandboxProviderBlockedOutcome(input: {
+  taskTitle: string;
+  providerKey: EdenAiProviderValue | null;
+  latestProviderDispatch: {
+    adapterKind: "PROVIDER" | "TOOL" | "BROWSER";
+    adapterKey: string;
+  } | null;
+  providerPreflight: ReturnType<typeof buildRuntimeProviderPreflight> | null;
+  providerAvailability: ReturnType<typeof getEdenProviderExecutionAvailability> | null;
+  modelLabel: string;
+  modelScopeBlockReason: string | null;
+  providerBoundaryLabel: string | null;
+}): LiveSandboxProviderBlockedOutcome | null {
+  const providerLabel =
+    input.providerAvailability?.providerLabel ??
+    (input.providerKey ? formatEnumLabel(input.providerKey) : "Provider");
+
+  if (!input.providerKey) {
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary:
+        "Live provider execution was blocked because the sandbox task has no provider selected.",
+      detail:
+        "Only provider-backed sandbox tasks can use the live execution path. Create or update the task with an approved provider first.",
+      blockingReason: "Provider not selected on sandbox task.",
+      reviewRequired: false,
+      adapterMode: "SCAFFOLD_ONLY",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        reason: "missing_provider",
+        taskTitle: input.taskTitle,
+      },
+    };
+  }
+
+  if (
+    !input.latestProviderDispatch ||
+    (input.latestProviderDispatch.adapterKind !== "PROVIDER" &&
+      input.latestProviderDispatch.adapterKey !== "provider_adapter")
+  ) {
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary:
+        "Live provider execution was blocked because the sandbox task was not prepared for provider dispatch.",
+      detail:
+        "This task does not currently carry a provider-adapter dispatch record, so Eden will not bypass the governed provider path.",
+      blockingReason: "Task missing provider-adapter dispatch preparation.",
+      reviewRequired: false,
+      adapterMode: "SCAFFOLD_ONLY",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        reason: "missing_provider_dispatch",
+        providerKey: input.providerKey,
+        providerLabel,
+      },
+    };
+  }
+
+  if (!input.providerPreflight) {
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary:
+        "Live provider execution was blocked because Eden could not resolve provider governance for this task.",
+      detail:
+        "The provider adapter could not rebuild the runtime governance preflight for this task, so no live request was attempted.",
+      blockingReason: "Provider governance preflight missing.",
+      reviewRequired: false,
+      adapterMode: "SCAFFOLD_ONLY",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        reason: "missing_provider_preflight",
+        providerKey: input.providerKey,
+        providerLabel,
+      },
+    };
+  }
+
+  if (input.providerPreflight.runStatus === "review_required") {
+    return {
+      dispatchStatus: "REVIEW_REQUIRED",
+      sessionStatus: "REVIEW_REQUIRED",
+      runStatus: "REVIEW_REQUIRED",
+      taskResultStatus: "REVIEW_NEEDED",
+      summary: input.providerPreflight.summary,
+      detail: input.providerPreflight.detail,
+      blockingReason: input.providerPreflight.detail,
+      reviewRequired: true,
+      adapterMode: "LIVE_GUARDED",
+      resultPayload: {
+        resultKind: "live_provider_review_required",
+        providerKey: input.providerKey,
+        providerLabel,
+        model: input.modelLabel,
+        detail: input.providerPreflight.detail,
+      },
+    };
+  }
+
+  if (input.providerPreflight.runStatus === "preflight_blocked") {
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary: input.providerPreflight.summary,
+      detail: input.providerPreflight.detail,
+      blockingReason: input.providerPreflight.detail,
+      reviewRequired: false,
+      adapterMode: "SCAFFOLD_ONLY",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        providerKey: input.providerKey,
+        providerLabel,
+        model: input.modelLabel,
+        detail: input.providerPreflight.detail,
+      },
+    };
+  }
+
+  if (!input.providerAvailability) {
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary:
+        "Live provider execution was blocked because Eden could not resolve provider adapter availability.",
+      detail:
+        "The selected provider is outside Eden's live execution availability map.",
+      blockingReason: "Provider availability could not be resolved.",
+      reviewRequired: false,
+      adapterMode: "SCAFFOLD_ONLY",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        providerKey: input.providerKey,
+        providerLabel,
+        model: input.modelLabel,
+        reason: "missing_provider_availability",
+      },
+    };
+  }
+
+  if (!input.providerAvailability.livePath) {
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary: `${providerLabel} execution remains scaffolded in Eden v1.`,
+      detail:
+        "This provider is approved at the control-plane level, but Eden has not wired a real live execution path for it yet.",
+      blockingReason: "Provider adapter remains scaffold-only.",
+      reviewRequired: false,
+      adapterMode: "SCAFFOLD_ONLY",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        providerKey: input.providerKey,
+        providerLabel,
+        model: input.modelLabel,
+        reason: "provider_scaffold_only",
+      },
+    };
+  }
+
+  if (!input.providerAvailability.credentialConfigured) {
+    const credentialReference =
+      input.providerAvailability.credentialEnvVar ?? "server credential";
+
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary:
+        "Live provider execution was blocked because the server runtime does not currently expose the required provider credential.",
+      detail: `${providerLabel} is policy-approved for the owner-only sandbox, but ${credentialReference} is not configured in the active server runtime. Secret-boundary status alone does not unlock a real outbound call.${input.providerBoundaryLabel ? ` Boundary: ${input.providerBoundaryLabel}.` : ""}`,
+      blockingReason: `${credentialReference} is missing from the active server runtime.`,
+      reviewRequired: false,
+      adapterMode: "LIVE_GUARDED",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        providerKey: input.providerKey,
+        providerLabel,
+        model: input.modelLabel,
+        credentialEnvVar: credentialReference,
+        reason: "missing_server_credential",
+      },
+    };
+  }
+
+  if (input.modelScopeBlockReason) {
+    return {
+      dispatchStatus: "BLOCKED",
+      sessionStatus: "BLOCKED",
+      runStatus: "PREFLIGHT_BLOCKED",
+      taskResultStatus: "FAIL",
+      summary:
+        "Live provider execution was blocked because the resolved model is outside the runtime approval scope.",
+      detail: input.modelScopeBlockReason,
+      blockingReason: input.modelScopeBlockReason,
+      reviewRequired: false,
+      adapterMode: "LIVE_GUARDED",
+      resultPayload: {
+        resultKind: "live_provider_blocked",
+        providerKey: input.providerKey,
+        providerLabel,
+        model: input.modelLabel,
+        reason: "model_scope_blocked",
+      },
+    };
+  }
+
+  return null;
+}
+
+function appendSandboxTaskOutputLines(existingLines: string[], nextLines: string[]) {
+  return [...existingLines, ...nextLines.map((line) => line.trim()).filter(Boolean)].slice(
+    -18,
+  );
+}
 
 function buildSandboxPlannerPayload(input: {
   taskType: "IMPLEMENTATION_PLAN" | "ANALYSIS" | "QA_REVIEW";
@@ -2836,7 +3721,9 @@ function buildSandboxTaskResult(input: {
           ? ("REVIEW_NEEDED" satisfies ProjectRuntimeTaskResultStatusValue)
           : ("FAIL" satisfies ProjectRuntimeTaskResultStatusValue),
       resultSummary: input.providerPreflight.ready
-        ? `${input.providerPreflight.providerLabel} governance preflight passed. Live provider execution was not attempted.`
+        ? input.providerPreflight.providerKey === "openai"
+          ? `${input.providerPreflight.providerLabel} governance preflight passed. The owner can now attempt the guarded live sandbox path if the active server runtime exposes the required credential.`
+          : `${input.providerPreflight.providerLabel} governance preflight passed. Live provider execution is still scaffolded for this adapter.`
         : input.providerPreflight.summary,
       resultPayload: {
         resultKind: "provider_preflight",

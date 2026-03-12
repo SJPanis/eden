@@ -74,15 +74,17 @@
       "title": "Wire the first approved provider execution path behind policy and secret gates",
       "chapter": "Chapter 03 - AI Orchestration",
       "lane": "short_horizon",
-      "approvalState": "owner_review",
-      "summary": "Move one provider adapter from scaffold-only to guarded live execution only after policy, secret-boundary status, and approval checks are verified end to end.",
+      "approvalState": "completed",
+      "summary": "The owner-only internal sandbox now has one guarded live OpenAI execution path that still enforces provider approval, secret-boundary status, real server credential checks, and owner review.",
       "acceptanceCriteria": [
         "One approved provider can execute only when the runtime policy allows it.",
         "A missing or blocked secret boundary prevents execution cleanly.",
         "Owner audit history shows when provider execution was enabled or attempted."
       ],
-      "blockedBy": [
-        "Real provider credentials and secret handling policy are not yet fully implemented."
+      "blockedBy": [],
+      "completionNotes": [
+        "Only OpenAI is live in v1, and only for owner-triggered internal sandbox tasks.",
+        "Browser, tool, deployment, and broader provider execution remain scaffolded or metadata-only."
       ],
       "requiresOwnerReview": true
     },

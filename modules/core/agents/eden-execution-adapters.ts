@@ -48,7 +48,7 @@ export const edenExecutionAdapterRegistry = [
       "Review-gated model execution intent",
     ],
     summary:
-      "Structured provider-dispatch scaffold that reuses Eden provider approval and secret-boundary governance. No live provider call is wired in v1.",
+      "Structured provider-dispatch scaffold that reuses Eden provider approval and secret-boundary governance. OpenAI can cross this boundary only through the owner-triggered internal sandbox live path; other providers remain preflight-only in v1.",
   },
 ] as const;
 
@@ -249,11 +249,17 @@ export function buildRuntimeExecutionDispatchPreflight(
         reviewRequired: true,
         summary: `${providerPreflight.providerLabel} provider dispatch passed governance preflight and now waits for owner review.`,
         detail:
-          "Runtime policy, provider approval, and secret-boundary metadata are aligned, but Eden still records provider dispatch as preflight-only until live execution is wired and explicitly approved.",
+          providerPreflight.providerKey === "openai"
+            ? "Runtime policy, provider approval, and secret-boundary metadata are aligned. The owner can now trigger Eden's guarded live OpenAI sandbox path, but it still requires explicit review and a real server credential."
+            : "Runtime policy, provider approval, and secret-boundary metadata are aligned, but this provider still remains preflight-only until a live adapter path is wired later.",
         dispatchReason:
-          "Governed provider dispatch can be proposed, but live provider execution remains disabled in v1.",
+          providerPreflight.providerKey === "openai"
+            ? "Governed provider dispatch is ready for the owner-triggered live OpenAI sandbox path."
+            : "Governed provider dispatch can be proposed, but live provider execution remains disabled for this adapter in v1.",
         blockingReason:
-          "Owner review is required before any future live provider execution path is enabled.",
+          providerPreflight.providerKey === "openai"
+            ? "Owner review and a real server credential are both required before Eden attempts the live OpenAI path."
+            : "Owner review is required before any future live provider execution path is enabled.",
         capabilityLabels: [...adapter.capabilityLabels],
         providerPreflight,
       };

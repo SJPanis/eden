@@ -53,6 +53,9 @@ export function InternalSandboxTaskRunner({
     tone: "success" | "error";
     text: string;
   } | null>(null);
+  const [activeExecutionTaskId, setActiveExecutionTaskId] = useState<
+    string | null
+  >(null);
   const [isPending, startTransition] = useTransition();
 
   async function handleCreateTask() {
@@ -115,6 +118,58 @@ export function InternalSandboxTaskRunner({
     }
   }
 
+  async function handleRunLiveProviderTask(taskId: string) {
+    setFeedback(null);
+    setActiveExecutionTaskId(taskId);
+
+    try {
+      const response = await fetch(
+        `/api/owner/project-runtimes/internal-sandbox/tasks/${taskId}/execute`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const result = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        message?: string;
+        executed?: boolean;
+      };
+
+      if (!response.ok || !result.ok) {
+        setFeedback({
+          tone: "error",
+          text:
+            result.error ??
+            "Eden could not run that live sandbox provider execution path.",
+        });
+        return;
+      }
+
+      setFeedback({
+        tone: result.executed ? "success" : "error",
+        text:
+          result.message ??
+          (result.executed
+            ? "Live sandbox provider result stored for owner review."
+            : "Live sandbox provider execution was blocked or failed."),
+      });
+      startTransition(() => {
+        router.refresh();
+      });
+    } catch {
+      setFeedback({
+        tone: "error",
+        text: "Eden could not run that live sandbox provider execution path.",
+      });
+    } finally {
+      setActiveExecutionTaskId(null);
+    }
+  }
+
   return (
     <section className="mt-5 rounded-[28px] border border-eden-edge bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -128,8 +183,10 @@ export function InternalSandboxTaskRunner({
           <p className="mt-3 text-sm leading-6 text-eden-muted">
             Owner-only sandbox task runner for the Eden Internal Sandbox Runtime.
             The Lead/Planner and Worker steps are deterministic control-plane
-            records only. This does not start a real container, deploy code, or
-            publish a live runtime.
+            records only. One guarded live OpenAI path can now be triggered per
+            task when provider approval, secret readiness, and server credential
+            checks all pass. This still does not start a container, deploy code,
+            or publish a live runtime.
           </p>
         </div>
         <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
@@ -139,8 +196,9 @@ export function InternalSandboxTaskRunner({
 
       <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
         Execution mode: synchronous sandbox v1 plus governed async-boundary
-        metadata. Eden stores planner, worker, dispatch, and session records for
-        owner review without starting a live worker.
+        metadata. OpenAI is the only live provider path in v1, and only for
+        owner-triggered internal sandbox tasks that pass runtime policy and
+        server-credential checks. Browser and tool execution remain scaffolded.
       </div>
 
       {initialUnavailableReason ? (
@@ -170,7 +228,9 @@ export function InternalSandboxTaskRunner({
             Describe the sandbox work item you want the internal planner and
             worker loop to record. Select the intended execution role and adapter
             so Eden can also capture a governed dispatch/session record. Provider
-            and browser paths remain preflight-only in v1.
+            and browser paths remain preflight-only at creation time. A real
+            live provider call can only be triggered later from an eligible
+            stored OpenAI task.
           </p>
           <div className="mt-4 space-y-3">
             <input
@@ -480,6 +540,38 @@ export function InternalSandboxTaskRunner({
                       </p>
                     </div>
                   )}
+
+                  {task.providerKey === "openai" ? (
+                    <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="max-w-2xl">
+                          <p className="text-xs uppercase tracking-[0.12em] text-emerald-700">
+                            Live provider path
+                          </p>
+                          <p className="mt-2 text-sm text-emerald-900">
+                            Owner-triggered OpenAI execution is available only
+                            for internal sandbox tasks that pass provider
+                            approval, secret-boundary status, and live server
+                            credential checks.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={
+                            isPending ||
+                            Boolean(initialUnavailableReason) ||
+                            activeExecutionTaskId === task.id
+                          }
+                          onClick={() => handleRunLiveProviderTask(task.id)}
+                          className="rounded-full border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {activeExecutionTaskId === task.id
+                            ? "Running live path..."
+                            : "Run live OpenAI path"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 flex flex-wrap gap-3 text-xs text-eden-muted">
                     <span>Created {task.createdAtLabel}</span>

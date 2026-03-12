@@ -40,10 +40,11 @@ export function OwnerRuntimeExecutionConsole({
             Governed dispatch, sessions, and recent run history
           </h3>
           <p className="mt-3 text-sm leading-6 text-eden-muted">
-            Owner-visible execution interface metadata only. Eden records
-            dispatch readiness, session role boundaries, and adapter intent here
-            without claiming live browser automation, tool execution, or provider
-            execution unless that path is actually wired later.
+            Owner-visible governed execution history. Eden records dispatch
+            readiness, session role boundaries, and adapter intent here. The
+            only live path in v1 is the owner-triggered OpenAI sandbox provider
+            flow when governance and server credential checks pass. Browser and
+            tool execution remain scaffolded.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -63,7 +64,7 @@ export function OwnerRuntimeExecutionConsole({
               Dispatch boundary
             </p>
             <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
-              Scaffolded unless verified live
+              OpenAI live path only
             </span>
           </div>
           <div className="mt-4 space-y-3">

@@ -11,6 +11,7 @@ Last updated: 2026-03-11
 ## Short-Horizon V1 Closeout
 
 - Verify dispatch/session history from the new execution-interface layer against the migrated live database.
+- Verify the guarded live OpenAI sandbox path against the migrated live database once `OPENAI_API_KEY` is available in the active server runtime.
 - Add sandbox task lifecycle audit logging.
 - Verify provider approvals, secret readiness updates, agent runs, and sandbox result capture against the migrated live database.
 - Keep active owner and consumer surfaces honest about which ledger, runtime, and provider features remain metadata-only or development overlays.
@@ -23,7 +24,7 @@ Last updated: 2026-03-11
 
 ## Requires Owner Review
 
-- Any change that would enable real provider execution.
+- Any change that would widen real provider execution beyond the current owner-only OpenAI sandbox path.
 - Any change that would provision or mutate a real isolated runtime target.
 - Any change that would widen owner-only internal sandbox scope into business or public runtime execution.
 
@@ -31,7 +32,7 @@ Last updated: 2026-03-11
 
 - Real container or workspace provisioning.
 - Real secret storage outside metadata status records.
-- Real provider credentials and outbound adapter execution.
+- Additional provider credentials and broader outbound adapter execution beyond the current guarded OpenAI sandbox path.
 - Real external-domain or hosted runtime activation.
 
 ## Stop Conditions

@@ -1,0 +1,5 @@
+ALTER TYPE "ProjectRuntimeExecutionAdapterMode"
+ADD VALUE IF NOT EXISTS 'LIVE_GUARDED';
+
+ALTER TYPE "ProjectRuntimeTaskResultType"
+ADD VALUE IF NOT EXISTS 'LIVE_PROVIDER_RESULT';

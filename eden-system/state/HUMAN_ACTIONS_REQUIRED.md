@@ -20,6 +20,7 @@
     - `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`
     - `20260311235930_provider_approval_secret_status_agent_run_v1`
     - `20260311235959_openclaw_execution_interface_scaffolding_v1`
+    - `20260312003000_live_provider_execution_path_v1`
   - mark the baseline as applied on the existing live database
   - then run `prisma migrate deploy` so Prisma can apply all pending migrations in order
 - Exact next commands from `C:\dev\Eden\eden-v1`:
@@ -38,6 +39,9 @@
   - save one provider approval update and confirm runtime compatibility plus audit entries persist
   - save one secret-boundary readiness update and confirm `statusDetail` plus `lastCheckedAt` persist
   - create one sandbox task with provider preflight selected and confirm agent-run plus explicit result-capture records persist
+  - if you want to verify the first real provider-backed execution path, add `OPENAI_API_KEY` to the active server runtime and optionally `EDEN_SANDBOX_OPENAI_MODEL`
+  - after adding the real server credential, mark the OpenAI secret boundary as `Configured` in `/owner/runtimes`
+  - then trigger one owner-only live OpenAI sandbox task execution and confirm the agent run, dispatch record, and stored provider result persist honestly
   - create one sandbox task with tool-adapter dispatch selected and confirm a `ProjectRuntimeExecutionSession` plus `ProjectRuntimeDispatchRecord` persist
   - create one sandbox task with browser-adapter dispatch selected and confirm the dispatch record lands in `review required` state without implying live browser automation
   - confirm the owner control-agent panel loads the new owner constitution file in the intended environment
@@ -59,6 +63,7 @@
 - Approve the owner-only internal "Eden inside Eden" sandbox as a formal product concept.
 - Decide where runtime secrets/config will live before any real runtime provisioning begins.
 - Decide whether future secret status updates should stay owner-mediated in Eden or move to an external secret manager control surface.
+- Decide whether the guarded OpenAI sandbox path should remain developer-only or become a formal owner-facing verification capability in Eden v1.
 
 ## Build Supervisor Tracked Actions
 

@@ -146,8 +146,16 @@ export async function OwnerControlAgentPanel() {
                         {adapter.adapterStatusLabel}
                       </p>
                     </div>
-                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-amber-700">
-                      No live calls
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${
+                        adapter.providerKey === "openai"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-amber-200 bg-amber-50 text-amber-700"
+                      }`}
+                    >
+                      {adapter.providerKey === "openai"
+                        ? "Owner sandbox live path"
+                        : "No live calls"}
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-eden-muted">

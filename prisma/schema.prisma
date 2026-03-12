@@ -264,6 +264,7 @@ enum ProjectRuntimeExecutionAdapterKind {
 enum ProjectRuntimeExecutionAdapterMode {
   PREFLIGHT_ONLY
   SCAFFOLD_ONLY
+  LIVE_GUARDED
   FUTURE_LIVE
 }
 
@@ -283,6 +284,7 @@ enum ProjectRuntimeTaskStatus {
 enum ProjectRuntimeTaskResultType {
   SANDBOX_PLAN
   PROVIDER_PREFLIGHT
+  LIVE_PROVIDER_RESULT
   QA_RESULT
   EXECUTION_REVIEW
 }

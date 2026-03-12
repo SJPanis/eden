@@ -76,6 +76,7 @@ Prisma models exist for:
 - owner-only internal sandbox runtime initializer exists at `/api/owner/project-runtimes`
 - owner-only internal sandbox task runner exists inside `/owner/runtimes`
 - owner-only sandbox task API exists at `/api/owner/project-runtimes/internal-sandbox/tasks`
+- owner-only live sandbox provider execution API exists at `/api/owner/project-runtimes/internal-sandbox/tasks/[taskId]/execute`
 - owner-only runtime lifecycle update API exists at `/api/owner/project-runtimes/[runtimeId]`
 - owner-only runtime launch-intent API exists at `/api/owner/project-runtimes/[runtimeId]/launch-intent`
 - owner-only runtime deployment-history API exists at `/api/owner/project-runtimes/[runtimeId]/deployment-history`
@@ -107,14 +108,14 @@ What is still mixed or transitional:
 - sandbox task execution is synchronous deterministic metadata only; it stores Lead/Planner and Worker outputs but does not run a real agent worker or isolated runtime
 - runtime lifecycle controls and audit logs are now modeled, but they still do not drive infrastructure actions
 - runtime launch intent and deployment history are now modeled, but they still do not represent real provisioning, release jobs, or domain activation
-- runtime config policy, secret boundaries, provider compatibility, and owner control doctrine are now modeled, but they still do not unlock real provider execution, secret storage, or autonomous runtime operations
-- provider approval gates, secret readiness detail, agent run records, and sandbox result capture are now modeled, but they still do not execute live provider calls or isolated runtime jobs
+- runtime config policy, secret boundaries, provider compatibility, and owner control doctrine are now modeled, and one guarded live OpenAI sandbox path exists, but broader provider execution, secret storage, and autonomous runtime operations still do not
+- provider approval gates, secret readiness detail, agent run records, and sandbox result capture are now modeled, and the owner-only internal sandbox can now store one real provider-backed result, but it still does not execute isolated runtime jobs
 - Ask Eden has both a newer tool-routed layer and a legacy Eden AI helper layer
 
 ## Biggest Gaps Against Intended Eden Direction
 
 1. True project runtime isolation still does not exist yet.
-2. Runtime metadata, lifecycle audit logs, launch intent, deployment history, config policy, and secret boundaries exist, but runtime provisioning, lifecycle execution, deployment execution, and provider execution do not.
+2. Runtime metadata, lifecycle audit logs, launch intent, deployment history, config policy, and secret boundaries exist, but runtime provisioning, lifecycle execution, deployment execution, and general provider execution still do not. Only one guarded OpenAI sandbox path is live.
 3. Business/project code still conceptually lives inside the same app instead of separate runtimes.
 4. "Hosted inside Eden" is still modeled as balance/status metadata plus runtime registry metadata, not as a real isolated runtime system.
 5. Sandbox task execution records exist, but they are not a real queued worker system or runtime-backed execution engine.
@@ -128,7 +129,9 @@ What is still mixed or transitional:
 - The live database still has no recorded Prisma migration history until the new baseline is marked as applied.
 - The runtime, sandbox task runner, runtime lifecycle audit, launch-intent/deployment-history, config/secret-boundary, and execution-governance migrations still have not been applied to the active database.
 - The new execution-interface migration for dispatch records and execution sessions also still has not been applied to the active database.
+- The new live-provider-labeling migration also still has not been applied to the active database.
 - `middleware.ts` still uses the deprecated Next.js middleware convention instead of `proxy`.
+- The active server runtime does not currently expose `OPENAI_API_KEY`, so the new live sandbox provider path cannot be verified end to end from this environment yet.
 
 ## Minimal Cleanup Completed In This Session
 
@@ -230,8 +233,9 @@ What is still mixed or transitional:
   - records governed provider preflight compatibility against allowlist, approval, and secret readiness
   - writes first-class `ProjectRuntimeAgentRun` records
   - stores explicit task result capture for plan, QA/review, or provider-preflight outcomes
-- These execution-governance records remain honest control-plane data only:
-  - no live OpenAI or Anthropic call is made
+- These execution-governance records remain mostly control-plane data:
+  - one owner-triggered live OpenAI path now exists for eligible internal sandbox tasks
+  - Anthropic and other providers remain scaffold-only
   - no container or workspace is started
   - no hosted preview or deploy job is triggered
 
@@ -252,12 +256,34 @@ What is still mixed or transitional:
 - Eden now has OpenClaw-style execution-interface scaffolding without claiming live execution:
   - tool dispatch can be marked ready at the async boundary
   - browser dispatch remains review-gated
-  - provider dispatch reuses approval and secret-boundary governance, then stops at preflight/review
-- These records remain governance and history only:
+  - provider dispatch reuses approval and secret-boundary governance, and OpenAI can now cross that boundary only through the owner-triggered internal sandbox live path
+- These records remain governance and history first:
   - no live browser automation runs
   - no live tool execution runs
-  - no live provider call is made
+  - only the owner-triggered OpenAI sandbox path can make a live provider call
   - no async worker queue or container worker exists yet
+
+## Current Live Provider Path
+
+- Eden now has one real provider-backed execution path:
+  - provider: `OpenAI`
+  - scope: owner-only internal sandbox tasks only
+  - trigger: explicit owner action from `/owner/runtimes`
+- Before execution, Eden re-checks:
+  - runtime allowlist and provider approval
+  - secret-boundary status metadata
+  - task/provider dispatch preparation
+  - server credential availability through `OPENAI_API_KEY`
+  - provider model-scope restrictions when they are configured
+- A live attempt now records:
+  - a real `ProjectRuntimeAgentRun`
+  - a real `ProjectRuntimeDispatchRecord`
+  - a real `ProjectRuntimeExecutionSession`
+  - an updated sandbox task result payload with honest success, blocked, or failure state
+- Current limit:
+  - the active audit environment does not expose `OPENAI_API_KEY`, so end-to-end live execution verification is still pending
+  - no other provider path is live
+  - browser and tool execution remain scaffolded
 
 ## Current Owner Control-Agent Scaffold
 
@@ -273,10 +299,11 @@ What is still mixed or transitional:
 - Approved provider scaffolds now exist for:
   - OpenAI
   - Anthropic
-- Current provider adapters are scaffold-only:
-  - no live outbound model calls
-  - no autonomous runtime execution
-  - no provider execution without future policy, secret, and adapter implementation
+- Current provider adapter reality:
+  - OpenAI is now `live_guarded` for the owner-only internal sandbox path only
+  - Anthropic remains scaffold-only
+  - there is still no autonomous runtime execution
+  - there is still no provider execution outside explicit policy, secret, and owner-triggered sandbox controls
 
 ## Active Surface Honesty Audit
 
@@ -349,6 +376,7 @@ What is still mixed or transitional:
   - external-domain activation
   - unrestricted autonomous self-modification
   - live provider execution without policy and secret gates
+  - live browser or tool execution
 
 ## Migration Chain Repair Status
 
@@ -368,6 +396,8 @@ What is still mixed or transitional:
   - `prisma/migrations/20260311235930_provider_approval_secret_status_agent_run_v1/migration.sql`
 - Execution-interface migration created:
   - `prisma/migrations/20260311235959_openclaw_execution_interface_scaffolding_v1/migration.sql`
+- Live provider execution labeling migration created:
+  - `prisma/migrations/20260312003000_live_provider_execution_path_v1/migration.sql`
 - The baseline covers the pre-runtime schema only and excludes:
   - `ProjectRuntime`
   - `ProjectRuntimeDomainLink`
@@ -387,7 +417,7 @@ What is still mixed or transitional:
   - `No difference detected.`
 - Result:
   - the migration chain now has a valid predecessor on disk for `ProjectBlueprint`
-- the remaining work is manual migration-history reconciliation plus applying the runtime, task runner, lifecycle audit, launch/deployment-history, config/secret-boundary, execution-governance, and execution-interface migrations to the live database
+- the remaining work is manual migration-history reconciliation plus applying the runtime, task runner, lifecycle audit, launch/deployment-history, config/secret-boundary, execution-governance, execution-interface, and live-provider-labeling migrations to the live database
 
 ## Next Recommended Implementation Target
 
@@ -396,7 +426,7 @@ Use the new build supervisor to separate human-gated operational work from Codex
 Build next:
 
 1. owner still needs to run the manual migration reconciliation and deploy sequence on the active database
-2. after that, verify `/owner/runtimes` can persist the runtime registry, lifecycle audit, launch intent, deployment history, config policy, provider approvals, secret readiness updates, agent runs, sandbox result capture, self-work queue pulls, and build-supervisor packet flow against the live database
+2. after that, verify `/owner/runtimes` can persist the runtime registry, lifecycle audit, launch intent, deployment history, config policy, provider approvals, secret readiness updates, agent runs, sandbox result capture, self-work queue pulls, build-supervisor packet flow, and one live OpenAI sandbox execution against the live database
 3. the next Codex-ready implementation target is `sandbox_task_lifecycle_audit_logging`
 4. after that, add immutable sandbox task lifecycle audit records so the self-work and supervisor layers can point to concrete queue, dispatch-preparation, completion, and failure evidence
 

@@ -533,6 +533,60 @@
 - No live browser automation, tool execution, provider execution, async worker queue, or container runtime was added in this session.
 - Persistent verification of the new execution-interface records still depends on applying the new migration to the active database and testing `/owner/runtimes` in that environment.
 
+### First live provider execution path v1 completed
+
+- Re-read the canonical Eden specs, state files, queue/timeline files, build-supervisor state, changelog, and Codex executor prompt before changing the runtime execution path.
+- Inspected the current provider approval gates, secret-boundary status flow, provider adapter scaffold, sandbox task runner, dispatch/session/run records, and owner runtime UI before wiring a live call path.
+- Chose one narrow live provider path:
+  - provider: `OpenAI`
+  - scope: owner-only internal sandbox tasks only
+  - trigger: explicit owner action from `/owner/runtimes`
+- Extended Prisma schema with honest additive enum values:
+  - `ProjectRuntimeExecutionAdapterMode.LIVE_GUARDED`
+  - `ProjectRuntimeTaskResultType.LIVE_PROVIDER_RESULT`
+- Added additive migration:
+  - `prisma/migrations/20260312003000_live_provider_execution_path_v1/migration.sql`
+- Upgraded `modules/core/agents/eden-provider-adapters.ts` so:
+  - `OpenAI` is now marked `live_guarded`
+  - `Anthropic` remains scaffold-only
+  - Eden can perform one real outbound OpenAI Responses API call when the owner-only sandbox task passes governance checks and the active server runtime exposes `OPENAI_API_KEY`
+  - provider failures, missing credentials, and scaffold-only providers now return honest structured results instead of fake success
+- Extended `modules/core/services/project-runtime-service.ts` with an owner-only live provider execution flow that:
+  - re-checks runtime/provider approval governance
+  - re-checks secret-boundary metadata
+  - requires the task to have been prepared through the provider adapter path
+  - enforces provider model-scope constraints when they exist
+  - creates or updates real execution-session, dispatch, agent-run, and task-result records for blocked, failed, or completed attempts
+- Added owner-only API route:
+  - `app/api/owner/project-runtimes/internal-sandbox/tasks/[taskId]/execute/route.ts`
+- Extended owner UI:
+  - `ui/owner/internal-sandbox-task-runner.tsx` now exposes `Run live OpenAI path` for eligible sandbox tasks
+  - `ui/owner/owner-runtime-execution-console.tsx` now labels the OpenAI sandbox path as the only live execution path in v1
+  - `ui/owner/owner-control-agent-panel.tsx` now distinguishes the guarded OpenAI path from still-scaffolded providers
+- Added `.env.example` entries for:
+  - `OPENAI_API_KEY`
+  - `EDEN_SANDBOX_OPENAI_MODEL`
+
+### Verification completed for the first live provider path
+
+- `cmd /c npx prisma format` passed when pointed at the local schema engine binary.
+- `cmd /c npx prisma generate` passed.
+- `cmd /c npx prisma validate` passed.
+- `npm run lint` passed.
+- `npm run build` passed.
+
+### Important limits after the first live provider path
+
+- Only one live provider path exists:
+  - `OpenAI`
+  - owner-only internal sandbox tasks only
+  - explicit owner trigger only
+- Live execution still depends on a real server credential:
+  - `OPENAI_API_KEY`
+- The active repo environment does not currently expose `OPENAI_API_KEY`, so end-to-end live provider verification did not occur in this session.
+- Browser execution, tool execution, deployment/provisioning, and general runtime autonomy remain scaffolded or metadata-only.
+- The new live-provider-labeling migration was generated but not applied in this session.
+
 ### Build Supervisor Latest Result
 
 <!-- EDEN_BUILD_SUPERVISOR:START -->

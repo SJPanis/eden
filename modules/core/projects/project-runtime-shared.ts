@@ -101,6 +101,7 @@ export const ownerRuntimeTaskRequestedActionOptions = [
 export const ownerRuntimeTaskResultTypeOptions = [
   { value: "sandbox_plan", label: "Sandbox Plan" },
   { value: "provider_preflight", label: "Provider Preflight" },
+  { value: "live_provider_result", label: "Live Provider Result" },
   { value: "qa_result", label: "QA Result" },
   { value: "execution_review", label: "Execution Review" },
 ] as const;
