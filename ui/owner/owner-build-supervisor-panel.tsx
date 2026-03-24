@@ -172,16 +172,16 @@ export function OwnerBuildSupervisorPanel({
   }
 
   return (
-    <section className="rounded-[28px] border border-eden-edge bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+    <section className="rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Build supervisor
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-eden-ink">
+          <h2 className="mt-3 text-2xl font-semibold text-white">
             Owner-gated build orchestration
           </h2>
-          <p className="mt-3 text-sm leading-6 text-eden-muted">
+          <p className="mt-3 text-sm leading-6 text-white/50">
             Eden can now select the next Codex-ready self-work item, prepare a
             canonical execution packet, and ingest a completed result back into the
             repo memory files. This is supervised build orchestration only.
@@ -202,63 +202,63 @@ export function OwnerBuildSupervisorPanel({
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="space-y-4">
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Supervisor state
                 </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                <p className="mt-2 text-sm font-semibold text-white">
                   {initialState.reviewModeLabel}
                 </p>
               </div>
-              <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                 {initialState.trackedHumanActions} human actions tracked
               </span>
             </div>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   State file
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.statePath}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Packet file
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.packetPath}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Missing inputs
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.missingControlInputs}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Packet ready
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.packetReady ? "Yes" : "No"}
                 </dd>
               </div>
             </dl>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Next recommended task
                 </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                <p className="mt-2 text-sm font-semibold text-white">
                   {initialState.nextRecommendedTask?.title ?? "No Codex-ready task"}
                 </p>
               </div>
@@ -272,7 +272,7 @@ export function OwnerBuildSupervisorPanel({
                 </span>
               ) : null}
             </div>
-            <p className="mt-3 text-sm leading-6 text-eden-muted">
+            <p className="mt-3 text-sm leading-6 text-white/50">
               {initialState.nextRecommendedTask?.summary ??
                 "The build supervisor does not currently have a Codex-ready task to prepare."}
             </p>
@@ -281,7 +281,7 @@ export function OwnerBuildSupervisorPanel({
                 {initialState.nextRecommendedTask.acceptanceCriteria.map((criterion) => (
                   <div
                     key={criterion}
-                    className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-muted"
+                    className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white/50"
                   >
                     {criterion}
                   </div>
@@ -296,17 +296,17 @@ export function OwnerBuildSupervisorPanel({
                 Boolean(initialState.unavailableReason)
               }
               onClick={handlePreparePacket}
-              className="mt-4 rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-4 rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending ? "Working..." : "Prepare Codex packet"}
             </button>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Blocker state
             </p>
-            <p className="mt-2 text-sm font-semibold text-eden-ink">
+            <p className="mt-2 text-sm font-semibold text-white">
               {initialState.blockedHeadTask?.title ?? "No blocked approved head task"}
             </p>
             <div className="mt-4 space-y-2">
@@ -327,13 +327,13 @@ export function OwnerBuildSupervisorPanel({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Packet preview
                 </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                <p className="mt-2 text-sm font-semibold text-white">
                   {initialState.packet?.taskTitle ?? "No packet prepared yet"}
                 </p>
               </div>
@@ -347,7 +347,7 @@ export function OwnerBuildSupervisorPanel({
                 </span>
               ) : null}
             </div>
-            <p className="mt-3 text-sm leading-6 text-eden-muted">
+            <p className="mt-3 text-sm leading-6 text-white/50">
               {initialState.packet?.objective ??
                 "Prepare a packet to write the next Codex-ready task into the canonical packet file."}
             </p>
@@ -359,7 +359,7 @@ export function OwnerBuildSupervisorPanel({
                 .map((entry) => (
                   <div
                     key={entry}
-                    className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-muted"
+                    className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white/50"
                   >
                     {entry}
                   </div>
@@ -367,45 +367,45 @@ export function OwnerBuildSupervisorPanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Last completed task
             </p>
-            <p className="mt-2 text-sm font-semibold text-eden-ink">
+            <p className="mt-2 text-sm font-semibold text-white">
               {initialState.lastCompletedTask?.title ?? "No completed task ingested yet"}
             </p>
-            <p className="mt-3 text-sm leading-6 text-eden-muted">
+            <p className="mt-3 text-sm leading-6 text-white/50">
               {initialState.lastCompletedTask?.summary ??
                 "When a supervised Codex task is finished, record its summary here so Eden can refresh the canonical state and prepare the next step."}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Ingest completed result
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Record the outcome of the currently prepared Codex packet. This
               updates the build-supervisor state and refreshes the managed Eden
               memory sections.
             </p>
             <div className="mt-4 space-y-3">
-              <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <div className="rounded-2xl border border-white/8 bg-white p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Prepared task
                 </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                <p className="mt-2 text-sm font-semibold text-white">
                   {preparedTaskTitle ?? "Prepare a packet first"}
                 </p>
               </div>
               <label className="block">
-                <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Result status
                 </span>
                 <select
                   value={resultStatus}
                   onChange={(event) => setResultStatus(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                 >
                   <option value="completed">Completed</option>
                   <option value="blocked">Blocked</option>
@@ -413,50 +413,50 @@ export function OwnerBuildSupervisorPanel({
                 </select>
               </label>
               <label className="block">
-                <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Summary
                 </span>
                 <textarea
                   value={summary}
                   onChange={(event) => setSummary(event.target.value)}
                   rows={4}
-                  className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   placeholder="Summarize what Codex completed or why it stopped."
                 />
               </label>
               <label className="block">
-                <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Verification notes
                 </span>
                 <textarea
                   value={verification}
                   onChange={(event) => setVerification(event.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   placeholder="One verification item per line."
                 />
               </label>
               <label className="block">
-                <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Blockers
                 </span>
                 <textarea
                   value={blockers}
                   onChange={(event) => setBlockers(event.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   placeholder="One blocker per line if the task did not complete cleanly."
                 />
               </label>
               <label className="block">
-                <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Human actions
                 </span>
                 <textarea
                   value={humanActions}
                   onChange={(event) => setHumanActions(event.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   placeholder="One human-required action per line if owner follow-up is needed."
                 />
               </label>
@@ -465,7 +465,7 @@ export function OwnerBuildSupervisorPanel({
               type="button"
               disabled={isPending || !preparedTaskId || !summary.trim()}
               onClick={handleIngestResult}
-              className="mt-4 rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-4 rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending ? "Working..." : "Ingest task result"}
             </button>

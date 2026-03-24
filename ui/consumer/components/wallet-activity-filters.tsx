@@ -33,8 +33,8 @@ export function WalletActivityFilters({
           onClick={() => onChange(option.id)}
           className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors ${
             value === option.id
-              ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-              : "border-eden-edge bg-white text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+              ? "border-[#14989a]/50 bg-[#14989a]/15 text-white"
+              : "border-white/8 bg-white text-white/50 hover:border-[#14989a]/50 hover:text-white"
           }`}
         >
           {option.label}
@@ -42,8 +42,8 @@ export function WalletActivityFilters({
             <span
               className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${
                 value === option.id
-                  ? "bg-white/55 text-eden-ink"
-                  : "bg-eden-bg text-eden-muted"
+                  ? "bg-white/55 text-white"
+                  : "bg-white/[0.04] text-white/50"
               }`}
             >
               {counts[option.id]}

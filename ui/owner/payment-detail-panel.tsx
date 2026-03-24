@@ -72,7 +72,7 @@ function formatPaymentEventStatus(status: "info" | "success" | "skipped" | "fail
 }
 
 function getOwnerActionLinkClasses() {
-  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
+  return "inline-flex rounded-full border border-white/8 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
 }
 
 function formatMoneyAmount(amountCents: number, currency: string) {
@@ -193,13 +193,13 @@ export function OwnerPaymentDetailPanel({
           transition={{ duration: 0.28, ease: "easeOut" }}
           className="space-y-4"
         >
-          <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payment Operational Summary
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Compact owner reconciliation header for the current payment before the full provider references and event timeline below.
                 </p>
               </div>
@@ -215,10 +215,10 @@ export function OwnerPaymentDetailPanel({
               {paymentSummaryCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-eden-edge bg-white p-3"
+                  className="rounded-2xl border border-white/8 bg-white p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
                     </p>
                     {"badge" in item && item.badge && item.badgeClasses ? (
@@ -229,8 +229,8 @@ export function OwnerPaymentDetailPanel({
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </div>
               ))}
             </div>
@@ -253,13 +253,13 @@ export function OwnerPaymentDetailPanel({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-            <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Payment Financial Summary
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Current top-up state with related wallet Leaf’s, selected package when known,
                     and owner-visible settlement status.
                   </p>
@@ -273,54 +273,54 @@ export function OwnerPaymentDetailPanel({
                 </span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Leaf’s added
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {formatCredits(payment.creditsAmount)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Charged amount
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {formatMoneyAmount(payment.amountCents, payment.currency)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Package or offer
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {packageInfo?.title ?? "Not recorded"}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {packageInfo?.chargeLabel ?? "No package charge label available."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Settlement result
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {settlementResultLabel}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {payment.failureReason ?? "No failure reason recorded."}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Provider references
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Stable references used for reconciliation between Eden payment records and the
                     upstream provider lifecycle.
                   </p>
@@ -333,35 +333,35 @@ export function OwnerPaymentDetailPanel({
                 </Link>
               </div>
               <div className="mt-4 space-y-3">
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Provider
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {payment.providerLabel}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Checkout session
                   </p>
-                  <p className="mt-2 break-all font-mono text-xs text-eden-ink">
+                  <p className="mt-2 break-all font-mono text-xs text-white">
                     {payment.providerSessionId}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Payment intent
                   </p>
-                  <p className="mt-2 break-all font-mono text-xs text-eden-ink">
+                  <p className="mt-2 break-all font-mono text-xs text-white">
                     {payment.providerPaymentIntentId ?? "Not recorded"}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Related user
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {relatedUser
                       ? `${relatedUser.displayName} (@${relatedUser.username})`
                       : payment.userId
@@ -383,18 +383,18 @@ export function OwnerPaymentDetailPanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Event timeline
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Persistent payment lifecycle trail for this payment, including checkout creation,
                   webhook receipt, settlement, skipped duplicate settlement, and failure signals.
                 </p>
               </div>
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 {recentEventLogs.length} events
               </span>
             </div>
@@ -403,12 +403,12 @@ export function OwnerPaymentDetailPanel({
                 recentEventLogs.map((eventLog) => (
                   <div
                     key={eventLog.id}
-                    className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                    className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-semibold text-eden-ink">
+                          <p className="text-sm font-semibold text-white">
                             {eventLog.eventTypeLabel}
                           </p>
                           <span
@@ -419,7 +419,7 @@ export function OwnerPaymentDetailPanel({
                             {formatPaymentEventStatus(eventLog.status)}
                           </span>
                         </div>
-                        <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
+                        <div className="mt-2 space-y-1 text-xs leading-5 text-white/50">
                           {eventLog.providerEventId ? (
                             <p className="break-all">
                               Provider event:{" "}
@@ -436,7 +436,7 @@ export function OwnerPaymentDetailPanel({
                               {eventLog.metadataSummary.map((summaryLine) => (
                                 <span
                                   key={`${eventLog.id}-${summaryLine}`}
-                                  className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted"
+                                  className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
                                 >
                                   {summaryLine}
                                 </span>
@@ -456,10 +456,10 @@ export function OwnerPaymentDetailPanel({
                         </div>
                       </div>
                       <div className="text-left md:text-right">
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Logged
                         </p>
-                        <p className="mt-1 text-sm font-semibold text-eden-ink">
+                        <p className="mt-1 text-sm font-semibold text-white">
                           {eventLog.createdAtLabel}
                         </p>
                       </div>
@@ -467,7 +467,7 @@ export function OwnerPaymentDetailPanel({
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                   No persistent payment event logs are available for this payment yet.
                 </div>
               )}

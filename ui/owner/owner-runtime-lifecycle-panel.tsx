@@ -75,22 +75,22 @@ export function OwnerRuntimeLifecyclePanel({
   }
 
   return (
-    <section className="mt-5 rounded-[28px] border border-eden-edge bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+    <section className="mt-5 rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Runtime lifecycle
           </p>
-          <h3 className="mt-2 text-lg font-semibold text-eden-ink">
+          <h3 className="mt-2 text-lg font-semibold text-white">
             Owner lifecycle controls
           </h3>
-          <p className="mt-3 text-sm leading-6 text-eden-muted">
+          <p className="mt-3 text-sm leading-6 text-white/50">
             Update runtime lifecycle metadata and review recent control actions.
             These actions are audit-logged but do not start containers, trigger
             infrastructure jobs, or change deployment reality.
           </p>
         </div>
-        <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+        <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
           Control plane only
         </span>
       </div>
@@ -113,21 +113,21 @@ export function OwnerRuntimeLifecyclePanel({
       ) : null}
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-eden-edge bg-white p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Current status
               </p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">
+              <p className="mt-2 text-sm font-semibold text-white">
                 {runtime.statusLabel}
               </p>
             </div>
-            <div className="rounded-2xl border border-eden-edge bg-white p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Last health check
               </p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">
+              <p className="mt-2 text-sm font-semibold text-white">
                 {runtime.lastHealthCheckAtLabel ?? "Not checked yet"}
               </p>
             </div>
@@ -135,13 +135,13 @@ export function OwnerRuntimeLifecyclePanel({
 
           <div className="mt-4 space-y-3">
             <label className="block">
-              <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Status
               </span>
               <select
                 value={status}
                 onChange={(event) => setStatus(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               >
                 {ownerRuntimeLifecycleStatusOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -152,7 +152,7 @@ export function OwnerRuntimeLifecyclePanel({
             </label>
 
             <label className="block">
-              <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Status detail
               </span>
               <textarea
@@ -160,18 +160,18 @@ export function OwnerRuntimeLifecyclePanel({
                 onChange={(event) => setStatusDetail(event.target.value)}
                 rows={4}
                 placeholder="Describe the current runtime control-plane state"
-                className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               />
             </label>
 
             <label className="block">
-              <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <span className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Health check
               </span>
               <select
                 value={healthCheckAction}
                 onChange={(event) => setHealthCheckAction(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               >
                 {ownerRuntimeHealthCheckActionOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -185,19 +185,19 @@ export function OwnerRuntimeLifecyclePanel({
               type="button"
               disabled={isPending}
               onClick={handleSaveLifecycle}
-              className="rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending ? "Saving lifecycle..." : "Save lifecycle update"}
             </button>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Recent audit entries
             </p>
-            <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+            <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
               {runtime.auditEntries.length} recent
             </span>
           </div>
@@ -207,40 +207,40 @@ export function OwnerRuntimeLifecyclePanel({
               runtime.auditEntries.map((entry) => (
                 <article
                   key={entry.id}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-eden-ink">
+                      <p className="text-sm font-semibold text-white">
                         {entry.fieldLabel}
                       </p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                         {entry.actorLabel}
                       </p>
                     </div>
-                    <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                    <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                       {entry.createdAtLabel}
                     </span>
                   </div>
 
-                  <p className="mt-3 text-sm leading-6 text-eden-muted">
+                  <p className="mt-3 text-sm leading-6 text-white/50">
                     {entry.detail}
                   </p>
 
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Previous
                       </p>
-                      <p className="mt-2 text-sm text-eden-ink">
+                      <p className="mt-2 text-sm text-white">
                         {entry.previousValueLabel ?? "Not recorded"}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Next
                       </p>
-                      <p className="mt-2 text-sm text-eden-ink">
+                      <p className="mt-2 text-sm text-white">
                         {entry.nextValueLabel ?? "Cleared"}
                       </p>
                     </div>
@@ -248,7 +248,7 @@ export function OwnerRuntimeLifecyclePanel({
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
+              <div className="rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50">
                 No runtime lifecycle audit entries are stored yet for this runtime.
               </div>
             )}

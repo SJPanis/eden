@@ -155,8 +155,8 @@ function ConsumerTopBarActions({
         onClick={onToggleSaved}
         className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors ${
           savedOnly
-            ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-            : "border-eden-edge bg-white text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+            ? "border-[#14989a]/50 bg-[#14989a]/15 text-white"
+            : "border-white/8 bg-white text-white/50 hover:border-[#14989a]/50 hover:text-white"
         }`}
       >
         Saved Businesses ({savedBusinessCount})
@@ -967,7 +967,7 @@ export function ConsumerHomePanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut", delay: 0.01 }}
-        className="rounded-[28px] border border-eden-edge bg-[linear-gradient(135deg,rgba(255,247,237,0.88),rgba(255,255,255,0.98),rgba(219,234,254,0.72))] p-5"
+        className="rounded-[28px] border border-white/8 bg-white/[0.05] p-5"
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -979,10 +979,10 @@ export function ConsumerHomePanel({
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
               Public marketplace
             </p>
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-eden-ink md:text-3xl">
+            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white md:text-3xl">
               Explore published services with visible pricing.
             </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-eden-muted">
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-white/50">
               Eden connects builders who publish services with consumers who explore them, top up
               Eden Leaf's only if needed, and run with no hidden charges during service use.
             </p>
@@ -992,10 +992,10 @@ export function ConsumerHomePanel({
               <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
                 Published and priced
               </span>
-              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.visiblePricing}
               </span>
-              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.creditsOnlyBilling}
               </span>
             </div>
@@ -1009,9 +1009,9 @@ export function ConsumerHomePanel({
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {consumerHeaderSummaryCards.map((item) => (
-            <div key={item.id} className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+            <div key={item.id} className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+              <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
             </div>
           ))}
         </div>
@@ -1034,21 +1034,21 @@ export function ConsumerHomePanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut", delay: 0.04 }}
-        className="rounded-[28px] border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.35),rgba(255,255,255,0.98),rgba(255,247,237,0.9))] p-5"
+        className="rounded-[28px] border border-white/8 bg-white/[0.05] p-5"
       >
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
               How Eden Works
             </p>
-            <h2 className="mt-2 text-lg font-semibold text-eden-ink">
+            <h2 className="mt-2 text-lg font-semibold text-white">
               Discover, top up, and use services with visible credit pricing
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-eden-muted">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/50">
               Eden&apos;s consumer loop is simple: discover a published service, check the visible Eden Leaf's price, top up only if needed, and run the service through the wallet flow.
             </p>
           </div>
-          <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+          <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
             First-time clarity
           </span>
         </div>
@@ -1056,54 +1056,54 @@ export function ConsumerHomePanel({
           {consumerLaunchClarityCards.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl border border-eden-edge bg-white/90 p-4"
+              className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
             >
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 {item.label}
               </p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+              <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+              <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
             </div>
           ))}
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-          <div className="rounded-2xl border border-eden-edge bg-white/92 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   First-time sequence
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Follow the same loop everywhere in Eden: open a service, compare visible price to wallet balance, top up only if needed, then run.
                 </p>
               </div>
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                 Same flow in cards, detail, and wallet
               </span>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {consumerJourneySteps.map((step) => (
-                <div key={step.id} className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-sm font-semibold text-eden-ink">{step.label}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{step.detail}</p>
+                <div key={step.id} className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                  <p className="text-sm font-semibold text-white">{step.label}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{step.detail}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.52),rgba(255,255,255,0.98))] p-4">
+          <div className="rounded-2xl border border-[#14989a]/50 bg-white/[0.05] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Next step right now
             </p>
-            <p className="mt-3 text-base font-semibold text-eden-ink">
+            <p className="mt-3 text-base font-semibold text-white">
               {consumerNextStepSummary.title}
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               {consumerNextStepSummary.detail}
             </p>
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-white/92 p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Recommended action</p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">Recommended action</p>
+              <p className="mt-2 text-sm font-semibold text-white">
                 {consumerNextStepSummary.cue}
               </p>
             </div>
@@ -1123,7 +1123,7 @@ export function ConsumerHomePanel({
             onSubmit={(event) => {
               void handleAskEden(event);
             }}
-            className="mt-5 rounded-2xl border border-eden-edge bg-white/85 p-3 md:p-4"
+            className="mt-5 rounded-2xl border border-white/8 bg-white/85 p-3 md:p-4"
           >
             <div className="flex flex-col gap-2 md:flex-row">
               <input
@@ -1131,18 +1131,18 @@ export function ConsumerHomePanel({
                 value={promptInput}
                 onChange={(event) => setPromptInput(event.target.value)}
                 placeholder="What's on your mind?"
-                className="w-full rounded-xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40 md:text-base"
+                className="w-full rounded-xl border border-white/8 bg-eden-bg px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40 md:text-base"
               />
               <button
                 type="submit"
                 disabled={isThinking}
-                className="rounded-xl border border-eden-ring bg-eden-accent-soft px-5 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isThinking ? "Routing..." : "Ask Eden"}
               </button>
             </div>
           </form>
-          <p className="mt-3 text-sm text-eden-muted">
+          <p className="mt-3 text-sm text-white/50">
             Ask Eden helps you discover published services, visible pricing, and the same Leaf's-only run flow shown across the marketplace.
           </p>
         </motion.section>
@@ -1154,14 +1154,14 @@ export function ConsumerHomePanel({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.32, ease: "easeOut" }}
-              className="overflow-hidden rounded-2xl border border-eden-edge bg-white/75 p-4 md:p-5"
+              className="overflow-hidden rounded-2xl border border-white/8 bg-white/75 p-4 md:p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-accent">
                   Ask Eden Response
                 </p>
                 {latestTurn ? (
-                  <p className="text-xs text-eden-muted">
+                  <p className="text-xs text-white/50">
                     Route confidence: {latestTurn.response.confidence}
                   </p>
                 ) : null}
@@ -1169,17 +1169,17 @@ export function ConsumerHomePanel({
 
               <div className="mt-4 space-y-3">
                 {pendingPrompt || latestTurn ? (
-                  <div className="ml-auto max-w-3xl rounded-xl border border-eden-edge bg-eden-accent-soft/55 p-3 text-left">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-muted">You</p>
-                    <p className="mt-1 text-sm text-eden-ink">{pendingPrompt || latestTurn?.prompt}</p>
+                  <div className="ml-auto max-w-3xl rounded-xl border border-white/8 bg-[#14989a]/15/55 p-3 text-left">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">You</p>
+                    <p className="mt-1 text-sm text-white">{pendingPrompt || latestTurn?.prompt}</p>
                   </div>
                 ) : null}
 
-                <div className="mr-auto max-w-4xl rounded-xl border border-eden-edge bg-white p-3 text-left">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-muted">
+                <div className="mr-auto max-w-4xl rounded-xl border border-white/8 bg-white p-3 text-left">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
                     Ask Eden
                   </p>
-                  <p className="mt-1 text-sm text-eden-ink">
+                  <p className="mt-1 text-sm text-white">
                     {isThinking
                       ? "Routing your prompt across service search, business discovery, and idea generation..."
                       : latestTurn?.response.summary}
@@ -1193,12 +1193,12 @@ export function ConsumerHomePanel({
                     {latestTurn.response.lanes.map((route) => (
                       <span
                         key={route}
-                        className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-xs text-eden-muted"
+                        className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-xs text-white/50"
                       >
                         {route.replace("_", " ")}
                       </span>
                     ))}
-                    <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-xs text-eden-muted">
+                    <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-xs text-white/50">
                       Grounding: {latestTurn.response.groundingMode}
                     </span>
                   </div>
@@ -1210,7 +1210,7 @@ export function ConsumerHomePanel({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="mt-4 rounded-lg border border-eden-edge bg-eden-accent-soft/35 px-3 py-2 text-sm text-eden-ink"
+                      className="mt-4 rounded-lg border border-white/8 bg-[#14989a]/15/35 px-3 py-2 text-sm text-white"
                     >
                       {assistantStateText}
                     </motion.p>
@@ -1226,7 +1226,7 @@ export function ConsumerHomePanel({
                           onClick={() => {
                             void handleAskEdenAction(action);
                           }}
-                          className="rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-xl border border-white/8 bg-white px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {action.label}
                         </button>
@@ -1248,17 +1248,17 @@ export function ConsumerHomePanel({
                   ) : null}
 
                   <div className="mt-5 grid gap-3 xl:grid-cols-3">
-                    <section className="rounded-xl border border-eden-edge bg-white/70 p-3">
+                    <section className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-sm font-semibold text-eden-ink">
+                          <h3 className="text-sm font-semibold text-white">
                             Recommended services
                           </h3>
-                          <p className="mt-1 text-xs text-eden-muted">
+                          <p className="mt-1 text-xs text-white/50">
                             Open Service to inspect published state, visible pricing, and the Leaf's-only run flow.
                           </p>
                         </div>
-                        <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
+                        <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
                           {latestTurn.response.results.services.length} ready
                         </span>
                       </div>
@@ -1313,15 +1313,15 @@ export function ConsumerHomePanel({
                       </motion.div>
                     </section>
 
-                    <section className="rounded-xl border border-eden-edge bg-white/70 p-3">
+                    <section className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-sm font-semibold text-eden-ink">Business matches</h3>
-                          <p className="mt-1 text-xs text-eden-muted">
+                          <h3 className="text-sm font-semibold text-white">Business matches</h3>
+                          <p className="mt-1 text-xs text-white/50">
                             Open a business card to inspect the matched business surface and current publish state.
                           </p>
                         </div>
-                        <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
+                        <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
                           {latestTurn.response.results.businesses.length} ready
                         </span>
                       </div>
@@ -1355,17 +1355,17 @@ export function ConsumerHomePanel({
                       </motion.div>
                     </section>
 
-                    <section className="rounded-xl border border-eden-edge bg-white/70 p-3">
+                    <section className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-sm font-semibold text-eden-ink">
+                          <h3 className="text-sm font-semibold text-white">
                             Ideas you could build
                           </h3>
-                          <p className="mt-1 text-xs text-eden-muted">
+                          <p className="mt-1 text-xs text-white/50">
                             Choose an idea card to stage or inspect the project-build path Eden mapped from your prompt.
                           </p>
                         </div>
-                        <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted">
+                        <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
                           {latestTurn.response.results.ideas.length} ready
                         </span>
                       </div>
@@ -1397,16 +1397,16 @@ export function ConsumerHomePanel({
                     </section>
 
                     <section className="xl:col-span-3">
-                      <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(239,246,255,0.78),rgba(255,255,255,0.96))] p-4">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                           <div>
                             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                               Interactive selection
                             </p>
-                            <h3 className="mt-1 text-base font-semibold text-eden-ink">
+                            <h3 className="mt-1 text-base font-semibold text-white">
                               Turn the response into a discovery flow
                             </h3>
-                            <p className="mt-1 text-sm text-eden-muted">
+                            <p className="mt-1 text-sm text-white/50">
                               Ask Eden now keeps service discovery, wallet context, and project
                               actions inside one grounded operator surface.
                             </p>
@@ -1415,7 +1415,7 @@ export function ConsumerHomePanel({
                             {latestTurn.response.lanes.map((route) => (
                               <span
                                 key={`preview-${route}`}
-                                className="rounded-full border border-eden-edge bg-white/85 px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-eden-muted"
+                                className="rounded-full border border-white/8 bg-white/85 px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
                               >
                                 {route.replace("_", " ")}
                               </span>
@@ -1433,28 +1433,28 @@ export function ConsumerHomePanel({
                               transition={{ duration: 0.22, ease: "easeOut" }}
                               className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.95fr)]"
                             >
-                              <div className="rounded-2xl border border-eden-edge bg-white/92 p-4">
+                              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                   <div>
                                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                       {selectedResultDetails.eyebrow}
                                     </p>
-                                    <h4 className="mt-1 text-lg font-semibold text-eden-ink">
+                                    <h4 className="mt-1 text-lg font-semibold text-white">
                                       {selectedResultDetails.title}
                                     </h4>
                                   </div>
-                                  <span className="rounded-full bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-eden-muted">
+                                  <span className="rounded-full bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50">
                                     {selectedResultDetails.laneLabel}
                                   </span>
                                 </div>
-                                <p className="mt-3 max-w-2xl text-sm leading-6 text-eden-muted">
+                                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
                                   {selectedResultDetails.description}
                                 </p>
                                 <div className="mt-4 flex flex-wrap gap-2">
                                   {selectedResultDetails.chips.map((chip) => (
                                     <span
                                       key={`${selectedResultDetails.id}-${chip}`}
-                                      className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted"
+                                      className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
                                     >
                                       {chip}
                                     </span>
@@ -1470,14 +1470,14 @@ export function ConsumerHomePanel({
                                         selectedResultDetails.href,
                                       )
                                     }
-                                    className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70"
+                                    className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
                                   >
                                     {selectedResultDetails.actionLabel}
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => setSelectedResult(null)}
-                                    className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                                    className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                                   >
                                     Clear selection
                                   </button>
@@ -1492,16 +1492,16 @@ export function ConsumerHomePanel({
                                         ? "border-emerald-200 bg-emerald-50/70"
                                         : selectedResultDetails.guidanceTone === "warning"
                                           ? "border-amber-200 bg-amber-50/70"
-                                          : "border-eden-edge bg-white/88"
+                                          : "border-white/8 bg-white/[0.06]"
                                     }`}
                                   >
                                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                       Next step
                                     </p>
-                                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                                    <p className="mt-2 text-sm font-semibold text-white">
                                       {selectedResultDetails.guidanceTitle}
                                     </p>
-                                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                    <p className="mt-2 text-sm leading-6 text-white/50">
                                       {selectedResultDetails.guidanceDetail}
                                     </p>
                                     {selectedResultDetails.guidanceCards?.length ? (
@@ -1509,15 +1509,15 @@ export function ConsumerHomePanel({
                                         {selectedResultDetails.guidanceCards.map((card) => (
                                           <div
                                             key={`${selectedResultDetails.id}-${card.label}`}
-                                            className="rounded-2xl border border-eden-edge bg-white/90 p-3"
+                                            className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                                           >
-                                            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                                            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                                               {card.label}
                                             </p>
-                                            <p className="mt-2 text-sm font-semibold text-eden-ink">
+                                            <p className="mt-2 text-sm font-semibold text-white">
                                               {card.value}
                                             </p>
-                                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                            <p className="mt-2 text-sm leading-6 text-white/50">
                                               {card.detail}
                                             </p>
                                           </div>
@@ -1526,15 +1526,15 @@ export function ConsumerHomePanel({
                                     ) : null}
                                   </div>
                                 ) : null}
-                                <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
+                                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                     What this unlocks
                                   </p>
-                                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                  <p className="mt-2 text-sm leading-6 text-white/50">
                                     {selectedResultDetails.supportingText}
                                   </p>
                                 </div>
-                                <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
+                                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                     Routing signals
                                   </p>
@@ -1548,20 +1548,20 @@ export function ConsumerHomePanel({
                                       .map((signal) => (
                                         <span
                                           key={`signal-${signal}`}
-                                          className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted"
+                                          className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
                                         >
                                           {signal}
                                         </span>
                                       ))}
                                   </div>
                                 </div>
-                                <div className="rounded-2xl border border-eden-edge bg-white/88 p-4">
+                                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                     Grounding mode
                                   </p>
-                                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                                  <p className="mt-2 text-sm leading-6 text-white/50">
                                     This response is currently marked as{" "}
-                                    <span className="font-semibold text-eden-ink">
+                                    <span className="font-semibold text-white">
                                       {latestTurn.response.groundingMode}
                                     </span>
                                     , so Eden is distinguishing live platform state from proposed
@@ -1577,7 +1577,7 @@ export function ConsumerHomePanel({
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -12 }}
                               transition={{ duration: 0.2, ease: "easeOut" }}
-                              className="mt-4 rounded-2xl border border-dashed border-eden-edge bg-white/82 p-4 text-sm text-eden-muted"
+                              className="mt-4 rounded-2xl border border-dashed border-white/8 bg-white/82 p-4 text-sm text-white/50"
                             >
                               Select a service, business, or idea card to inspect the grounded
                               details and next step here.
@@ -1599,14 +1599,14 @@ export function ConsumerHomePanel({
             animate="visible"
             variants={sectionVariants}
             transition={{ duration: 0.3, ease: "easeOut", delay: 0.045 }}
-            className="rounded-[24px] border border-eden-edge bg-white/88 p-4"
+            className="rounded-[24px] border border-white/8 bg-white/[0.06] p-4"
           >
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Marketplace clarity
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   These rails show the public Eden loop in one place: published services,{" "}
                   {edenLaunchLabels.visiblePricing.toLowerCase()}, {edenLaunchLabels.creditsOnlyBilling.toLowerCase()},
                   {" "}and wallet-aware next steps before any run begins.
@@ -1616,10 +1616,10 @@ export function ConsumerHomePanel({
                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
                   Published and priced
                 </span>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                   {edenLaunchLabels.visiblePricing}
                 </span>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                   {edenLaunchLabels.creditsOnlyBilling}
                 </span>
               </div>

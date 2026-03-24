@@ -353,7 +353,7 @@ function getPayoutSettlementStatusClasses(
 }
 
 function getOwnerReconciliationActionClasses() {
-  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
+  return "inline-flex rounded-full border border-white/8 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
 }
 
 function formatPayoutSettlementStatus(status: "pending" | "settled" | "canceled") {
@@ -972,7 +972,7 @@ export function OwnerDashboardPanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="overflow-hidden rounded-[32px] border border-eden-edge bg-[radial-gradient(circle_at_top_left,rgba(254,243,199,0.9),rgba(255,255,255,0.97)_52%,rgba(219,234,254,0.9))] p-5 md:p-6"
+        className="overflow-hidden rounded-[32px] border border-white/8 bg-white/[0.05] p-5 md:p-6"
       >
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
           <div>
@@ -982,10 +982,10 @@ export function OwnerDashboardPanel({
               subtitle="Owner control room"
             />
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">Owner Layer</p>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
               Eden Control Room
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
               Central owner console for monitoring the platform, runtime control plane, and the
               remaining development overlays that still back older owner flows.
             </p>
@@ -999,7 +999,7 @@ export function OwnerDashboardPanel({
                 <a
                   key={link.id}
                   href={`#${link.id}`}
-                  className="rounded-full border border-eden-edge bg-white/80 px-3 py-2 text-xs font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                  className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-2 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                 >
                   {link.label}
                 </a>
@@ -1009,11 +1009,11 @@ export function OwnerDashboardPanel({
               {ownerSignalsDisplay.map((signal) => (
                 <div
                   key={signal.label}
-                  className="rounded-2xl border border-eden-edge bg-white/82 p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
+                  className="rounded-2xl border border-white/8 bg-white/82 p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{signal.label}</p>
-                  <p className="mt-2 text-xl font-semibold tracking-tight text-eden-ink">{signal.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{signal.detail}</p>
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{signal.label}</p>
+                  <p className="mt-2 text-xl font-semibold tracking-tight text-white">{signal.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{signal.detail}</p>
                 </div>
               ))}
             </div>
@@ -1029,11 +1029,11 @@ export function OwnerDashboardPanel({
               <motion.article
                 key={metric.id}
                 variants={cardVariants}
-                className="rounded-2xl border border-eden-edge bg-white/84 p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
+                className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
               >
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{metric.label}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">{metric.value}</p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">{metric.detail}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{metric.value}</p>
+                <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
               </motion.article>
             ))}
           </motion.div>
@@ -1050,12 +1050,12 @@ export function OwnerDashboardPanel({
           <motion.article
             key={item.id}
             variants={cardVariants}
-            className="rounded-2xl border border-eden-edge bg-white/92 p-4"
+            className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-                <p className="mt-2 text-lg font-semibold tracking-tight text-eden-ink">{item.value}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+                <p className="mt-2 text-lg font-semibold tracking-tight text-white">{item.value}</p>
               </div>
               <span
                 className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${item.tone}`}
@@ -1063,7 +1063,7 @@ export function OwnerDashboardPanel({
                 {item.value}
               </span>
             </div>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+            <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
           </motion.article>
         ))}
       </motion.div>
@@ -1081,7 +1081,7 @@ export function OwnerDashboardPanel({
             title="Platform-wide snapshot"
             description="Owner-facing rollup for user count, business volume, credit flow, and current release visibility."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 Mock control feed
               </span>
             }
@@ -1096,35 +1096,35 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={metric.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{metric.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">{metric.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{metric.detail}</p>
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{metric.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
                 </motion.article>
               ))}
             </motion.div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.12fr)_minmax(300px,0.88fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Health monitors</p>
                 <div className="mt-4 space-y-3">
                   {systemHealthChecks.map((check) => (
-                    <div key={check.label} className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                    <div key={check.label} className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-semibold text-eden-ink">{check.label}</p>
-                        <span className="rounded-full bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                        <p className="text-sm font-semibold text-white">{check.label}</p>
+                        <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                           {check.status}
                         </span>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">{check.detail}</p>
+                      <p className="mt-2 text-sm leading-6 text-white/50">{check.detail}</p>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(255,237,213,0.62),rgba(255,255,255,0.96))] p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Owner watchlist</p>
-                <div className="mt-3 space-y-3 text-sm leading-6 text-eden-muted">
+                <div className="mt-3 space-y-3 text-sm leading-6 text-white/50">
                   <p>{publishSummary.testingCount} watched releases remain in testing.</p>
                   <p>{publishSummary.readyCount} release targets are ready for publish.</p>
                   <p>
@@ -1149,7 +1149,7 @@ export function OwnerDashboardPanel({
             title="Account monitoring"
             description="Mock user accounts with status, role, and Eden balance visibility for owner review."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 {users.length} records
               </span>
             }
@@ -1164,7 +1164,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={user.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
                   {(() => {
                     const userFrozen = isUserFrozen(user.id, adminState);
@@ -1176,11 +1176,11 @@ export function OwnerDashboardPanel({
                           <div>
                             <Link
                               href={`/owner/users/${user.id}`}
-                              className="text-sm font-semibold text-eden-ink transition-colors hover:text-eden-accent"
+                              className="text-sm font-semibold text-white transition-colors hover:text-eden-accent"
                             >
                               {user.username}
                             </Link>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {toTitleCase(user.role)}
                             </p>
                           </div>
@@ -1192,9 +1192,9 @@ export function OwnerDashboardPanel({
                             {toTitleCase(userStatus)}
                           </span>
                         </div>
-                        <div className="mt-4 flex items-center justify-between rounded-2xl border border-eden-edge bg-eden-bg/60 px-3 py-2">
-                          <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">Eden balance</span>
-                          <span className="text-sm font-semibold text-eden-ink">
+                        <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.04]/60 px-3 py-2">
+                          <span className="text-xs uppercase tracking-[0.12em] text-white/50">Eden balance</span>
+                          <span className="text-sm font-semibold text-white">
                             {formatCredits(getUserCreditsBalance(user.id, simulatedTransactions))}
                           </span>
                         </div>
@@ -1238,7 +1238,7 @@ export function OwnerDashboardPanel({
             title="Business workspace monitoring"
             description="Current release state and latest transition visibility for watched businesses."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 {businessCards.length} watched
               </span>
             }
@@ -1257,17 +1257,17 @@ export function OwnerDashboardPanel({
                   <motion.article
                     key={entry.business.id}
                     variants={cardVariants}
-                    className="rounded-2xl border border-eden-edge bg-white p-4"
+                    className="rounded-2xl border border-white/8 bg-white p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <Link
                           href={`/businesses/${entry.business.id}`}
-                          className="text-sm font-semibold text-eden-ink transition-colors hover:text-eden-accent"
+                          className="text-sm font-semibold text-white transition-colors hover:text-eden-accent"
                         >
                           {entry.business.name}
                         </Link>
-                        <p className="mt-1 text-sm text-eden-muted">Owner: {entry.ownerName}</p>
+                        <p className="mt-1 text-sm text-white/50">Owner: {entry.ownerName}</p>
                       </div>
                       <span
                         className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
@@ -1280,7 +1280,7 @@ export function OwnerDashboardPanel({
                       </span>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                      <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                         {entry.business.category}
                       </span>
                       <span
@@ -1301,9 +1301,9 @@ export function OwnerDashboardPanel({
                       )}
                     </div>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Active service</p>
-                        <p className="mt-2 text-sm font-semibold text-eden-ink">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">Active service</p>
+                        <p className="mt-2 text-sm font-semibold text-white">
                             {getCatalogServiceById(
                               entry.snapshot?.serviceId ?? entry.business.featuredServiceId,
                             )?.title ??
@@ -1311,21 +1311,21 @@ export function OwnerDashboardPanel({
                               "Active service"}
                           </p>
                       </div>
-                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Readiness</p>
-                        <p className="mt-2 text-sm font-semibold text-eden-ink">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">Readiness</p>
+                        <p className="mt-2 text-sm font-semibold text-white">
                           {entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}%
                         </p>
                       </div>
                     </div>
-                    <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.28),rgba(255,255,255,0.96))] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Latest release activity</p>
-                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Latest release activity</p>
+                      <p className="mt-2 text-sm font-semibold text-white">
                         {entry.latestEvent
                           ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} -> ${getPipelineStatusLabel(entry.latestEvent.newStatus)}`
                           : "Seeded from shared mock data"}
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      <p className="mt-2 text-sm leading-6 text-white/50">
                         {entry.latestEvent?.detail ??
                           "No local transition recorded yet for this watched business."}
                       </p>
@@ -1334,13 +1334,13 @@ export function OwnerDashboardPanel({
                       <div className="mb-3 flex flex-wrap gap-2">
                         <Link
                           href={`/owner/payouts/${entry.business.id}`}
-                          className="rounded-xl border border-eden-edge bg-white px-3 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                          className="rounded-xl border border-white/8 bg-white px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                         >
                           View Payout
                         </Link>
                         <Link
                           href={`/businesses/${entry.business.id}`}
-                          className="rounded-xl border border-eden-edge bg-eden-bg px-3 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                          className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                         >
                           Open Business
                         </Link>
@@ -1375,7 +1375,7 @@ export function OwnerDashboardPanel({
             title="Service release visibility"
             description="Relevant services with current release state and latest transition context."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 {services.length} monitored
               </span>
             }
@@ -1390,17 +1390,17 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={entry.service.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
                   <Link
                     href={`/services/${entry.service.id}`}
-                    className="text-sm font-semibold text-eden-ink transition-colors hover:text-eden-accent"
+                    className="text-sm font-semibold text-white transition-colors hover:text-eden-accent"
                   >
                     {entry.service.title}
                   </Link>
-                  <p className="mt-2 text-sm text-eden-muted">Business: {entry.businessName}</p>
+                  <p className="mt-2 text-sm text-white/50">Business: {entry.businessName}</p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                    <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                       {entry.service.category}
                     </span>
                     <span
@@ -1416,14 +1416,14 @@ export function OwnerDashboardPanel({
                       </span>
                     ) : null}
                   </div>
-                  <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Latest transition</p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Latest transition</p>
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {entry.latestEvent
                         ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} -> ${getPipelineStatusLabel(entry.latestEvent.newStatus)}`
                         : entry.service.status}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {entry.latestEvent?.detail ??
                         "No service-specific transition has been recorded yet."}
                     </p>
@@ -1441,7 +1441,7 @@ export function OwnerDashboardPanel({
             title="Release transition history"
             description="Owner visibility into publish queue movement and recent status transitions across watched businesses."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 {releaseEvents.length} recent events
               </span>
             }
@@ -1456,11 +1456,11 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={item.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </motion.article>
               ))}
             </motion.div>
@@ -1479,12 +1479,12 @@ export function OwnerDashboardPanel({
                     <motion.article
                       key={event.id}
                       variants={cardVariants}
-                      className="rounded-2xl border border-eden-edge bg-white p-4"
+                      className="rounded-2xl border border-white/8 bg-white p-4"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {business?.name ?? "Business"} / {service?.title ?? "Service"}
                             </p>
                             <span
@@ -1495,14 +1495,14 @@ export function OwnerDashboardPanel({
                               {getPipelineStatusLabel(event.newStatus)}
                             </span>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">{event.detail}</p>
-                          <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">{event.detail}</p>
+                          <p className="mt-3 text-xs uppercase tracking-[0.12em] text-white/50">
                             {getPipelineStatusLabel(event.previousStatus)} to {getPipelineStatusLabel(event.newStatus)} by {event.actor}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Timestamp</p>
-                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Timestamp</p>
+                          <p className="mt-1 text-sm font-semibold text-white">
                             {formatPipelineTimestamp(event.timestamp)}
                           </p>
                         </div>
@@ -1512,25 +1512,25 @@ export function OwnerDashboardPanel({
                 })}
               </motion.div>
               <div className="space-y-3">
-                <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(255,237,213,0.48),rgba(255,255,255,0.96))] p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Latest publish</p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {publishSummary.latestPublishEvent
                       ? getCatalogServiceById(publishSummary.latestPublishEvent.serviceId)?.title ??
                         "Published service"
                       : "No publish recorded"}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {publishSummary.latestPublishEvent?.detail ??
                       "The owner release feed will show publish history here after a release transition is recorded through the current workflow path."}
                   </p>
-                  <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <p className="mt-3 text-xs uppercase tracking-[0.12em] text-white/50">
                     {publishSummary.latestPublishEvent
                       ? `${publishSummary.latestPublishEvent.actor} - ${formatPipelineTimestamp(publishSummary.latestPublishEvent.timestamp)}`
                       : "Waiting for mock activity"}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Current release queue</p>
                   <div className="mt-4 space-y-3">
                     {businessCards.map((entry) => {
@@ -1538,9 +1538,9 @@ export function OwnerDashboardPanel({
                         entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
 
                       return (
-                        <div key={`queue-${entry.business.id}`} className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                        <div key={`queue-${entry.business.id}`} className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
                           <div className="flex items-start justify-between gap-3">
-                            <p className="text-sm font-semibold text-eden-ink">{entry.business.name}</p>
+                            <p className="text-sm font-semibold text-white">{entry.business.name}</p>
                             <span
                               className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
                                 entry.isFrozen
@@ -1551,7 +1551,7 @@ export function OwnerDashboardPanel({
                               {entry.isFrozen ? "Frozen" : getPipelineStatusLabel(releaseStatus)}
                             </span>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">
                             {getCatalogServiceById(
                               entry.snapshot?.serviceId ?? entry.business.featuredServiceId,
                             )?.title ??
@@ -1576,7 +1576,7 @@ export function OwnerDashboardPanel({
             title="Agent nodes and activity"
             description="Mock node health, queue depth, and current activity across the Eden agent surface."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 {agentNodes.length} nodes
               </span>
             }
@@ -1591,12 +1591,12 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={node.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-eden-ink">{node.name}</p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">{node.queueDepth}</p>
+                      <p className="text-sm font-semibold text-white">{node.name}</p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">{node.queueDepth}</p>
                     </div>
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getAgentStatusClasses(
@@ -1606,7 +1606,7 @@ export function OwnerDashboardPanel({
                       {node.status}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-eden-muted">{node.activity}</p>
+                  <p className="mt-3 text-sm leading-6 text-white/50">{node.activity}</p>
                 </motion.article>
               ))}
             </motion.div>
@@ -1619,7 +1619,7 @@ export function OwnerDashboardPanel({
             title="Eden Leaf's movement"
             description="Owner-facing development ledger activity showing how spendable Leaf's move across issuing, spending, holds, and adjustments."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 Development ledger overlay
               </span>
             }
@@ -1634,25 +1634,25 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={item.label}
                   variants={cardVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </motion.article>
               ))}
             </motion.div>
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaf's activity</p>
               <div className="mt-4 space-y-3">
                 {creditActivity.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3 md:flex-row md:items-start md:justify-between"
+                    className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3 md:flex-row md:items-start md:justify-between"
                   >
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm font-semibold text-eden-ink">{activity.title}</p>
+                        <p className="text-sm font-semibold text-white">{activity.title}</p>
                         <span
                           className={`rounded-full px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getCreditDirectionClasses(
                             activity.direction,
@@ -1661,32 +1661,32 @@ export function OwnerDashboardPanel({
                           {activity.direction}
                         </span>
                         {activity.simulated ? (
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             Overlay
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">{activity.detail}</p>
+                      <p className="mt-2 text-sm leading-6 text-white/50">{activity.detail}</p>
                     </div>
                     <div className="text-left md:text-right">
-                      <p className="text-sm font-semibold text-eden-ink">{activity.amount}</p>
-                      <p className="mt-1 text-xs text-eden-muted">{activity.timestamp}</p>
+                      <p className="text-sm font-semibold text-white">{activity.amount}</p>
+                      <p className="mt-1 text-xs text-white/50">{activity.timestamp}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Platform growth intelligence
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Compact platform performance view across service demand, customer value, and payout exposure before the detailed reconciliation and analytics feeds below.
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                   {usageMetrics.source === "persistent"
                     ? "Persistent usage analytics"
                     : "Mock fallback analytics"}
@@ -1696,20 +1696,20 @@ export function OwnerDashboardPanel({
                 {platformGrowthSummaryCards.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-eden-edge bg-white p-3"
+                    className="rounded-2xl border border-white/8 bg-white p-3"
                   >
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                    <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-2">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest usage businesses
                 </p>
@@ -1718,33 +1718,33 @@ export function OwnerDashboardPanel({
                     topBusinessesByUsage.slice(0, 3).map((business, index) => (
                       <div
                         key={`${business.businessId}-usage-highlight`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {business.businessName}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {business.usageCount} runs | {formatCredits(business.totalCreditsUsed)} used
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Top service: {business.topServiceTitle}
                             </p>
                           </div>
-                          <p className="text-xs text-eden-muted">{business.lastUsedAtLabel}</p>
+                          <p className="text-xs text-white/50">{business.lastUsedAtLabel}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       Usage-leading businesses appear here once the platform records tracked service runs.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest earning businesses
                 </p>
@@ -1753,34 +1753,34 @@ export function OwnerDashboardPanel({
                     topBusinessesByEarnings.slice(0, 3).map((business, index) => (
                       <div
                         key={`${business.businessId}-earning-highlight`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {business.businessName}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Earned Leaf's {formatCredits(business.totalEarnedCredits)} | Ready{" "}
                               {formatCredits(business.payoutReadyCredits)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               Eden fee share {formatCredits(business.edenFeeShareCredits)}
                             </p>
                           </div>
-                          <p className="text-xs text-eden-muted">{business.lastUsedAtLabel}</p>
+                          <p className="text-xs text-white/50">{business.lastUsedAtLabel}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       Earning leaders appear here once priced service usage and payout accounting are available.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest usage services
                 </p>
@@ -1789,21 +1789,21 @@ export function OwnerDashboardPanel({
                     topServicesByUsage.slice(0, 3).map((service, index) => (
                       <div
                         key={`${service.serviceId}-usage-highlight`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {service.serviceTitle}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {service.businessName}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
                             </p>
                           </div>
-                          <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                          <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {getServicePricingDisplay({
                               pricingModel: service.pricingModel,
                               pricePerUse: service.pricePerUseCredits,
@@ -1814,14 +1814,14 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       Usage-leading services appear here once the platform records tracked service usage.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest earning services
                 </p>
@@ -1830,27 +1830,27 @@ export function OwnerDashboardPanel({
                     topServicesByEarnings.slice(0, 3).map((service, index) => (
                       <div
                         key={`${service.serviceId}-earning-highlight`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {service.serviceTitle}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {service.businessName}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Gross {formatCredits(service.monetization.estimatedGrossCredits)} | Eden fee{" "}
                               {formatCredits(service.monetization.estimatedPlatformEarningsCredits)}
                             </p>
                           </div>
-                          <p className="text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                          <p className="text-xs text-white/50">{service.lastUsedAtLabel}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       Pricing-based service earning leaders appear here after tracked usage is recorded.
                     </div>
                   )}
@@ -1859,7 +1859,7 @@ export function OwnerDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top users by value
                 </p>
@@ -1868,43 +1868,43 @@ export function OwnerDashboardPanel({
                     topUsersByValue.slice(0, 3).map((user, index) => (
                       <div
                         key={`${user.userId ?? user.userDisplayName}-value-highlight`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {user.userDisplayName}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {user.isAnonymousUser
                                 ? "Guest"
                                 : user.username
                                   ? `@${user.username}`
                                   : "User"}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Projected value {formatCredits(user.projectedCustomerValueCredits)} via{" "}
                               {user.topServiceTitle}.
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">Builder-side value</p>
+                            <p className="mt-1 text-xs text-white/50">Builder-side value</p>
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       User value leaders appear here once service usage is tied to individual platform users.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top users by usage
                 </p>
@@ -1913,64 +1913,64 @@ export function OwnerDashboardPanel({
                     topUsersByUsage.slice(0, 3).map((user, index) => (
                       <div
                         key={`${user.userId ?? user.userDisplayName}-usage-highlight`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {user.userDisplayName}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {user.usageCount} runs | {user.usageSharePercent}% of tracked demand
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Top service {user.topServiceTitle} | Value{" "}
                               {formatCredits(user.projectedCustomerValueCredits)}
                             </p>
                           </div>
-                          <p className="text-xs text-eden-muted">{user.lastUsedAtLabel}</p>
+                          <p className="text-xs text-white/50">{user.lastUsedAtLabel}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       Usage-leading users appear here once platform service runs are recorded.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent user activity pulse
                 </p>
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Latest user activity
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {latestUserActivity?.userDisplayName ?? "No recent user activity"}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {latestUserActivity
                         ? `${latestUserActivity.userDisplayName} used ${latestUserActivity.serviceTitle} from ${latestUserActivity.businessName} for ${formatCredits(
                             latestUserActivity.creditsUsed,
                           )}.`
                         : "Recent platform activity appears here once service usage is recorded."}
                     </p>
-                    <p className="mt-2 text-xs text-eden-muted">
+                    <p className="mt-2 text-xs text-white/50">
                       {latestUserActivity?.timestampLabel ?? "Waiting for the next tracked user event."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest value user
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {topValueUser?.userDisplayName ?? "No user value yet"}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {topValueUser
                         ? `${formatCredits(topValueUser.projectedCustomerValueCredits)} projected value with ${formatCredits(
                             topValueUser.monetization.estimatedPlatformEarningsCredits,
@@ -1978,14 +1978,14 @@ export function OwnerDashboardPanel({
                         : "Projected user value appears once priced service usage is attached to users."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Current usage pulse
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {strongestUsagePulse?.serviceTitle ?? "No usage pulse yet"}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {strongestUsagePulse
                         ? `${strongestUsagePulse.recentPulseCount} of the latest ${recentUsagePulseWindow.length} runs landed on this service.`
                         : "Recent pulse appears once multiple fresh usage events are recorded."}
@@ -1994,17 +1994,17 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
             </div>
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Payment Operational Summary
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Compact owner reconciliation view of the persistent top-up ledger before the detailed payment and lifecycle feeds below.
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                   {paymentMetrics.source === "persistent"
                     ? "Persistent payment ledger"
                     : "Fallback empty state"}
@@ -2014,29 +2014,29 @@ export function OwnerDashboardPanel({
                 {paymentSummaryCards.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-eden-edge bg-white p-3"
+                    className="rounded-2xl border border-white/8 bg-white p-3"
                   >
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">{item.value}</p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                    <p className="mt-2 text-lg font-semibold text-white">{item.value}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                       Recent top-up payments
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       Owner inspection of pending, settled, failed, and canceled Eden Leaf's top-ups.
                     </p>
                   </div>
-                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                     {filteredPayments.length} of {paymentMetrics.recentPayments.length} shown
                   </span>
                 </div>
@@ -2051,12 +2051,12 @@ export function OwnerDashboardPanel({
                     filteredPayments.map((payment) => (
                       <div
                         key={payment.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {payment.providerLabel}
                               </p>
                               <span
@@ -2067,7 +2067,7 @@ export function OwnerDashboardPanel({
                                 {formatPaymentStatus(payment.status)}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {getUserDisplayLabel(payment.userId)}
                             </p>
                             {payment.userId ? (
@@ -2080,7 +2080,7 @@ export function OwnerDashboardPanel({
                                 </Link>
                               </div>
                             ) : null}
-                            <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
+                            <div className="mt-2 space-y-1 text-xs leading-5 text-white/50">
                               <p className="break-all">
                                 Session: <span className="font-mono">{payment.providerSessionId}</span>
                               </p>
@@ -2110,10 +2110,10 @@ export function OwnerDashboardPanel({
                             </div>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(payment.creditsAmount)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               {formatMoneyAmount(payment.amountCents, payment.currency)}
                             </p>
                           </div>
@@ -2121,7 +2121,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       {paymentMetrics.recentPayments.length
                         ? getPaymentFilterEmptyState(paymentFilter)
                         : getPaymentFilterEmptyState("all")}
@@ -2129,18 +2129,18 @@ export function OwnerDashboardPanel({
                   )}
                 </div>
             </div>
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Payment lifecycle events
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Best-effort persistent event logs for Stripe checkout creation, webhook receipt,
                     settlement, skipped duplicate settlement, and settlement failures.
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                   {paymentMetrics.paymentEventLogsSource === "persistent"
                     ? `${paymentMetrics.recentEventLogCount} recent events`
                     : "Fallback empty state"}
@@ -2151,12 +2151,12 @@ export function OwnerDashboardPanel({
                   paymentMetrics.recentEventLogs.map((eventLog) => (
                     <div
                       key={eventLog.id}
-                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {eventLog.eventTypeLabel}
                             </p>
                             <span
@@ -2167,7 +2167,7 @@ export function OwnerDashboardPanel({
                               {formatPaymentEventStatus(eventLog.status)}
                             </span>
                           </div>
-                          <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
+                          <div className="mt-2 space-y-1 text-xs leading-5 text-white/50">
                             <p>Provider: {eventLog.provider}</p>
                             {eventLog.providerEventId ? (
                               <p className="break-all">
@@ -2192,7 +2192,7 @@ export function OwnerDashboardPanel({
                               {eventLog.metadataSummary.map((summaryLine) => (
                                 <span
                                   key={`${eventLog.id}-${summaryLine}`}
-                                  className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted"
+                                  className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
                                 >
                                   {summaryLine}
                                 </span>
@@ -2221,10 +2221,10 @@ export function OwnerDashboardPanel({
                           ) : null}
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                             Logged
                           </p>
-                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                          <p className="mt-1 text-sm font-semibold text-white">
                             {eventLog.createdAtLabel}
                           </p>
                         </div>
@@ -2232,7 +2232,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                     No persistent payment lifecycle events are available yet. Once Stripe checkout
                     and webhook events occur, the owner layer will surface the recorded lifecycle
                     trail here.
@@ -2240,17 +2240,17 @@ export function OwnerDashboardPanel({
                 )}
               </div>
             </div>
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Builder payout accounting
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {payoutAccounting.accountingRuleLabel}
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                   {payoutAccounting.payoutStatusLabel}
                 </span>
               </div>
@@ -2258,29 +2258,29 @@ export function OwnerDashboardPanel({
                 {payoutSummaryCards.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-eden-edge bg-white p-3"
+                    className="rounded-2xl border border-white/8 bg-white p-3"
                   >
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                    <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                   </div>
                 ))}
               </div>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                       Payout history
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       Recent persistent payout settlement records used to reconcile builder liability and paid-out balances.
                     </p>
                   </div>
-                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                     {payoutAccounting.historySource === "persistent"
                       ? "Persistent records"
                       : "No persistent records"}
@@ -2297,12 +2297,12 @@ export function OwnerDashboardPanel({
                     filteredPayoutHistory.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {item.businessName}
                               </p>
                               <span
@@ -2313,16 +2313,16 @@ export function OwnerDashboardPanel({
                                 {formatPayoutSettlementStatus(item.status)}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               {item.notes ?? "Internal settlement note not provided."}
                             </p>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-eden-ink">{item.createdAtLabel}</p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="text-sm font-semibold text-white">{item.createdAtLabel}</p>
+                            <p className="mt-1 text-xs text-white/50">
                               {item.settledAtLabel
                                 ? `Settled ${item.settledAtLabel}`
                                 : "Awaiting settlement"}
@@ -2332,7 +2332,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       {payoutAccounting.payoutHistory.length
                         ? getPayoutFilterEmptyState(payoutFilter)
                         : getPayoutFilterEmptyState("all")}
@@ -2341,71 +2341,71 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout status overview
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Settled payouts
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.statusOverview.settledCount}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatCredits(
                         payoutAccounting.statusOverview.settledSettlementCredits,
                       )} recorded as paid
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Pending payouts
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.statusOverview.pendingCount}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatCredits(
                         payoutAccounting.statusOverview.pendingSettlementCredits,
                       )} still queued
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Canceled payouts
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.statusOverview.canceledCount}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatCredits(
                         payoutAccounting.statusOverview.canceledSettlementCredits,
                       )} removed from queue
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Internal Eden use
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.statusOverview.internalUseCount}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatCredits(
                         payoutAccounting.statusOverview.internalUseCredits,
                       )} reused from earned Leaf's
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Current state
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.payoutStatusLabel}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       Liability {formatCredits(payoutAccounting.totalBuilderLiabilityCredits)} | Ready{" "}
                       {formatCredits(payoutAccounting.totalPayoutReadyCredits)}
                     </p>
@@ -2413,17 +2413,17 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
             </div>
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Internal earned Leaf's usage
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Recent business-side internal Eden use recorded against earned Leaf's. These rows reduce remaining builder liability without creating a payout.
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                   {payoutAccounting.internalUseHistorySource === "persistent"
                     ? "Persistent records"
                     : "No persistent records"}
@@ -2434,28 +2434,28 @@ export function OwnerDashboardPanel({
                   payoutAccounting.internalUseHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {item.businessName}
                             </p>
                             <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
                               {item.usageTypeLabel}
                             </span>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">
                             {formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}
                           </p>
-                          <p className="mt-1 text-xs text-eden-muted">
+                          <p className="mt-1 text-xs text-white/50">
                             {item.actorLabel}
                             {item.notes ? ` | ${item.notes}` : ""}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-sm font-semibold text-eden-ink">{item.createdAtLabel}</p>
+                          <p className="text-sm font-semibold text-white">{item.createdAtLabel}</p>
                           <div className="mt-3">
                             <Link
                               href={`/owner/payouts/${item.businessId}`}
@@ -2469,7 +2469,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                     No internal earned-Leaf's usage has been recorded yet.
                   </div>
                 )}
@@ -2477,40 +2477,40 @@ export function OwnerDashboardPanel({
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
               <div className="space-y-4">
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Usage earnings snapshot
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {usageMetrics.monetization.pricingRuleLabel}
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Tracked runs</p>
-                      <p className="mt-2 text-lg font-semibold text-eden-ink">{usageMetrics.totalUsageEvents}</p>
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Tracked runs</p>
+                      <p className="mt-2 text-lg font-semibold text-white">{usageMetrics.totalUsageEvents}</p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Spendable Leaf's used</p>
-                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Spendable Leaf's used</p>
+                      <p className="mt-2 text-lg font-semibold text-white">
                         {formatCredits(usageMetrics.totalCreditsUsed)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Eden earnings</p>
-                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Eden earnings</p>
+                      <p className="mt-2 text-lg font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Builder earnings</p>
-                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Builder earnings</p>
+                      <p className="mt-2 text-lg font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Top services by usage
                   </p>
@@ -2519,18 +2519,18 @@ export function OwnerDashboardPanel({
                       usageMetrics.topServices.map((service) => (
                         <div
                           key={service.serviceId}
-                          className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                          className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                         >
                           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                             <div>
-                              <p className="text-sm font-semibold text-eden-ink">{service.serviceTitle}</p>
-                              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              <p className="text-sm font-semibold text-white">{service.serviceTitle}</p>
+                              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                                 {service.businessName}
                               </p>
-                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              <p className="mt-2 text-sm leading-6 text-white/50">
                                 {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
                               </p>
-                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              <p className="mt-2 text-sm leading-6 text-white/50">
                                 Current rate:{" "}
                                 {getServicePricingDisplay({
                                   pricingModel: service.pricingModel,
@@ -2540,20 +2540,20 @@ export function OwnerDashboardPanel({
                               </p>
                             </div>
                             <div className="text-left md:text-right">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {formatCredits(service.monetization.estimatedPlatformEarningsCredits)}
                               </p>
-                              <p className="mt-1 text-xs text-eden-muted">Eden fee share</p>
-                              <p className="mt-2 text-xs text-eden-muted">
+                              <p className="mt-1 text-xs text-white/50">Eden fee share</p>
+                              <p className="mt-2 text-xs text-white/50">
                                 Gross: {formatCredits(service.monetization.estimatedGrossCredits)}
                               </p>
-                              <p className="mt-2 text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                              <p className="mt-2 text-xs text-white/50">{service.lastUsedAtLabel}</p>
                             </div>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                         No service usage has been tracked yet. The leaderboard will populate after service runs are recorded through the current execution paths.
                       </div>
                     )}
@@ -2561,7 +2561,7 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top earning businesses
                 </p>
@@ -2570,26 +2570,26 @@ export function OwnerDashboardPanel({
                     payoutAccounting.topEarningBusinesses.map((business) => (
                       <div
                         key={business.businessId}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">{business.businessName}</p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-sm font-semibold text-white">{business.businessName}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               Top service: {business.topServiceTitle}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {business.usageCount} runs | {formatCredits(business.totalCreditsUsed)} used
                             </p>
-                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                            <p className="mt-1 text-sm leading-6 text-white/50">
                               Unpaid earnings: {formatCredits(business.unpaidEarningsCredits)}
                             </p>
                             {business.internalUseCredits > 0 ? (
-                              <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              <p className="mt-1 text-sm leading-6 text-white/50">
                                 Used internally: {formatCredits(business.internalUseCredits)}
                               </p>
                             ) : null}
-                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                            <p className="mt-1 text-sm leading-6 text-white/50">
                               Paid out: {formatCredits(business.paidOutCredits)}
                               {business.pendingSettlementCredits > 0
                                 ? ` | Pending ${formatCredits(business.pendingSettlementCredits)}`
@@ -2597,24 +2597,24 @@ export function OwnerDashboardPanel({
                             </p>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(business.payoutReadyCredits)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">Payout-ready</p>
-                            <p className="mt-2 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">Payout-ready</p>
+                            <p className="mt-2 text-xs text-white/50">
                               Available for Eden use: {formatCredits(business.availableForInternalUseCredits)}
                             </p>
-                            <p className="mt-2 text-xs text-eden-muted">
+                            <p className="mt-2 text-xs text-white/50">
                               Eden fee share: {formatCredits(business.edenFeeShareCredits)}
                             </p>
-                            <p className="mt-2 text-xs text-eden-muted">{business.lastUsedAtLabel}</p>
+                            <p className="mt-2 text-xs text-white/50">{business.lastUsedAtLabel}</p>
                           </div>
                         </div>
                         {business.payoutReadyCredits > 0 ? (
                           <div className="mt-3 space-y-2">
                             <Link
                               href={`/owner/payouts/${business.businessId}`}
-                              className="block rounded-2xl border border-eden-edge bg-white px-3 py-3 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                              className="block rounded-2xl border border-white/8 bg-white px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                             >
                               View Payout
                             </Link>
@@ -2634,7 +2634,7 @@ export function OwnerDashboardPanel({
                           <div className="mt-3">
                             <Link
                               href={`/owner/payouts/${business.businessId}`}
-                              className="block rounded-2xl border border-eden-edge bg-white px-3 py-3 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+                              className="block rounded-2xl border border-white/8 bg-white px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                             >
                               View Payout
                             </Link>
@@ -2643,7 +2643,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       Earning rankings will appear here after the platform records priced service usage.
                     </div>
                   )}
@@ -2652,7 +2652,7 @@ export function OwnerDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top users by platform usage
                 </p>
@@ -2661,15 +2661,15 @@ export function OwnerDashboardPanel({
                     usageMetrics.topUsers.map((user) => (
                       <div
                         key={user.userId ?? `guest-${user.userDisplayName}`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {user.userDisplayName}
                               </p>
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {user.isAnonymousUser
                                   ? "Guest"
                                   : user.username
@@ -2677,33 +2677,33 @@ export function OwnerDashboardPanel({
                                     : "User"}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {user.usageCount} runs across {user.perService.length} service
                               {user.perService.length === 1 ? "" : "s"}.
                             </p>
-                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                            <p className="mt-1 text-sm leading-6 text-white/50">
                               Top service: {user.topServiceTitle}
                             </p>
-                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                            <p className="mt-1 text-sm leading-6 text-white/50">
                               Estimated customer value:{" "}
                               {formatCredits(user.projectedCustomerValueCredits)}
                             </p>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {user.usageSharePercent}% of tracked runs
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               Builder earnings:{" "}
                               {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}
                             </p>
-                            <p className="mt-2 text-xs text-eden-muted">{user.lastUsedAtLabel}</p>
+                            <p className="mt-2 text-xs text-white/50">{user.lastUsedAtLabel}</p>
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       User rankings will populate after platform usage events are recorded.
                     </div>
                   )}
@@ -2711,42 +2711,42 @@ export function OwnerDashboardPanel({
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Usage concentration by user
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Top user share
                       </p>
-                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      <p className="mt-2 text-lg font-semibold text-white">
                         {usageMetrics.userConcentration.topUserSharePercent}%
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Top 3 users
                       </p>
-                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      <p className="mt-2 text-lg font-semibold text-white">
                         {usageMetrics.userConcentration.topThreeUsersSharePercent}%
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         User buckets
                       </p>
-                      <p className="mt-2 text-lg font-semibold text-eden-ink">
+                      <p className="mt-2 text-lg font-semibold text-white">
                         {usageMetrics.userConcentration.distinctUsers}
                       </p>
-                      <p className="mt-1 text-xs text-eden-muted">
+                      <p className="mt-1 text-xs text-white/50">
                         {usageMetrics.userConcentration.anonymousUsageEvents} guest events
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Recent user activity
                   </p>
@@ -2755,41 +2755,41 @@ export function OwnerDashboardPanel({
                       usageMetrics.recentUserActivity.map((event) => (
                         <div
                           key={event.id}
-                          className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                          className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-sm font-semibold text-eden-ink">
+                                <p className="text-sm font-semibold text-white">
                                   {event.userDisplayName}
                                 </p>
-                                <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                                <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                   {event.username ? `@${event.username}` : "Guest wallet"}
                                 </span>
                               </div>
-                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              <p className="mt-2 text-sm leading-6 text-white/50">
                                 Used {event.serviceTitle} from {event.businessName}.
                               </p>
-                              <p className="mt-1 text-xs text-eden-muted">
+                              <p className="mt-1 text-xs text-white/50">
                                 Value: {formatCredits(event.estimatedGrossCredits)} | Charge:{" "}
                                 {formatCredits(event.creditsUsed)}
                               </p>
-                              <p className="mt-1 text-xs text-eden-muted">
+                              <p className="mt-1 text-xs text-white/50">
                                 Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
                                 {formatCredits(event.platformFeeCredits)}
                               </p>
                             </div>
-                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                               {event.source === "persistent" ? "Persistent" : "Mock fallback"}
                             </span>
                           </div>
-                          <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
                             {event.timestampLabel}
                           </p>
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                         Recent user activity will appear here after service usage is recorded.
                       </div>
                     )}
@@ -2817,7 +2817,7 @@ export function OwnerDashboardPanel({
             title="Recent control-room events"
             description="Mock owner logs covering routing, billing, publish, security, and agent events."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 Seeded overlay feed
               </span>
             }
@@ -2832,7 +2832,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={event.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
@@ -2843,12 +2843,12 @@ export function OwnerDashboardPanel({
                       >
                         {event.level}
                       </span>
-                      <span className="text-xs uppercase tracking-[0.12em] text-eden-muted">{event.source}</span>
+                      <span className="text-xs uppercase tracking-[0.12em] text-white/50">{event.source}</span>
                     </div>
-                    <span className="text-xs text-eden-muted">{event.timestamp}</span>
+                    <span className="text-xs text-white/50">{event.timestamp}</span>
                   </div>
-                  <p className="mt-3 text-sm font-semibold text-eden-ink">{event.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{event.message}</p>
+                  <p className="mt-3 text-sm font-semibold text-white">{event.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{event.message}</p>
                 </motion.article>
               ))}
             </motion.div>
@@ -2862,7 +2862,7 @@ export function OwnerDashboardPanel({
             title="Owner safety actions"
             description="Development-only controls for freezing accounts, toggling maintenance mode, and reviewing audit visibility."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 Owner overlay mode
               </span>
             }
@@ -2875,35 +2875,35 @@ export function OwnerDashboardPanel({
             >
               <motion.article
                 variants={cardVariants}
-                className="rounded-2xl border border-eden-edge bg-white p-4"
+                className="rounded-2xl border border-white/8 bg-white p-4"
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Frozen users
                 </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
                   {frozenUsersCount}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Accounts currently marked as frozen in the local mock admin state.
                 </p>
               </motion.article>
               <motion.article
                 variants={cardVariants}
-                className="rounded-2xl border border-eden-edge bg-white p-4"
+                className="rounded-2xl border border-white/8 bg-white p-4"
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Frozen businesses
                 </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
                   {frozenBusinessesCount}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Business workspaces currently under the owner freeze overlay.
                 </p>
               </motion.article>
               <motion.article
                 variants={cardVariants}
-                className="rounded-2xl border border-eden-edge bg-white p-4"
+                className="rounded-2xl border border-white/8 bg-white p-4"
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Maintenance mode
@@ -2917,7 +2917,7 @@ export function OwnerDashboardPanel({
                     {maintenanceMode ? "Maintenance active" : "Active"}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-eden-muted">
+                <p className="mt-3 text-sm leading-6 text-white/50">
                   Toggle the platform-wide maintenance banner used across the Eden shell.
                 </p>
                 <div className="mt-4">
@@ -2939,18 +2939,18 @@ export function OwnerDashboardPanel({
               </motion.article>
             </motion.div>
             <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4 text-sm leading-6 text-eden-muted">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 text-sm leading-6 text-white/50">
                 Freeze and unfreeze actions are development-only overlays. They update the owner records, detail views, and platform shell immediately without enforcing any real backend restriction.
               </div>
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-eden-ink">{auditLogsControl.title}</p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="text-sm font-semibold text-white">{auditLogsControl.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {auditLogsControl.description}
                     </p>
                   </div>
-                  <span className="rounded-full bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                  <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {auditLogsControl.stateLabel}
                   </span>
                 </div>

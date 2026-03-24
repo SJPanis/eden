@@ -39,7 +39,7 @@ function getPaymentStatusClasses(status: string) {
 }
 
 function getOwnerActionLinkClasses() {
-  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
+  return "inline-flex rounded-full border border-white/8 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
 }
 
 function getPaymentFilterEmptyState(filter: OwnerUserPaymentFilter) {
@@ -100,18 +100,18 @@ export function OwnerUserPaymentHistoryPanel({
   );
 
   return (
-    <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+    <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Payments
           </p>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">
+          <p className="mt-2 text-sm leading-6 text-white/50">
             Persistent top-up history for this inspected user, linked back into the owner payment
             drill-down route.
           </p>
         </div>
-        <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+        <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
           {source === "persistent"
             ? `${filteredPayments.length} of ${payments.length} shown`
             : "Fallback empty state"}
@@ -128,12 +128,12 @@ export function OwnerUserPaymentHistoryPanel({
           filteredPayments.map((payment) => (
             <div
               key={payment.id}
-              className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4"
+              className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-eden-ink">{payment.providerLabel}</p>
+                    <p className="text-sm font-semibold text-white">{payment.providerLabel}</p>
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getPaymentStatusClasses(
                         payment.status,
@@ -142,11 +142,11 @@ export function OwnerUserPaymentHistoryPanel({
                       {formatPaymentStatus(payment.status)}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {payment.packageInfo?.title ?? "Top-up package unavailable"} |{" "}
                     {payment.packageInfo?.chargeLabel ?? formatLeaves(payment.creditsAmount)}
                   </p>
-                  <div className="mt-2 space-y-1 text-xs leading-5 text-eden-muted">
+                  <div className="mt-2 space-y-1 text-xs leading-5 text-white/50">
                     <p className="break-all">
                       Session: <span className="font-mono">{payment.providerSessionId}</span>
                     </p>
@@ -172,10 +172,10 @@ export function OwnerUserPaymentHistoryPanel({
                   </div>
                 </div>
                 <div className="text-left md:text-right">
-                  <p className="text-sm font-semibold text-eden-ink">
+                  <p className="text-sm font-semibold text-white">
                     {formatCredits(payment.creditsAmount)}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {payment.packageInfo?.chargeLabel ?? "Charge unavailable"}
                   </p>
                 </div>
@@ -183,7 +183,7 @@ export function OwnerUserPaymentHistoryPanel({
             </div>
           ))
         ) : (
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
             {payments.length ? getPaymentFilterEmptyState(filter) : getPaymentFilterEmptyState("all")}
           </div>
         )}

@@ -265,44 +265,44 @@ export function BusinessAiAssistantPanel({
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.1fr)]">
       <div className="space-y-3">
-        <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.98))] p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Active draft context
               </p>
-              <p className="mt-2 text-lg font-semibold text-eden-ink">{context.serviceName}</p>
+              <p className="mt-2 text-lg font-semibold text-white">{context.serviceName}</p>
             </div>
-            <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+            <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
               {getPipelineStatusLabel(context.pipelineStatus)}
             </span>
           </div>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">{context.description}</p>
+          <p className="mt-2 text-sm leading-6 text-white/50">{context.description}</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-eden-edge bg-white p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Category</p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">{context.category}</p>
+            <div className="rounded-2xl border border-white/8 bg-white p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">Category</p>
+              <p className="mt-2 text-sm font-semibold text-white">{context.category}</p>
             </div>
-            <div className="rounded-2xl border border-eden-edge bg-white p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Pricing</p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">{context.pricingModel}</p>
+            <div className="rounded-2xl border border-white/8 bg-white p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">Pricing</p>
+              <p className="mt-2 text-sm font-semibold text-white">{context.pricingModel}</p>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {context.tags.map((tag) => (
               <span
                 key={`assistant-context-${tag}`}
-                className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] text-eden-muted"
+                className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] text-white/50"
               >
                 {tag}
               </span>
             ))}
           </div>
-          <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-3">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+          <div className="mt-4 rounded-2xl border border-white/8 bg-white p-3">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Automation summary
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">{context.automationSummary}</p>
+            <p className="mt-2 text-sm leading-6 text-white/50">{context.automationSummary}</p>
           </div>
         </div>
 
@@ -333,44 +333,44 @@ export function BusinessAiAssistantPanel({
                 }}
                 className={`rounded-2xl border p-4 text-left transition-colors ${
                   isActive
-                    ? "border-eden-ring bg-[linear-gradient(135deg,rgba(239,246,255,0.88),rgba(255,255,255,0.98))]"
-                    : "border-eden-edge bg-white hover:border-eden-ring hover:bg-eden-bg"
+                    ? "border-[#14989a]/50 bg-white/[0.05]"
+                    : "border-white/8 bg-white hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                 } disabled:cursor-not-allowed disabled:opacity-70`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-eden-ink">{card.title}</p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">{card.description}</p>
+                    <p className="text-sm font-semibold text-white">{card.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/50">{card.description}</p>
                   </div>
-                  <span className="rounded-full bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                  <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {isRunning && isActive ? "Running" : "Mock AI"}
                   </span>
                 </div>
-                <p className="mt-3 text-xs leading-5 text-eden-muted">{card.resultHint}</p>
+                <p className="mt-3 text-xs leading-5 text-white/50">{card.resultHint}</p>
               </motion.button>
             );
           })}
         </motion.div>
 
-        <div className="rounded-2xl border border-eden-edge bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white p-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Session history
               </p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">
+              <p className="mt-2 text-sm leading-6 text-white/50">
                 Re-open prior assistant runs from this workspace session and re-apply useful draft patches.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                 {historyEntries.length} runs
               </span>
               <button
                 type="button"
                 disabled={isRunning || historyEntries.length === 0}
                 onClick={handleClearHistory}
-                className="rounded-full border border-eden-edge bg-white px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted transition-colors hover:border-rose-300 hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full border border-white/8 bg-white px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50 transition-colors hover:border-rose-300 hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Clear Assistant History
               </button>
@@ -393,14 +393,14 @@ export function BusinessAiAssistantPanel({
                     transition={{ duration: 0.18, ease: "easeOut" }}
                     className={`w-full rounded-2xl border p-3 text-left transition-colors ${
                       isSelected
-                        ? "border-eden-ring bg-[linear-gradient(135deg,rgba(239,246,255,0.88),rgba(255,255,255,0.98))]"
-                        : "border-eden-edge bg-eden-bg/45 hover:border-eden-ring hover:bg-white"
+                        ? "border-[#14989a]/50 bg-white/[0.05]"
+                        : "border-white/8 bg-white/[0.04]/45 hover:border-[#14989a]/50 hover:bg-white"
                     }`}
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-semibold text-eden-ink">
+                          <p className="text-sm font-semibold text-white">
                             {formatActionLabel(entry.action)}
                           </p>
                           {isApplied ? (
@@ -409,14 +409,14 @@ export function BusinessAiAssistantPanel({
                             </span>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm text-eden-ink">{entry.headline}</p>
-                        <p className="mt-2 text-sm leading-6 text-eden-muted">{entry.preview}</p>
+                        <p className="mt-2 text-sm text-white">{entry.headline}</p>
+                        <p className="mt-2 text-sm leading-6 text-white/50">{entry.preview}</p>
                       </div>
                       <div className="text-left md:text-right">
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Timestamp
                         </p>
-                        <p className="mt-1 text-sm font-semibold text-eden-ink">
+                        <p className="mt-1 text-sm font-semibold text-white">
                           {formatPipelineTimestamp(entry.generatedAt)}
                         </p>
                       </div>
@@ -425,7 +425,7 @@ export function BusinessAiAssistantPanel({
                 );
               })
             ) : (
-              <div className="rounded-2xl border border-dashed border-eden-edge bg-eden-bg/40 p-4 text-sm leading-6 text-eden-muted">
+              <div className="rounded-2xl border border-dashed border-white/8 bg-white/[0.04]/40 p-4 text-sm leading-6 text-white/50">
                 Assistant history will appear here after the first mocked AI run.
               </div>
             )}
@@ -442,47 +442,47 @@ export function BusinessAiAssistantPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="rounded-2xl border border-eden-edge bg-white p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.35)]"
+              className="rounded-2xl border border-white/8 bg-white p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.35)]"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Assistant output
                   </p>
-                  <h3 className="mt-2 text-xl font-semibold tracking-tight text-eden-ink">
+                  <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">
                     {selectedHistoryEntry.headline}
                   </h3>
                 </div>
                 <div className="flex flex-wrap gap-2 md:justify-end">
-                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {formatActionLabel(selectedHistoryEntry.action)}
                   </span>
-                  <span className="rounded-full border border-eden-edge bg-white px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-white px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {formatPipelineTimestamp(selectedHistoryEntry.generatedAt)}
                   </span>
                 </div>
               </div>
 
-              <p className="mt-3 text-sm leading-6 text-eden-muted">
+              <p className="mt-3 text-sm leading-6 text-white/50">
                 {selectedHistoryEntry.summary}
               </p>
 
-              <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/55 p-4">
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/55 p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Recommended next moves
                 </p>
                 <div className="mt-3 space-y-3">
                   {selectedHistoryEntry.bullets.map((bullet) => (
                     <div key={bullet} className="flex gap-3">
                       <span className="mt-2 h-2 w-2 rounded-full bg-eden-accent" />
-                      <p className="text-sm leading-6 text-eden-muted">{bullet}</p>
+                      <p className="text-sm leading-6 text-white/50">{bullet}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {publishChecklistSuggestions.length ? (
-                <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(255,237,213,0.42),rgba(255,255,255,0.98))] p-4">
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Publish checklist guidance
                   </p>
@@ -490,7 +490,7 @@ export function BusinessAiAssistantPanel({
                     {publishChecklistSuggestions.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-eden-edge bg-white p-3"
+                        className="rounded-2xl border border-white/8 bg-white p-3"
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           <span
@@ -498,10 +498,10 @@ export function BusinessAiAssistantPanel({
                               item.state,
                             )}`}
                           />
-                          <p className="text-sm font-semibold text-eden-ink">{item.label}</p>
+                          <p className="text-sm font-semibold text-white">{item.label}</p>
                         </div>
-                        <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
-                        <p className="mt-2 text-sm leading-6 text-eden-ink">
+                        <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
+                        <p className="mt-2 text-sm leading-6 text-white">
                           {item.suggestion}
                         </p>
                       </div>
@@ -511,13 +511,13 @@ export function BusinessAiAssistantPanel({
               ) : null}
 
               {patchPreviewItems.length ? (
-                <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                         Editable draft patch
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      <p className="mt-2 text-sm leading-6 text-white/50">
                         Apply any useful output back into the shared Service Builder draft.
                       </p>
                     </div>
@@ -532,12 +532,12 @@ export function BusinessAiAssistantPanel({
                     {patchPreviewItems.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/55 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/55 p-3"
                       >
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           {item.label}
                         </p>
-                        <p className="mt-2 text-sm leading-6 text-eden-ink">{item.value}</p>
+                        <p className="mt-2 text-sm leading-6 text-white">{item.value}</p>
                       </div>
                     ))}
                   </div>
@@ -546,11 +546,11 @@ export function BusinessAiAssistantPanel({
                     <button
                       type="button"
                       onClick={handleApply}
-                      className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70"
+                      className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
                     >
                       {selectedHistoryEntry.applyLabel ?? "Apply to Draft"}
                     </button>
-                    <span className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm text-eden-muted">
+                    <span className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm text-white/50">
                       Local mock output only
                     </span>
                   </div>
@@ -564,15 +564,15 @@ export function BusinessAiAssistantPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="rounded-2xl border border-dashed border-eden-edge bg-white/80 p-6"
+              className="rounded-2xl border border-dashed border-white/8 bg-white/[0.05] p-6"
             >
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Assistant output
               </p>
-              <p className="mt-3 text-lg font-semibold text-eden-ink">
+              <p className="mt-3 text-lg font-semibold text-white">
                 Run an AI action against the active service draft
               </p>
-              <p className="mt-3 text-sm leading-6 text-eden-muted">
+              <p className="mt-3 text-sm leading-6 text-white/50">
                 The Business AI Assistant reads the current service draft, category, tags,
                 automation summary, pricing placeholder, and pipeline status. Use one of the
                 actions on the left to generate a mocked improvement pass, publish prep draft, or

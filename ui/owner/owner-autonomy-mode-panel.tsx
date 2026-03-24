@@ -63,17 +63,17 @@ export function OwnerAutonomyModePanel({
   const hasBlockers = state.currentBlockers.length > 0;
 
   return (
-    <div className="rounded-[28px] border border-eden-edge bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+    <div className="rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Autonomy boundary model
           </p>
-          <h2 className="mt-2 text-lg font-semibold text-eden-ink">
+          <h2 className="mt-2 text-lg font-semibold text-white">
             Eden autonomy mode
           </h2>
-          <p className="mt-1 text-sm text-eden-muted">
+          <p className="mt-1 text-sm text-white/50">
             Defines what Claude may do automatically versus what is review-gated.
             Based on{" "}
             <span className="font-mono text-xs text-eden-accent">
@@ -84,7 +84,7 @@ export function OwnerAutonomyModePanel({
         <button
           onClick={handleRefresh}
           disabled={isPending}
-          className="rounded-full border border-eden-edge bg-eden-bg px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-white disabled:opacity-50"
+          className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white disabled:opacity-50"
         >
           {isPending ? "Refreshing…" : "Refresh"}
         </button>
@@ -115,14 +115,14 @@ export function OwnerAutonomyModePanel({
       </div>
 
       {/* Scope description */}
-      <p className="mt-4 text-sm leading-6 text-eden-muted">
+      <p className="mt-4 text-sm leading-6 text-white/50">
         {state.scopeDescription}
       </p>
 
       {/* Blockers */}
       {hasBlockers && (
         <div className="mt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-eden-muted">
+          <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
             Current blockers
           </p>
           <ul className="mt-2 space-y-1">
@@ -158,7 +158,7 @@ export function OwnerAutonomyModePanel({
       {/* Expandable policy detail */}
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="mt-5 text-xs font-semibold text-eden-accent underline underline-offset-2 hover:text-eden-ink"
+        className="mt-5 text-xs font-semibold text-eden-accent underline underline-offset-2 hover:text-white"
       >
         {expanded ? "Hide policy detail" : "Show full policy detail"}
       </button>

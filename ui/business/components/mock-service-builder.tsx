@@ -189,13 +189,13 @@ export function MockServiceBuilder({
   }
 
   return (
-    <div className="rounded-2xl border border-eden-edge bg-white/92 p-4">
+    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Service Builder
           </p>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">
+          <p className="mt-2 text-sm leading-6 text-white/50">
             Generate a mocked service idea with Ask Eden or open the editor directly, then stage
             the draft into the existing build, test, ready, and publish workflow.
           </p>
@@ -207,25 +207,25 @@ export function MockServiceBuilder({
             setError(null);
             setIsOpen((value) => !value);
           }}
-          className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-70"
+          className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isOpen ? "Close Editor" : "Open Editor"}
         </button>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(239,246,255,0.88),rgba(255,255,255,0.98))] p-4">
+      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Ask Eden Generator
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Generate a mocked service draft from a short business idea, automation concept, or
               tool concept. Compare the variants here, then apply the one you want into the
               editor before saving.
             </p>
           </div>
-          <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+          <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
             Eden AI adapter
           </span>
         </div>
@@ -236,13 +236,13 @@ export function MockServiceBuilder({
             value={generatorPrompt}
             onChange={(event) => setGeneratorPrompt(event.target.value)}
             placeholder="Describe a business idea, automation concept, or tool concept"
-            className="w-full rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+            className="w-full rounded-2xl border border-white/8 bg-white px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
           />
           <button
             type="button"
             disabled={isGenerating || isSaving}
             onClick={handleGenerateVariant}
-            className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isGenerating ? "Generating..." : "Generate Service Idea"}
           </button>
@@ -256,17 +256,17 @@ export function MockServiceBuilder({
               generatorPrompt.trim() !== variantPrompt
             }
             onClick={handleGenerateVariant}
-            className="rounded-xl border border-eden-edge bg-white px-4 py-3 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-xl border border-white/8 bg-white px-4 py-3 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isGenerating ? "Generating..." : "Regenerate Variant"}
           </button>
         </div>
-        <p className="mt-2 text-xs leading-5 text-eden-muted">
+        <p className="mt-2 text-xs leading-5 text-white/50">
           Try prompts like `AI workflow for habit coaching`, `automation concept for creator QA`,
           or `tool concept for home setup planning`.
         </p>
         {generatedVariants.length > 0 && generatorPrompt.trim() !== variantPrompt ? (
-          <p className="mt-2 text-xs leading-5 text-eden-muted">
+          <p className="mt-2 text-xs leading-5 text-white/50">
             The prompt changed. Generate a new service idea to start a fresh comparison set for
             the updated prompt.
           </p>
@@ -282,19 +282,19 @@ export function MockServiceBuilder({
             transition={{ duration: 0.24, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Generated Variants
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Compare mocked service directions side by side, then explicitly apply one
                     variant into the editable builder form.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {generatedVariants.length} variants
                   </span>
                   {appliedVariantId ? (
@@ -317,8 +317,8 @@ export function MockServiceBuilder({
                       transition={{ duration: 0.2, ease: "easeOut" }}
                       className={`rounded-2xl border p-4 transition-colors ${
                         isApplied
-                          ? "border-eden-ring bg-[linear-gradient(135deg,rgba(239,246,255,0.88),rgba(255,255,255,0.98))]"
-                          : "border-eden-edge bg-eden-bg/50"
+                          ? "border-[#14989a]/50 bg-white/[0.05]"
+                          : "border-white/8 bg-white/[0.04]/50"
                       }`}
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -326,45 +326,45 @@ export function MockServiceBuilder({
                           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                             Variant {variant.response.variantIndex + 1}
                           </p>
-                          <p className="mt-2 text-sm font-semibold text-eden-ink">
+                          <p className="mt-2 text-sm font-semibold text-white">
                             {variant.response.draft.name}
                           </p>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">
                             {variant.response.draft.description}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                             Confidence
                           </p>
-                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                          <p className="mt-1 text-sm font-semibold text-white">
                             {variant.response.routeDecision.confidence}
                           </p>
                         </div>
                       </div>
 
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Category</p>
-                          <p className="mt-2 text-sm font-semibold text-eden-ink">
+                        <div className="rounded-2xl border border-white/8 bg-white p-3">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Category</p>
+                          <p className="mt-2 text-sm font-semibold text-white">
                             {variant.response.draft.category}
                           </p>
                         </div>
-                        <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Pricing</p>
-                          <p className="mt-2 text-sm font-semibold text-eden-ink">
+                        <div className="rounded-2xl border border-white/8 bg-white p-3">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Pricing</p>
+                          <p className="mt-2 text-sm font-semibold text-white">
                             {variant.response.draft.pricingModel}
                           </p>
                         </div>
                       </div>
 
                       <div className="mt-4">
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Suggested tags</p>
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">Suggested tags</p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {variant.response.draft.suggestedTags.map((tag) => (
                             <span
                               key={`${variant.id}-${tag}`}
-                              className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] text-eden-muted"
+                              className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] text-white/50"
                             >
                               {tag}
                             </span>
@@ -372,11 +372,11 @@ export function MockServiceBuilder({
                         </div>
                       </div>
 
-                      <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-3">
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      <div className="mt-4 rounded-2xl border border-white/8 bg-white p-3">
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Automation summary
                         </p>
-                        <p className="mt-2 text-sm leading-6 text-eden-muted">
+                        <p className="mt-2 text-sm leading-6 text-white/50">
                           {variant.response.draft.automationSummary}
                         </p>
                       </div>
@@ -385,7 +385,7 @@ export function MockServiceBuilder({
                         {variant.response.routeDecision.routes.map((route) => (
                           <span
                             key={`${variant.id}-${route}`}
-                            className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted"
+                            className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
                           >
                             {route.replaceAll("_", " ")}
                           </span>
@@ -393,7 +393,7 @@ export function MockServiceBuilder({
                         {variant.response.routeDecision.signals.map((signal) => (
                           <span
                             key={`${variant.id}-${signal}`}
-                            className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted"
+                            className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] text-white/50"
                           >
                             {signal}
                           </span>
@@ -407,11 +407,11 @@ export function MockServiceBuilder({
                             setError(null);
                             applyGeneratedDraft(variant);
                           }}
-                          className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70"
+                          className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
                         >
                           {isApplied ? "Applied to Form" : "Apply to Form"}
                         </button>
-                        <span className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm text-eden-muted">
+                        <span className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm text-white/50">
                           Generated for {businessName}
                         </span>
                       </div>
@@ -433,8 +433,8 @@ export function MockServiceBuilder({
             transition={{ duration: 0.24, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/45 p-4">
-              <p className="text-sm leading-6 text-eden-muted">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/45 p-4">
+              <p className="text-sm leading-6 text-white/50">
                 {appliedVariantId
                   ? "A generated variant has been applied to the form. Review the fields, adjust the copy, then stage it into the active workspace."
                   : "Manual mode is open. You can fill the draft from scratch or compare generated variants above and apply one to the form first."}
@@ -453,7 +453,7 @@ export function MockServiceBuilder({
                     })
                   }
                   placeholder="Momentum Studio Session"
-                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="w-full rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
                 />
               </Field>
 
@@ -466,7 +466,7 @@ export function MockServiceBuilder({
                       category: event.target.value,
                     })
                   }
-                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="w-full rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
                 >
                   <option value="">Select a category</option>
                   {categories.map((entry) => (
@@ -488,7 +488,7 @@ export function MockServiceBuilder({
                   }
                   rows={4}
                   placeholder="Describe the service offer, the outcome, and the experience in one compact paragraph."
-                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="w-full rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
                 />
               </Field>
 
@@ -503,7 +503,7 @@ export function MockServiceBuilder({
                     })
                   }
                   placeholder="focus, AI assistant, workflow"
-                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="w-full rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
                 />
               </Field>
 
@@ -516,7 +516,7 @@ export function MockServiceBuilder({
                       pricingModel: event.target.value,
                     })
                   }
-                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="w-full rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
                 >
                   <option value="">Select a pricing placeholder</option>
                   {pricingOptions.map((option) => (
@@ -543,7 +543,7 @@ export function MockServiceBuilder({
                     })
                   }
                   placeholder="120"
-                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="w-full rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
                 />
               </Field>
 
@@ -562,7 +562,7 @@ export function MockServiceBuilder({
                   }
                   rows={3}
                   placeholder="Optional notes on agents, automations, copilots, or AI workflow behavior."
-                  className="w-full rounded-2xl border border-eden-edge bg-eden-bg px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="w-full rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
                 />
               </Field>
             </div>
@@ -578,7 +578,7 @@ export function MockServiceBuilder({
                 type="button"
                 disabled={isSaving || isGenerating}
                 onClick={handleSubmit}
-                className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSaving ? "Staging service..." : "Stage Service Draft"}
               </button>
@@ -589,7 +589,7 @@ export function MockServiceBuilder({
                   setError(null);
                   setIsOpen(false);
                 }}
-                className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
               >
                 Close Editor
               </button>
@@ -623,14 +623,14 @@ function Field({ label, children, required = false, hint, className }: FieldProp
   return (
     <label className={className}>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-eden-ink">{label}</span>
+        <span className="text-sm font-semibold text-white">{label}</span>
         {required ? (
-          <span className="rounded-full bg-eden-bg px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-eden-muted">
+          <span className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-white/50">
             Required
           </span>
         ) : null}
       </div>
-      {hint ? <p className="mt-1 text-xs leading-5 text-eden-muted">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs leading-5 text-white/50">{hint}</p> : null}
       <div className="mt-2">{children}</div>
     </label>
   );

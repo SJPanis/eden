@@ -96,7 +96,7 @@ function getPayoutSummaryStatusClasses(
 }
 
 function getOwnerActionLinkClasses() {
-  return "inline-flex rounded-full border border-eden-edge bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg";
+  return "inline-flex rounded-full border border-white/8 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
 }
 
 export function OwnerPayoutDetailPanel({
@@ -244,13 +244,13 @@ export function OwnerPayoutDetailPanel({
           transition={{ duration: 0.28, ease: "easeOut" }}
           className="space-y-4"
         >
-          <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout Operational Summary
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Compact owner reconciliation header for this business before the full payout breakdown and settlement history below.
                 </p>
               </div>
@@ -266,10 +266,10 @@ export function OwnerPayoutDetailPanel({
               {payoutSummaryCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-eden-edge bg-white p-3"
+                  className="rounded-2xl border border-white/8 bg-white p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
                     </p>
                     {"badge" in item && item.badge && item.badgeClasses ? (
@@ -280,8 +280,8 @@ export function OwnerPayoutDetailPanel({
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </div>
               ))}
             </div>
@@ -302,13 +302,13 @@ export function OwnerPayoutDetailPanel({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-            <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Settlement status overview
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Current payout state for this business after priced usage, reserve holdback, and persistent settlement rows are reconciled.
                   </p>
                 </div>
@@ -321,77 +321,77 @@ export function OwnerPayoutDetailPanel({
                 </span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Settled rows
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {payoutAccounting.statusOverview.settledCount}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {formatCredits(
                       payoutAccounting.statusOverview.settledSettlementCredits,
                     )} recorded as paid
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Pending rows
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {payoutAccounting.statusOverview.pendingCount}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {formatCredits(
                       payoutAccounting.statusOverview.pendingSettlementCredits,
                     )} queued internally
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Canceled rows
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {payoutAccounting.statusOverview.canceledCount}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {formatCredits(
                       payoutAccounting.statusOverview.canceledSettlementCredits,
                     )} removed from settlement
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Internal Eden use
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {payoutAccounting.statusOverview.internalUseCount}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leaf’s
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Business detail
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {businessProfile.visibility}
                   </p>
-                  <p className="mt-1 text-xs text-eden-muted">
+                  <p className="mt-1 text-xs text-white/50">
                     {businessOwner ? `Owner ${businessOwner.displayName}` : "Owner unavailable"}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Internal settlement action
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Record a persistent internal payout settlement for the current payout-ready balance. This is a reconciliation action only.
                   </p>
                 </div>
@@ -403,35 +403,35 @@ export function OwnerPayoutDetailPanel({
                 </Link>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Total earned
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {formatCredits(payoutAccounting.totalEarnedCredits)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Unpaid
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {formatCredits(payoutAccounting.unpaidEarningsCredits)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Used internally
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Payout-ready
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {formatCredits(payoutAccounting.payoutReadyCredits)}
                   </p>
                 </div>
@@ -457,12 +457,12 @@ export function OwnerPayoutDetailPanel({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
-            <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout history
                 </p>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                   {filteredPayoutHistory.length} of {payoutAccounting.payoutHistory.length} shown
                 </span>
               </div>
@@ -477,12 +477,12 @@ export function OwnerPayoutDetailPanel({
                   filteredPayoutHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(item.amountCredits)}
                             </p>
                             <span
@@ -493,21 +493,21 @@ export function OwnerPayoutDetailPanel({
                               {formatSettlementStatus(item.status)}
                             </span>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">
                             {item.reference ?? "No payout reference recorded."}
                           </p>
-                          <p className="mt-1 text-xs text-eden-muted">
+                          <p className="mt-1 text-xs text-white/50">
                             {item.notes ?? "Internal accounting note not provided."}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                             Created
                           </p>
-                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                          <p className="mt-1 text-sm font-semibold text-white">
                             {item.createdAtLabel}
                           </p>
-                          <p className="mt-2 text-xs text-eden-muted">
+                          <p className="mt-2 text-xs text-white/50">
                             {item.settledAtLabel
                               ? `Settled ${item.settledAtLabel}`
                               : "Awaiting settlement"}
@@ -517,7 +517,7 @@ export function OwnerPayoutDetailPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                     {payoutAccounting.payoutHistory.length
                       ? getPayoutFilterEmptyState(payoutFilter)
                       : getPayoutFilterEmptyState("all")}
@@ -526,17 +526,17 @@ export function OwnerPayoutDetailPanel({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Internal earned Leaf’s usage
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Persistent internal Eden-use rows for this business. These reduce remaining earned Leaf’s without creating an external payout.
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                   {payoutAccounting.internalUseHistory.length} recorded
                 </span>
               </div>
@@ -545,31 +545,31 @@ export function OwnerPayoutDetailPanel({
                   payoutAccounting.internalUseHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(item.amountCredits)}
                             </p>
                             <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
                               {item.usageTypeLabel}
                             </span>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">
                             {item.reference ?? "No internal-use reference recorded."}
                           </p>
-                          <p className="mt-1 text-xs text-eden-muted">
+                          <p className="mt-1 text-xs text-white/50">
                             {item.actorLabel}
                             {item.notes ? ` | ${item.notes}` : ""}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                             Recorded
                           </p>
-                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                          <p className="mt-1 text-sm font-semibold text-white">
                             {item.createdAtLabel}
                           </p>
                         </div>
@@ -577,14 +577,14 @@ export function OwnerPayoutDetailPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                     No internal earned-Leaf’s usage has been recorded for this business yet.
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Per-service payout breakdown
               </p>
@@ -593,37 +593,37 @@ export function OwnerPayoutDetailPanel({
                   payoutAccounting.perService.map((service) => (
                     <div
                       key={service.serviceId}
-                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
-                          <p className="text-sm font-semibold text-eden-ink">
+                          <p className="text-sm font-semibold text-white">
                             {service.serviceTitle}
                           </p>
-                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                             {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
                           </p>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">
                             Unpaid: {formatCredits(service.unpaidEarningsCredits)}
                           </p>
                           {service.internalUseCredits > 0 ? (
-                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                            <p className="mt-1 text-sm leading-6 text-white/50">
                               Used internally: {formatCredits(service.internalUseCredits)}
                             </p>
                           ) : null}
-                          <p className="mt-1 text-sm leading-6 text-eden-muted">
+                          <p className="mt-1 text-sm leading-6 text-white/50">
                             Paid out: {formatCredits(service.paidOutCredits)}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-sm font-semibold text-eden-ink">
+                          <p className="text-sm font-semibold text-white">
                             {formatCredits(service.payoutReadyCredits)}
                           </p>
-                          <p className="mt-1 text-xs text-eden-muted">Payout-ready</p>
-                          <p className="mt-2 text-xs text-eden-muted">
+                          <p className="mt-1 text-xs text-white/50">Payout-ready</p>
+                          <p className="mt-2 text-xs text-white/50">
                             Holdback: {formatCredits(service.holdbackCredits)}
                           </p>
-                          <p className="mt-2 text-xs text-eden-muted">
+                          <p className="mt-2 text-xs text-white/50">
                             {service.lastUsedAtLabel}
                           </p>
                         </div>
@@ -631,7 +631,7 @@ export function OwnerPayoutDetailPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                     Service-level payout breakdown appears here once priced usage is recorded.
                   </div>
                 )}

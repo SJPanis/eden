@@ -25,7 +25,7 @@ type ConsumerProjectsPanelProps = {
 const statusColors: Record<string, string> = {
   published: "border-emerald-200 bg-emerald-50 text-emerald-700",
   testing: "border-amber-200 bg-amber-50 text-amber-700",
-  draft: "border-eden-edge bg-white text-eden-muted",
+  draft: "border-white/8 bg-white text-white/50",
 };
 
 export function ConsumerProjectsPanel({
@@ -55,7 +55,7 @@ export function ConsumerProjectsPanel({
   return (
     <div className="flex flex-col gap-6">
       {/* Identity header */}
-      <div className="relative overflow-hidden rounded-[28px] border border-eden-edge bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(16,37,58,0.04)_50%,rgba(255,255,255,0.96))] p-6">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(16,37,58,0.04)_50%,rgba(255,255,255,0.96))] p-6">
         {/* Dot-grid background pattern */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -70,10 +70,10 @@ export function ConsumerProjectsPanel({
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
               Your Eden Space
             </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white">
               {session.user.displayName}
             </h1>
-            <p className="mt-1 text-sm text-eden-muted">
+            <p className="mt-1 text-sm text-white/50">
               @{session.user.username}
               {isOwner ? (
                 <span className="ml-2 rounded-full border border-[rgba(20,152,154,0.3)] bg-[rgba(20,152,154,0.08)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-accent">
@@ -83,19 +83,19 @@ export function ConsumerProjectsPanel({
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <div className="rounded-2xl border border-eden-edge bg-white/88 px-4 py-3 text-center">
-              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/50">
                 Wallet
               </p>
-              <p className="mt-1 text-sm font-semibold text-eden-ink">
+              <p className="mt-1 text-sm font-semibold text-white">
                 {formatLeaves(session.user.edenBalanceCredits)}
               </p>
             </div>
-            <div className="rounded-2xl border border-eden-edge bg-white/88 px-4 py-3 text-center">
-              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/50">
                 Projects
               </p>
-              <p className="mt-1 text-sm font-semibold text-eden-ink">
+              <p className="mt-1 text-sm font-semibold text-white">
                 {allBusinesses.length}
               </p>
             </div>
@@ -104,13 +104,13 @@ export function ConsumerProjectsPanel({
       </div>
 
       {/* Project graph area */}
-      <div className="rounded-[28px] border border-eden-edge bg-white/88 p-6">
+      <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
               Project workspace
             </p>
-            <p className="mt-1.5 text-sm text-eden-muted">
+            <p className="mt-1.5 text-sm text-white/50">
               {allBusinesses.length > 0
                 ? "Your businesses and services in Eden."
                 : "No projects yet — start building your first service."}
@@ -118,7 +118,7 @@ export function ConsumerProjectsPanel({
           </div>
           <Link
             href="/business/create"
-            className="shrink-0 rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/75"
+            className="shrink-0 rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
           >
             + New project
           </Link>
@@ -140,11 +140,11 @@ export function ConsumerProjectsPanel({
                     </div>
 
                     {/* Business card */}
-                    <div className="min-w-0 flex-1 rounded-[20px] border border-eden-edge bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(210,223,235,0.18))] p-4 transition-shadow hover:shadow-[0_4px_20px_-8px_rgba(20,152,154,0.2)]">
+                    <div className="min-w-0 flex-1 rounded-[20px] border border-white/8 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(210,223,235,0.18))] p-4 transition-shadow hover:shadow-[0_4px_20px_-8px_rgba(20,152,154,0.2)]">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-eden-ink">{biz.name}</p>
+                            <p className="text-sm font-semibold text-white">{biz.name}</p>
                             <span
                               className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] ${
                                 statusColors[biz.status] ?? statusColors.draft
@@ -153,12 +153,12 @@ export function ConsumerProjectsPanel({
                               {biz.status}
                             </span>
                           </div>
-                          <p className="mt-1 text-xs text-eden-muted">{biz.tagline}</p>
+                          <p className="mt-1 text-xs text-white/50">{biz.tagline}</p>
                         </div>
                         <div className="flex shrink-0 flex-wrap gap-2">
                           <Link
                             href="/business"
-                            className="rounded-full border border-eden-edge bg-white/80 px-3 py-1.5 text-xs font-medium text-eden-ink transition-colors hover:border-eden-ring"
+                            className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:border-[#14989a]/50"
                           >
                             Open workspace
                           </Link>
@@ -168,7 +168,7 @@ export function ConsumerProjectsPanel({
                       {/* Progress bar */}
                       <div className="mt-3">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[10px] uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="text-[10px] uppercase tracking-[0.12em] text-white/50">
                             Publish readiness
                           </p>
                           <p className="text-[10px] font-semibold text-eden-accent">
@@ -185,10 +185,10 @@ export function ConsumerProjectsPanel({
 
                       {/* Metadata chips */}
                       <div className="mt-3 flex flex-wrap gap-1.5">
-                        <span className="rounded-full border border-eden-edge bg-white/70 px-2 py-0.5 text-[10px] text-eden-muted">
+                        <span className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/50">
                           {biz.visibility}
                         </span>
-                        <span className="rounded-full border border-eden-edge bg-white/70 px-2 py-0.5 text-[10px] text-eden-muted">
+                        <span className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/50">
                           {formatLeaves(biz.creditBalanceCredits)} workspace balance
                         </span>
                       </div>
@@ -199,14 +199,14 @@ export function ConsumerProjectsPanel({
             </div>
           </div>
         ) : (
-          <div className="mt-6 rounded-2xl border border-dashed border-eden-edge bg-white/60 p-8 text-center">
-            <p className="text-sm font-medium text-eden-ink">No projects yet</p>
-            <p className="mt-1 text-sm text-eden-muted">
+          <div className="mt-6 rounded-2xl border border-dashed border-white/8 bg-white/[0.04] p-8 text-center">
+            <p className="text-sm font-medium text-white">No projects yet</p>
+            <p className="mt-1 text-sm text-white/50">
               Create your first service and publish it to the Eden marketplace.
             </p>
             <Link
               href="/business/create"
-              className="mt-4 inline-block rounded-full border border-eden-ring bg-eden-accent-soft px-5 py-2.5 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/75"
+              className="mt-4 inline-block rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
             >
               Start building
             </Link>
@@ -277,22 +277,22 @@ export function ConsumerProjectsPanel({
       ) : null}
 
       {/* Contribution section */}
-      <div className="rounded-[28px] border border-eden-edge bg-white/88 p-6">
+      <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
               Contribution layer
             </p>
-            <p className="mt-2 text-sm font-semibold text-eden-ink">
+            <p className="mt-2 text-sm font-semibold text-white">
               Improve Eden, earn from it
             </p>
-            <p className="mt-1 text-sm leading-6 text-eden-muted">
+            <p className="mt-1 text-sm leading-6 text-white/50">
               Submit code improvements, design work, bug fixes, or ideas directly to Eden.
               Each period, the contribution pool distributes Leaf's to approved contributors
               based on their score.
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-eden-edge bg-white/80 px-3 py-1 text-xs text-eden-muted">
+          <span className="shrink-0 rounded-full border border-white/8 bg-white/[0.05] px-3 py-1 text-xs text-white/50">
             Coming soon
           </span>
         </div>
@@ -302,10 +302,10 @@ export function ConsumerProjectsPanel({
             { label: "Pool share (est.)", value: "—", note: "Based on score weight" },
             { label: "Next distribution", value: "—", note: "Current period status" },
           ].map((item) => (
-            <div key={item.label} className="rounded-2xl border border-eden-edge bg-white/70 p-4">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-              <p className="mt-1.5 text-base font-semibold text-eden-ink">{item.value}</p>
-              <p className="mt-1 text-xs text-eden-muted">{item.note}</p>
+            <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+              <p className="mt-1.5 text-base font-semibold text-white">{item.value}</p>
+              <p className="mt-1 text-xs text-white/50">{item.note}</p>
             </div>
           ))}
         </div>

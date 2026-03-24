@@ -375,27 +375,27 @@ export function ProjectBlueprintPanel({
   return (
     <div className="mt-4 space-y-4">
       <div className="grid gap-3 md:grid-cols-4">
-        <div className="rounded-2xl border border-eden-edge bg-white p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Blueprints</p>
-          <p className="mt-2 text-lg font-semibold text-eden-ink">{projects.length}</p>
-          <p className="mt-1 text-xs text-eden-muted">Persistent project records for {businessName}.</p>
+        <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Blueprints</p>
+          <p className="mt-2 text-lg font-semibold text-white">{projects.length}</p>
+          <p className="mt-1 text-xs text-white/50">Persistent project records for {businessName}.</p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Testing now</p>
-          <p className="mt-2 text-lg font-semibold text-eden-ink">{testingCount}</p>
-          <p className="mt-1 text-xs text-eden-muted">Projects currently inside Eden test mode.</p>
+        <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Testing now</p>
+          <p className="mt-2 text-lg font-semibold text-white">{testingCount}</p>
+          <p className="mt-1 text-xs text-white/50">Projects currently inside Eden test mode.</p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Published active</p>
-          <p className="mt-2 text-lg font-semibold text-eden-ink">{publishedCount}</p>
-          <p className="mt-1 text-xs text-eden-muted">Projects currently visible as active launches.</p>
+        <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Published active</p>
+          <p className="mt-2 text-lg font-semibold text-white">{publishedCount}</p>
+          <p className="mt-1 text-xs text-white/50">Projects currently visible as active launches.</p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Hosting bank</p>
-          <p className="mt-2 text-lg font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Hosting bank</p>
+          <p className="mt-2 text-lg font-semibold text-white">
             {formatCredits(hostingBalanceTotal)}
           </p>
-          <p className="mt-1 text-xs text-eden-muted">
+          <p className="mt-1 text-xs text-white/50">
             Shared remaining hosting Leaf’s across this business.
           </p>
         </div>
@@ -415,11 +415,11 @@ export function ProjectBlueprintPanel({
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="space-y-4">
-          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Create project blueprint
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Define the project side first: what the business is trying to launch, who it serves, and what success looks like.
             </p>
             <div className="mt-4 space-y-3">
@@ -428,44 +428,44 @@ export function ProjectBlueprintPanel({
                 value={createTitle}
                 onChange={(event) => setCreateTitle(event.target.value)}
                 placeholder="Project title"
-                className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               />
               <textarea
                 value={createDescription}
                 onChange={(event) => setCreateDescription(event.target.value)}
                 placeholder="Short project description"
                 rows={3}
-                className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               />
               <textarea
                 value={createGoal}
                 onChange={(event) => setCreateGoal(event.target.value)}
                 placeholder="Goal for this project"
                 rows={3}
-                className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               />
               <button
                 type="button"
                 disabled={pendingAction !== null}
                 onClick={handleCreateProject}
-                className="rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {pendingAction === "create_project" ? "Creating project..." : "Create project"}
               </button>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Existing projects
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Persistent blueprint records for this business. Select one to build agents, test, and publish.
                 </p>
               </div>
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
                 {projects.length} total
               </span>
             </div>
@@ -484,14 +484,14 @@ export function ProjectBlueprintPanel({
                       }}
                       className={`w-full rounded-2xl border p-4 text-left transition-colors ${
                         isSelected
-                          ? "border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.98))]"
-                          : "border-eden-edge bg-eden-bg/50 hover:border-eden-ring hover:bg-white"
+                          ? "border-[#14989a]/50 bg-white/[0.05]"
+                          : "border-white/8 bg-white/[0.04]/50 hover:border-[#14989a]/50 hover:bg-white"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-eden-ink">{project.title}</p>
-                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="text-sm font-semibold text-white">{project.title}</p>
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                             {project.creatorLabel}
                           </p>
                         </div>
@@ -503,8 +503,8 @@ export function ProjectBlueprintPanel({
                           {project.status}
                         </span>
                       </div>
-                      <p className="mt-3 text-sm leading-6 text-eden-muted">{project.description}</p>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs text-eden-muted">
+                      <p className="mt-3 text-sm leading-6 text-white/50">{project.description}</p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/50">
                         <span className="rounded-full bg-white px-2.5 py-1">
                           Hosting {formatCredits(project.hostingRemainingLeaves)}
                         </span>
@@ -519,7 +519,7 @@ export function ProjectBlueprintPanel({
                   );
                 })
               ) : (
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                   No business blueprints exist yet. Create the first project above to start the project side of the workspace.
                 </div>
               )}
@@ -528,16 +528,16 @@ export function ProjectBlueprintPanel({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Project launch state
                 </p>
-                <p className="mt-2 text-lg font-semibold text-eden-ink">
+                <p className="mt-2 text-lg font-semibold text-white">
                   {selectedProject?.title ?? "Select a project"}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   {selectedProject?.goal ??
                     "Choose a project blueprint to see its launch state, hosting bank, and agent foundation."}
                 </p>
@@ -555,21 +555,21 @@ export function ProjectBlueprintPanel({
             {selectedProject ? (
               <>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Publish state</p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Publish state</p>
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {selectedProject.isPublished ? "Published and available" : "Not published"}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {selectedProject.publishedAtLabel ?? "Still inside the builder test loop."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Hosting bank</p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Hosting bank</p>
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {formatCredits(selectedProject.hostingRemainingLeaves)}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {selectedProject.hostingDaysRemaining} days remaining at the current MVP hosting rate.
                     </p>
                   </div>
@@ -579,7 +579,7 @@ export function ProjectBlueprintPanel({
                     type="button"
                     disabled={pendingAction !== null || selectedProject.isActive}
                     onClick={handlePublish}
-                    className="rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "publish_project"
                       ? "Publishing..."
@@ -600,18 +600,18 @@ export function ProjectBlueprintPanel({
                         )}`}
                   </button>
                 </div>
-                <p className="mt-3 text-xs leading-5 text-eden-muted">
+                <p className="mt-3 text-xs leading-5 text-white/50">
                   Hosting is funded from earned Leaf’s only. This does not use the spendable wallet and does not create an external payout.
                 </p>
               </>
             ) : null}
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Agent tree foundation
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Build the first simple team tree for the selected project. This is a stored agent structure only, not a full autonomous orchestration layer.
             </p>
             {selectedProject ? (
@@ -622,27 +622,27 @@ export function ProjectBlueprintPanel({
                     value={agentName}
                     onChange={(event) => setAgentName(event.target.value)}
                     placeholder="Agent name"
-                    className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                    className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   />
                   <input
                     type="text"
                     value={agentRoleTitle}
                     onChange={(event) => setAgentRoleTitle(event.target.value)}
                     placeholder="Role or title"
-                    className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                    className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   />
                   <textarea
                     value={agentInstructions}
                     onChange={(event) => setAgentInstructions(event.target.value)}
                     placeholder="Core instructions for this agent"
                     rows={3}
-                    className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                    className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   />
                   <div className="grid gap-3 sm:grid-cols-2">
                     <select
                       value={agentParentId}
                       onChange={(event) => setAgentParentId(event.target.value)}
-                      className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                      className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                     >
                       <option value="">No parent agent</option>
                       {selectedProject.agents.map((agent) => (
@@ -656,14 +656,14 @@ export function ProjectBlueprintPanel({
                       value={agentBranchLabel}
                       onChange={(event) => setAgentBranchLabel(event.target.value)}
                       placeholder="Branch or team label"
-                      className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                      className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                     />
                   </div>
                   <button
                     type="button"
                     disabled={pendingAction !== null}
                     onClick={handleCreateAgent}
-                    className="rounded-full border border-eden-edge bg-white px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-white/8 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "create_agent" ? "Adding agent..." : "Add agent"}
                   </button>
@@ -673,51 +673,51 @@ export function ProjectBlueprintPanel({
                     selectedProject.agents.map((agent) => (
                       <div
                         key={agent.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">{agent.name}</p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-sm font-semibold text-white">{agent.name}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {agent.roleTitle}
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {agent.parentAgentId ? (
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 Child agent
                               </span>
                             ) : null}
                             {agent.branchLabel ? (
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {agent.branchLabel}
                               </span>
                             ) : null}
                           </div>
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-eden-muted">{agent.instructions}</p>
-                        <p className="mt-2 text-xs text-eden-muted">{agent.createdAtLabel}</p>
+                        <p className="mt-3 text-sm leading-6 text-white/50">{agent.instructions}</p>
+                        <p className="mt-2 text-xs text-white/50">{agent.createdAtLabel}</p>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       No agents have been defined yet. Add the first agent to establish the project team tree.
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                 Select a project before defining agents.
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Runnable project agent
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Run one agent inside Eden using the current project context. This is a controlled execution pass funded from earned Leaf’s available for Eden use.
             </p>
             {selectedProject ? (
@@ -726,7 +726,7 @@ export function ProjectBlueprintPanel({
                   <select
                     value={agentRunAgentId}
                     onChange={(event) => setAgentRunAgentId(event.target.value)}
-                    className="w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                    className="w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   >
                     {selectedProject.agents.length ? null : (
                       <option value="">No project agents available</option>
@@ -737,11 +737,11 @@ export function ProjectBlueprintPanel({
                       </option>
                     ))}
                   </select>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 px-3 py-2 text-sm text-eden-muted">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 px-3 py-2 text-sm text-white/50">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Agent run cost
                     </p>
-                    <p className="mt-1 font-semibold text-eden-ink">
+                    <p className="mt-1 font-semibold text-white">
                       {formatCredits(edenProjectAgentRunLeavesCost)}
                     </p>
                     <p className="mt-1 text-xs">
@@ -754,10 +754,10 @@ export function ProjectBlueprintPanel({
                   onChange={(event) => setAgentRunPrompt(event.target.value)}
                   placeholder="Describe what this agent should do for the project right now"
                   rows={4}
-                  className="mt-4 w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  className="mt-4 w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs leading-5 text-eden-muted">
+                  <p className="text-xs leading-5 text-white/50">
                     This does not touch the consumer wallet. It records a visible internal Leaf’s use event against builder earnings.
                   </p>
                   <button
@@ -768,37 +768,37 @@ export function ProjectBlueprintPanel({
                       currentAvailableForInternalUseCredits < edenProjectAgentRunLeavesCost
                     }
                     onClick={handleRunAgent}
-                    className="rounded-full border border-eden-edge bg-white px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-white/8 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "run_agent"
                       ? "Running agent..."
                       : `Run agent for ${formatCredits(edenProjectAgentRunLeavesCost)}`}
                   </button>
                 </div>
-                <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
                   {agentRunResult && selectedProject.id === agentRunResult.projectId ? (
                     <>
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-eden-ink">
+                          <p className="text-sm font-semibold text-white">
                             {agentRunResult.outputTitle}
                           </p>
-                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                             {agentRunResult.agentName} Â· {agentRunResult.agentRoleTitle}
                           </p>
                         </div>
-                        <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                        <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                           {formatCredits(agentRunResult.costLeaves)}
                         </span>
                       </div>
-                      <p className="mt-3 text-sm leading-6 text-eden-muted">
+                      <p className="mt-3 text-sm leading-6 text-white/50">
                         {agentRunResult.outputSummary}
                       </p>
                       <div className="mt-3 space-y-2">
                         {agentRunResult.outputLines.map((line) => (
                           <div
                             key={line}
-                            className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-muted"
+                            className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white/50"
                           >
                             {line}
                           </div>
@@ -806,17 +806,17 @@ export function ProjectBlueprintPanel({
                       </div>
                     </>
                   ) : (
-                    <p className="text-sm leading-6 text-eden-muted">
+                    <p className="text-sm leading-6 text-white/50">
                       Agent output will appear here after the selected project agent completes a controlled Eden run.
                     </p>
                   )}
                 </div>
                 <div className="mt-4 space-y-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Recent agent runs
                     </p>
-                    <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                    <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                       {selectedProject.agentRuns.length} stored
                     </span>
                   </div>
@@ -824,50 +824,50 @@ export function ProjectBlueprintPanel({
                     selectedProject.agentRuns.map((run) => (
                       <div
                         key={run.id}
-                        className="rounded-2xl border border-eden-edge bg-white p-3"
+                        className="rounded-2xl border border-white/8 bg-white p-3"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {run.agentName}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {run.agentRoleTitle}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/50">
                               {formatCredits(run.costLeaves)}
                             </p>
-                            <p className="mt-1 text-[11px] text-eden-muted">
+                            <p className="mt-1 text-[11px] text-white/50">
                               {run.createdAtLabel}
                             </p>
                           </div>
                         </div>
-                        <p className="mt-3 text-sm leading-6 text-eden-muted">
+                        <p className="mt-3 text-sm leading-6 text-white/50">
                           {run.outputSummary}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                       No agent runs have been recorded yet for this project.
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
                 Select a project before running a project agent.
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Controlled test window
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Run a minimal Eden-side project test before publishing. This output is explicit and controlled for the MVP.
             </p>
             {selectedProject ? (
@@ -877,17 +877,17 @@ export function ProjectBlueprintPanel({
                   onChange={(event) => setTestPrompt(event.target.value)}
                   placeholder="Describe the scenario you want to test"
                   rows={4}
-                  className="mt-4 w-full rounded-2xl border border-eden-edge bg-eden-bg/40 px-3 py-2 text-sm text-eden-ink outline-none transition-colors focus:border-eden-ring"
+                  className="mt-4 w-full rounded-2xl border border-white/8 bg-white/[0.04]/40 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs leading-5 text-eden-muted">
+                  <p className="text-xs leading-5 text-white/50">
                     Current affordability for hosting: {formatCredits(currentAvailableForInternalUseCredits)} earned Leaf’s available for Eden use.
                   </p>
                   <button
                     type="button"
                     disabled={pendingAction !== null}
                     onClick={handleRunTest}
-                    className="rounded-full border border-eden-edge bg-white px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-white/8 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "run_test" ? "Running test..." : "Run controlled test"}
                   </button>
@@ -895,16 +895,16 @@ export function ProjectBlueprintPanel({
               </>
             ) : null}
 
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
               {testResult && selectedProject && testResult.projectId === selectedProject.id ? (
                 <>
-                  <p className="text-sm font-semibold text-eden-ink">{testResult.outputTitle}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{testResult.outputSummary}</p>
+                  <p className="text-sm font-semibold text-white">{testResult.outputTitle}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{testResult.outputSummary}</p>
                   <div className="mt-3 space-y-2">
                     {testResult.outputLines.map((line) => (
                       <div
                         key={line}
-                        className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-muted"
+                        className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white/50"
                       >
                         {line}
                       </div>
@@ -912,7 +912,7 @@ export function ProjectBlueprintPanel({
                   </div>
                 </>
               ) : (
-                <p className="text-sm leading-6 text-eden-muted">
+                <p className="text-sm leading-6 text-white/50">
                   Test output will appear here after the selected project runs a controlled Eden test pass.
                 </p>
               )}

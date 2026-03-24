@@ -1058,7 +1058,7 @@ export function BusinessDashboardPanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="overflow-hidden rounded-[32px] border border-eden-edge bg-[radial-gradient(circle_at_top_left,rgba(255,237,213,0.86),rgba(255,255,255,0.96)_52%,rgba(219,234,254,0.88))] p-5 md:p-6"
+        className="overflow-hidden rounded-[32px] border border-white/8 bg-white/[0.05] p-5 md:p-6"
       >
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(300px,0.82fr)]">
           <div>
@@ -1070,10 +1070,10 @@ export function BusinessDashboardPanel({
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
               Business Workspace
             </p>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
               {businessProfile.name}
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
               {businessProfile.description}
             </p>
             {isSessionCreatedBusiness ? (
@@ -1092,7 +1092,7 @@ export function BusinessDashboardPanel({
               {businessProfile.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-eden-edge bg-white/80 px-3 py-1 text-xs text-eden-muted"
+                  className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-1 text-xs text-white/50"
                 >
                   {tag}
                 </span>
@@ -1103,7 +1103,7 @@ export function BusinessDashboardPanel({
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className="rounded-full border border-eden-edge bg-white/80 px-3 py-2 text-xs font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                  className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-2 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                 >
                   {item.label}
                 </a>
@@ -1121,13 +1121,13 @@ export function BusinessDashboardPanel({
               <motion.article
                 key={metric.label}
                 variants={childVariants}
-                className="rounded-2xl border border-eden-edge bg-white/84 p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
+                className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
               >
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{metric.label}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
                   {metric.value}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">{metric.detail}</p>
+                <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
               </motion.article>
             ))}
           </motion.div>
@@ -1144,11 +1144,11 @@ export function BusinessDashboardPanel({
           <motion.article
             key={`top-${item.id}`}
             variants={childVariants}
-            className="rounded-2xl border border-eden-edge bg-white/92 p-4"
+            className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
           >
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-            <p className="mt-2 text-lg font-semibold tracking-tight text-eden-ink">{item.value}</p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+            <p className="mt-2 text-lg font-semibold tracking-tight text-white">{item.value}</p>
+            <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
           </motion.article>
         ))}
       </motion.div>
@@ -1177,31 +1177,31 @@ export function BusinessDashboardPanel({
           >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/65 p-4">
+                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Business name
                   </p>
-                  <p className="mt-2 text-base font-semibold text-eden-ink">
+                  <p className="mt-2 text-base font-semibold text-white">
                     {businessProfile.name}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/65 p-4">
+                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Status
                   </p>
-                  <p className="mt-2 text-base font-semibold capitalize text-eden-ink">
+                  <p className="mt-2 text-base font-semibold capitalize text-white">
                     {getPipelineStatusLabel(releaseStatus)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 sm:col-span-2">
+                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4 sm:col-span-2">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Short description
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {businessProfile.description}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 sm:col-span-2">
+                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4 sm:col-span-2">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Tags and category
                   </p>
@@ -1209,7 +1209,7 @@ export function BusinessDashboardPanel({
                     {businessProfile.tags.map((tag) => (
                       <span
                         key={`overview-${tag}`}
-                        className="rounded-full border border-eden-edge bg-white px-3 py-1 text-xs text-eden-muted"
+                        className="rounded-full border border-white/8 bg-white px-3 py-1 text-xs text-white/50"
                       >
                         {tag}
                       </span>
@@ -1218,7 +1218,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent activity
                 </p>
@@ -1226,15 +1226,15 @@ export function BusinessDashboardPanel({
                   {recentActivity.map((activity) => (
                     <div
                       key={activity.id}
-                      className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-semibold text-eden-ink">{activity.title}</p>
-                        <span className="whitespace-nowrap text-xs text-eden-muted">
+                        <p className="text-sm font-semibold text-white">{activity.title}</p>
+                        <span className="whitespace-nowrap text-xs text-white/50">
                           {activity.timestamp}
                         </span>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">{activity.message}</p>
+                      <p className="mt-2 text-sm leading-6 text-white/50">{activity.message}</p>
                     </div>
                   ))}
                 </div>
@@ -1250,7 +1250,7 @@ export function BusinessDashboardPanel({
             title="Interactive AI workspace help"
             description="Run mocked Eden AI actions against the active service draft, compare the output, and apply useful changes back into the shared builder form."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                 4 actions
               </span>
             }
@@ -1277,7 +1277,7 @@ export function BusinessDashboardPanel({
             actions={
               <button
                 type="button"
-                className="rounded-full border border-eden-edge bg-white px-3 py-1.5 text-xs font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                className="rounded-full border border-white/8 bg-white px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
               >
                 New placeholder project
               </button>
@@ -1295,8 +1295,8 @@ export function BusinessDashboardPanel({
                   variants={childVariants}
                   className={`rounded-2xl border bg-white p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.3)] ${
                     pipelineSnapshot?.projectId === project.id
-                      ? "border-eden-ring shadow-[0_18px_40px_-24px_rgba(26,115,232,0.35)]"
-                      : "border-eden-edge"
+                      ? "border-[#14989a]/50 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.35)]"
+                      : "border-white/8"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -1304,7 +1304,7 @@ export function BusinessDashboardPanel({
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                         {project.type}
                       </p>
-                      <h3 className="mt-2 text-base font-semibold text-eden-ink">
+                      <h3 className="mt-2 text-base font-semibold text-white">
                         {project.title}
                       </h3>
                     </div>
@@ -1325,14 +1325,14 @@ export function BusinessDashboardPanel({
                       >
                         Release {getPipelineStatusLabel(releaseStatus)}
                       </span>
-                      <span className="rounded-full bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                      <span className="rounded-full bg-eden-bg px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                         Active pipeline target
                       </span>
                     </div>
                   ) : null}
-                  <p className="mt-3 text-sm leading-6 text-eden-muted">{project.summary}</p>
+                  <p className="mt-3 text-sm leading-6 text-white/50">{project.summary}</p>
                   <div className="mt-4">
-                    <div className="flex items-center justify-between text-xs text-eden-muted">
+                    <div className="flex items-center justify-between text-xs text-white/50">
                       <span>Progress</span>
                       <span>{project.progress}%</span>
                     </div>
@@ -1343,13 +1343,13 @@ export function BusinessDashboardPanel({
                       />
                     </div>
                   </div>
-                  <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="mt-4 rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Next milestone
                     </p>
-                    <p className="mt-2 text-sm text-eden-ink">{project.milestone}</p>
+                    <p className="mt-2 text-sm text-white">{project.milestone}</p>
                   </div>
-                  <p className="mt-4 text-xs text-eden-muted">{project.updatedAt}</p>
+                  <p className="mt-4 text-xs text-white/50">{project.updatedAt}</p>
                 </motion.article>
               ))}
             </motion.div>
@@ -1369,21 +1369,21 @@ export function BusinessDashboardPanel({
             title="Create the next active service"
             description="Stage a new local service draft, attach it to the active workspace, and send it through the mocked release pipeline."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                 {workspaceService ? "Local service active" : "Using current service"}
               </span>
             }
           >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
               <div className="space-y-3">
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Active service target
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {pipelineSnapshot?.service?.title ?? businessProfile.name}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {pipelineSnapshot?.service?.description ??
                       "The active service target is still using the shared workspace baseline."}
                   </p>
@@ -1391,7 +1391,7 @@ export function BusinessDashboardPanel({
                     {(pipelineSnapshot?.service?.tags ?? businessProfile.tags).map((tag) => (
                       <span
                         key={`service-builder-${tag}`}
-                        className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[11px] text-eden-muted"
+                        className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
                       >
                         {tag}
                       </span>
@@ -1399,29 +1399,29 @@ export function BusinessDashboardPanel({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.38),rgba(255,255,255,0.96))] p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Builder handoff
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {workspaceService
                       ? "The staged local service is now the active pipeline target."
                       : "Create a local service to replace the current pipeline target."}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     New service drafts start in `Draft`, become the active service for this
                     workspace, and will flow into consumer discovery automatically after the mocked
                     pipeline reaches `Published`.
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Current pricing
                       </p>
-                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                      <p className="mt-2 text-sm font-semibold text-white">
                         {activeServicePricingLabel}
                       </p>
-                      <p className="mt-2 text-xs leading-5 text-eden-muted">
+                      <p className="mt-2 text-xs leading-5 text-white/50">
                         Update the numeric rate in the Service Builder form to change monetization analytics.
                       </p>
                     </div>
@@ -1444,11 +1444,11 @@ export function BusinessDashboardPanel({
                           : "Publish the service to expose the same affordability cue and visible price in discovery."}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Automation layer
                       </p>
-                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                      <p className="mt-2 text-sm font-semibold text-white">
                         {workspaceService?.record.automationDescription
                           ? "Configured"
                           : "Optional"}
@@ -1491,7 +1491,7 @@ export function BusinessDashboardPanel({
                 >
                   {getPipelineStatusLabel(releaseStatus)}
                 </span>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                   {pipelineSnapshot?.updatedAtLabel ?? "Mocked readiness"}
                 </span>
               </div>
@@ -1501,47 +1501,47 @@ export function BusinessDashboardPanel({
               {publishLaunchSummaryCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.26),rgba(255,255,255,0.96))] p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.05] p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </div>
               ))}
             </div>
             <div className="grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Active release target
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Service</p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Service</p>
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {pipelineSnapshot?.service?.title ?? businessProfile.name}
                     </p>
-                    <p className="mt-2 text-xs leading-5 text-eden-muted">
+                    <p className="mt-2 text-xs leading-5 text-white/50">
                       Release status: {getPipelineStatusLabel(releaseStatus)}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Project</p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Project</p>
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {pipelineSnapshot?.project?.title ?? "No active project"}
                     </p>
-                    <p className="mt-2 text-xs leading-5 text-eden-muted">
+                    <p className="mt-2 text-xs leading-5 text-white/50">
                       {pipelineSnapshot?.project?.milestone ?? pipelineSnapshot?.lastActionLabel}
                     </p>
                   </div>
                 </div>
-                <div className="mt-4 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.4),rgba(255,255,255,0.96))] p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Current state</p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">Current state</p>
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {pipelineSnapshot?.lastActionLabel}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Next milestone: {pipelineSnapshot?.nextMilestone ?? businessProfile.nextMilestone}
                   </p>
                 </div>
@@ -1557,24 +1557,24 @@ export function BusinessDashboardPanel({
                     {consumerLaunchPreviewCards.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-current/15 bg-white/75 p-3 text-eden-ink"
+                        className="rounded-2xl border border-current/15 bg-white/75 p-3 text-white"
                       >
-                        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           {item.label}
                         </p>
-                        <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                        <p className="mt-2 text-xs leading-5 text-eden-muted">{item.detail}</p>
+                        <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                        <p className="mt-2 text-xs leading-5 text-white/50">{item.detail}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Pipeline controls
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   These controls mutate mocked local release state only. They are designed to preview the future builder workflow without adding backend persistence.
                 </p>
                 <div className="mt-4">
@@ -1596,7 +1596,7 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={stage.id}
                   variants={childVariants}
-                  className="relative rounded-2xl border border-eden-edge bg-white p-4"
+                  className="relative rounded-2xl border border-white/8 bg-white p-4"
                 >
                   {index < (pipelineSnapshot?.stages.length ?? 0) - 1 ? (
                     <div className="pointer-events-none absolute right-[-1.2rem] top-8 hidden h-px w-[1.8rem] bg-eden-edge lg:block" />
@@ -1606,7 +1606,7 @@ export function BusinessDashboardPanel({
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                         Step {index + 1}
                       </p>
-                      <h3 className="mt-2 text-base font-semibold text-eden-ink">{stage.title}</h3>
+                      <h3 className="mt-2 text-base font-semibold text-white">{stage.title}</h3>
                     </div>
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getPipelineStageClasses(
@@ -1616,13 +1616,13 @@ export function BusinessDashboardPanel({
                       {stage.readiness}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-eden-muted">{stage.summary}</p>
+                  <p className="mt-3 text-sm leading-6 text-white/50">{stage.summary}</p>
                 </motion.article>
               ))}
             </motion.div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Readiness checklist
                 </p>
@@ -1630,7 +1630,7 @@ export function BusinessDashboardPanel({
                   {pipelineSnapshot?.checklist.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-start gap-3 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                      className="flex items-start gap-3 rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                     >
                       <span
                         className={`mt-1 h-2.5 w-2.5 rounded-full ${getChecklistStateClasses(
@@ -1638,8 +1638,8 @@ export function BusinessDashboardPanel({
                         )}`}
                       />
                       <div>
-                        <p className="text-sm font-semibold text-eden-ink">{item.label}</p>
-                        <p className="mt-1 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                        <p className="text-sm font-semibold text-white">{item.label}</p>
+                        <p className="mt-1 text-sm leading-6 text-white/50">{item.detail}</p>
                       </div>
                     </div>
                   ))}
@@ -1647,49 +1647,49 @@ export function BusinessDashboardPanel({
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Publish gate
                   </p>
-                  <p className="mt-2 text-3xl font-semibold tracking-tight text-eden-ink">
+                  <p className="mt-2 text-3xl font-semibold tracking-tight text-white">
                     {pipelineSnapshot?.readinessPercent ?? businessProfile.publishReadinessPercent}%
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Mock publish readiness score based on the active pipeline status, release controls, and readiness checklist.
                   </p>
-                  <div className="mt-4 h-2 rounded-full bg-white/80">
+                  <div className="mt-4 h-2 rounded-full bg-white/[0.05]">
                     <div
                       className="h-2 rounded-full bg-eden-accent"
                       style={{ width: `${pipelineSnapshot?.readinessPercent ?? businessProfile.publishReadinessPercent}%` }}
                     />
                   </div>
-                  <div className="mt-4 rounded-2xl border border-eden-edge bg-white/88 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Next unblocker
                     </p>
-                    <p className="mt-2 text-sm text-eden-ink">
+                    <p className="mt-2 text-sm text-white">
                       {pipelineSnapshot?.nextMilestone ?? "Finish the manual QA pass and confirm the fee summary copy before publish."}
                     </p>
-                    <p className="mt-2 text-xs leading-5 text-eden-muted">
+                    <p className="mt-2 text-xs leading-5 text-white/50">
                       {pipelineSnapshot?.lastActionLabel}
                     </p>
                   </div>
                 </div>
 
                 {publishPrepSuggestions.length ? (
-                  <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                  <div className="rounded-2xl border border-white/8 bg-white p-4">
                     <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                           AI publish fixes
                         </p>
-                        <p className="mt-2 text-sm leading-6 text-eden-muted">
+                        <p className="mt-2 text-sm leading-6 text-white/50">
                           Checklist-specific suggestions from the currently selected `Prepare for Publish` assistant run.
                         </p>
                       </div>
                       <a
                         href="#assistant"
-                        className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                        className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                       >
                         Review assistant
                       </a>
@@ -1698,7 +1698,7 @@ export function BusinessDashboardPanel({
                       {publishPrepSuggestions.map((item) => (
                         <div
                           key={item.id}
-                          className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                          className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                         >
                           <div className="flex items-start gap-3">
                             <span
@@ -1707,15 +1707,15 @@ export function BusinessDashboardPanel({
                               )}`}
                             />
                             <div>
-                              <p className="text-sm font-semibold text-eden-ink">{item.label}</p>
-                              <p className="mt-1 text-sm leading-6 text-eden-muted">{item.detail}</p>
-                              <p className="mt-2 text-sm leading-6 text-eden-ink">{item.suggestion}</p>
+                              <p className="text-sm font-semibold text-white">{item.label}</p>
+                              <p className="mt-1 text-sm leading-6 text-white/50">{item.detail}</p>
+                              <p className="mt-2 text-sm leading-6 text-white">{item.suggestion}</p>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <p className="mt-4 text-xs leading-5 text-eden-muted">
+                    <p className="mt-4 text-xs leading-5 text-white/50">
                       Apply the selected publish-prep output in the Business AI Assistant to write draft updates back into the active service.
                     </p>
                   </div>
@@ -1740,7 +1740,7 @@ export function BusinessDashboardPanel({
                 >
                   {getPipelineStatusLabel(releaseStatus)}
                 </span>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                   {recentReleaseEvents.length} recent events
                 </span>
               </div>
@@ -1756,11 +1756,11 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-                  <p className="mt-2 text-xl font-semibold tracking-tight text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+                  <p className="mt-2 text-xl font-semibold tracking-tight text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </motion.article>
               ))}
             </motion.div>
@@ -1772,13 +1772,13 @@ export function BusinessDashboardPanel({
                 animate="visible"
                 className="space-y-3"
               >
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                         Event filters
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">
+                      <p className="mt-2 text-sm leading-6 text-white/50">
                         Filter the shared mocked transition feed by the next release state.
                       </p>
                     </div>
@@ -1790,8 +1790,8 @@ export function BusinessDashboardPanel({
                           onClick={() => setReleaseEventFilter(filter.id)}
                           className={`rounded-full border px-3 py-1.5 text-xs font-medium uppercase tracking-[0.12em] transition-colors ${
                             releaseEventFilter === filter.id
-                              ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                              : "border-eden-edge bg-eden-bg text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                              ? "border-[#14989a]/50 bg-[#14989a]/15 text-white"
+                              : "border-white/8 bg-eden-bg text-white/50 hover:border-[#14989a]/50 hover:text-white"
                           }`}
                         >
                           {filter.label}
@@ -1806,12 +1806,12 @@ export function BusinessDashboardPanel({
                     <motion.article
                       key={event.id}
                       variants={childVariants}
-                      className="rounded-2xl border border-eden-edge bg-white p-4"
+                      className="rounded-2xl border border-white/8 bg-white p-4"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {getPipelineStatusLabel(event.previousStatus)} to{" "}
                               {getPipelineStatusLabel(event.newStatus)}
                             </p>
@@ -1823,14 +1823,14 @@ export function BusinessDashboardPanel({
                               {getPipelineStatusLabel(event.newStatus)}
                             </span>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-eden-muted">{event.detail}</p>
-                          <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="mt-2 text-sm leading-6 text-white/50">{event.detail}</p>
+                          <p className="mt-3 text-xs uppercase tracking-[0.12em] text-white/50">
                             Actor: {event.actor}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Timestamp</p>
-                          <p className="mt-1 text-sm font-semibold text-eden-ink">
+                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Timestamp</p>
+                          <p className="mt-1 text-sm font-semibold text-white">
                             {formatPipelineTimestamp(event.timestamp)}
                           </p>
                         </div>
@@ -1840,7 +1840,7 @@ export function BusinessDashboardPanel({
                 ) : (
                   <motion.div
                     variants={childVariants}
-                    className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted"
+                    className="rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50"
                   >
                     {releaseEventFilter === "all"
                       ? "No mocked transition history has been recorded for this workspace yet. Use the pipeline controls above to move the active release through build, testing, ready, and publish states."
@@ -1850,36 +1850,36 @@ export function BusinessDashboardPanel({
               </motion.div>
 
               <div className="space-y-3">
-                <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(255,237,213,0.45),rgba(255,255,255,0.96))] p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Current release summary
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">
+                  <p className="mt-2 text-lg font-semibold text-white">
                     {pipelineSnapshot?.service?.title ?? businessProfile.name}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {pipelineSnapshot?.project
                       ? `${pipelineSnapshot.project.title} is the active build target and is currently ${getPipelineStatusLabel(releaseStatus).toLowerCase()}.`
                       : `The active release target is currently ${getPipelineStatusLabel(releaseStatus).toLowerCase()} in mock mode.`}
                   </p>
-                  <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <p className="mt-3 text-xs uppercase tracking-[0.12em] text-white/50">
                     Visibility: {pipelineSnapshot?.visibilityLabel ?? businessProfile.visibility}
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Next release step
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {pipelineSnapshot?.nextMilestone ?? businessProfile.nextMilestone}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Latest activity: {pipelineSnapshot?.lastActionLabel ?? "Shared mock release baseline."}
                   </p>
-                  <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Readiness</p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                  <div className="mt-4 rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Readiness</p>
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {pipelineSnapshot?.readinessPercent ?? businessProfile.publishReadinessPercent}% ready for publish
                     </p>
                   </div>
@@ -1896,7 +1896,7 @@ export function BusinessDashboardPanel({
             title="Balance, usage, and fee clarity"
             description="The billing layer is still placeholder-only, but the workspace now exposes spendable Leaf’s, earned Leaf’s, usage, hosting, and fee visibility together."
             actions={
-              <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                 Transparent fees
               </span>
             }
@@ -1928,7 +1928,7 @@ export function BusinessDashboardPanel({
                         : "Consumers will see the same visible-price, Leaf’s-only guidance after this service is published."}
                     </p>
                   </div>
-                  <span className="rounded-full border border-current/20 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
+                  <span className="rounded-full border border-current/20 bg-white/[0.04] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
                     {consumerReadinessValue}
                   </span>
                 </div>
@@ -1937,13 +1937,13 @@ export function BusinessDashboardPanel({
                 <motion.div
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-xl font-semibold text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="mt-2 text-xl font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -1952,18 +1952,18 @@ export function BusinessDashboardPanel({
               {analyticsHighlights.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.35),rgba(255,255,255,0.98))] p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.05] p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="mt-2 text-lg font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-eden-bg/65 p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Transparent fee summary
               </p>
@@ -1971,13 +1971,13 @@ export function BusinessDashboardPanel({
                 {billingSnapshot?.feeBreakdown.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-start justify-between gap-3 border-b border-eden-edge/70 pb-3 last:border-b-0 last:pb-0"
+                    className="flex items-start justify-between gap-3 border-b border-white/8/70 pb-3 last:border-b-0 last:pb-0"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-eden-ink">{item.label}</p>
-                      <p className="mt-1 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <p className="mt-1 text-sm leading-6 text-white/50">{item.detail}</p>
                     </div>
-                    <span className="whitespace-nowrap text-sm font-semibold text-eden-ink">
+                    <span className="whitespace-nowrap text-sm font-semibold text-white">
                       {item.value}
                     </span>
                   </div>
@@ -1986,17 +1986,17 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                       Builder payout accounting
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {payoutAccounting.accountingRuleLabel}
                     </p>
                   </div>
-                  <span className="rounded-full border border-eden-edge bg-white/90 px-3 py-1 text-xs text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                     {payoutAccounting.payoutStatusLabel}
                   </span>
                 </div>
@@ -2004,19 +2004,19 @@ export function BusinessDashboardPanel({
                   {payoutAccountingItems.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-eden-edge bg-white p-3"
+                      className="rounded-2xl border border-white/8 bg-white p-3"
                     >
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         {item.label}
                       </p>
-                      <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                      <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout-ready services
                 </p>
@@ -2025,38 +2025,38 @@ export function BusinessDashboardPanel({
                     payoutAccounting.perService.slice(0, 4).map((service) => (
                       <div
                         key={service.serviceId}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">{service.serviceTitle}</p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-sm font-semibold text-white">{service.serviceTitle}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Unpaid earnings: {formatCredits(service.unpaidEarningsCredits)}
                             </p>
                             {service.internalUseCredits > 0 ? (
-                              <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              <p className="mt-1 text-sm leading-6 text-white/50">
                                 Used internally: {formatCredits(service.internalUseCredits)}
                               </p>
                             ) : null}
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(service.payoutReadyCredits)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">Payout-ready</p>
-                            <p className="mt-2 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">Payout-ready</p>
+                            <p className="mt-2 text-xs text-white/50">
                               Holdback: {formatCredits(service.holdbackCredits)}
                             </p>
-                            <p className="mt-2 text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                            <p className="mt-2 text-xs text-white/50">{service.lastUsedAtLabel}</p>
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       Service-level payout accounting will appear here once the active business records priced usage.
                     </div>
                   )}
@@ -2065,17 +2065,17 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                       Payout history
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       Persistent payout settlement records for this business. These rows adjust paid-out and unpaid totals without sending any real payout.
                     </p>
                   </div>
-                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                     {payoutAccounting.historySource === "persistent"
                       ? "Persistent records"
                       : "No persistent records"}
@@ -2086,12 +2086,12 @@ export function BusinessDashboardPanel({
                     payoutAccounting.payoutHistory.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {formatCredits(item.amountCredits)}
                               </p>
                               <span
@@ -2102,21 +2102,21 @@ export function BusinessDashboardPanel({
                                 {formatPayoutSettlementStatus(item.status)}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {item.reference ?? "No payout reference recorded."}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               {item.notes ?? "Internal accounting note not provided."}
                             </p>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                               Created
                             </p>
-                            <p className="mt-1 text-sm font-semibold text-eden-ink">
+                            <p className="mt-1 text-sm font-semibold text-white">
                               {item.createdAtLabel}
                             </p>
-                            <p className="mt-2 text-xs text-eden-muted">
+                            <p className="mt-2 text-xs text-white/50">
                               {item.settledAtLabel
                                 ? `Settled ${item.settledAtLabel}`
                                 : "Not settled yet"}
@@ -2126,65 +2126,65 @@ export function BusinessDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       No payout settlement records exist for this business yet. The Owner Dashboard can record internal mock settlements, and those rows will appear here immediately.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout status overview
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Settled records
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.statusOverview.settledCount}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatCredits(
                         payoutAccounting.statusOverview.settledSettlementCredits,
                       )} marked as paid out
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Pending records
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.statusOverview.pendingCount}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatCredits(
                         payoutAccounting.statusOverview.pendingSettlementCredits,
                       )} queued internally
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Canceled records
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.statusOverview.canceledCount}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {formatCredits(
                         payoutAccounting.statusOverview.canceledSettlementCredits,
                       )} removed from settlement history
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Current status
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {payoutAccounting.payoutStatusLabel}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       Unpaid {formatCredits(payoutAccounting.unpaidEarningsCredits)} | Ready{" "}
                       {formatCredits(payoutAccounting.payoutReadyCredits)}
                     </p>
@@ -2194,41 +2194,41 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                       Internal earned Leaf’s use
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       Builders can now reuse earned Leaf’s for internal Eden work without converting them into the spendable wallet or an external payout.
                     </p>
                   </div>
-                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                     {formatCredits(payoutAccounting.availableForInternalUseCredits)} available
                   </span>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Used internally
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits)}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       {payoutAccounting.statusOverview.internalUseCount} internal Eden use record
                       {payoutAccounting.statusOverview.internalUseCount === 1 ? "" : "s"} applied.
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Remaining earned Leaf’s
                     </p>
-                    <p className="mt-2 text-lg font-semibold text-eden-ink">
+                    <p className="mt-2 text-lg font-semibold text-white">
                       {formatCredits(payoutAccounting.availableForInternalUseCredits)}
                     </p>
-                    <p className="mt-1 text-xs text-eden-muted">
+                    <p className="mt-1 text-xs text-white/50">
                       This remaining earned balance stays internal until future payout or transfer rails exist.
                     </p>
                   </div>
@@ -2254,17 +2254,17 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                       Internal use history
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       Persistent internal Eden-use rows for this business. These entries reduce remaining earned Leaf’s without touching Stripe-funded spendable Leaf’s.
                     </p>
                   </div>
-                  <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                     {payoutAccounting.internalUseHistorySource === "persistent"
                       ? "Persistent records"
                       : "No persistent records"}
@@ -2275,31 +2275,31 @@ export function BusinessDashboardPanel({
                     payoutAccounting.internalUseHistory.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {formatCredits(item.amountCredits)}
                               </p>
                               <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
                                 {item.usageTypeLabel}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {item.reference ?? "No internal-use reference recorded."}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               {item.actorLabel}
                               {item.notes ? ` | ${item.notes}` : ""}
                             </p>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                               Recorded
                             </p>
-                            <p className="mt-1 text-sm font-semibold text-eden-ink">
+                            <p className="mt-1 text-sm font-semibold text-white">
                               {item.createdAtLabel}
                             </p>
                           </div>
@@ -2307,7 +2307,7 @@ export function BusinessDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       No internal earned-Leaf’s usage has been recorded for this business yet.
                     </div>
                   )}
@@ -2316,7 +2316,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest usage services
                 </p>
@@ -2325,17 +2325,17 @@ export function BusinessDashboardPanel({
                     serviceUsageLeaders.slice(0, 3).map((service, index) => (
                       <div
                         key={service.serviceId}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {service.serviceTitle}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {getServicePricingDisplay({
                                 pricingModel: service.pricingModel,
                                 pricePerUse: service.pricePerUseCredits,
@@ -2343,19 +2343,19 @@ export function BusinessDashboardPanel({
                               })}
                             </p>
                           </div>
-                          <p className="text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                          <p className="text-xs text-white/50">{service.lastUsedAtLabel}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       Highest-usage services will appear once the workspace records tracked service runs.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest earning services
                 </p>
@@ -2364,25 +2364,25 @@ export function BusinessDashboardPanel({
                     serviceEarningLeaders.slice(0, 3).map((service, index) => (
                       <div
                         key={service.serviceId}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {service.serviceTitle}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Builder keeps{" "}
                               {formatCredits(service.monetization.estimatedBuilderEarningsCredits)}
                               {" "}from {formatCredits(service.monetization.estimatedGrossCredits)} gross.
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               Eden fee share {formatCredits(
                                 service.monetization.estimatedPlatformEarningsCredits,
                               )}
                             </p>
                           </div>
-                          <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                          <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {getServicePricingDisplay({
                               pricingModel: service.pricingModel,
                               pricePerUse: service.pricePerUseCredits,
@@ -2393,14 +2393,14 @@ export function BusinessDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       Pricing-based earning leaders appear here once the active business records priced usage.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent usage momentum
                 </p>
@@ -2412,18 +2412,18 @@ export function BusinessDashboardPanel({
                       .map((service) => (
                         <div
                           key={service.serviceId}
-                          className="rounded-2xl border border-eden-edge bg-white p-3"
+                          className="rounded-2xl border border-white/8 bg-white p-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {service.serviceTitle}
                               </p>
-                              <p className="mt-2 text-sm leading-6 text-eden-muted">
+                              <p className="mt-2 text-sm leading-6 text-white/50">
                                 {service.recentMomentumCount} of the latest {recentUsageWindow.length} tracked
                                 runs landed on this service.
                               </p>
-                              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                                 {getServicePricingDisplay({
                                   pricingModel: service.pricingModel,
                                   pricePerUse: service.pricePerUseCredits,
@@ -2431,12 +2431,12 @@ export function BusinessDashboardPanel({
                                 })}
                               </p>
                             </div>
-                            <p className="text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                            <p className="text-xs text-white/50">{service.lastUsedAtLabel}</p>
                           </div>
                         </div>
                       ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50">
                       Momentum appears after fresh usage events arrive. The latest eight tracked runs are used for this quick pulse.
                     </div>
                   )}
@@ -2444,7 +2444,7 @@ export function BusinessDashboardPanel({
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Recent Eden transactions
               </p>
@@ -2452,11 +2452,11 @@ export function BusinessDashboardPanel({
                 {billingSnapshot?.recentTransactions.map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3 md:flex-row md:items-start md:justify-between"
+                    className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-eden-bg/60 p-3 md:flex-row md:items-start md:justify-between"
                   >
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm font-semibold text-eden-ink">{transaction.title}</p>
+                        <p className="text-sm font-semibold text-white">{transaction.title}</p>
                         <span
                           className={`rounded-full px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getTransactionDirectionClasses(
                             transaction.direction,
@@ -2465,16 +2465,16 @@ export function BusinessDashboardPanel({
                           {transaction.direction}
                         </span>
                         {transaction.simulated ? (
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             Local mock
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">{transaction.detail}</p>
+                      <p className="mt-2 text-sm leading-6 text-white/50">{transaction.detail}</p>
                     </div>
                     <div className="text-left md:text-right">
-                      <p className="text-sm font-semibold text-eden-ink">{transaction.amountLabel}</p>
-                      <p className="mt-1 text-xs text-eden-muted">{transaction.timestamp}</p>
+                      <p className="text-sm font-semibold text-white">{transaction.amountLabel}</p>
+                      <p className="mt-1 text-xs text-white/50">{transaction.timestamp}</p>
                     </div>
                   </div>
                 ))}
@@ -2482,7 +2482,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(300px,0.94fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Per-service usage
                 </p>
@@ -2491,15 +2491,15 @@ export function BusinessDashboardPanel({
                     usageMetrics.perService.map((service) => (
                       <div
                         key={service.serviceId}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">{service.serviceTitle}</p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-sm font-semibold text-white">{service.serviceTitle}</p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Current rate:{" "}
                               {getServicePricingDisplay({
                                 pricingModel: service.pricingModel,
@@ -2507,26 +2507,26 @@ export function BusinessDashboardPanel({
                                 pricingUnit: service.pricingUnit,
                               })}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Estimated builder earnings:{" "}
                               {formatCredits(service.monetization.estimatedBuilderEarningsCredits)}.
                             </p>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(service.monetization.estimatedPlatformEarningsCredits)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">Eden fee share</p>
-                            <p className="mt-2 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">Eden fee share</p>
+                            <p className="mt-2 text-xs text-white/50">
                               Gross: {formatCredits(service.monetization.estimatedGrossCredits)}
                             </p>
-                            <p className="mt-2 text-xs text-eden-muted">{service.lastUsedAtLabel}</p>
+                            <p className="mt-2 text-xs text-white/50">{service.lastUsedAtLabel}</p>
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       No service usage has been tracked for this workspace yet. Use the mock transaction controls to simulate service usage and populate this view.
                     </div>
                   )}
@@ -2534,7 +2534,7 @@ export function BusinessDashboardPanel({
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-eden-edge bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Recent usage events
                   </p>
@@ -2543,62 +2543,62 @@ export function BusinessDashboardPanel({
                       usageMetrics.recentUsageEvents.map((event) => (
                         <div
                           key={event.id}
-                          className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                          className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
-                              <p className="text-sm font-semibold text-eden-ink">{event.serviceTitle}</p>
-                              <p className="mt-1 text-sm leading-6 text-eden-muted">
+                              <p className="text-sm font-semibold text-white">{event.serviceTitle}</p>
+                              <p className="mt-1 text-sm leading-6 text-white/50">
                                 {formatCredits(event.creditsUsed)} of spendable Leaf’s used through {event.usageType.replace(/_/g, " ")}.
                               </p>
-                              <p className="mt-1 text-xs text-eden-muted">
+                              <p className="mt-1 text-xs text-white/50">
                                 Gross estimate: {formatCredits(event.estimatedGrossCredits)}
                               </p>
-                              <p className="mt-1 text-xs text-eden-muted">
+                              <p className="mt-1 text-xs text-white/50">
                                 Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
                                 {formatCredits(event.platformFeeCredits)}
                               </p>
                             </div>
-                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                               {event.source === "persistent" ? "Persistent" : "Mock fallback"}
                             </span>
                           </div>
-                          <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                          <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
                             {event.timestampLabel}
                           </p>
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                      <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                         Usage events will appear here after the active service is run through the mocked execution flow.
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Monetization-ready projection
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     {usageMetrics.monetization.pricingRuleLabel}
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Estimated gross</p>
-                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Estimated gross</p>
+                      <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedGrossCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Builder keeps</p>
-                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Builder keeps</p>
+                      <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Eden fee share</p>
-                      <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Eden fee share</p>
+                      <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
                       </p>
                     </div>
@@ -2608,7 +2608,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by value
                 </p>
@@ -2617,45 +2617,45 @@ export function BusinessDashboardPanel({
                     topCustomersByValue.slice(0, 3).map((customer, index) => (
                       <div
                         key={`${customer.userId ?? customer.userDisplayName}-value`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {customer.userDisplayName}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {customer.username ? `@${customer.username}` : "Guest wallet"}
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Projected value {formatCredits(customer.projectedCustomerValueCredits)} across{" "}
                               {customer.perService.length} service
                               {customer.perService.length === 1 ? "" : "s"}.
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               Top service: {customer.topServiceTitle}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {formatCredits(
                                 customer.monetization.estimatedBuilderEarningsCredits,
                               )}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">Builder value</p>
+                            <p className="mt-1 text-xs text-white/50">Builder value</p>
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       Customer value leaders appear here after the active business records tracked usage.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by usage
                 </p>
@@ -2664,48 +2664,48 @@ export function BusinessDashboardPanel({
                     topCustomersByUsage.slice(0, 3).map((customer, index) => (
                       <div
                         key={`${customer.userId ?? customer.userDisplayName}-usage`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {index + 1}. {customer.userDisplayName}
                             </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                               {customer.usageCount} runs | {customer.usageSharePercent}% of tracked usage
                             </p>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Projected value {formatCredits(customer.projectedCustomerValueCredits)}.
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">{customer.lastUsedAtLabel}</p>
+                            <p className="mt-1 text-xs text-white/50">{customer.lastUsedAtLabel}</p>
                           </div>
-                          <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                          <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {customer.topServiceTitle}
                           </span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       Usage leaders appear here once tracked customers accumulate across the active services.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.45),rgba(255,255,255,0.96))] p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Customer growth pulse
                 </p>
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest value customer
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {highestValueCustomer?.userDisplayName ?? "No customer value yet"}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {highestValueCustomer
                         ? `${formatCredits(highestValueCustomer.projectedCustomerValueCredits)} projected value with ${formatCredits(
                             highestValueCustomer.monetization.estimatedBuilderEarningsCredits,
@@ -2713,34 +2713,34 @@ export function BusinessDashboardPanel({
                         : "Projected customer value appears once priced service usage is tracked."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest usage customer
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {highestUsageCustomer?.userDisplayName ?? "No usage leader yet"}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {highestUsageCustomer
                         ? `${highestUsageCustomer.usageCount} runs and ${highestUsageCustomer.usageSharePercent}% of tracked demand.`
                         : "Usage concentration appears once multiple tracked runs are tied to customers."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Latest customer activity
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {latestCustomerActivity?.userDisplayName ?? "No recent customer activity"}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {latestCustomerActivity
                         ? `${latestCustomerActivity.userDisplayName} used ${latestCustomerActivity.serviceTitle} for ${formatCredits(
                             latestCustomerActivity.creditsUsed,
                           )}.`
                         : "Recent customer activity appears here after tracked service runs are recorded."}
                     </p>
-                    <p className="mt-2 text-xs text-eden-muted">
+                    <p className="mt-2 text-xs text-white/50">
                       {latestCustomerActivity?.timestampLabel ?? "Waiting for the next tracked customer event."}
                     </p>
                   </div>
@@ -2749,7 +2749,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by usage
                 </p>
@@ -2758,15 +2758,15 @@ export function BusinessDashboardPanel({
                     usageMetrics.topCustomers.map((customer) => (
                       <div
                         key={customer.userId ?? `guest-${customer.userDisplayName}`}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {customer.userDisplayName}
                               </p>
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {customer.isAnonymousUser
                                   ? "Guest"
                                   : customer.username
@@ -2774,29 +2774,29 @@ export function BusinessDashboardPanel({
                                     : "Customer"}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               {customer.usageCount} runs across {customer.perService.length} service
                               {customer.perService.length === 1 ? "" : "s"}.
                             </p>
-                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                            <p className="mt-1 text-sm leading-6 text-white/50">
                               Top service: {customer.topServiceTitle}
                             </p>
-                            <p className="mt-1 text-sm leading-6 text-eden-muted">
+                            <p className="mt-1 text-sm leading-6 text-white/50">
                               Estimated customer value:{" "}
                               {formatCredits(customer.projectedCustomerValueCredits)}
                             </p>
                           </div>
                           <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-eden-ink">
+                            <p className="text-sm font-semibold text-white">
                               {customer.usageSharePercent}% of tracked runs
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               Builder earnings:{" "}
                               {formatCredits(
                                 customer.monetization.estimatedBuilderEarningsCredits,
                               )}
                             </p>
-                            <p className="mt-2 text-xs text-eden-muted">
+                            <p className="mt-2 text-xs text-white/50">
                               {customer.lastUsedAtLabel}
                             </p>
                           </div>
@@ -2804,7 +2804,7 @@ export function BusinessDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       Customer usage rankings will populate after tracked service runs are recorded
                       for this workspace.
                     </div>
@@ -2812,7 +2812,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent customer activity
                 </p>
@@ -2821,41 +2821,41 @@ export function BusinessDashboardPanel({
                     usageMetrics.recentCustomerActivity.map((event) => (
                       <div
                         key={event.id}
-                        className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-eden-ink">
+                              <p className="text-sm font-semibold text-white">
                                 {event.userDisplayName}
                               </p>
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {event.username ? `@${event.username}` : "Guest wallet"}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-eden-muted">
+                            <p className="mt-2 text-sm leading-6 text-white/50">
                               Used {event.serviceTitle} for {formatCredits(event.creditsUsed)} of spendable Leaf’s.
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               Estimated customer value:{" "}
                               {formatCredits(event.estimatedGrossCredits)}
                             </p>
-                            <p className="mt-1 text-xs text-eden-muted">
+                            <p className="mt-1 text-xs text-white/50">
                               Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
                               {formatCredits(event.platformFeeCredits)}
                             </p>
                           </div>
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {event.source === "persistent" ? "Persistent" : "Mock fallback"}
                           </span>
                         </div>
-                        <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
                           {event.timestampLabel}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
                       Recent customer activity appears here once the active business records
                       service usage events.
                     </div>
@@ -2882,7 +2882,7 @@ export function BusinessDashboardPanel({
             actions={
               <button
                 type="button"
-                className="rounded-full border border-eden-edge bg-white px-3 py-1.5 text-xs font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                className="rounded-full border border-white/8 bg-white px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
               >
                 Edit placeholders
               </button>
@@ -2898,13 +2898,13 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-eden-edge bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white p-4"
                 >
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-base font-semibold text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="mt-2 text-base font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </motion.article>
               ))}
             </motion.div>
@@ -2927,17 +2927,17 @@ export function BusinessWorkspaceStarterPanel({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="overflow-hidden rounded-[32px] border border-eden-edge bg-[radial-gradient(circle_at_top_left,rgba(219,234,254,0.7),rgba(255,255,255,0.96)_56%,rgba(255,237,213,0.75))] p-5 md:p-6"
+      className="overflow-hidden rounded-[32px] border border-white/8 bg-white/[0.05] p-5 md:p-6"
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
             Business Workspace
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">
             Create your first mocked Eden business
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
             This business-role session does not have an active workspace yet. Start with the
             mocked creation flow, review the idea-to-business summary, and then enter the builder
             shell with a live local business context.
@@ -2945,31 +2945,31 @@ export function BusinessWorkspaceStarterPanel({
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/business/create?source=business_dashboard"
-              className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70"
+              className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
             >
               Start business creation
             </Link>
-            <span className="rounded-xl border border-eden-edge bg-white/85 px-4 py-2 text-sm text-eden-muted">
+            <span className="rounded-xl border border-white/8 bg-white/85 px-4 py-2 text-sm text-white/50">
               Active operator: {session.user.displayName}
             </span>
           </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               What you will define
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Name, description, category, tags, audience, monetization placeholder, and a review
               step before the workspace opens.
             </p>
           </div>
-          <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Result
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Eden will keep the business local to this mock session and treat it like the active
               workspace for the Business Dashboard.
             </p>

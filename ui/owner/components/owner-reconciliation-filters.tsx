@@ -31,8 +31,8 @@ export function OwnerReconciliationFilters({
             onClick={() => onChange(option.value)}
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors ${
               isActive
-                ? "border-eden-ring bg-eden-ink text-white"
-                : "border-eden-edge bg-white text-eden-ink hover:border-eden-ring hover:bg-eden-bg"
+                ? "border-[#14989a]/50 bg-eden-ink text-white"
+                : "border-white/8 bg-white text-white hover:border-[#14989a]/50 hover:bg-white/[0.04]"
             }`}
             aria-pressed={isActive}
           >
@@ -40,7 +40,7 @@ export function OwnerReconciliationFilters({
             {typeof option.count === "number" ? (
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] ${
-                  isActive ? "bg-white/20 text-white" : "bg-eden-bg text-eden-muted"
+                  isActive ? "bg-white/20 text-white" : "bg-white/[0.04] text-white/50"
                 }`}
               >
                 {option.count}

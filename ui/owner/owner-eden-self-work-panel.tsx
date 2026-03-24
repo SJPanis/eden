@@ -97,16 +97,16 @@ export function OwnerEdenSelfWorkPanel({
   }
 
   return (
-    <section className="rounded-[28px] border border-eden-edge bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+    <section className="rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Eden self-work loop
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-eden-ink">
+          <h2 className="mt-3 text-2xl font-semibold text-white">
             Owner-approved post-deploy control loop
           </h2>
-          <p className="mt-3 text-sm leading-6 text-eden-muted">
+          <p className="mt-3 text-sm leading-6 text-white/50">
             Eden can now pull the next approved Eden-core task into the owner-only
             internal sandbox runtime. The queue stays canonical in repo state, and
             execution records stay in real sandbox task rows for review.
@@ -123,21 +123,21 @@ export function OwnerEdenSelfWorkPanel({
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         <div className="space-y-4">
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Scope
                 </p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">
+                <p className="mt-2 text-sm font-semibold text-white">
                   {initialState.scopeLabel}
                 </p>
               </div>
-              <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                 {initialState.reviewModeLabel}
               </span>
             </div>
-            <p className="mt-3 text-sm leading-6 text-eden-muted">
+            <p className="mt-3 text-sm leading-6 text-white/50">
               {initialState.scopeDetail}
             </p>
             <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
@@ -145,46 +145,46 @@ export function OwnerEdenSelfWorkPanel({
             </div>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Queue file
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.queuePath}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Timeline file
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.timelinePath}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Sandbox runtime
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.sandboxRuntimeName ?? "Not registered yet"}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <dt className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Runtime status
                 </dt>
-                <dd className="mt-1 text-sm font-semibold text-eden-ink">
+                <dd className="mt-1 text-sm font-semibold text-white">
                   {initialState.sandboxRuntimeStatusLabel ?? "Unavailable"}
                 </dd>
               </div>
             </dl>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Control inputs
               </p>
-              <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                 {initialState.inputs.length} tracked
               </span>
             </div>
@@ -192,14 +192,14 @@ export function OwnerEdenSelfWorkPanel({
               {initialState.inputs.map((input) => (
                 <div
                   key={input.id}
-                  className="rounded-2xl border border-eden-edge bg-white p-3"
+                  className="rounded-2xl border border-white/8 bg-white p-3"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-eden-ink">
+                      <p className="text-sm font-semibold text-white">
                         {input.label}
                       </p>
-                      <p className="mt-1 text-xs text-eden-muted">
+                      <p className="mt-1 text-xs text-white/50">
                         {input.repoPath}
                       </p>
                     </div>
@@ -220,13 +220,13 @@ export function OwnerEdenSelfWorkPanel({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Next approved Eden tasks
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Queue only one approved Eden-core task at a time into the internal sandbox.
                 </p>
               </div>
@@ -234,7 +234,7 @@ export function OwnerEdenSelfWorkPanel({
                 type="button"
                 disabled={!initialState.ready || isPending}
                 onClick={handleQueueNextTask}
-                className="rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isPending ? "Queueing..." : "Queue next approved task"}
               </button>
@@ -258,16 +258,16 @@ export function OwnerEdenSelfWorkPanel({
                   key={item.id}
                   className={`rounded-2xl border p-4 ${
                     item.isNextApproved
-                      ? "border-eden-ring bg-white"
-                      : "border-eden-edge bg-white"
+                      ? "border-[#14989a]/50 bg-white"
+                      : "border-white/8 bg-white"
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="max-w-2xl">
-                      <p className="text-sm font-semibold text-eden-ink">
+                      <p className="text-sm font-semibold text-white">
                         {item.title}
                       </p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
                         {item.chapter} | {item.laneLabel}
                       </p>
                     </div>
@@ -279,19 +279,19 @@ export function OwnerEdenSelfWorkPanel({
                       {item.approvalStateLabel}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-eden-muted">
+                  <p className="mt-3 text-sm leading-6 text-white/50">
                     {item.summary}
                   </p>
                   <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Acceptance
                       </p>
-                      <div className="mt-3 space-y-2 text-sm text-eden-muted">
+                      <div className="mt-3 space-y-2 text-sm text-white/50">
                         {item.acceptanceCriteria.map((criterion) => (
                           <div
                             key={criterion}
-                            className="rounded-2xl border border-eden-edge bg-white px-3 py-2"
+                            className="rounded-2xl border border-white/8 bg-white px-3 py-2"
                           >
                             {criterion}
                           </div>
@@ -299,12 +299,12 @@ export function OwnerEdenSelfWorkPanel({
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Queue state
                       </p>
-                      <div className="mt-3 space-y-2 text-sm text-eden-muted">
-                        <div className="rounded-2xl border border-eden-edge bg-white px-3 py-2">
+                      <div className="mt-3 space-y-2 text-sm text-white/50">
+                        <div className="rounded-2xl border border-white/8 bg-white px-3 py-2">
                           {item.requiresOwnerReview
                             ? "Owner review is required after this task."
                             : "Owner review can still intervene before the next queue item."}
@@ -319,13 +319,13 @@ export function OwnerEdenSelfWorkPanel({
                             </div>
                           ))
                         ) : (
-                          <div className="rounded-2xl border border-eden-edge bg-white px-3 py-2">
+                          <div className="rounded-2xl border border-white/8 bg-white px-3 py-2">
                             No explicit blocker is recorded for this queue item.
                           </div>
                         )}
                         {item.linkedTask ? (
-                          <div className="rounded-2xl border border-eden-edge bg-white px-3 py-2">
-                            <p className="font-semibold text-eden-ink">
+                          <div className="rounded-2xl border border-white/8 bg-white px-3 py-2">
+                            <p className="font-semibold text-white">
                               {item.linkedTask.statusLabel}: {item.linkedTask.title}
                             </p>
                             <p className="mt-1">
@@ -352,7 +352,7 @@ export function OwnerEdenSelfWorkPanel({
             </div>
 
             {!initialState.queue.length ? (
-              <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50">
                 No Eden self-work queue items are currently available.
               </div>
             ) : null}

@@ -42,12 +42,12 @@ export function AskEdenServiceResultCard({
       }}
       className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-white p-3 text-left shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eden-ring/40 ${
         isSelected
-          ? "border-eden-ring bg-eden-accent-soft/45 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.45)]"
+          ? "border-[#14989a]/50 bg-[#14989a]/15/45 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.45)]"
           : affordabilityTone === "ready"
-            ? "border-emerald-200 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-eden-ring hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+            ? "border-emerald-200 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
             : affordabilityTone === "warning"
-              ? "border-amber-200 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-eden-ring hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
-              : "border-eden-edge hover:-translate-y-0.5 hover:border-eden-ring hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+              ? "border-amber-200 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+              : "border-white/8 hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -55,7 +55,7 @@ export function AskEdenServiceResultCard({
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             {service.category}
           </p>
-          <h4 className="mt-1 text-sm font-semibold text-eden-ink">{service.title}</h4>
+          <h4 className="mt-1 text-sm font-semibold text-white">{service.title}</h4>
         </div>
         <span
           className={`rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${
@@ -67,35 +67,35 @@ export function AskEdenServiceResultCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-eden-muted">
+        <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/50">
           {availabilityLabel}
         </span>
-        <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-eden-muted">
+        <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/50">
           {edenLaunchLabels.creditsOnlyBilling}
         </span>
       </div>
 
-      <p className="mt-3 text-xs leading-5 text-eden-muted">{service.description}</p>
+      <p className="mt-3 text-xs leading-5 text-white/50">{service.description}</p>
 
-      <div className="mt-3 rounded-2xl border border-eden-edge bg-white/80 p-3">
-        <p className="text-[10px] uppercase tracking-[0.14em] text-eden-muted">
+      <div className="mt-3 rounded-2xl border border-white/8 bg-white/[0.05] p-3">
+        <p className="text-[10px] uppercase tracking-[0.14em] text-white/50">
           {edenLaunchLabels.visiblePricing}
         </p>
-        <p className="mt-2 text-xs font-semibold text-eden-ink">{pricingLabel}</p>
-        <p className="mt-2 text-xs leading-5 text-eden-muted">{trustLabel}</p>
+        <p className="mt-2 text-xs font-semibold text-white">{pricingLabel}</p>
+        <p className="mt-2 text-xs leading-5 text-white/50">{trustLabel}</p>
         <div
           className={`mt-3 rounded-2xl border px-3 py-2 ${
             affordabilityTone === "ready"
               ? "border-emerald-200 bg-emerald-50"
               : affordabilityTone === "warning"
                 ? "border-amber-200 bg-amber-50"
-                : "border-eden-edge bg-eden-bg/60"
+                : "border-white/8 bg-white/[0.04]/60"
           }`}
         >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-muted">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
             {affordabilityLabel}
           </p>
-          <p className="mt-1 text-xs leading-5 text-eden-muted">{affordabilityHint}</p>
+          <p className="mt-1 text-xs leading-5 text-white/50">{affordabilityHint}</p>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export function AskEdenServiceResultCard({
           onSelect();
           onAction();
         }}
-        className="mt-4 inline-flex items-center rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+        className="mt-4 inline-flex items-center rounded-xl border border-white/8 bg-white px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
       >
         {edenLaunchLabels.openService}
       </button>

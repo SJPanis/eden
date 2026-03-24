@@ -32,11 +32,11 @@ export function CreditsTopUpPackageSelector({
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
             Top-up packages
           </p>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">
+          <p className="mt-2 text-sm leading-6 text-white/50">
             Choose a package before continuing to Stripe Checkout for a real Eden wallet top-up.
           </p>
         </div>
-        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+        <p className="text-xs uppercase tracking-[0.12em] text-white/50">
           {packages.length} options
         </p>
       </div>
@@ -58,8 +58,8 @@ export function CreditsTopUpPackageSelector({
               onClick={() => onSelect(pkg.id)}
               className={`rounded-2xl border p-4 text-left transition-colors ${
                 isSelected
-                  ? "border-eden-ring bg-eden-accent-soft/70 shadow-[0_16px_32px_-24px_rgba(19,33,68,0.28)]"
-                  : "border-eden-edge bg-white/88 hover:border-eden-ring hover:bg-eden-bg"
+                  ? "border-[#14989a]/50 bg-[#14989a]/15/70 shadow-[0_16px_32px_-24px_rgba(19,33,68,0.28)]"
+                  : "border-white/8 bg-white/[0.06] hover:border-[#14989a]/50 hover:bg-white/[0.04]"
               }`}
               aria-pressed={isSelected}
             >
@@ -68,7 +68,7 @@ export function CreditsTopUpPackageSelector({
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     {packageLabel}
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">{pkg.title}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{pkg.title}</p>
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
                   {isBestValue ? (
@@ -82,38 +82,38 @@ export function CreditsTopUpPackageSelector({
                     </span>
                   ) : null}
                   {isSelected ? (
-                    <span className="rounded-full border border-eden-ring bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-ink">
+                    <span className="rounded-full border border-[#14989a]/50 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
                       Selected
                     </span>
                   ) : null}
                 </div>
               </div>
-              <p className="mt-2 text-lg font-semibold tracking-tight text-eden-ink">
+              <p className="mt-2 text-lg font-semibold tracking-tight text-white">
                 {pkg.chargeLabel}
               </p>
-              <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+              <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
                 About {creditsPerDollar} Leaf&apos;s per $1
               </p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">{pkg.detail}</p>
+              <p className="mt-2 text-sm leading-6 text-white/50">{pkg.detail}</p>
             </button>
           );
         })}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-eden-edge bg-white/88 p-4">
+      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Current selection
             </p>
-            <p className="mt-2 text-sm font-semibold text-eden-ink">{selectedPackage.title}</p>
-            <p className="mt-1 text-xs text-eden-muted">{selectedPackage.chargeLabel}</p>
+            <p className="mt-2 text-sm font-semibold text-white">{selectedPackage.title}</p>
+            <p className="mt-1 text-xs text-white/50">{selectedPackage.chargeLabel}</p>
           </div>
-          <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+          <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
             Ready
           </span>
         </div>
-            <p className="mt-3 text-sm leading-6 text-eden-muted">{selectedPackage.detail}</p>
+            <p className="mt-3 text-sm leading-6 text-white/50">{selectedPackage.detail}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {selectedPackage.id === bestValuePackageId ? (
             <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
@@ -125,7 +125,7 @@ export function CreditsTopUpPackageSelector({
               Recommended for most buyers
             </span>
           ) : null}
-          <span className="rounded-full border border-eden-edge bg-eden-bg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-muted">
+          <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
             Selected for next top-up
           </span>
         </div>

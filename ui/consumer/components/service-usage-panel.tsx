@@ -438,16 +438,16 @@ export function ServiceUsagePanel({
   }
 
   return (
-    <div className="rounded-[24px] border border-eden-edge bg-[linear-gradient(140deg,rgba(255,255,255,0.97),rgba(239,246,255,0.94),rgba(255,247,237,0.92))] p-4 shadow-[0_18px_38px_-28px_rgba(19,33,68,0.26)] md:p-5">
+    <div className="rounded-[24px] border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_38px_-28px_rgba(19,33,68,0.26)] md:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
             Use This Service
           </p>
-          <h2 className="mt-3 text-xl font-semibold tracking-tight text-eden-ink">
+          <h2 className="mt-3 text-xl font-semibold tracking-tight text-white">
             {serviceTitle}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">
+          <p className="mt-2 text-sm leading-6 text-white/50">
             {summary ||
               "Run this service through Eden's current wallet-overlay path. The visible Eden Leaf's price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
           </p>
@@ -465,7 +465,7 @@ export function ServiceUsagePanel({
               isPending ||
               !hasSufficientBalance
             }
-            className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
+            className="inline-flex min-w-[180px] items-center justify-center rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white disabled:text-white/50"
           >
             {usageActionDisabled
               ? "Use Live Runner Above"
@@ -478,7 +478,7 @@ export function ServiceUsagePanel({
               type="button"
               onClick={handleStartPaymentTopUp}
               disabled={!!activeAction || isPending}
-              className="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-eden-ring bg-eden-accent-soft px-4 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:border-eden-edge disabled:bg-white disabled:text-eden-muted"
+              className="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white disabled:text-white/50"
             >
               {activeAction === "payment_topup"
                 ? "Opening Checkout..."
@@ -501,36 +501,36 @@ export function ServiceUsagePanel({
       />
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 First-time run flow
               </p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">
+              <p className="mt-2 text-sm leading-6 text-white/50">
                 The same decision sequence applies every time: check the visible price, compare it to your wallet, Add Leaf's only if needed, then run the service.
               </p>
             </div>
-            <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+            <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
               Price first, then run
             </span>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">1. Check price</p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+              <p className="text-sm font-semibold text-white">1. Check price</p>
+              <p className="mt-2 text-sm leading-6 text-white/50">
                 {pricingLabel} is the exact Eden Leaf's amount used for the run.
               </p>
             </div>
-            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">2. Compare wallet</p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+              <p className="text-sm font-semibold text-white">2. Compare wallet</p>
+              <p className="mt-2 text-sm leading-6 text-white/50">
                 Current balance is {formatCreditsValue(displayBalanceCredits)} and required price is {formatCreditsValue(requiredCredits)}.
               </p>
             </div>
-            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-              <p className="text-sm font-semibold text-eden-ink">3. Add Leaf's only if needed</p>
-              <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+              <p className="text-sm font-semibold text-white">3. Add Leaf's only if needed</p>
+              <p className="mt-2 text-sm leading-6 text-white/50">
                 Checkout appears only during Add Leaf's. Service runs never trigger a hidden payment.
               </p>
             </div>
@@ -541,92 +541,92 @@ export function ServiceUsagePanel({
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Run decision
           </p>
-          <p className="mt-3 text-base font-semibold text-eden-ink">{runDecisionSummary.title}</p>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">{runDecisionSummary.detail}</p>
+          <p className="mt-3 text-base font-semibold text-white">{runDecisionSummary.title}</p>
+          <p className="mt-2 text-sm leading-6 text-white/50">{runDecisionSummary.detail}</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-eden-edge bg-white/90 p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Wallet balance</p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">Wallet balance</p>
+              <p className="mt-2 text-sm font-semibold text-white">
                 {formatCreditsValue(displayBalanceCredits)}
               </p>
             </div>
-            <div className="rounded-2xl border border-eden-edge bg-white/90 p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Required price</p>
-              <p className="mt-2 text-sm font-semibold text-eden-ink">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/50">Required price</p>
+              <p className="mt-2 text-sm font-semibold text-white">
                 {formatCreditsValue(requiredCredits)}
               </p>
             </div>
           </div>
-          <div className="mt-3 rounded-2xl border border-eden-edge bg-white/90 p-3">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Next action</p>
-            <p className="mt-2 text-sm font-semibold text-eden-ink">{runDecisionSummary.cue}</p>
+          <div className="mt-3 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">Next action</p>
+            <p className="mt-2 text-sm font-semibold text-white">{runDecisionSummary.cue}</p>
           </div>
         </div>
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Availability</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">{serviceAvailabilityLabel}</p>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">{serviceAvailabilityDetail}</p>
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Availability</p>
+          <p className="mt-2 text-sm font-semibold text-white">{serviceAvailabilityLabel}</p>
+          <p className="mt-2 text-sm leading-6 text-white/50">{serviceAvailabilityDetail}</p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Billing model</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Billing model</p>
+          <p className="mt-2 text-sm font-semibold text-white">
             {edenLaunchLabels.creditsOnlyBilling}
           </p>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">
+          <p className="mt-2 text-sm leading-6 text-white/50">
             Each run uses the visible Leaves price below. Wallet top-ups are the only time a payment-backed checkout can appear.
           </p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">No hidden charges</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">No hidden charges</p>
+          <p className="mt-2 text-sm font-semibold text-white">
             Explicit top-up, explicit run
           </p>
-          <p className="mt-2 text-sm leading-6 text-eden-muted">
+          <p className="mt-2 text-sm leading-6 text-white/50">
             Service use deducts Leaves only. Checkout is only used when you choose to Add Leaf's to the wallet.
           </p>
         </div>
       </div>
 
       <div className="mt-5 grid gap-3 md:grid-cols-5">
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Price Per Use</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Price Per Use</p>
+          <p className="mt-2 text-sm font-semibold text-white">{pricingLabel}</p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Required For This Run</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Required For This Run</p>
+          <p className="mt-2 text-sm font-semibold text-white">
             {formatCreditsValue(requiredCredits)}
           </p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Current Balance</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Current Balance</p>
+          <p className="mt-2 text-sm font-semibold text-white">
             {formatCreditsValue(displayBalanceCredits)}
           </p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Wallet charge</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Wallet charge</p>
+          <p className="mt-2 text-sm font-semibold text-white">
             {formatCreditsValue(requiredCredits)}
           </p>
-          <p className="mt-2 text-xs text-eden-muted">
+          <p className="mt-2 text-xs text-white/50">
             The exact balance change applied when this service run succeeds.
           </p>
         </div>
-        <div className="rounded-2xl border border-eden-ring bg-eden-accent-soft/35 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Selected Top-up</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15/35 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Selected Top-up</p>
+          <p className="mt-2 text-sm font-semibold text-white">
             {selectedPackage.title}
           </p>
-          <p className="mt-2 text-xs text-eden-muted">{selectedPackage.chargeLabel}</p>
-          <p className="mt-2 text-xs text-eden-muted">{selectedPackage.detail}</p>
+          <p className="mt-2 text-xs text-white/50">{selectedPackage.chargeLabel}</p>
+          <p className="mt-2 text-xs text-white/50">{selectedPackage.detail}</p>
         </div>
-        <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Usage Readiness</p>
-          <p className="mt-2 text-sm font-semibold text-eden-ink">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Usage Readiness</p>
+          <p className="mt-2 text-sm font-semibold text-white">
             {hasSufficientBalance
               ? pricing.hasStoredPrice
                 ? `Ready at ${pricingUnitLabel}`
@@ -636,7 +636,7 @@ export function ServiceUsagePanel({
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/65 p-4 text-sm leading-6 text-eden-muted">
+      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/65 p-4 text-sm leading-6 text-white/50">
         {topUpConfig.paymentEnabled
           ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Leaf's first, and Stripe top-ups only Add Leaf's after webhook settlement confirms the purchase.`
           : "Stripe Checkout is not available in this environment, so Leaf's cannot be purchased from this service route."}
@@ -666,7 +666,7 @@ export function ServiceUsagePanel({
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-700">
               Latest Wallet Receipt
             </p>
-            <span className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+            <span className="rounded-full border border-emerald-200 bg-white/[0.05] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
               {activity.kind === "usage"
                 ? "Service charge"
                 : activity.source === "payment"
@@ -675,14 +675,14 @@ export function ServiceUsagePanel({
             </span>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-            <div className="rounded-2xl border border-emerald-200 bg-white/80 p-4">
+            <div className="rounded-2xl border border-emerald-200 bg-white/[0.05] p-4">
               <p className="text-sm font-semibold text-emerald-900">{activity.title}</p>
               <p className="mt-2 text-sm text-emerald-800">{activity.detail}</p>
               <p className="mt-3 text-xs uppercase tracking-[0.12em] text-emerald-700">
                 {activity.timestamp}
               </p>
             </div>
-            <div className="rounded-2xl border border-emerald-200 bg-white/80 p-4">
+            <div className="rounded-2xl border border-emerald-200 bg-white/[0.05] p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-emerald-700">Wallet Impact</p>
               <p className="mt-2 text-sm font-semibold text-emerald-900">{activity.amountLabel}</p>
               <p className="mt-2 text-sm text-emerald-800">
@@ -711,17 +711,17 @@ export function ServiceUsagePanel({
         </div>
       ) : null}
 
-      <div className="mt-5 rounded-2xl border border-eden-edge bg-white/82 p-4">
+      <div className="mt-5 rounded-2xl border border-white/8 bg-white/82 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
               Recent Wallet Activity
             </p>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               Latest top-ups and service charges for the active consumer wallet path.
             </p>
           </div>
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">
             {filteredTransactions.length} events
           </p>
         </div>
@@ -732,7 +732,7 @@ export function ServiceUsagePanel({
         />
 
         {latestVisibleTransaction ? (
-          <div className="mt-4 rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.42),rgba(255,255,255,0.98))] p-4">
+          <div className="mt-4 rounded-2xl border border-[#14989a]/50 bg-white/[0.05] p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -747,16 +747,16 @@ export function ServiceUsagePanel({
                     {formatWalletEventLabel(latestVisibleTransaction.kind)}
                   </span>
                 </div>
-                <p className="mt-3 text-sm font-semibold text-eden-ink">
+                <p className="mt-3 text-sm font-semibold text-white">
                   {latestVisibleTransaction.title}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   {latestVisibleTransaction.relatedServiceName
                     ? `Related service: ${latestVisibleTransaction.relatedServiceName}. ${latestVisibleTransaction.detail}`
                     : latestVisibleTransaction.detail}
                 </p>
               </div>
-              <div className="rounded-2xl border border-eden-edge bg-white/90 p-4 text-left md:min-w-[220px] md:text-right">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-left md:min-w-[220px] md:text-right">
                 <p
                   className={`text-sm font-semibold ${
                     latestVisibleTransaction.creditsDelta >= 0
@@ -766,13 +766,13 @@ export function ServiceUsagePanel({
                 >
                   {formatLeavesAmountLabel(latestVisibleTransaction.amountLabel)}
                 </p>
-                <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
                   Resulting balance
                 </p>
-                <p className="mt-1 text-sm font-semibold text-eden-ink">
+                <p className="mt-1 text-sm font-semibold text-white">
                   {formatCreditsValue(latestVisibleTransaction.resultingBalanceCredits)}
                 </p>
-                <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
                   {latestVisibleTransaction.timestamp}
                 </p>
               </div>
@@ -781,7 +781,7 @@ export function ServiceUsagePanel({
               <div className="mt-3">
                 <Link
                   href={latestVisibleTransaction.relatedServiceHref}
-                  className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                  className="inline-flex rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                 >
                   Open Related Service
                 </Link>
@@ -797,14 +797,14 @@ export function ServiceUsagePanel({
                 key={transaction.id}
                 className={`rounded-2xl border p-4 ${
                   index === 0
-                    ? "border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.22),rgba(255,255,255,0.96))]"
-                    : "border-eden-edge bg-eden-bg/60"
+                    ? "border-[#14989a]/50 bg-white/[0.05]"
+                    : "border-white/8 bg-white/[0.04]/60"
                 }`}
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold text-eden-ink">{transaction.title}</p>
+                      <p className="text-sm font-semibold text-white">{transaction.title}</p>
                       <span
                         className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getWalletEventBadgeClasses(
                           transaction.kind,
@@ -813,12 +813,12 @@ export function ServiceUsagePanel({
                         {formatWalletEventLabel(transaction.kind)}
                       </span>
                       {index === 0 ? (
-                        <span className="rounded-full border border-eden-ring bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-ink">
+                        <span className="rounded-full border border-[#14989a]/50 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
                           Latest visible
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       {transaction.relatedServiceName
                         ? `Related service: ${transaction.relatedServiceName}. ${transaction.detail}`
                         : transaction.detail}
@@ -832,26 +832,26 @@ export function ServiceUsagePanel({
                     >
                       {formatLeavesAmountLabel(transaction.amountLabel)}
                     </p>
-                    <p className="mt-2 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                    <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
                       {transaction.timestamp}
                     </p>
                   </div>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Resulting Balance
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {formatCreditsValue(transaction.resultingBalanceCredits)}
                     </p>
-                    <p className="mt-2 text-xs text-eden-muted">After this wallet event</p>
+                    <p className="mt-2 text-xs text-white/50">After this wallet event</p>
                   </div>
-                  <div className="rounded-2xl border border-eden-edge bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Wallet Event
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-eden-ink">
+                    <p className="mt-2 text-sm font-semibold text-white">
                       {formatWalletEventLabel(transaction.kind)}
                     </p>
                   </div>
@@ -860,7 +860,7 @@ export function ServiceUsagePanel({
                   <div className="mt-3">
                     <Link
                       href={transaction.relatedServiceHref}
-                      className="inline-flex rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                      className="inline-flex rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                     >
                       Open Related Service
                     </Link>
@@ -869,7 +869,7 @@ export function ServiceUsagePanel({
               </div>
             ))
           ) : (
-            <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
               No wallet activity matches the current filter.
             </div>
           )}

@@ -224,16 +224,16 @@ export function OwnerRuntimeConfigPanel({
   }
 
   return (
-    <section className="mt-5 rounded-[28px] border border-eden-edge bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+    <section className="mt-5 rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Runtime governance
           </p>
-          <h3 className="mt-2 text-lg font-semibold text-eden-ink">
+          <h3 className="mt-2 text-lg font-semibold text-white">
             Config, approvals, readiness, and governed runs
           </h3>
-          <p className="mt-3 text-sm leading-6 text-eden-muted">
+          <p className="mt-3 text-sm leading-6 text-white/50">
             Owner-only control-plane records. No raw secrets are shown and no live
             provider calls are executed from this surface.
           </p>
@@ -247,73 +247,73 @@ export function OwnerRuntimeConfigPanel({
       ) : null}
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Runtime policy</p>
+        <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Runtime policy</p>
           <div className="mt-4 grid gap-3">
-            <select value={configScope} onChange={(event) => setConfigScope(event.target.value)} className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+            <select value={configScope} onChange={(event) => setConfigScope(event.target.value)} className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
               {ownerRuntimeConfigScopeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
-            <select value={executionMode} onChange={(event) => setExecutionMode(event.target.value)} className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+            <select value={executionMode} onChange={(event) => setExecutionMode(event.target.value)} className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
               {ownerRuntimeExecutionModeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
-            <select value={providerPolicyMode} onChange={(event) => setProviderPolicyMode(event.target.value)} className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+            <select value={providerPolicyMode} onChange={(event) => setProviderPolicyMode(event.target.value)} className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
               {ownerRuntimeProviderPolicyModeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
             <div className="grid gap-2 sm:grid-cols-2">
               {ownerRuntimeProviderOptions.map((option) => (
-                <label key={option.value} className="flex items-center justify-between rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+                <label key={option.value} className="flex items-center justify-between rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
                   <span>{option.label}</span>
                   <input type="checkbox" checked={allowedProviders.includes(option.value)} onChange={() => toggleAllowedProvider(option.value)} />
                 </label>
               ))}
             </div>
-            <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)} className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+            <select value={defaultProvider} onChange={(event) => setDefaultProvider(event.target.value)} className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
               <option value="">No default provider</option>
               {ownerRuntimeProviderOptions.filter((option) => allowedProviders.includes(option.value)).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
             <div className="grid gap-3 sm:grid-cols-2">
-              <input value={maxTaskBudgetLeaves} onChange={(event) => setMaxTaskBudgetLeaves(event.target.value)} placeholder="Task budget" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
-              <input value={monthlyBudgetLeaves} onChange={(event) => setMonthlyBudgetLeaves(event.target.value)} placeholder="Monthly budget" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
+              <input value={maxTaskBudgetLeaves} onChange={(event) => setMaxTaskBudgetLeaves(event.target.value)} placeholder="Task budget" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
+              <input value={monthlyBudgetLeaves} onChange={(event) => setMonthlyBudgetLeaves(event.target.value)} placeholder="Monthly budget" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
             </div>
-            <input value={secretPolicyReference} onChange={(event) => setSecretPolicyReference(event.target.value)} placeholder="Secret policy reference" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
-            <textarea value={modelPolicySummary} onChange={(event) => setModelPolicySummary(event.target.value)} rows={3} placeholder="Model policy summary" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
-            <textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={2} placeholder="Policy notes" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
+            <input value={secretPolicyReference} onChange={(event) => setSecretPolicyReference(event.target.value)} placeholder="Secret policy reference" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
+            <textarea value={modelPolicySummary} onChange={(event) => setModelPolicySummary(event.target.value)} rows={3} placeholder="Model policy summary" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
+            <textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={2} placeholder="Policy notes" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
             <div className="grid gap-2 sm:grid-cols-2">
-              <label className="flex items-center gap-3 rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+              <label className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
                 <input type="checkbox" checked={ownerOnlyEnforced} onChange={(event) => setOwnerOnlyEnforced(event.target.checked)} />
                 <span>Owner-only enforced</span>
               </label>
-              <label className="flex items-center gap-3 rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+              <label className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
                 <input type="checkbox" checked={internalOnlyEnforced} onChange={(event) => setInternalOnlyEnforced(event.target.checked)} />
                 <span>Internal-only enforced</span>
               </label>
             </div>
-            <button type="button" disabled={isPending} onClick={saveConfig} className="rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink disabled:opacity-70">
+            <button type="button" disabled={isPending} onClick={saveConfig} className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-70">
               {isPending ? "Saving..." : "Save config policy"}
             </button>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Provider approvals</p>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">Provider approvals</p>
             <div className="mt-4 space-y-3">
               {runtime.providerCompatibility.map((provider) => (
-                <article key={provider.providerKey} className="rounded-2xl border border-eden-edge bg-white p-4">
+                <article key={provider.providerKey} className="rounded-2xl border border-white/8 bg-white p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-eden-ink">{provider.providerLabel}</p>
-                      <p className="mt-1 text-xs text-eden-muted">{provider.reason}</p>
+                      <p className="text-sm font-semibold text-white">{provider.providerLabel}</p>
+                      <p className="mt-1 text-xs text-white/50">{provider.reason}</p>
                     </div>
                     <span className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getStatusClasses(provider.compatibilityStatus)}`}>{provider.compatibilityStatusLabel}</span>
                   </div>
                   <div className="mt-3 grid gap-3">
-                    <select value={approvalState[provider.providerKey]} onChange={(event) => setApprovalState((current) => ({ ...current, [provider.providerKey]: event.target.value }))} className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+                    <select value={approvalState[provider.providerKey]} onChange={(event) => setApprovalState((current) => ({ ...current, [provider.providerKey]: event.target.value }))} className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
                       {ownerRuntimeProviderApprovalStatusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                     </select>
-                    <input value={approvalModelScope[provider.providerKey] ?? ""} onChange={(event) => setApprovalModelScope((current) => ({ ...current, [provider.providerKey]: event.target.value }))} placeholder="Model scope" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
-                    <textarea value={approvalNotes[provider.providerKey] ?? ""} onChange={(event) => setApprovalNotes((current) => ({ ...current, [provider.providerKey]: event.target.value }))} rows={2} placeholder="Approval notes" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
-                    <button type="button" disabled={isPending || !allowedProviders.includes(provider.providerKey)} onClick={() => saveApproval(provider.providerKey)} className="rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink disabled:opacity-70">
+                    <input value={approvalModelScope[provider.providerKey] ?? ""} onChange={(event) => setApprovalModelScope((current) => ({ ...current, [provider.providerKey]: event.target.value }))} placeholder="Model scope" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
+                    <textarea value={approvalNotes[provider.providerKey] ?? ""} onChange={(event) => setApprovalNotes((current) => ({ ...current, [provider.providerKey]: event.target.value }))} rows={2} placeholder="Approval notes" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
+                    <button type="button" disabled={isPending || !allowedProviders.includes(provider.providerKey)} onClick={() => saveApproval(provider.providerKey)} className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-70">
                       Save provider gate
                     </button>
                   </div>
@@ -322,24 +322,24 @@ export function OwnerRuntimeConfigPanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Secret readiness</p>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">Secret readiness</p>
             <div className="mt-4 space-y-3">
               {runtime.secretBoundaries.map((boundary) => (
-                <article key={boundary.id} className="rounded-2xl border border-eden-edge bg-white p-4">
+                <article key={boundary.id} className="rounded-2xl border border-white/8 bg-white p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-eden-ink">{boundary.label}</p>
-                      <p className="mt-1 text-xs text-eden-muted">{boundary.lastCheckedAtLabel ?? "Not checked yet"}</p>
+                      <p className="text-sm font-semibold text-white">{boundary.label}</p>
+                      <p className="mt-1 text-xs text-white/50">{boundary.lastCheckedAtLabel ?? "Not checked yet"}</p>
                     </div>
                     <span className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getStatusClasses(boundary.status)}`}>{boundary.statusLabel}</span>
                   </div>
                   <div className="mt-3 grid gap-3">
-                    <select value={secretState[boundary.id]} onChange={(event) => setSecretState((current) => ({ ...current, [boundary.id]: event.target.value }))} className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink">
+                    <select value={secretState[boundary.id]} onChange={(event) => setSecretState((current) => ({ ...current, [boundary.id]: event.target.value }))} className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white">
                       {ownerRuntimeSecretStatusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                     </select>
-                    <textarea value={secretDetail[boundary.id] ?? ""} onChange={(event) => setSecretDetail((current) => ({ ...current, [boundary.id]: event.target.value }))} rows={2} placeholder="Readiness detail" className="rounded-2xl border border-eden-edge bg-white px-3 py-2 text-sm text-eden-ink" />
-                    <button type="button" disabled={isPending} onClick={() => saveSecret(boundary.id)} className="rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink disabled:opacity-70">
+                    <textarea value={secretDetail[boundary.id] ?? ""} onChange={(event) => setSecretDetail((current) => ({ ...current, [boundary.id]: event.target.value }))} rows={2} placeholder="Readiness detail" className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white" />
+                    <button type="button" disabled={isPending} onClick={() => saveSecret(boundary.id)} className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white disabled:opacity-70">
                       Save readiness
                     </button>
                   </div>
@@ -348,23 +348,23 @@ export function OwnerRuntimeConfigPanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Recent governed runs</p>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/50">Recent governed runs</p>
             <div className="mt-4 space-y-3">
               {runtime.agentRuns.length ? runtime.agentRuns.map((run) => (
-                <article key={run.id} className="rounded-2xl border border-eden-edge bg-white p-4">
+                <article key={run.id} className="rounded-2xl border border-white/8 bg-white p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-eden-ink">{run.summary}</p>
-                      <p className="mt-1 text-xs text-eden-muted">{run.requestedActionTypeLabel}{run.providerLabel ? ` | ${run.providerLabel}` : ""}</p>
+                      <p className="text-sm font-semibold text-white">{run.summary}</p>
+                      <p className="mt-1 text-xs text-white/50">{run.requestedActionTypeLabel}{run.providerLabel ? ` | ${run.providerLabel}` : ""}</p>
                     </div>
                     <span className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getStatusClasses(run.runStatus)}`}>{run.runStatusLabel}</span>
                   </div>
-                  {run.detail ? <p className="mt-3 text-sm text-eden-muted">{run.detail}</p> : null}
-                  {run.resultPayloadSummary ? <p className="mt-2 text-xs text-eden-muted">Result snapshot: {run.resultPayloadSummary}</p> : null}
+                  {run.detail ? <p className="mt-3 text-sm text-white/50">{run.detail}</p> : null}
+                  {run.resultPayloadSummary ? <p className="mt-2 text-xs text-white/50">Result snapshot: {run.resultPayloadSummary}</p> : null}
                 </article>
               )) : (
-                <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm text-eden-muted">
+                <div className="rounded-2xl border border-white/8 bg-white p-4 text-sm text-white/50">
                   No governed agent-run records are stored yet for this runtime.
                 </div>
               )}

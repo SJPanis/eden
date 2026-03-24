@@ -22,7 +22,7 @@ export function ControlRoomSection({
   return (
     <section
       id={id}
-      className={`rounded-[28px] border border-eden-edge bg-white/84 p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5 ${
+      className={`rounded-[28px] border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5 ${
         className ?? ""
       }`}
     >
@@ -31,10 +31,10 @@ export function ControlRoomSection({
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
             {eyebrow}
           </p>
-          <h2 className="mt-2 text-lg font-semibold tracking-tight text-eden-ink md:text-xl">
+          <h2 className="mt-2 text-lg font-semibold tracking-tight text-white md:text-xl">
             {title}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-eden-muted">{description}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{description}</p>
         </div>
         {actions ? <div className="shrink-0">{actions}</div> : null}
       </div>

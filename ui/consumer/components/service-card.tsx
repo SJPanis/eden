@@ -49,47 +49,47 @@ export function ServiceCard({
         </span>
       </div>
 
-      <h3 className="mt-3 text-base font-semibold text-eden-ink">{title}</h3>
-      <p className="mt-1 text-sm text-eden-muted">{provider}</p>
+      <h3 className="mt-3 text-base font-semibold text-white">{title}</h3>
+      <p className="mt-1 text-sm text-white/50">{provider}</p>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="rounded-full bg-eden-accent-soft px-2.5 py-1 text-xs text-eden-ink">
+        <span className="rounded-full bg-[#14989a]/15 px-2.5 py-1 text-xs text-white">
           {category}
         </span>
-        <span className="rounded-full border border-eden-edge bg-white px-2.5 py-1 text-xs text-eden-muted">
+        <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-xs text-white/50">
           {availabilityLabel}
         </span>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-eden-edge bg-white/82 p-3">
-        <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+      <div className="mt-4 rounded-2xl border border-white/8 bg-white/82 p-3">
+        <p className="text-xs uppercase tracking-[0.12em] text-white/50">
           {edenLaunchLabels.visiblePricing}
         </p>
-        <p className="mt-2 text-sm font-semibold text-eden-ink">{pricingLabel}</p>
-        <p className="mt-2 text-xs leading-5 text-eden-muted">{trustLabel}</p>
+        <p className="mt-2 text-sm font-semibold text-white">{pricingLabel}</p>
+        <p className="mt-2 text-xs leading-5 text-white/50">{trustLabel}</p>
         <div
           className={`mt-3 rounded-2xl border px-3 py-2 ${
             affordabilityTone === "ready"
               ? "border-emerald-200 bg-emerald-50"
               : affordabilityTone === "warning"
                 ? "border-amber-200 bg-amber-50"
-                : "border-eden-edge bg-eden-bg/60"
+                : "border-white/8 bg-white/[0.04]/60"
           }`}
         >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-muted">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
             {affordabilityLabel}
           </p>
-          <p className="mt-1 text-xs leading-5 text-eden-muted">{affordabilityHint}</p>
+          <p className="mt-1 text-xs leading-5 text-white/50">{affordabilityHint}</p>
         </div>
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <span className="text-xs text-eden-muted">
+        <span className="text-xs text-white/50">
           {saved ? "Saved" : edenLaunchLabels.creditsOnlyBilling}
         </span>
         <Link
           href={href}
-          className="inline-flex rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs font-semibold text-eden-ink transition-colors hover:border-eden-ring hover:bg-eden-bg"
+          className="inline-flex rounded-xl border border-white/8 bg-white px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
         >
           {edenLaunchLabels.openService}
         </Link>
