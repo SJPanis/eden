@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   isBusinessFrozen,
   isUserFrozen,
@@ -253,6 +253,12 @@ const cardVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
+const tabVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+};
+
 function toTitleCase(input: string) {
   return input
     .split(/[-_\s]+/)
@@ -270,7 +276,7 @@ function getUserStatusClasses(status: EdenMockUserStatus) {
 function getBusinessStatusClasses(status: EdenMockBusinessStatus) {
   if (status === "published") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   if (status === "testing") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/8 bg-white/[0.06] text-white/50";
 }
 
 function getAdminStateClasses(state: "active" | "frozen" | "maintenance") {
@@ -283,7 +289,7 @@ function getReleaseStatusClasses(status: EdenMockReleaseStatus) {
   if (status === "published") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   if (status === "ready") return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   if (status === "testing") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/8 bg-white/[0.06] text-white/50";
 }
 
 function getAgentStatusClasses(status: EdenMockAgentStatus) {
@@ -293,16 +299,16 @@ function getAgentStatusClasses(status: EdenMockAgentStatus) {
 }
 
 function getLogLevelClasses(level: EdenMockLogLevel) {
-  if (level === "info") return "bg-sky-100 text-sky-300";
-  if (level === "warn") return "bg-amber-100 text-amber-300";
-  return "bg-rose-100 text-rose-300";
+  if (level === "info") return "bg-sky-500/10 text-sky-300";
+  if (level === "warn") return "bg-amber-500/10 text-amber-300";
+  return "bg-rose-500/10 text-rose-300";
 }
 
 function getCreditDirectionClasses(direction: CreditActivity["direction"]) {
-  if (direction === "inflow") return "bg-emerald-100 text-emerald-400";
-  if (direction === "outflow") return "bg-rose-100 text-rose-300";
-  if (direction === "reserve") return "bg-amber-100 text-amber-300";
-  return "bg-sky-100 text-sky-300";
+  if (direction === "inflow") return "bg-emerald-500/10 text-emerald-400";
+  if (direction === "outflow") return "bg-rose-500/10 text-rose-300";
+  if (direction === "reserve") return "bg-amber-500/10 text-amber-300";
+  return "bg-sky-500/10 text-sky-300";
 }
 
 function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "canceled") {
@@ -335,7 +341,7 @@ function getPaymentEventStatusClasses(
   status: "info" | "success" | "skipped" | "failed",
 ) {
   if (status === "success") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
-  if (status === "skipped") return "border-slate-200 bg-slate-100 text-slate-700";
+  if (status === "skipped") return "border-white/8 bg-white/[0.06] text-white/50";
   if (status === "failed") return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   return "border-sky-500/25 bg-sky-500/10 text-sky-300";
 }
@@ -349,7 +355,7 @@ function getPayoutSettlementStatusClasses(
 ) {
   if (status === "settled") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   if (status === "pending") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/8 bg-white/[0.06] text-white/50";
 }
 
 function getOwnerReconciliationActionClasses() {
@@ -411,6 +417,46 @@ function getFallbackReleaseStatus(status: string) {
   return "draft" as const;
 }
 
+// Compact stat cell used across all tabs
+function StatCell({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-xl border border-white/8 bg-white/[0.05] p-3">
+      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">{label}</p>
+      <p className="mt-1.5 text-lg font-semibold tracking-tight text-white">{value}</p>
+      {sub ? <p className="mt-1 text-[11px] leading-4 text-white/40">{sub}</p> : null}
+    </div>
+  );
+}
+
+// Status dot for inline status indicators
+function StatusDot({ tone }: { tone: "green" | "amber" | "red" | "sky" | "muted" }) {
+  const colors: Record<string, string> = {
+    green: "bg-emerald-400",
+    amber: "bg-amber-400",
+    red: "bg-rose-400",
+    sky: "bg-sky-400",
+    muted: "bg-white/20",
+  };
+  return <span className={`inline-block h-1.5 w-1.5 rounded-full ${colors[tone]}`} />;
+}
+
+// Panel header used within tabs
+function PanelHeader({ eyebrow, title, badge }: { eyebrow: string; title: string; badge?: string }) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <div>
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">{eyebrow}</p>
+        <p className="mt-0.5 text-sm font-semibold text-white">{title}</p>
+      </div>
+      {badge ? (
+        <span className="rounded-full border border-white/8 bg-white/[0.05] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">
+          {badge}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 export function OwnerDashboardPanel({
   session,
   simulatedTransactions,
@@ -428,8 +474,10 @@ export function OwnerDashboardPanel({
   paymentMetrics,
   payoutAccounting,
 }: OwnerDashboardPanelProps) {
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "economy" | "pipeline" | "security">("overview");
   const [paymentFilter, setPaymentFilter] = useState<OwnerPaymentFilter>("all");
   const [payoutFilter, setPayoutFilter] = useState<OwnerPayoutFilter>("all");
+
   const users = userCatalog;
   const businesses = watchedBusinesses;
   const baseServices = watchedServices;
@@ -965,1839 +1013,161 @@ export function OwnerDashboardPanel({
     },
   ];
 
+  const tabs = [
+    { id: "overview" as const, label: "Overview" },
+    { id: "users" as const, label: "Users" },
+    { id: "economy" as const, label: "Economy" },
+    { id: "pipeline" as const, label: "Pipeline" },
+    { id: "security" as const, label: "Security" },
+  ];
+
   return (
-    <div className="space-y-5">
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={sectionVariants}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="overflow-hidden rounded-[32px] border border-white/8 bg-white/[0.05] p-5 md:p-6"
-      >
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
-          <div>
-            <EdenBrandLockup
-              size="sm"
-              label="Eden"
-              subtitle="Owner control room"
-            />
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">Owner Layer</p>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
-              Eden Control Room
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
-              Central owner console for monitoring the platform, runtime control plane, and the
-              remaining development overlays that still back older owner flows.
-            </p>
-            <div className="mt-4 rounded-2xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-300">
-              Honest state: payments, payouts, runtime records, sandbox tasks, and several usage
-              metrics now persist. Release transitions, freeze toggles, and some ledger views still
-              include development overlays until those owner flows are replaced.
-            </div>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {sectionLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={`#${link.id}`}
-                  className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-2 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {ownerSignalsDisplay.map((signal) => (
-                <div
-                  key={signal.label}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
-                >
-                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{signal.label}</p>
-                  <p className="mt-2 text-xl font-semibold tracking-tight text-white">{signal.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{signal.detail}</p>
-                </div>
-              ))}
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.05] px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <EdenBrandLockup size="sm" label="Eden" subtitle="Owner control room" />
+            <div className="hidden h-6 w-px bg-white/10 sm:block" />
+            <div className="hidden sm:block">
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">Owner Layer</p>
+              <p className="mt-0.5 text-sm font-semibold text-white">Mission Control</p>
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {adminSummaryStrip.map((item) => (
+              <div key={item.id} className="flex items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.05] px-3 py-1.5">
+                <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${item.tone}`}>{item.value}</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-3 rounded-xl border border-sky-500/20 bg-sky-500/[0.08] px-3 py-2 font-mono text-[11px] text-sky-300/80">
+          Honest state: payments, payouts, runtime records, sandbox tasks, and several usage metrics now persist. Release transitions, freeze toggles, and some ledger views still include development overlays.
+        </div>
+      </div>
 
+      {/* Tab bar */}
+      <div className="flex gap-1 rounded-2xl border border-white/8 bg-white/[0.04] p-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 rounded-xl px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-all ${
+              activeTab === tab.id
+                ? "bg-[#14989a]/20 text-[#14989a] shadow-[0_0_0_1px_rgba(20,152,154,0.35)]"
+                : "text-white/40 hover:bg-white/[0.04] hover:text-white/70"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <AnimatePresence mode="wait">
+        {activeTab === "overview" && (
           <motion.div
-            variants={containerVariants}
+            key="overview"
+            variants={tabVariants}
             initial="hidden"
             animate="visible"
-            className="grid gap-3 sm:grid-cols-2"
+            exit="exit"
+            className="space-y-4"
           >
-            {overviewMetrics.slice(0, 4).map((metric) => (
-              <motion.article
-                key={metric.id}
-                variants={cardVariants}
-                className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
-              >
-                <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{metric.value}</p>
-                <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
-              </motion.article>
-            ))}
-          </motion.div>
-        </div>
-      </motion.section>
-
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid gap-3 lg:grid-cols-4"
-      >
-        {adminSummaryStrip.map((item) => (
-          <motion.article
-            key={item.id}
-            variants={cardVariants}
-            className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
-                <p className="mt-2 text-lg font-semibold tracking-tight text-white">{item.value}</p>
-              </div>
-              <span
-                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${item.tone}`}
-              >
-                {item.value}
-              </span>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-          </motion.article>
-        ))}
-      </motion.div>
-
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid gap-4 xl:grid-cols-[minmax(0,1.16fr)_minmax(320px,0.84fr)]"
-      >
-        <motion.div variants={sectionVariants} className="xl:col-span-2">
-          <ControlRoomSection
-            id="system-overview"
-            eyebrow="System Overview"
-            title="Platform-wide snapshot"
-            description="Owner-facing rollup for user count, business volume, credit flow, and current release visibility."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                Mock control feed
-              </span>
-            }
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3 lg:grid-cols-5"
-            >
-              {overviewMetrics.map((metric) => (
-                <motion.article
-                  key={metric.id}
-                  variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{metric.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
-                </motion.article>
+            {/* Overview metrics grid */}
+            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
+              {overviewMetrics.slice(0, 5).map((metric) => (
+                <StatCell key={metric.id} label={metric.label} value={metric.value} sub={metric.detail} />
               ))}
-            </motion.div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {overviewMetrics.slice(5).map((metric) => (
+                <StatCell key={metric.id} label={metric.label} value={metric.value} sub={metric.detail} />
+              ))}
+            </div>
 
-            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.12fr)_minmax(300px,0.88fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Health monitors</p>
-                <div className="mt-4 space-y-3">
-                  {systemHealthChecks.map((check) => (
-                    <div key={check.label} className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-semibold text-white">{check.label}</p>
-                        <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                          {check.status}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-white/50">{check.detail}</p>
+            {/* Signals + health */}
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.72fr)]">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Owner Signals" title="Live signal feed" />
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {ownerSignalsDisplay.map((signal) => (
+                    <div key={signal.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">{signal.label}</p>
+                      <p className="mt-1.5 text-base font-semibold text-white">{signal.value}</p>
+                      <p className="mt-1 text-[11px] leading-4 text-white/40">{signal.detail}</p>
                     </div>
                   ))}
                 </div>
               </div>
               <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Owner watchlist</p>
-                <div className="mt-3 space-y-3 text-sm leading-6 text-white/50">
-                  <p>{publishSummary.testingCount} watched releases remain in testing.</p>
-                  <p>{publishSummary.readyCount} release targets are ready for publish.</p>
-                  <p>
-                    Frozen users: {frozenUsersCount}. Frozen businesses: {frozenBusinessesCount}.
-                  </p>
-                  <p>
-                    Latest publish:{" "}
-                    {publishSummary.latestPublishEvent
-                      ? `${formatPipelineTimestamp(publishSummary.latestPublishEvent.timestamp)} by ${publishSummary.latestPublishEvent.actor}.`
-                      : "No publish events recorded yet."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </ControlRoomSection>
-        </motion.div>
-
-        <motion.div variants={sectionVariants}>
-          <ControlRoomSection
-            id="users"
-            eyebrow="Users"
-            title="Account monitoring"
-            description="Mock user accounts with status, role, and Eden balance visibility for owner review."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                {users.length} records
-              </span>
-            }
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="space-y-3"
-            >
-              {users.map((user) => (
-                <motion.article
-                  key={user.id}
-                  variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  {(() => {
-                    const userFrozen = isUserFrozen(user.id, adminState);
-                    const userStatus = userFrozen ? "frozen" : user.status;
-
-                    return (
-                      <>
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <Link
-                              href={`/owner/users/${user.id}`}
-                              className="text-sm font-semibold text-white transition-colors hover:text-eden-accent"
-                            >
-                              {user.username}
-                            </Link>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                              {toTitleCase(user.role)}
-                            </p>
-                          </div>
-                          <span
-                            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getUserStatusClasses(
-                              userStatus,
-                            )}`}
-                          >
-                            {toTitleCase(userStatus)}
-                          </span>
-                        </div>
-                        <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2">
-                          <span className="text-xs uppercase tracking-[0.12em] text-white/50">Eden balance</span>
-                          <span className="text-sm font-semibold text-white">
-                            {formatCredits(getUserCreditsBalance(user.id, simulatedTransactions))}
-                          </span>
-                        </div>
-                        <div className="mt-3">
-                          <MockAdminActionButton
-                            action={userFrozen ? "unfreeze_user" : "freeze_user"}
-                            userId={user.id}
-                            label={userFrozen ? "Unfreeze User" : "Freeze User"}
-                            detail={
-                              userFrozen
-                                ? "Remove the local frozen-user flag for this account."
-                                : "Mark this account as frozen in the local mock admin state."
-                            }
-                            className={
-                              userFrozen
-                                ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
-                                : "w-full border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-100"
-                            }
-                          />
-                        </div>
-                        <div className="mt-3">
-                          <OwnerLeavesGrantButton
-                            userId={user.id}
-                            username={user.username}
-                            amountCredits={250}
-                            className="w-full border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100"
-                          />
-                        </div>
-                      </>
-                    );
-                  })()}
-                </motion.article>
-              ))}
-            </motion.div>
-          </ControlRoomSection>
-        </motion.div>
-        <motion.div variants={sectionVariants}>
-          <ControlRoomSection
-            id="businesses"
-            eyebrow="Businesses"
-            title="Business workspace monitoring"
-            description="Current release state and latest transition visibility for watched businesses."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                {businessCards.length} watched
-              </span>
-            }
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3"
-            >
-              {businessCards.map((entry) => {
-                const releaseStatus =
-                  entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
-
-                return (
-                  <motion.article
-                    key={entry.business.id}
-                    variants={cardVariants}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <Link
-                          href={`/businesses/${entry.business.id}`}
-                          className="text-sm font-semibold text-white transition-colors hover:text-eden-accent"
-                        >
-                          {entry.business.name}
-                        </Link>
-                        <p className="mt-1 text-sm text-white/50">Owner: {entry.ownerName}</p>
+                <PanelHeader eyebrow="Health Monitors" title="System status" badge={`${systemHealthChecks.length} checks`} />
+                <div className="space-y-2">
+                  {systemHealthChecks.map((check) => (
+                    <div key={check.label} className="flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <StatusDot tone={check.status === "Stable" ? "green" : check.status === "Watch" ? "amber" : "red"} />
+                        <p className="text-xs font-medium text-white">{check.label}</p>
                       </div>
-                      <span
-                        className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
-                          entry.isFrozen
-                            ? getAdminStateClasses("frozen")
-                            : getReleaseStatusClasses(releaseStatus)
-                        }`}
-                      >
-                        {entry.isFrozen ? "Frozen" : getPipelineStatusLabel(releaseStatus)}
-                      </span>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{check.status}</span>
                     </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                        {entry.business.category}
-                      </span>
-                      <span
-                        className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getBusinessStatusClasses(
-                          entry.business.status,
-                        )}`}
-                      >
-                        Workspace {toTitleCase(entry.business.status)}
-                      </span>
-                      {entry.isFrozen ? (
-                        <span className="rounded-full border border-rose-500/25 bg-rose-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-rose-300">
-                          Owner hold
-                        </span>
-                      ) : (
-                        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-emerald-400">
-                          Active
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">Active service</p>
-                        <p className="mt-2 text-sm font-semibold text-white">
-                            {getCatalogServiceById(
-                              entry.snapshot?.serviceId ?? entry.business.featuredServiceId,
-                            )?.title ??
-                              entry.snapshot?.service?.title ??
-                              "Active service"}
-                          </p>
-                      </div>
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                        <p className="text-xs uppercase tracking-[0.12em] text-white/50">Readiness</p>
-                        <p className="mt-2 text-sm font-semibold text-white">
-                          {entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}%
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Latest release activity</p>
-                      <p className="mt-2 text-sm font-semibold text-white">
-                        {entry.latestEvent
-                          ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} -> ${getPipelineStatusLabel(entry.latestEvent.newStatus)}`
-                          : "Seeded from shared mock data"}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-white/50">
-                        {entry.latestEvent?.detail ??
-                          "No local transition recorded yet for this watched business."}
-                      </p>
-                    </div>
-                    <div className="mt-3">
-                      <div className="mb-3 flex flex-wrap gap-2">
-                        <Link
-                          href={`/owner/payouts/${entry.business.id}`}
-                          className="rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
-                        >
-                          View Payout
-                        </Link>
-                        <Link
-                          href={`/businesses/${entry.business.id}`}
-                          className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
-                        >
-                          Open Business
-                        </Link>
-                      </div>
-                      <MockAdminActionButton
-                        action={entry.isFrozen ? "unfreeze_business" : "freeze_business"}
-                        businessId={entry.business.id}
-                        label={entry.isFrozen ? "Unfreeze Business" : "Freeze Business"}
-                        detail={
-                          entry.isFrozen
-                            ? "Remove the local business freeze flag and return this workspace to the active owner overlay."
-                            : "Mark this business as frozen in local admin state."
-                        }
-                        className={
-                          entry.isFrozen
-                            ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
-                            : "w-full border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-100"
-                        }
-                      />
-                    </div>
-                  </motion.article>
-                );
-              })}
-            </motion.div>
-          </ControlRoomSection>
-        </motion.div>
-
-        <motion.div variants={sectionVariants}>
-          <ControlRoomSection
-            id="services"
-            eyebrow="Services"
-            title="Service release visibility"
-            description="Relevant services with current release state and latest transition context."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                {services.length} monitored
-              </span>
-            }
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3 sm:grid-cols-2"
-            >
-              {services.map((entry) => (
-                <motion.article
-                  key={entry.service.id}
-                  variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  <Link
-                    href={`/services/${entry.service.id}`}
-                    className="text-sm font-semibold text-white transition-colors hover:text-eden-accent"
-                  >
-                    {entry.service.title}
-                  </Link>
-                  <p className="mt-2 text-sm text-white/50">Business: {entry.businessName}</p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                      {entry.service.category}
-                    </span>
-                    <span
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getReleaseStatusClasses(
-                        entry.releaseStatus,
-                      )}`}
-                    >
-                      {getPipelineStatusLabel(entry.releaseStatus)}
-                    </span>
-                    {entry.businessFrozen ? (
-                      <span className="rounded-full border border-rose-500/25 bg-rose-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-rose-300">
-                        Business frozen
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Latest transition</p>
-                    <p className="mt-2 text-sm font-semibold text-white">
-                      {entry.latestEvent
-                        ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} -> ${getPipelineStatusLabel(entry.latestEvent.newStatus)}`
-                        : entry.service.status}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">
-                      {entry.latestEvent?.detail ??
-                        "No service-specific transition has been recorded yet."}
-                    </p>
-                  </div>
-                </motion.article>
-              ))}
-            </motion.div>
-          </ControlRoomSection>
-        </motion.div>
-
-        <motion.div variants={sectionVariants} className="xl:col-span-2">
-          <ControlRoomSection
-            id="release-activity"
-            eyebrow="Release Activity"
-            title="Release transition history"
-            description="Owner visibility into publish queue movement and recent status transitions across watched businesses."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                {releaseEvents.length} recent events
-              </span>
-            }
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3 lg:grid-cols-4"
-            >
-              {releaseSummaryCards.map((item) => (
-                <motion.article
-                  key={item.id}
-                  variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-                </motion.article>
-              ))}
-            </motion.div>
-            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="space-y-3"
-              >
-                {releaseEvents.map((event) => {
-                  const business = getCatalogBusinessById(event.businessId);
-                  const service = getCatalogServiceById(event.serviceId);
-
-                  return (
-                    <motion.article
-                      key={event.id}
-                      variants={cardVariants}
-                      className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                    >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-white">
-                              {business?.name ?? "Business"} / {service?.title ?? "Service"}
-                            </p>
-                            <span
-                              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getReleaseStatusClasses(
-                                event.newStatus,
-                              )}`}
-                            >
-                              {getPipelineStatusLabel(event.newStatus)}
-                            </span>
-                          </div>
-                          <p className="mt-2 text-sm leading-6 text-white/50">{event.detail}</p>
-                          <p className="mt-3 text-xs uppercase tracking-[0.12em] text-white/50">
-                            {getPipelineStatusLabel(event.previousStatus)} to {getPipelineStatusLabel(event.newStatus)} by {event.actor}
-                          </p>
-                        </div>
-                        <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">Timestamp</p>
-                          <p className="mt-1 text-sm font-semibold text-white">
-                            {formatPipelineTimestamp(event.timestamp)}
-                          </p>
-                        </div>
-                      </div>
-                    </motion.article>
-                  );
-                })}
-              </motion.div>
-              <div className="space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Latest publish</p>
-                  <p className="mt-2 text-lg font-semibold text-white">
-                    {publishSummary.latestPublishEvent
-                      ? getCatalogServiceById(publishSummary.latestPublishEvent.serviceId)?.title ??
-                        "Published service"
-                      : "No publish recorded"}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    {publishSummary.latestPublishEvent?.detail ??
-                      "The owner release feed will show publish history here after a release transition is recorded through the current workflow path."}
-                  </p>
-                  <p className="mt-3 text-xs uppercase tracking-[0.12em] text-white/50">
-                    {publishSummary.latestPublishEvent
-                      ? `${publishSummary.latestPublishEvent.actor} - ${formatPipelineTimestamp(publishSummary.latestPublishEvent.timestamp)}`
-                      : "Waiting for mock activity"}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Current release queue</p>
-                  <div className="mt-4 space-y-3">
-                    {businessCards.map((entry) => {
-                      const releaseStatus =
-                        entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
-
-                      return (
-                        <div key={`queue-${entry.business.id}`} className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <p className="text-sm font-semibold text-white">{entry.business.name}</p>
-                            <span
-                              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
-                                entry.isFrozen
-                                  ? getAdminStateClasses("frozen")
-                                  : getReleaseStatusClasses(releaseStatus)
-                              }`}
-                            >
-                              {entry.isFrozen ? "Frozen" : getPipelineStatusLabel(releaseStatus)}
-                            </span>
-                          </div>
-                          <p className="mt-2 text-sm leading-6 text-white/50">
-                            {getCatalogServiceById(
-                              entry.snapshot?.serviceId ?? entry.business.featuredServiceId,
-                            )?.title ??
-                              entry.snapshot?.service?.title ??
-                              "Active service"}{" "}
-                            is at {entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}% readiness.
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ControlRoomSection>
-        </motion.div>
-
-        <motion.div variants={sectionVariants}>
-          <ControlRoomSection
-            id="agent-system-status"
-            eyebrow="Agent System Status"
-            title="Agent nodes and activity"
-            description="Mock node health, queue depth, and current activity across the Eden agent surface."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                {agentNodes.length} nodes
-              </span>
-            }
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3"
-            >
-              {agentNodes.map((node) => (
-                <motion.article
-                  key={node.id}
-                  variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-white">{node.name}</p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">{node.queueDepth}</p>
-                    </div>
-                    <span
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getAgentStatusClasses(
-                        node.status,
-                      )}`}
-                    >
-                      {node.status}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-white/50">{node.activity}</p>
-                </motion.article>
-              ))}
-            </motion.div>
-          </ControlRoomSection>
-        </motion.div>
-        <motion.div variants={sectionVariants} className="xl:col-span-2">
-          <ControlRoomSection
-            id="transaction-flow"
-            eyebrow="Transaction Flow"
-            title="Eden Leaf's movement"
-            description="Owner-facing development ledger activity showing how spendable Leaf's move across issuing, spending, holds, and adjustments."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                Development ledger overlay
-              </span>
-            }
-          >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3 lg:grid-cols-4"
-            >
-              {creditSummary.map((item) => (
-                <motion.article
-                  key={item.label}
-                  variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-                </motion.article>
-              ))}
-            </motion.div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaf's activity</p>
-              <div className="mt-4 space-y-3">
-                {creditActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.04] p-3 md:flex-row md:items-start md:justify-between"
-                  >
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm font-semibold text-white">{activity.title}</p>
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getCreditDirectionClasses(
-                            activity.direction,
-                          )}`}
-                        >
-                          {activity.direction}
-                        </span>
-                        {activity.simulated ? (
-                          <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                            Overlay
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-white/50">{activity.detail}</p>
-                    </div>
-                    <div className="text-left md:text-right">
-                      <p className="text-sm font-semibold text-white">{activity.amount}</p>
-                      <p className="mt-1 text-xs text-white/50">{activity.timestamp}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Platform growth intelligence
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    Compact platform performance view across service demand, customer value, and payout exposure before the detailed reconciliation and analytics feeds below.
-                  </p>
-                </div>
-                <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
-                  {usageMetrics.source === "persistent"
-                    ? "Persistent usage analytics"
-                    : "Mock fallback analytics"}
-                </span>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                {platformGrowthSummaryCards.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
-                  >
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      {item.label}
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-4 xl:grid-cols-2">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Highest usage businesses
-                </p>
-                <div className="mt-4 space-y-3">
-                  {topBusinessesByUsage.length ? (
-                    topBusinessesByUsage.slice(0, 3).map((business, index) => (
-                      <div
-                        key={`${business.businessId}-usage-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {index + 1}. {business.businessName}
-                            </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                              {business.usageCount} runs | {formatCredits(business.totalCreditsUsed)} used
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              Top service: {business.topServiceTitle}
-                            </p>
-                          </div>
-                          <p className="text-xs text-white/50">{business.lastUsedAtLabel}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      Usage-leading businesses appear here once the platform records tracked service runs.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Highest earning businesses
-                </p>
-                <div className="mt-4 space-y-3">
-                  {topBusinessesByEarnings.length ? (
-                    topBusinessesByEarnings.slice(0, 3).map((business, index) => (
-                      <div
-                        key={`${business.businessId}-earning-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {index + 1}. {business.businessName}
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              Earned Leaf's {formatCredits(business.totalEarnedCredits)} | Ready{" "}
-                              {formatCredits(business.payoutReadyCredits)}
-                            </p>
-                            <p className="mt-1 text-xs text-white/50">
-                              Eden fee share {formatCredits(business.edenFeeShareCredits)}
-                            </p>
-                          </div>
-                          <p className="text-xs text-white/50">{business.lastUsedAtLabel}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      Earning leaders appear here once priced service usage and payout accounting are available.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Highest usage services
-                </p>
-                <div className="mt-4 space-y-3">
-                  {topServicesByUsage.length ? (
-                    topServicesByUsage.slice(0, 3).map((service, index) => (
-                      <div
-                        key={`${service.serviceId}-usage-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {index + 1}. {service.serviceTitle}
-                            </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                              {service.businessName}
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
-                            </p>
-                          </div>
-                          <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                            {getServicePricingDisplay({
-                              pricingModel: service.pricingModel,
-                              pricePerUse: service.pricePerUseCredits,
-                              pricingUnit: service.pricingUnit,
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      Usage-leading services appear here once the platform records tracked service usage.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Highest earning services
-                </p>
-                <div className="mt-4 space-y-3">
-                  {topServicesByEarnings.length ? (
-                    topServicesByEarnings.slice(0, 3).map((service, index) => (
-                      <div
-                        key={`${service.serviceId}-earning-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {index + 1}. {service.serviceTitle}
-                            </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                              {service.businessName}
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              Gross {formatCredits(service.monetization.estimatedGrossCredits)} | Eden fee{" "}
-                              {formatCredits(service.monetization.estimatedPlatformEarningsCredits)}
-                            </p>
-                          </div>
-                          <p className="text-xs text-white/50">{service.lastUsedAtLabel}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      Pricing-based service earning leaders appear here after tracked usage is recorded.
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Top users by value
-                </p>
-                <div className="mt-4 space-y-3">
-                  {topUsersByValue.length ? (
-                    topUsersByValue.slice(0, 3).map((user, index) => (
-                      <div
-                        key={`${user.userId ?? user.userDisplayName}-value-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {index + 1}. {user.userDisplayName}
-                            </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                              {user.isAnonymousUser
-                                ? "Guest"
-                                : user.username
-                                  ? `@${user.username}`
-                                  : "User"}
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              Projected value {formatCredits(user.projectedCustomerValueCredits)} via{" "}
-                              {user.topServiceTitle}.
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-white">
-                              {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}
-                            </p>
-                            <p className="mt-1 text-xs text-white/50">Builder-side value</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      User value leaders appear here once service usage is tied to individual platform users.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Top users by usage
-                </p>
-                <div className="mt-4 space-y-3">
-                  {topUsersByUsage.length ? (
-                    topUsersByUsage.slice(0, 3).map((user, index) => (
-                      <div
-                        key={`${user.userId ?? user.userDisplayName}-usage-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">
-                              {index + 1}. {user.userDisplayName}
-                            </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                              {user.usageCount} runs | {user.usageSharePercent}% of tracked demand
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              Top service {user.topServiceTitle} | Value{" "}
-                              {formatCredits(user.projectedCustomerValueCredits)}
-                            </p>
-                          </div>
-                          <p className="text-xs text-white/50">{user.lastUsedAtLabel}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      Usage-leading users appear here once platform service runs are recorded.
-                    </div>
-                  )}
-                </div>
-              </div>
-
+            {/* Admin controls */}
+            <div className="grid gap-3 lg:grid-cols-3">
               <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Recent user activity pulse
-                </p>
-                <div className="mt-4 space-y-3">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Latest user activity
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-white">
-                      {latestUserActivity?.userDisplayName ?? "No recent user activity"}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">
-                      {latestUserActivity
-                        ? `${latestUserActivity.userDisplayName} used ${latestUserActivity.serviceTitle} from ${latestUserActivity.businessName} for ${formatCredits(
-                            latestUserActivity.creditsUsed,
-                          )}.`
-                        : "Recent platform activity appears here once service usage is recorded."}
-                    </p>
-                    <p className="mt-2 text-xs text-white/50">
-                      {latestUserActivity?.timestampLabel ?? "Waiting for the next tracked user event."}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Highest value user
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-white">
-                      {topValueUser?.userDisplayName ?? "No user value yet"}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">
-                      {topValueUser
-                        ? `${formatCredits(topValueUser.projectedCustomerValueCredits)} projected value with ${formatCredits(
-                            topValueUser.monetization.estimatedPlatformEarningsCredits,
-                          )} Eden fee share.`
-                        : "Projected user value appears once priced service usage is attached to users."}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Current usage pulse
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-white">
-                      {strongestUsagePulse?.serviceTitle ?? "No usage pulse yet"}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">
-                      {strongestUsagePulse
-                        ? `${strongestUsagePulse.recentPulseCount} of the latest ${recentUsagePulseWindow.length} runs landed on this service.`
-                        : "Recent pulse appears once multiple fresh usage events are recorded."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Payment Operational Summary
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    Compact owner reconciliation view of the persistent top-up ledger before the detailed payment and lifecycle feeds below.
-                  </p>
-                </div>
-                <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
-                  {paymentMetrics.source === "persistent"
-                    ? "Persistent payment ledger"
-                    : "Fallback empty state"}
-                </span>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {paymentSummaryCards.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
-                  >
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      {item.label}
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">{item.value}</p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                      Recent top-up payments
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">
-                      Owner inspection of pending, settled, failed, and canceled Eden Leaf's top-ups.
-                    </p>
-                  </div>
-                  <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                    {filteredPayments.length} of {paymentMetrics.recentPayments.length} shown
+                <PanelHeader eyebrow="Admin State" title="Maintenance toggle" />
+                <div className="mb-3 flex items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${getAdminStateClasses(maintenanceMode ? "maintenance" : "active")}`}>
+                    {maintenanceMode ? "Maintenance active" : "Active"}
+                  </span>
+                  <span className="font-mono text-[10px] text-white/40">
+                    {frozenUsersCount} users frozen · {frozenBusinessesCount} biz frozen
                   </span>
                 </div>
-                <OwnerReconciliationFilters
-                  ariaLabel="Filter owner payment inspection rows"
-                  options={paymentFilterOptions.map((option) => ({ ...option }))}
-                  value={paymentFilter}
-                  onChange={(value) => setPaymentFilter(value as OwnerPaymentFilter)}
+                <MockAdminActionButton
+                  action="toggle_maintenance"
+                  label={maintenanceMode ? "Disable Maintenance Mode" : "Toggle Maintenance Mode"}
+                  detail={
+                    maintenanceMode
+                      ? "Turn off the current maintenance overlay banner."
+                      : "Enable a maintenance overlay banner across the platform shell."
+                  }
+                  className={
+                    maintenanceMode
+                      ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-500/15"
+                      : "w-full border-amber-500/25 bg-amber-500/10 hover:border-amber-300 hover:bg-amber-500/15"
+                  }
                 />
-                <div className="mt-4 space-y-3">
-                  {filteredPayments.length ? (
-                    filteredPayments.map((payment) => (
-                      <div
-                        key={payment.id}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-white">
-                                {payment.providerLabel}
-                              </p>
-                              <span
-                                className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getPaymentStatusClasses(
-                                  payment.status,
-                                )}`}
-                              >
-                                {formatPaymentStatus(payment.status)}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              {getUserDisplayLabel(payment.userId)}
-                            </p>
-                            {payment.userId ? (
-                              <div className="mt-2">
-                                <Link
-                                  href={`/owner/users/${payment.userId}`}
-                                  className={getOwnerReconciliationActionClasses()}
-                                >
-                                  Inspect Related User
-                                </Link>
-                              </div>
-                            ) : null}
-                            <div className="mt-2 space-y-1 text-xs leading-5 text-white/50">
-                              <p className="break-all">
-                                Session: <span className="font-mono">{payment.providerSessionId}</span>
-                              </p>
-                              {payment.providerPaymentIntentId ? (
-                                <p className="break-all">
-                                  Payment intent:{" "}
-                                  <span className="font-mono">{payment.providerPaymentIntentId}</span>
-                                </p>
-                              ) : null}
-                              <p>
-                                Created: {payment.createdAtLabel}
-                                {payment.settledAtLabel
-                                  ? ` | Settled: ${payment.settledAtLabel}`
-                                  : ""}
-                              </p>
-                              {payment.failureReason ? (
-                                <p>Reason: {payment.failureReason}</p>
-                              ) : null}
-                            </div>
-                            <div className="mt-3">
-                              <Link
-                                href={`/owner/payments/${payment.id}`}
-                                className={getOwnerReconciliationActionClasses()}
-                              >
-                                View Payment
-                              </Link>
-                            </div>
-                          </div>
-                          <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-white">
-                              {formatCredits(payment.creditsAmount)}
-                            </p>
-                            <p className="mt-1 text-xs text-white/50">
-                              {formatMoneyAmount(payment.amountCents, payment.currency)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      {paymentMetrics.recentPayments.length
-                        ? getPaymentFilterEmptyState(paymentFilter)
-                        : getPaymentFilterEmptyState("all")}
-                    </div>
-                  )}
-                </div>
-            </div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Payment lifecycle events
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    Best-effort persistent event logs for Stripe checkout creation, webhook receipt,
-                    settlement, skipped duplicate settlement, and settlement failures.
-                  </p>
-                </div>
-                <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                  {paymentMetrics.paymentEventLogsSource === "persistent"
-                    ? `${paymentMetrics.recentEventLogCount} recent events`
-                    : "Fallback empty state"}
-                </span>
               </div>
-              <div className="mt-4 space-y-3">
-                {paymentMetrics.recentEventLogs.length ? (
-                  paymentMetrics.recentEventLogs.map((eventLog) => (
-                    <div
-                      key={eventLog.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                    >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-white">
-                              {eventLog.eventTypeLabel}
-                            </p>
-                            <span
-                              className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getPaymentEventStatusClasses(
-                                eventLog.status,
-                              )}`}
-                            >
-                              {formatPaymentEventStatus(eventLog.status)}
-                            </span>
-                          </div>
-                          <div className="mt-2 space-y-1 text-xs leading-5 text-white/50">
-                            <p>Provider: {eventLog.provider}</p>
-                            {eventLog.providerEventId ? (
-                              <p className="break-all">
-                                Event: <span className="font-mono">{eventLog.providerEventId}</span>
-                              </p>
-                            ) : null}
-                            {eventLog.providerSessionId ? (
-                              <p className="break-all">
-                                Session:{" "}
-                                <span className="font-mono">{eventLog.providerSessionId}</span>
-                              </p>
-                            ) : null}
-                          {eventLog.creditsTopUpPaymentId ? (
-                            <p className="break-all">
-                              Payment record:{" "}
-                              <span className="font-mono">{eventLog.creditsTopUpPaymentId}</span>
-                            </p>
-                          ) : null}
-                        </div>
-                          {eventLog.metadataSummary.length ? (
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {eventLog.metadataSummary.map((summaryLine) => (
-                                <span
-                                  key={`${eventLog.id}-${summaryLine}`}
-                                  className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
-                                >
-                                  {summaryLine}
-                                </span>
-                              ))}
-                            </div>
-                          ) : null}
-                          {eventLog.creditsTopUpPaymentId || eventLog.relatedUserId ? (
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {eventLog.creditsTopUpPaymentId ? (
-                                <Link
-                                  href={`/owner/payments/${eventLog.creditsTopUpPaymentId}`}
-                                  className={getOwnerReconciliationActionClasses()}
-                                >
-                                  View Payment
-                                </Link>
-                              ) : null}
-                              {eventLog.relatedUserId ? (
-                                <Link
-                                  href={`/owner/users/${eventLog.relatedUserId}`}
-                                  className={getOwnerReconciliationActionClasses()}
-                                >
-                                  Inspect Related User
-                                </Link>
-                              ) : null}
-                            </div>
-                          ) : null}
-                        </div>
-                        <div className="text-left md:text-right">
-                          <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                            Logged
-                          </p>
-                          <p className="mt-1 text-sm font-semibold text-white">
-                            {eventLog.createdAtLabel}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                    No persistent payment lifecycle events are available yet. Once Stripe checkout
-                    and webhook events occur, the owner layer will surface the recorded lifecycle
-                    trail here.
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Builder payout accounting
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    {payoutAccounting.accountingRuleLabel}
-                  </p>
-                </div>
-                <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
-                  {payoutAccounting.payoutStatusLabel}
-                </span>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-                {payoutSummaryCards.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
-                  >
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      {item.label}
-                    </p>
-                    <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                      Payout history
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">
-                      Recent persistent payout settlement records used to reconcile builder liability and paid-out balances.
-                    </p>
-                  </div>
-                  <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                    {payoutAccounting.historySource === "persistent"
-                      ? "Persistent records"
-                      : "No persistent records"}
-                  </span>
-                </div>
-                <OwnerReconciliationFilters
-                  ariaLabel="Filter owner payout history rows"
-                  options={payoutFilterOptions.map((option) => ({ ...option }))}
-                  value={payoutFilter}
-                  onChange={(value) => setPayoutFilter(value as OwnerPayoutFilter)}
-                />
-                <div className="mt-4 space-y-3">
-                  {filteredPayoutHistory.length ? (
-                    filteredPayoutHistory.map((item) => (
-                      <div
-                        key={item.id}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-white">
-                                {item.businessName}
-                              </p>
-                              <span
-                                className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getPayoutSettlementStatusClasses(
-                                  item.status,
-                                )}`}
-                              >
-                                {formatPayoutSettlementStatus(item.status)}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              {formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}
-                            </p>
-                            <p className="mt-1 text-xs text-white/50">
-                              {item.notes ?? "Internal settlement note not provided."}
-                            </p>
-                          </div>
-                          <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-white">{item.createdAtLabel}</p>
-                            <p className="mt-1 text-xs text-white/50">
-                              {item.settledAtLabel
-                                ? `Settled ${item.settledAtLabel}`
-                                : "Awaiting settlement"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      {payoutAccounting.payoutHistory.length
-                        ? getPayoutFilterEmptyState(payoutFilter)
-                        : getPayoutFilterEmptyState("all")}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Payout status overview
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Settled payouts
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {payoutAccounting.statusOverview.settledCount}
-                    </p>
-                    <p className="mt-1 text-xs text-white/50">
-                      {formatCredits(
-                        payoutAccounting.statusOverview.settledSettlementCredits,
-                      )} recorded as paid
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Pending payouts
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {payoutAccounting.statusOverview.pendingCount}
-                    </p>
-                    <p className="mt-1 text-xs text-white/50">
-                      {formatCredits(
-                        payoutAccounting.statusOverview.pendingSettlementCredits,
-                      )} still queued
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Canceled payouts
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {payoutAccounting.statusOverview.canceledCount}
-                    </p>
-                    <p className="mt-1 text-xs text-white/50">
-                      {formatCredits(
-                        payoutAccounting.statusOverview.canceledSettlementCredits,
-                      )} removed from queue
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Internal Eden use
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {payoutAccounting.statusOverview.internalUseCount}
-                    </p>
-                    <p className="mt-1 text-xs text-white/50">
-                      {formatCredits(
-                        payoutAccounting.statusOverview.internalUseCredits,
-                      )} reused from earned Leaf's
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                      Current state
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {payoutAccounting.payoutStatusLabel}
-                    </p>
-                    <p className="mt-1 text-xs text-white/50">
-                      Liability {formatCredits(payoutAccounting.totalBuilderLiabilityCredits)} | Ready{" "}
-                      {formatCredits(payoutAccounting.totalPayoutReadyCredits)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Internal earned Leaf's usage
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    Recent business-side internal Eden use recorded against earned Leaf's. These rows reduce remaining builder liability without creating a payout.
-                  </p>
-                </div>
-                <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                  {payoutAccounting.internalUseHistorySource === "persistent"
-                    ? "Persistent records"
-                    : "No persistent records"}
-                </span>
-              </div>
-              <div className="mt-4 space-y-3">
-                {payoutAccounting.internalUseHistory.length ? (
-                  payoutAccounting.internalUseHistory.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                    >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-white">
-                              {item.businessName}
-                            </p>
-                            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-300">
-                              {item.usageTypeLabel}
-                            </span>
-                          </div>
-                          <p className="mt-2 text-sm leading-6 text-white/50">
-                            {formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}
-                          </p>
-                          <p className="mt-1 text-xs text-white/50">
-                            {item.actorLabel}
-                            {item.notes ? ` | ${item.notes}` : ""}
-                          </p>
-                        </div>
-                        <div className="text-left md:text-right">
-                          <p className="text-sm font-semibold text-white">{item.createdAtLabel}</p>
-                          <div className="mt-3">
-                            <Link
-                              href={`/owner/payouts/${item.businessId}`}
-                              className={getOwnerReconciliationActionClasses()}
-                            >
-                              View Payout
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                    No internal earned-Leaf's usage has been recorded yet.
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Usage earnings snapshot
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    {usageMetrics.monetization.pricingRuleLabel}
-                  </p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Tracked runs</p>
-                      <p className="mt-2 text-lg font-semibold text-white">{usageMetrics.totalUsageEvents}</p>
-                    </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Spendable Leaf's used</p>
-                      <p className="mt-2 text-lg font-semibold text-white">
-                        {formatCredits(usageMetrics.totalCreditsUsed)}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Eden earnings</p>
-                      <p className="mt-2 text-lg font-semibold text-white">
-                        {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Builder earnings</p>
-                      <p className="mt-2 text-lg font-semibold text-white">
-                        {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Top services by usage
-                  </p>
-                  <div className="mt-4 space-y-3">
-                    {usageMetrics.topServices.length ? (
-                      usageMetrics.topServices.map((service) => (
-                        <div
-                          key={service.serviceId}
-                          className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                        >
-                          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                            <div>
-                              <p className="text-sm font-semibold text-white">{service.serviceTitle}</p>
-                              <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                                {service.businessName}
-                              </p>
-                              <p className="mt-2 text-sm leading-6 text-white/50">
-                                {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
-                              </p>
-                              <p className="mt-2 text-sm leading-6 text-white/50">
-                                Current rate:{" "}
-                                {getServicePricingDisplay({
-                                  pricingModel: service.pricingModel,
-                                  pricePerUse: service.pricePerUseCredits,
-                                  pricingUnit: service.pricingUnit,
-                                })}
-                              </p>
-                            </div>
-                            <div className="text-left md:text-right">
-                              <p className="text-sm font-semibold text-white">
-                                {formatCredits(service.monetization.estimatedPlatformEarningsCredits)}
-                              </p>
-                              <p className="mt-1 text-xs text-white/50">Eden fee share</p>
-                              <p className="mt-2 text-xs text-white/50">
-                                Gross: {formatCredits(service.monetization.estimatedGrossCredits)}
-                              </p>
-                              <p className="mt-2 text-xs text-white/50">{service.lastUsedAtLabel}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                        No service usage has been tracked yet. The leaderboard will populate after service runs are recorded through the current execution paths.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Top earning businesses
-                </p>
-                <div className="mt-4 space-y-3">
-                  {payoutAccounting.topEarningBusinesses.length ? (
-                    payoutAccounting.topEarningBusinesses.map((business) => (
-                      <div
-                        key={business.businessId}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                          <div>
-                            <p className="text-sm font-semibold text-white">{business.businessName}</p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.12em] text-white/50">
-                              Top service: {business.topServiceTitle}
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              {business.usageCount} runs | {formatCredits(business.totalCreditsUsed)} used
-                            </p>
-                            <p className="mt-1 text-sm leading-6 text-white/50">
-                              Unpaid earnings: {formatCredits(business.unpaidEarningsCredits)}
-                            </p>
-                            {business.internalUseCredits > 0 ? (
-                              <p className="mt-1 text-sm leading-6 text-white/50">
-                                Used internally: {formatCredits(business.internalUseCredits)}
-                              </p>
-                            ) : null}
-                            <p className="mt-1 text-sm leading-6 text-white/50">
-                              Paid out: {formatCredits(business.paidOutCredits)}
-                              {business.pendingSettlementCredits > 0
-                                ? ` | Pending ${formatCredits(business.pendingSettlementCredits)}`
-                                : ""}
-                            </p>
-                          </div>
-                          <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-white">
-                              {formatCredits(business.payoutReadyCredits)}
-                            </p>
-                            <p className="mt-1 text-xs text-white/50">Payout-ready</p>
-                            <p className="mt-2 text-xs text-white/50">
-                              Available for Eden use: {formatCredits(business.availableForInternalUseCredits)}
-                            </p>
-                            <p className="mt-2 text-xs text-white/50">
-                              Eden fee share: {formatCredits(business.edenFeeShareCredits)}
-                            </p>
-                            <p className="mt-2 text-xs text-white/50">{business.lastUsedAtLabel}</p>
-                          </div>
-                        </div>
-                        {business.payoutReadyCredits > 0 ? (
-                          <div className="mt-3 space-y-2">
-                            <Link
-                              href={`/owner/payouts/${business.businessId}`}
-                              className="block rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
-                            >
-                              View Payout
-                            </Link>
-                            <MockPayoutSettlementButton
-                              businessId={business.businessId}
-                              amountCredits={business.payoutReadyCredits}
-                              label="Record internal payout settlement"
-                              detail={`Mark ${formatCredits(
-                                business.payoutReadyCredits,
-                              )} as paid out for ${business.businessName}. This only writes an internal settlement record.`}
-                              reference={`owner-payout-${business.businessId}`}
-                              notes={`Owner control-room settlement for ${business.businessName}`}
-                              className="w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
-                            />
-                          </div>
-                        ) : (
-                          <div className="mt-3">
-                            <Link
-                              href={`/owner/payouts/${business.businessId}`}
-                              className="block rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
-                            >
-                              View Payout
-                            </Link>
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      Earning rankings will appear here after the platform records priced service usage.
-                    </div>
-                  )}
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 lg:col-span-2">
+                <PanelHeader eyebrow="Dev Controls" title="Reset + grant actions" />
+                <div className="space-y-3">
+                  <MockResetControls
+                    showAll
+                    showLedger
+                    showPipeline
+                    showReleaseHistory
+                    description="Owner-only development resets for the cookie-backed ledger, pipeline, release history, and admin overlay state."
+                  />
+                  <OwnerLeavesGrantButton
+                    userId={session.user.id}
+                    username={session.user.username}
+                    amountCredits={250}
+                    className="w-full border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-500/15"
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Top users by platform usage
-                </p>
-                <div className="mt-4 space-y-3">
-                  {usageMetrics.topUsers.length ? (
-                    usageMetrics.topUsers.map((user) => (
-                      <div
-                        key={user.userId ?? `guest-${user.userDisplayName}`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                      >
-                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-semibold text-white">
-                                {user.userDisplayName}
-                              </p>
-                              <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                                {user.isAnonymousUser
-                                  ? "Guest"
-                                  : user.username
-                                    ? `@${user.username}`
-                                    : "User"}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-sm leading-6 text-white/50">
-                              {user.usageCount} runs across {user.perService.length} service
-                              {user.perService.length === 1 ? "" : "s"}.
-                            </p>
-                            <p className="mt-1 text-sm leading-6 text-white/50">
-                              Top service: {user.topServiceTitle}
-                            </p>
-                            <p className="mt-1 text-sm leading-6 text-white/50">
-                              Estimated customer value:{" "}
-                              {formatCredits(user.projectedCustomerValueCredits)}
-                            </p>
-                          </div>
-                          <div className="text-left md:text-right">
-                            <p className="text-sm font-semibold text-white">
-                              {user.usageSharePercent}% of tracked runs
-                            </p>
-                            <p className="mt-1 text-xs text-white/50">
-                              Builder earnings:{" "}
-                              {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}
-                            </p>
-                            <p className="mt-2 text-xs text-white/50">{user.lastUsedAtLabel}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                      User rankings will populate after platform usage events are recorded.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Usage concentration by user
-                  </p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                        Top user share
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-white">
-                        {usageMetrics.userConcentration.topUserSharePercent}%
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                        Top 3 users
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-white">
-                        {usageMetrics.userConcentration.topThreeUsersSharePercent}%
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                        User buckets
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-white">
-                        {usageMetrics.userConcentration.distinctUsers}
-                      </p>
-                      <p className="mt-1 text-xs text-white/50">
-                        {usageMetrics.userConcentration.anonymousUsageEvents} guest events
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Recent user activity
-                  </p>
-                  <div className="mt-4 space-y-3">
-                    {usageMetrics.recentUserActivity.length ? (
-                      usageMetrics.recentUserActivity.map((event) => (
-                        <div
-                          key={event.id}
-                          className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-sm font-semibold text-white">
-                                  {event.userDisplayName}
-                                </p>
-                                <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                                  {event.username ? `@${event.username}` : "Guest wallet"}
-                                </span>
-                              </div>
-                              <p className="mt-2 text-sm leading-6 text-white/50">
-                                Used {event.serviceTitle} from {event.businessName}.
-                              </p>
-                              <p className="mt-1 text-xs text-white/50">
-                                Value: {formatCredits(event.estimatedGrossCredits)} | Charge:{" "}
-                                {formatCredits(event.creditsUsed)}
-                              </p>
-                              <p className="mt-1 text-xs text-white/50">
-                                Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
-                                {formatCredits(event.platformFeeCredits)}
-                              </p>
-                            </div>
-                            <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                              {event.source === "persistent" ? "Persistent" : "Mock fallback"}
-                            </span>
-                          </div>
-                          <p className="mt-2 text-xs uppercase tracking-[0.12em] text-white/50">
-                            {event.timestampLabel}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
-                        Recent user activity will appear here after service usage is recorded.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4">
+            {/* Mock transaction controls */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Ledger Simulation" title="Mock transaction controls" />
               <MockTransactionControls
                 businessId={simulationBusinessId}
                 description={
@@ -2807,159 +1177,799 @@ export function OwnerDashboardPanel({
                 }
               />
             </div>
-          </ControlRoomSection>
-        </motion.div>
+          </motion.div>
+        )}
 
-        <motion.div variants={sectionVariants}>
-          <ControlRoomSection
-            id="system-logs"
-            eyebrow="System Logs"
-            title="Recent control-room events"
-            description="Mock owner logs covering routing, billing, publish, security, and agent events."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                Seeded overlay feed
-              </span>
-            }
+        {activeTab === "users" && (
+          <motion.div
+            key="users"
+            variants={tabVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-4"
           >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="space-y-3"
-            >
-              {platformLogs.slice(0, 5).map((event) => (
-                <motion.article
-                  key={event.id}
-                  variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${getLogLevelClasses(
-                          event.level,
-                        )}`}
-                      >
-                        {event.level}
+            <div className="flex items-center justify-between">
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">Account Monitoring</p>
+              <span className="rounded-full border border-white/8 bg-white/[0.05] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">{users.length} records</span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {users.map((user) => {
+                const userFrozen = isUserFrozen(user.id, adminState);
+                const userStatus = userFrozen ? "frozen" : user.status;
+                return (
+                  <div key={user.id} className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <Link
+                          href={`/owner/users/${user.id}`}
+                          className="text-sm font-semibold text-white transition-colors hover:text-[#14989a]"
+                        >
+                          {user.username}
+                        </Link>
+                        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">
+                          {toTitleCase(user.role)}
+                        </p>
+                      </div>
+                      <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getUserStatusClasses(userStatus)}`}>
+                        {toTitleCase(userStatus)}
                       </span>
-                      <span className="text-xs uppercase tracking-[0.12em] text-white/50">{event.source}</span>
                     </div>
-                    <span className="text-xs text-white/50">{event.timestamp}</span>
+                    <div className="mt-3 flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">Balance</span>
+                      <span className="text-sm font-semibold text-white">
+                        {formatCredits(getUserCreditsBalance(user.id, simulatedTransactions))}
+                      </span>
+                    </div>
+                    <div className="mt-2 space-y-2">
+                      <MockAdminActionButton
+                        action={userFrozen ? "unfreeze_user" : "freeze_user"}
+                        userId={user.id}
+                        label={userFrozen ? "Unfreeze User" : "Freeze User"}
+                        detail={
+                          userFrozen
+                            ? "Remove the local frozen-user flag for this account."
+                            : "Mark this account as frozen in the local mock admin state."
+                        }
+                        className={
+                          userFrozen
+                            ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-500/15"
+                            : "w-full border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-500/15"
+                        }
+                      />
+                      <OwnerLeavesGrantButton
+                        userId={user.id}
+                        username={user.username}
+                        amountCredits={250}
+                        className="w-full border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-500/15"
+                      />
+                    </div>
                   </div>
-                  <p className="mt-3 text-sm font-semibold text-white">{event.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{event.message}</p>
-                </motion.article>
-              ))}
-            </motion.div>
-          </ControlRoomSection>
-        </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
-        <motion.div variants={sectionVariants}>
-          <ControlRoomSection
-            id="security-controls"
-            eyebrow="Security Controls"
-            title="Owner safety actions"
-            description="Development-only controls for freezing accounts, toggling maintenance mode, and reviewing audit visibility."
-            actions={
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
-                Owner overlay mode
-              </span>
-            }
+        {activeTab === "economy" && (
+          <motion.div
+            key="economy"
+            variants={tabVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-4"
           >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3 lg:grid-cols-3"
-            >
-              <motion.article
-                variants={cardVariants}
-                className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-              >
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Frozen users
-                </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
-                  {frozenUsersCount}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/50">
-                  Accounts currently marked as frozen in the local mock admin state.
-                </p>
-              </motion.article>
-              <motion.article
-                variants={cardVariants}
-                className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-              >
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Frozen businesses
-                </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
-                  {frozenBusinessesCount}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/50">
-                  Business workspaces currently under the owner freeze overlay.
-                </p>
-              </motion.article>
-              <motion.article
-                variants={cardVariants}
-                className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-              >
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Maintenance mode
-                </p>
-                <div className="mt-3 flex items-center justify-between gap-3">
-                  <span
-                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getAdminStateClasses(
-                      maintenanceMode ? "maintenance" : "active",
-                    )}`}
-                  >
+            {/* Credit summary */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Credit Flow" title="Leaf's movement summary" badge="Dev ledger overlay" />
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {creditSummary.map((item) => (
+                  <StatCell key={item.label} label={item.label} value={item.value} sub={item.detail} />
+                ))}
+              </div>
+            </div>
+
+            {/* Credit activity */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Recent Activity" title="Leaf's transaction feed" badge={`${creditActivity.length} entries`} />
+              <div className="space-y-2">
+                {creditActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getCreditDirectionClasses(activity.direction)}`}>
+                        {activity.direction}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-medium text-white">{activity.title}</p>
+                        <p className="truncate text-[11px] text-white/40">{activity.detail}</p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-semibold text-white">{activity.amount}</p>
+                      <p className="text-[10px] text-white/40">{activity.timestamp}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Payment summary */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader
+                eyebrow="Payment Ledger"
+                title="Top-up payment summary"
+                badge={paymentMetrics.source === "persistent" ? "Persistent" : "Fallback"}
+              />
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {paymentSummaryCards.map((item) => (
+                  <StatCell key={item.id} label={item.label} value={item.value} sub={item.detail} />
+                ))}
+              </div>
+            </div>
+
+            {/* Recent payments */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Top-up Payments" title="Recent payment records" badge={`${filteredPayments.length} of ${paymentMetrics.recentPayments.length}`} />
+              <OwnerReconciliationFilters
+                ariaLabel="Filter owner payment inspection rows"
+                options={paymentFilterOptions.map((option) => ({ ...option }))}
+                value={paymentFilter}
+                onChange={(value) => setPaymentFilter(value as OwnerPaymentFilter)}
+              />
+              <div className="mt-3 space-y-2">
+                {filteredPayments.length ? (
+                  filteredPayments.map((payment) => (
+                    <div key={payment.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-white">{payment.providerLabel}</p>
+                            <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getPaymentStatusClasses(payment.status)}`}>
+                              {formatPaymentStatus(payment.status)}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] text-white/40">{getUserDisplayLabel(payment.userId)}</p>
+                          {payment.userId ? (
+                            <div className="mt-2">
+                              <Link href={`/owner/users/${payment.userId}`} className={getOwnerReconciliationActionClasses()}>
+                                Inspect Related User
+                              </Link>
+                            </div>
+                          ) : null}
+                          <div className="mt-2 space-y-0.5 font-mono text-[10px] leading-4 text-white/40">
+                            <p className="break-all">Session: {payment.providerSessionId}</p>
+                            {payment.providerPaymentIntentId ? (
+                              <p className="break-all">Intent: {payment.providerPaymentIntentId}</p>
+                            ) : null}
+                            <p>Created: {payment.createdAtLabel}{payment.settledAtLabel ? ` · Settled: ${payment.settledAtLabel}` : ""}</p>
+                            {payment.failureReason ? <p>Reason: {payment.failureReason}</p> : null}
+                          </div>
+                          <div className="mt-2">
+                            <Link href={`/owner/payments/${payment.id}`} className={getOwnerReconciliationActionClasses()}>
+                              View Payment
+                            </Link>
+                          </div>
+                        </div>
+                        <div className="shrink-0 text-left md:text-right">
+                          <p className="text-sm font-semibold text-white">{formatCredits(payment.creditsAmount)}</p>
+                          <p className="text-[10px] text-white/40">{formatMoneyAmount(payment.amountCents, payment.currency)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    {paymentMetrics.recentPayments.length ? getPaymentFilterEmptyState(paymentFilter) : getPaymentFilterEmptyState("all")}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Payment lifecycle events */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader
+                eyebrow="Payment Lifecycle"
+                title="Webhook event log"
+                badge={paymentMetrics.paymentEventLogsSource === "persistent" ? `${paymentMetrics.recentEventLogCount} events` : "Fallback"}
+              />
+              <div className="space-y-2">
+                {paymentMetrics.recentEventLogs.length ? (
+                  paymentMetrics.recentEventLogs.map((eventLog) => (
+                    <div key={eventLog.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-white">{eventLog.eventTypeLabel}</p>
+                            <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getPaymentEventStatusClasses(eventLog.status)}`}>
+                              {formatPaymentEventStatus(eventLog.status)}
+                            </span>
+                          </div>
+                          <div className="mt-1 space-y-0.5 font-mono text-[10px] leading-4 text-white/40">
+                            <p>Provider: {eventLog.provider}</p>
+                            {eventLog.providerEventId ? <p className="break-all">Event: {eventLog.providerEventId}</p> : null}
+                            {eventLog.providerSessionId ? <p className="break-all">Session: {eventLog.providerSessionId}</p> : null}
+                            {eventLog.creditsTopUpPaymentId ? <p className="break-all">Payment: {eventLog.creditsTopUpPaymentId}</p> : null}
+                          </div>
+                          {eventLog.metadataSummary.length ? (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {eventLog.metadataSummary.map((summaryLine) => (
+                                <span key={`${eventLog.id}-${summaryLine}`} className="rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[10px] text-white/40">
+                                  {summaryLine}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null}
+                          {eventLog.creditsTopUpPaymentId || eventLog.relatedUserId ? (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {eventLog.creditsTopUpPaymentId ? (
+                                <Link href={`/owner/payments/${eventLog.creditsTopUpPaymentId}`} className={getOwnerReconciliationActionClasses()}>View Payment</Link>
+                              ) : null}
+                              {eventLog.relatedUserId ? (
+                                <Link href={`/owner/users/${eventLog.relatedUserId}`} className={getOwnerReconciliationActionClasses()}>Inspect Related User</Link>
+                              ) : null}
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className="shrink-0 text-left md:text-right">
+                          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">Logged</p>
+                          <p className="mt-0.5 text-sm font-semibold text-white">{eventLog.createdAtLabel}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    No persistent payment lifecycle events are available yet. Once Stripe checkout and webhook events occur, the owner layer will surface the recorded lifecycle trail here.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Payout accounting */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Builder Payouts" title="Payout accounting summary" badge={payoutAccounting.payoutStatusLabel} />
+              <p className="mb-3 text-[11px] text-white/40">{payoutAccounting.accountingRuleLabel}</p>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+                {payoutSummaryCards.map((item) => (
+                  <StatCell key={item.id} label={item.label} value={item.value} sub={item.detail} />
+                ))}
+              </div>
+            </div>
+
+            {/* Payout history + status overview */}
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader
+                  eyebrow="Payout History"
+                  title="Settlement records"
+                  badge={payoutAccounting.historySource === "persistent" ? "Persistent" : "No records"}
+                />
+                <OwnerReconciliationFilters
+                  ariaLabel="Filter owner payout history rows"
+                  options={payoutFilterOptions.map((option) => ({ ...option }))}
+                  value={payoutFilter}
+                  onChange={(value) => setPayoutFilter(value as OwnerPayoutFilter)}
+                />
+                <div className="mt-3 space-y-2">
+                  {filteredPayoutHistory.length ? (
+                    filteredPayoutHistory.map((item) => (
+                      <div key={item.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-white">{item.businessName}</p>
+                              <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getPayoutSettlementStatusClasses(item.status)}`}>
+                                {formatPayoutSettlementStatus(item.status)}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] text-white/40">{formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}</p>
+                            <p className="text-[10px] text-white/40">{item.notes ?? "Internal settlement note not provided."}</p>
+                          </div>
+                          <div className="shrink-0 text-left md:text-right">
+                            <p className="text-sm font-semibold text-white">{item.createdAtLabel}</p>
+                            <p className="text-[10px] text-white/40">{item.settledAtLabel ? `Settled ${item.settledAtLabel}` : "Awaiting settlement"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                      {payoutAccounting.payoutHistory.length ? getPayoutFilterEmptyState(payoutFilter) : getPayoutFilterEmptyState("all")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Payout Status" title="Settlement overview" />
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <StatCell label="Settled payouts" value={`${payoutAccounting.statusOverview.settledCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.settledSettlementCredits)} recorded as paid`} />
+                  <StatCell label="Pending payouts" value={`${payoutAccounting.statusOverview.pendingCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.pendingSettlementCredits)} still queued`} />
+                  <StatCell label="Canceled payouts" value={`${payoutAccounting.statusOverview.canceledCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.canceledSettlementCredits)} removed from queue`} />
+                  <StatCell label="Internal Eden use" value={`${payoutAccounting.statusOverview.internalUseCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leaf's`} />
+                  <div className="sm:col-span-2">
+                    <StatCell label="Current state" value={payoutAccounting.payoutStatusLabel} sub={`Liability ${formatCredits(payoutAccounting.totalBuilderLiabilityCredits)} | Ready ${formatCredits(payoutAccounting.totalPayoutReadyCredits)}`} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Internal earned use */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader
+                eyebrow="Internal Earned Use"
+                title="Builder Leaf's reused internally"
+                badge={payoutAccounting.internalUseHistorySource === "persistent" ? "Persistent" : "No records"}
+              />
+              <div className="space-y-2">
+                {payoutAccounting.internalUseHistory.length ? (
+                  payoutAccounting.internalUseHistory.map((item) => (
+                    <div key={item.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-white">{item.businessName}</p>
+                            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-sky-300">
+                              {item.usageTypeLabel}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] text-white/40">{formatCredits(item.amountCredits)} | {item.reference ?? "No reference"}</p>
+                          <p className="text-[10px] text-white/40">{item.actorLabel}{item.notes ? ` | ${item.notes}` : ""}</p>
+                        </div>
+                        <div className="shrink-0 text-left md:text-right">
+                          <p className="text-sm font-semibold text-white">{item.createdAtLabel}</p>
+                          <div className="mt-2">
+                            <Link href={`/owner/payouts/${item.businessId}`} className={getOwnerReconciliationActionClasses()}>View Payout</Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    No internal earned-Leaf's usage has been recorded yet.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Top earning businesses with payout actions */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Earning Leaders" title="Top earning businesses" />
+              <div className="space-y-3">
+                {payoutAccounting.topEarningBusinesses.length ? (
+                  payoutAccounting.topEarningBusinesses.map((business) => (
+                    <div key={business.businessId} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-white">{business.businessName}</p>
+                          <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">Top: {business.topServiceTitle}</p>
+                          <p className="mt-1 text-[11px] text-white/40">{business.usageCount} runs | {formatCredits(business.totalCreditsUsed)} used</p>
+                          <p className="text-[11px] text-white/40">Unpaid: {formatCredits(business.unpaidEarningsCredits)}</p>
+                          {business.internalUseCredits > 0 ? (
+                            <p className="text-[11px] text-white/40">Used internally: {formatCredits(business.internalUseCredits)}</p>
+                          ) : null}
+                          <p className="text-[11px] text-white/40">
+                            Paid out: {formatCredits(business.paidOutCredits)}
+                            {business.pendingSettlementCredits > 0 ? ` | Pending ${formatCredits(business.pendingSettlementCredits)}` : ""}
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-left md:text-right">
+                          <p className="text-sm font-semibold text-white">{formatCredits(business.payoutReadyCredits)}</p>
+                          <p className="text-[10px] text-white/40">Payout-ready</p>
+                          <p className="mt-1 text-[10px] text-white/40">Available for Eden use: {formatCredits(business.availableForInternalUseCredits)}</p>
+                          <p className="text-[10px] text-white/40">Eden fee share: {formatCredits(business.edenFeeShareCredits)}</p>
+                          <p className="text-[10px] text-white/40">{business.lastUsedAtLabel}</p>
+                        </div>
+                      </div>
+                      {business.payoutReadyCredits > 0 ? (
+                        <div className="mt-3 space-y-2">
+                          <Link href={`/owner/payouts/${business.businessId}`} className="block rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]">
+                            View Payout
+                          </Link>
+                          <MockPayoutSettlementButton
+                            businessId={business.businessId}
+                            amountCredits={business.payoutReadyCredits}
+                            label="Record internal payout settlement"
+                            detail={`Mark ${formatCredits(business.payoutReadyCredits)} as paid out for ${business.businessName}. This only writes an internal settlement record.`}
+                            reference={`owner-payout-${business.businessId}`}
+                            notes={`Owner control-room settlement for ${business.businessName}`}
+                            className="w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-500/15"
+                          />
+                        </div>
+                      ) : (
+                        <div className="mt-3">
+                          <Link href={`/owner/payouts/${business.businessId}`} className="block rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]">
+                            View Payout
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    Earning rankings will appear here after the platform records priced service usage.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Usage analytics: top services, users */}
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Usage Analytics" title="Top services by usage" />
+                <div className="space-y-2">
+                  {usageMetrics.topServices.length ? (
+                    usageMetrics.topServices.map((service) => (
+                      <div key={service.serviceId} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-white">{service.serviceTitle}</p>
+                            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{service.businessName}</p>
+                            <p className="mt-1 text-[11px] text-white/40">{service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used</p>
+                            <p className="text-[11px] text-white/40">Rate: {getServicePricingDisplay({ pricingModel: service.pricingModel, pricePerUse: service.pricePerUseCredits, pricingUnit: service.pricingUnit })}</p>
+                          </div>
+                          <div className="shrink-0 text-left md:text-right">
+                            <p className="text-sm font-semibold text-white">{formatCredits(service.monetization.estimatedPlatformEarningsCredits)}</p>
+                            <p className="text-[10px] text-white/40">Eden fee share</p>
+                            <p className="mt-1 text-[10px] text-white/40">Gross: {formatCredits(service.monetization.estimatedGrossCredits)}</p>
+                            <p className="text-[10px] text-white/40">{service.lastUsedAtLabel}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                      No service usage has been tracked yet.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="User Analytics" title="Top users by platform usage" />
+                <div className="space-y-2">
+                  {usageMetrics.topUsers.length ? (
+                    usageMetrics.topUsers.map((user) => (
+                      <div key={user.userId ?? `guest-${user.userDisplayName}`} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-white">{user.userDisplayName}</p>
+                              <span className="rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">
+                                {user.isAnonymousUser ? "Guest" : user.username ? `@${user.username}` : "User"}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] text-white/40">{user.usageCount} runs across {user.perService.length} service{user.perService.length === 1 ? "" : "s"}.</p>
+                            <p className="text-[11px] text-white/40">Top: {user.topServiceTitle}</p>
+                            <p className="text-[11px] text-white/40">Customer value: {formatCredits(user.projectedCustomerValueCredits)}</p>
+                          </div>
+                          <div className="shrink-0 text-left md:text-right">
+                            <p className="text-sm font-semibold text-white">{user.usageSharePercent}% of tracked runs</p>
+                            <p className="text-[10px] text-white/40">Builder earnings: {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}</p>
+                            <p className="text-[10px] text-white/40">{user.lastUsedAtLabel}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                      User rankings will populate after platform usage events are recorded.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* User concentration + recent activity */}
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Usage Pulse" title="Recent user activity" />
+                <div className="space-y-2">
+                  {usageMetrics.recentUserActivity.length ? (
+                    usageMetrics.recentUserActivity.map((event) => (
+                      <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-white">{event.userDisplayName}</p>
+                              <span className="rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">
+                                {event.username ? `@${event.username}` : "Guest wallet"}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] text-white/40">Used {event.serviceTitle} from {event.businessName}.</p>
+                            <p className="text-[10px] text-white/40">Value: {formatCredits(event.estimatedGrossCredits)} | Charge: {formatCredits(event.creditsUsed)}</p>
+                            <p className="text-[10px] text-white/40">Builder: {formatCredits(event.builderEarningsCredits)} | Eden fee: {formatCredits(event.platformFeeCredits)}</p>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">
+                            {event.source === "persistent" ? "Persistent" : "Mock"}
+                          </span>
+                        </div>
+                        <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-white/30">{event.timestampLabel}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                      Recent user activity will appear here after service usage is recorded.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Concentration" title="Usage distribution" />
+                <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+                  <StatCell label="Top user share" value={`${usageMetrics.userConcentration.topUserSharePercent}%`} />
+                  <StatCell label="Top 3 users" value={`${usageMetrics.userConcentration.topThreeUsersSharePercent}%`} />
+                  <StatCell label="User buckets" value={`${usageMetrics.userConcentration.distinctUsers}`} sub={`${usageMetrics.userConcentration.anonymousUsageEvents} guest events`} />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === "pipeline" && (
+          <motion.div
+            key="pipeline"
+            variants={tabVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-4"
+          >
+            {/* Release summary cards */}
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {releaseSummaryCards.map((item) => (
+                <StatCell key={item.id} label={item.label} value={item.value} sub={item.detail} />
+              ))}
+            </div>
+
+            {/* Release events + queue */}
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Release Events" title="Recent transition history" badge={`${releaseEvents.length} events`} />
+                <div className="space-y-2">
+                  {releaseEvents.map((event) => {
+                    const business = getCatalogBusinessById(event.businessId);
+                    const service = getCatalogServiceById(event.serviceId);
+                    return (
+                      <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-white">
+                                {business?.name ?? "Business"} / {service?.title ?? "Service"}
+                              </p>
+                              <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getReleaseStatusClasses(event.newStatus)}`}>
+                                {getPipelineStatusLabel(event.newStatus)}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] text-white/40">{event.detail}</p>
+                            <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/30">
+                              {getPipelineStatusLabel(event.previousStatus)} to {getPipelineStatusLabel(event.newStatus)} by {event.actor}
+                            </p>
+                          </div>
+                          <div className="shrink-0 text-left md:text-right">
+                            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">Timestamp</p>
+                            <p className="mt-0.5 text-sm font-semibold text-white">{formatPipelineTimestamp(event.timestamp)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                  <PanelHeader eyebrow="Latest Publish" title="Most recent publish event" />
+                  <p className="text-base font-semibold text-white">
+                    {publishSummary.latestPublishEvent
+                      ? getCatalogServiceById(publishSummary.latestPublishEvent.serviceId)?.title ?? "Published service"
+                      : "No publish recorded"}
+                  </p>
+                  <p className="mt-1 text-[11px] text-white/40">
+                    {publishSummary.latestPublishEvent?.detail ?? "The owner release feed will show publish history here after a release transition is recorded through the current workflow path."}
+                  </p>
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em] text-white/30">
+                    {publishSummary.latestPublishEvent
+                      ? `${publishSummary.latestPublishEvent.actor} — ${formatPipelineTimestamp(publishSummary.latestPublishEvent.timestamp)}`
+                      : "Waiting for mock activity"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                  <PanelHeader eyebrow="Release Queue" title="Current business queue" />
+                  <div className="space-y-2">
+                    {businessCards.map((entry) => {
+                      const releaseStatus = entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
+                      return (
+                        <div key={`queue-${entry.business.id}`} className="flex items-start justify-between gap-2 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                          <div>
+                            <p className="text-sm font-semibold text-white">{entry.business.name}</p>
+                            <p className="text-[11px] text-white/40">
+                              {getCatalogServiceById(entry.snapshot?.serviceId ?? entry.business.featuredServiceId)?.title ?? entry.snapshot?.service?.title ?? "Active service"}{" "}
+                              at {entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}%
+                            </p>
+                          </div>
+                          <span className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${entry.isFrozen ? getAdminStateClasses("frozen") : getReleaseStatusClasses(releaseStatus)}`}>
+                            {entry.isFrozen ? "Frozen" : getPipelineStatusLabel(releaseStatus)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Business cards */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Businesses" title="Business workspace monitoring" badge={`${businessCards.length} watched`} />
+              <div className="grid gap-3 lg:grid-cols-2">
+                {businessCards.map((entry) => {
+                  const releaseStatus = entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
+                  return (
+                    <div key={entry.business.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <Link href={`/businesses/${entry.business.id}`} className="text-sm font-semibold text-white transition-colors hover:text-[#14989a]">
+                            {entry.business.name}
+                          </Link>
+                          <p className="text-[11px] text-white/40">Owner: {entry.ownerName}</p>
+                        </div>
+                        <span className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${entry.isFrozen ? getAdminStateClasses("frozen") : getReleaseStatusClasses(releaseStatus)}`}>
+                          {entry.isFrozen ? "Frozen" : getPipelineStatusLabel(releaseStatus)}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        <span className="rounded-full bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{entry.business.category}</span>
+                        <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getBusinessStatusClasses(entry.business.status)}`}>
+                          Workspace {toTitleCase(entry.business.status)}
+                        </span>
+                        {entry.isFrozen ? (
+                          <span className="rounded-full border border-rose-500/25 bg-rose-500/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-rose-300">Owner hold</span>
+                        ) : (
+                          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-emerald-400">Active</span>
+                        )}
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <div className="rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                          <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Active service</p>
+                          <p className="mt-0.5 text-xs font-semibold text-white">
+                            {getCatalogServiceById(entry.snapshot?.serviceId ?? entry.business.featuredServiceId)?.title ?? entry.snapshot?.service?.title ?? "Active service"}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                          <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Readiness</p>
+                          <p className="mt-0.5 text-xs font-semibold text-white">{entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}%</p>
+                        </div>
+                      </div>
+                      <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                        <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Latest release activity</p>
+                        <p className="mt-0.5 text-xs font-semibold text-white">
+                          {entry.latestEvent ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} → ${getPipelineStatusLabel(entry.latestEvent.newStatus)}` : "Seeded from shared mock data"}
+                        </p>
+                        <p className="text-[10px] text-white/40">{entry.latestEvent?.detail ?? "No local transition recorded yet for this watched business."}</p>
+                      </div>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex gap-2">
+                          <Link href={`/owner/payouts/${entry.business.id}`} className="flex-1 rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-center text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50">View Payout</Link>
+                          <Link href={`/businesses/${entry.business.id}`} className="flex-1 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2 text-center text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white">Open Business</Link>
+                        </div>
+                        <MockAdminActionButton
+                          action={entry.isFrozen ? "unfreeze_business" : "freeze_business"}
+                          businessId={entry.business.id}
+                          label={entry.isFrozen ? "Unfreeze Business" : "Freeze Business"}
+                          detail={
+                            entry.isFrozen
+                              ? "Remove the local business freeze flag and return this workspace to the active owner overlay."
+                              : "Mark this business as frozen in local admin state."
+                          }
+                          className={
+                            entry.isFrozen
+                              ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-500/15"
+                              : "w-full border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-500/15"
+                          }
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Services table */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Services" title="Service release visibility" badge={`${services.length} monitored`} />
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {services.map((entry) => (
+                  <div key={entry.service.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <Link href={`/services/${entry.service.id}`} className="text-sm font-semibold text-white transition-colors hover:text-[#14989a]">
+                      {entry.service.title}
+                    </Link>
+                    <p className="mt-0.5 text-[11px] text-white/40">Business: {entry.businessName}</p>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <span className="rounded-full bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{entry.service.category}</span>
+                      <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getReleaseStatusClasses(entry.releaseStatus)}`}>
+                        {getPipelineStatusLabel(entry.releaseStatus)}
+                      </span>
+                      {entry.businessFrozen ? (
+                        <span className="rounded-full border border-rose-500/25 bg-rose-500/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-rose-300">Business frozen</span>
+                      ) : null}
+                    </div>
+                    <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Latest transition</p>
+                      <p className="mt-0.5 text-xs font-semibold text-white">
+                        {entry.latestEvent ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} → ${getPipelineStatusLabel(entry.latestEvent.newStatus)}` : entry.service.status}
+                      </p>
+                      <p className="text-[10px] text-white/40">{entry.latestEvent?.detail ?? "No service-specific transition has been recorded yet."}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === "security" && (
+          <motion.div
+            key="security"
+            variants={tabVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-4"
+          >
+            {/* Security controls */}
+            <div className="grid gap-3 lg:grid-cols-3">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Freeze State" title="Frozen accounts" />
+                <div className="grid grid-cols-2 gap-2">
+                  <StatCell label="Frozen users" value={`${frozenUsersCount}`} sub="Local freeze overlay" />
+                  <StatCell label="Frozen businesses" value={`${frozenBusinessesCount}`} sub="Owner flagged" />
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Maintenance" title="Platform overlay toggle" />
+                <div className="mb-3 flex items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${getAdminStateClasses(maintenanceMode ? "maintenance" : "active")}`}>
                     {maintenanceMode ? "Maintenance active" : "Active"}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-white/50">
-                  Toggle the platform-wide maintenance banner used across the Eden shell.
-                </p>
-                <div className="mt-4">
-                  <MockAdminActionButton
-                    action="toggle_maintenance"
-                    label={maintenanceMode ? "Disable Maintenance Mode" : "Toggle Maintenance Mode"}
-                    detail={
-                      maintenanceMode
-                        ? "Turn off the current maintenance overlay banner."
-                        : "Enable a maintenance overlay banner across the platform shell."
-                    }
-                    className={
-                      maintenanceMode
-                        ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
-                        : "w-full border-amber-500/25 bg-amber-500/10 hover:border-amber-300 hover:bg-amber-100"
-                    }
-                  />
-                </div>
-              </motion.article>
-            </motion.div>
-            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 text-sm leading-6 text-white/50">
-                Freeze and unfreeze actions are development-only overlays. They update the owner records, detail views, and platform shell immediately without enforcing any real backend restriction.
+                <p className="mb-3 text-[11px] text-white/40">Toggle the platform-wide maintenance banner used across the Eden shell.</p>
+                <MockAdminActionButton
+                  action="toggle_maintenance"
+                  label={maintenanceMode ? "Disable Maintenance Mode" : "Toggle Maintenance Mode"}
+                  detail={
+                    maintenanceMode
+                      ? "Turn off the current maintenance overlay banner."
+                      : "Enable a maintenance overlay banner across the platform shell."
+                  }
+                  className={
+                    maintenanceMode
+                      ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-500/15"
+                      : "w-full border-amber-500/25 bg-amber-500/10 hover:border-amber-300 hover:bg-amber-500/15"
+                  }
+                />
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-white">{auditLogsControl.title}</p>
-                    <p className="mt-2 text-sm leading-6 text-white/50">
-                      {auditLogsControl.description}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
-                    {auditLogsControl.stateLabel}
-                  </span>
+              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <PanelHeader eyebrow="Audit Logs" title={auditLogsControl.title} />
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="rounded-full bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{auditLogsControl.stateLabel}</span>
                 </div>
-                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.12em] text-eden-accent">
-                  {auditLogsControl.actionLabel}
-                </p>
+                <p className="mb-3 text-[11px] text-white/40">{auditLogsControl.description}</p>
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#14989a]">{auditLogsControl.actionLabel}</p>
               </div>
             </div>
-            <div className="mt-4">
+
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 text-[11px] text-white/40">
+              Freeze and unfreeze actions are development-only overlays. They update the owner records, detail views, and platform shell immediately without enforcing any real backend restriction.
+            </div>
+
+            {/* Reset controls */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Dev Resets" title="Owner reset actions" />
               <MockResetControls
                 showAll
                 showLedger
@@ -2968,17 +1978,71 @@ export function OwnerDashboardPanel({
                 description="Owner-only development resets for the cookie-backed ledger, pipeline, release history, and admin overlay state."
               />
             </div>
-          </ControlRoomSection>
-        </motion.div>
-      </motion.div>
+
+            {/* Agent nodes */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Agent System" title="Node health and activity" badge={`${agentNodes.length} nodes`} />
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {agentNodes.map((node) => (
+                  <div key={node.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{node.name}</p>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{node.queueDepth}</p>
+                      </div>
+                      <span className={`shrink-0 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getAgentStatusClasses(node.status)}`}>
+                        {node.status}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-[11px] text-white/40">{node.activity}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Health checks */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="Health Monitors" title="System health checks" badge={`${systemHealthChecks.length} checks`} />
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {systemHealthChecks.map((check) => (
+                  <div key={check.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <StatusDot tone={check.status === "Stable" ? "green" : check.status === "Watch" ? "amber" : "red"} />
+                        <p className="text-sm font-semibold text-white">{check.label}</p>
+                      </div>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{check.status}</span>
+                    </div>
+                    <p className="mt-2 text-[11px] text-white/40">{check.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Platform logs */}
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <PanelHeader eyebrow="System Logs" title="Recent control-room events" badge="Seeded overlay feed" />
+              <div className="space-y-2">
+                {platformLogs.slice(0, 5).map((event) => (
+                  <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getLogLevelClasses(event.level)}`}>
+                          {event.level}
+                        </span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{event.source}</span>
+                      </div>
+                      <span className="shrink-0 text-[10px] text-white/40">{event.timestamp}</span>
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-white">{event.title}</p>
+                    <p className="mt-1 text-[11px] text-white/40">{event.message}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
-
-
-
-
-
-
-

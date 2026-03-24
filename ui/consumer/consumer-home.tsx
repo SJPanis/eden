@@ -1123,7 +1123,7 @@ export function ConsumerHomePanel({
             onSubmit={(event) => {
               void handleAskEden(event);
             }}
-            className="mt-5 rounded-2xl border border-white/8 bg-white/85 p-3 md:p-4"
+            className="mt-5 rounded-2xl border border-white/8 bg-white/[0.06] p-3 md:p-4"
           >
             <div className="flex flex-col gap-2 md:flex-row">
               <input
@@ -1154,7 +1154,7 @@ export function ConsumerHomePanel({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.32, ease: "easeOut" }}
-              className="overflow-hidden rounded-2xl border border-white/8 bg-white/75 p-4 md:p-5"
+              className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.06] p-4 md:p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-accent">
@@ -1415,7 +1415,7 @@ export function ConsumerHomePanel({
                             {latestTurn.response.lanes.map((route) => (
                               <span
                                 key={`preview-${route}`}
-                                className="rounded-full border border-white/8 bg-white/85 px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
+                                className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
                               >
                                 {route.replace("_", " ")}
                               </span>
