@@ -101,7 +101,7 @@ export function RoleShell({
             <EdenBrandLockup
               size="sm"
               label="Eden"
-              subtitle="AI-first platform shell"
+              subtitle="AI service economy"
             />
           </Link>
 
@@ -313,18 +313,21 @@ export function RoleShell({
           </section>
         ) : null}
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.main
-            key={pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.24, ease: "easeOut" }}
-            className="eden-shell p-5 md:p-6"
-          >
-            {children}
-          </motion.main>
-        </AnimatePresence>
+        <div style={{ perspective: "1400px" }}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.main
+              key={pathname}
+              initial={{ opacity: 0, y: 24, rotateX: 7, scale: 0.975 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -14, rotateX: -4, scale: 0.985 }}
+              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+              style={{ transformOrigin: "50% 0%", transformStyle: "preserve-3d" }}
+              className="eden-shell p-5 md:p-6"
+            >
+              {children}
+            </motion.main>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

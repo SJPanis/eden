@@ -18,15 +18,24 @@ export type EdenWalletTransactionState = {
   effectiveTransactions: ReturnType<typeof mergeWalletTransactions>;
 };
 
+async function safeLoad<T>(loader: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await loader();
+  } catch (error) {
+    console.error("[eden-credits] DB load failed, using fallback:", (error as Error).message);
+    return fallback;
+  }
+}
+
 export async function getWalletTransactionState(): Promise<EdenWalletTransactionState> {
   const cookieStore = await cookies();
   const cookieTransactions = parseMockTransactionsCookie(
     cookieStore.get(mockTransactionsCookieName)?.value,
   );
   const [persistedTopUpTransactions, persistedGrantTransactions, persistedUsageTransactions] = await Promise.all([
-    loadSettledCreditsTopUpTransactions(),
-    loadOwnerLeavesGrantTransactions(),
-    loadPersistedServiceUsageTransactions(),
+    safeLoad(() => loadSettledCreditsTopUpTransactions(), []),
+    safeLoad(() => loadOwnerLeavesGrantTransactions(), []),
+    safeLoad(() => loadPersistedServiceUsageTransactions(), []),
   ]);
 
   return {

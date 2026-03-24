@@ -156,7 +156,7 @@ export function buildAuthSignInPath(targetPath: string) {
     callbackUrl: targetPath,
   });
 
-  return `/?${searchParams.toString()}`;
+  return `/auth?${searchParams.toString()}`;
 }
 
 function matchesRoutePrefix(pathname: string, prefix: string) {
