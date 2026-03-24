@@ -343,6 +343,8 @@ model User {
   contributionRecords             ContributionRecord[]             @relation("ContributorRecords")
   reviewedContributions           ContributionRecord[]             @relation("ContributionReviewer")
   contributionAllocations         ContributionAllocation[]         @relation("ContributionAllocationRecipient")
+  accessCodeId                    String?
+  accessCode                      EarlyAccessCode?                 @relation("UserAccessCode", fields: [accessCodeId], references: [id])
 }
 
 model AuthProviderAccount {
@@ -1133,4 +1135,25 @@ model ContributionAllocation {
   @@index([periodId, contributorUserId])
   @@index([contributorUserId, createdAt])
   @@index([status])
+}
+
+// ── Early Access ──────────────────────────────────────────────────────────────
+
+model EarlyAccessCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  label     String?
+  maxUses   Int      @default(50)
+  useCount  Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  usedBy    User[]   @relation("UserAccessCode")
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  note      String?
+  createdAt DateTime @default(now())
 }

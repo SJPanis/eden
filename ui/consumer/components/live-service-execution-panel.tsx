@@ -162,7 +162,7 @@ export function LiveServiceExecutionPanel({
           payload.builderEarningsCredits ?? requiredCredits,
       });
       setSuccessNote(
-        `Paid run completed. ${formatLeaves(requiredCredits)} was deducted and Eden recorded the builder and platform split.`,
+        `Paid run completed. ${formatLeaves(requiredCredits)} was deducted and Eden recorded the innovator and platform split.`,
       );
       startTransition(() => {
         router.refresh();
@@ -314,7 +314,7 @@ export function LiveServiceExecutionPanel({
                   Accounting trail
                 </p>
                 <p className="mt-2 text-sm font-semibold text-white">
-                  Builder earnings and Eden fee recorded
+                  Innovator earnings and Eden fee recorded
                 </p>
               </div>
             </div>
@@ -346,7 +346,7 @@ export function LiveServiceExecutionPanel({
                     Split
                   </p>
                   <p className="mt-2 text-sm font-semibold text-emerald-300">
-                    Builder {formatLeaves(receipt.builderEarningsCredits)} and Eden{" "}
+                    Innovator {formatLeaves(receipt.builderEarningsCredits)} and Eden{" "}
                     {formatLeaves(receipt.platformFeeCredits)}
                   </p>
                 </div>

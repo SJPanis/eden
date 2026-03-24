@@ -15,9 +15,9 @@ type AuthMode = "signin" | "signup";
 
 const audienceCards = [
   {
-    id: "builders",
+    id: "innovators",
     icon: "◈",
-    label: "Builders",
+    label: "Innovators",
     tag: "Publish & earn",
     detail:
       "Package your AI workflows as services. Set a visible price, publish to discovery, and earn Leaf's every time someone runs your service.",
@@ -41,9 +41,9 @@ const audienceCards = [
 ];
 
 const edenLoopSteps = [
-  { id: "publish",    step: "01", label: "Builders publish",          detail: "Services appear in discovery only after visible pricing and publish state are set. Builders earn 70% of every run." },
+  { id: "publish",    step: "01", label: "Innovators publish",          detail: "Services appear in discovery only after visible pricing and publish state are set. Innovators earn 70% of every run." },
   { id: "discover",  step: "02", label: "Consumers discover & run",   detail: "Ask Eden or browse the marketplace. Leaf's cover every run — no hidden checkout, no surprises during service use." },
-  { id: "earn",      step: "03", label: "Economy distributes",        detail: "Each purchase splits automatically: builder earnings, platform fee, provider reserve, and contribution pool — all in Leaf's." },
+  { id: "earn",      step: "03", label: "Economy distributes",        detail: "Each purchase splits automatically: innovator earnings, platform fee, provider reserve, and contribution pool — all in Leaf's." },
   { id: "contribute",step: "04", label: "Contributors improve Eden",  detail: "Submit contributions to the platform itself. The contribution pool is distributed based on approved contribution scores each period." },
 ];
 
@@ -183,10 +183,10 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">Eden Platform</p>
                 <h1 className="mt-4 text-[2.4rem] font-semibold leading-[1.1] tracking-tight text-white">
                   The AI service<br />economy.{" "}
-                  <span className="text-eden-accent">Open to builders.</span>
+                  <span className="text-eden-accent">Open to innovators.</span>
                 </h1>
                 <p className="mt-4 max-w-lg text-base leading-7 text-white/50">
-                  Eden connects builders who publish AI services with consumers who discover and run them — with transparent Leaf's pricing, no hidden charges, and a contribution economy built in.
+                  Eden connects innovators who publish AI services with consumers who discover and run them — with transparent Leaf's pricing, no hidden charges, and a contribution economy built in.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {["Publish AI services", "Visible pricing before every run", "Contribution economy", "No hidden charges"].map((chip) => (
@@ -211,7 +211,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">How Eden works</p>
-                  <p className="mt-1.5 text-sm text-white/50">One closed loop: builders publish, consumers run, economy distributes, contributors improve.</p>
+                  <p className="mt-1.5 text-sm text-white/50">One closed loop: innovators publish, consumers run, economy distributes, contributors improve.</p>
                 </div>
                 <span className="shrink-0 rounded-full border border-[rgba(20,152,154,0.25)] bg-[rgba(20,152,154,0.06)] px-3 py-1 text-xs text-eden-accent">The Eden loop</span>
               </div>
@@ -302,8 +302,8 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                   </h2>
                   <p className="mt-1.5 text-sm text-white/40">
                     {mode === "signup"
-                      ? "New accounts start in the consumer layer. Builder and owner access are role-based and resolved server-side."
-                      : "Sign in to access your Eden workspace — consumer, builder, or owner based on your role."}
+                      ? "New accounts start in the consumer layer. Innovator and owner access are role-based and resolved server-side."
+                      : "Sign in to access your Eden workspace — consumer, innovator, or owner based on your role."}
                   </p>
                 </motion.div>
               </AnimatePresence>
@@ -403,7 +403,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     <>
                       <li>Account created with a securely hashed password.</li>
                       <li>New accounts start in the consumer layer.</li>
-                      <li>Builder and owner access are granted server-side.</li>
+                      <li>Innovator and owner access are granted server-side.</li>
                     </>
                   ) : (
                     <>

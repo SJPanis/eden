@@ -20,6 +20,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       maintenanceMode={adminState.maintenanceMode}
       initialMode={params.auth === "signin" ? "signin" : "signup"}
       callbackUrl={params.callbackUrl ?? "/consumer"}
+      earlyAccessEnabled={process.env.EDEN_EARLY_ACCESS_ENABLED === "true"}
     />
   );
 }

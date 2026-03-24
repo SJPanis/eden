@@ -31,7 +31,7 @@ export async function runProjectAgentTool(
   if (!canManageProject(context, project.businessId)) {
     return {
       ran: false,
-      warnings: ["This project is outside the current builder scope."],
+      warnings: ["This project is outside the current innovator scope."],
     };
   }
 

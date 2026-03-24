@@ -666,10 +666,10 @@ export function OwnerDashboardPanel({
       detail: "Platform fee projection derived from stored per-use service pricing where available.",
     },
     {
-      id: "overview-builder-earnings",
+      id: "overview-innovator-earnings",
       label: `${edenEarnedLeavesLabel} accrued`,
       value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
-      detail: "Builder net earned Leaf's projection after the Eden fee share using current service pricing.",
+      detail: "Innovator net earned Leaf's projection after the Eden fee share using current service pricing.",
     },
   ];
   const releaseSummaryCards = [
@@ -789,15 +789,15 @@ export function OwnerDashboardPanel({
   const payoutSummaryCards = [
     {
       id: "payout-liability",
-      label: "Total builder liability",
+      label: "Total innovator liability",
       value: formatCredits(payoutAccounting.totalBuilderLiabilityCredits),
-      detail: "Current unpaid builder earnings liability after persistent payout settlements and internal Eden use are applied.",
+      detail: "Current unpaid innovator earnings liability after persistent payout settlements and internal Eden use are applied.",
     },
     {
       id: "payout-internal-use",
       label: "Earned Leaf\'s used internally",
       value: formatCredits(payoutAccounting.totalInternalUseCredits),
-      detail: "Persistent internal-use records where builders reused earned Leaf's inside Eden instead of leaving them in payout accounting.",
+      detail: "Persistent internal-use records where innovators reused earned Leaf's inside Eden instead of leaving them in payout accounting.",
     },
     {
       id: "payout-ready",
@@ -1005,7 +1005,7 @@ export function OwnerDashboardPanel({
     },
     {
       id: "platform-growth-money",
-      label: "Builder liability / Eden earnings",
+      label: "Innovator liability / Eden earnings",
       value: formatCredits(payoutAccounting.totalBuilderLiabilityCredits),
       detail: `${formatCredits(
         usageMetrics.monetization.estimatedPlatformEarningsCredits,
@@ -1428,7 +1428,7 @@ export function OwnerDashboardPanel({
 
             {/* Payout accounting */}
             <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-              <PanelHeader eyebrow="Builder Payouts" title="Payout accounting summary" badge={payoutAccounting.payoutStatusLabel} />
+              <PanelHeader eyebrow="Innovator Payouts" title="Payout accounting summary" badge={payoutAccounting.payoutStatusLabel} />
               <p className="mb-3 text-[11px] text-white/40">{payoutAccounting.accountingRuleLabel}</p>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                 {payoutSummaryCards.map((item) => (
@@ -1499,7 +1499,7 @@ export function OwnerDashboardPanel({
             <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
               <PanelHeader
                 eyebrow="Internal Earned Use"
-                title="Builder Leaf's reused internally"
+                title="Innovator Leaf's reused internally"
                 badge={payoutAccounting.internalUseHistorySource === "persistent" ? "Persistent" : "No records"}
               />
               <div className="space-y-2">
@@ -1647,7 +1647,7 @@ export function OwnerDashboardPanel({
                           </div>
                           <div className="shrink-0 text-left md:text-right">
                             <p className="text-sm font-semibold text-white">{user.usageSharePercent}% of tracked runs</p>
-                            <p className="text-[10px] text-white/40">Builder earnings: {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}</p>
+                            <p className="text-[10px] text-white/40">Innovator earnings: {formatCredits(user.monetization.estimatedBuilderEarningsCredits)}</p>
                             <p className="text-[10px] text-white/40">{user.lastUsedAtLabel}</p>
                           </div>
                         </div>
@@ -1680,7 +1680,7 @@ export function OwnerDashboardPanel({
                             </div>
                             <p className="mt-1 text-[11px] text-white/40">Used {event.serviceTitle} from {event.businessName}.</p>
                             <p className="text-[10px] text-white/40">Value: {formatCredits(event.estimatedGrossCredits)} | Charge: {formatCredits(event.creditsUsed)}</p>
-                            <p className="text-[10px] text-white/40">Builder: {formatCredits(event.builderEarningsCredits)} | Eden fee: {formatCredits(event.platformFeeCredits)}</p>
+                            <p className="text-[10px] text-white/40">Innovator: {formatCredits(event.builderEarningsCredits)} | Eden fee: {formatCredits(event.platformFeeCredits)}</p>
                           </div>
                           <span className="shrink-0 rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">
                             {event.source === "persistent" ? "Persistent" : "Mock"}

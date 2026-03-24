@@ -160,7 +160,7 @@ export function buildServiceMatchSummary(service: EdenAiServiceResult) {
 export function buildProjectArtifactSummary(project: EdenAiProjectArtifact) {
   return project.created
     ? `${project.title} is now staged in the Business workspace with ${project.suggestedAgents.length} proposed agents.`
-    : `${project.title} is proposed and can be staged once a builder workspace is selected.`;
+    : `${project.title} is proposed and can be staged once a innovator workspace is selected.`;
 }
 
 export function formatWalletBalanceLabel(currentBalanceCredits: number) {

@@ -57,7 +57,7 @@ function getReadinessLabel(project: EdenProjectBlueprintRecord | null) {
     return "Testing inside Eden";
   }
 
-  return "Builder draft";
+  return "Innovator draft";
 }
 
 function upsertProject(
@@ -561,7 +561,7 @@ export function ProjectBlueprintPanel({
                       {selectedProject.isPublished ? "Published and available" : "Not published"}
                     </p>
                     <p className="mt-1 text-xs text-white/50">
-                      {selectedProject.publishedAtLabel ?? "Still inside the builder test loop."}
+                      {selectedProject.publishedAtLabel ?? "Still inside the innovator test loop."}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
@@ -758,7 +758,7 @@ export function ProjectBlueprintPanel({
                 />
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-xs leading-5 text-white/50">
-                    This does not touch the consumer wallet. It records a visible internal Leaf’s use event against builder earnings.
+                    This does not touch the consumer wallet. It records a visible internal Leaf’s use event against innovator earnings.
                   </p>
                   <button
                     type="button"

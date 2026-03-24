@@ -178,7 +178,7 @@ async function handleRequestedAction(
         status: createdProject.created ? "completed" : "blocked",
         message: createdProject.created
           ? `${createdProject.project.title} is now staged in the Business workspace.`
-          : createdProject.warnings[0] ?? "A builder workspace is required before Eden can create this project.",
+          : createdProject.warnings[0] ?? "A innovator workspace is required before Eden can create this project.",
       },
       warnings: createdProject.warnings,
       projectArtifact: createdProject.project,
@@ -337,7 +337,7 @@ function buildNextActions(input: {
       actions.push({
         type: "start_build",
         label: "Start Building",
-        description: "Open the builder flow and stage this idea in a workspace that can create projects.",
+        description: "Open the innovator flow and stage this idea in a workspace that can create projects.",
         groundingMode: "proposed",
         enabled: true,
         href: buildBusinessCreationHref(input.projectArtifact),

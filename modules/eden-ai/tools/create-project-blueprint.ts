@@ -17,7 +17,7 @@ export async function createProjectBlueprintTool(
         groundingMode: "proposed",
       }),
       warnings: [
-        "A builder workspace is required before Eden can create a real project from this prompt.",
+        "A innovator workspace is required before Eden can create a real project from this prompt.",
       ],
       created: false,
     };

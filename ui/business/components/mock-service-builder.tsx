@@ -193,7 +193,7 @@ export function MockServiceBuilder({
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-            Service Builder
+            Service Innovator
           </p>
           <p className="mt-2 text-sm leading-6 text-white/50">
             Generate a mocked service idea with Ask Eden or open the editor directly, then stage
@@ -290,7 +290,7 @@ export function MockServiceBuilder({
                   </p>
                   <p className="mt-2 text-sm leading-6 text-white/50">
                     Compare mocked service directions side by side, then explicitly apply one
-                    variant into the editable builder form.
+                    variant into the editable innovator form.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">

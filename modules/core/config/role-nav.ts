@@ -22,7 +22,7 @@ export const roleMeta: Record<EdenRole, EdenRoleMeta> = {
   },
   business: {
     label: "Business",
-    heading: "Builder Workspace",
+    heading: "Innovator Workspace",
     subheading:
       "Build, expand, and collaborate on services, pricing, publishing, and monetization inside Eden.",
   },
@@ -37,6 +37,6 @@ export const roleMeta: Record<EdenRole, EdenRoleMeta> = {
 export const topNavItems: EdenTopNavItem[] = [
   { label: "Home", href: "/consumer", accessLabel: "Consumer and owner", allowedRoles: ["consumer", "owner"] },
   { label: "Projects", href: "/consumer/projects", accessLabel: "All roles", allowedRoles: ["consumer", "business", "owner"] },
-  { label: "Builder", href: "/business", accessLabel: "Business and owner", allowedRoles: ["business", "owner"] },
+  { label: "Innovator", href: "/business", accessLabel: "Business and owner", allowedRoles: ["business", "owner"] },
 ];
 

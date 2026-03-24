@@ -367,7 +367,7 @@ export function BusinessCreationFlow({
                   type="text"
                   value={formState.name}
                   onChange={(event) => updateField("name", event.target.value)}
-                  placeholder="Northstar Builder Studio"
+                  placeholder="Northstar Innovator Studio"
                   className="w-full rounded-2xl border border-white/8 bg-eden-bg px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
                 />
               </FormField>
@@ -395,7 +395,7 @@ export function BusinessCreationFlow({
                 <textarea
                   value={formState.description}
                   onChange={(event) => updateField("description", event.target.value)}
-                  placeholder="Describe the product, offer, or builder workspace in one compact paragraph."
+                  placeholder="Describe the product, offer, or innovator workspace in one compact paragraph."
                   rows={5}
                   className="w-full rounded-2xl border border-white/8 bg-eden-bg px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
                 />
@@ -666,7 +666,7 @@ function getSeededBusinessName(seedTitle?: string) {
 
   return seedTitle
     .replace(
-      /\b(Launch Sprint|Builder Extension|Membership Path|Workspace Prototype|Builder Sprint|Service Packaging|Growth Path)\b/gi,
+      /\b(Launch Sprint|Innovator Extension|Membership Path|Workspace Prototype|Innovator Sprint|Service Packaging|Growth Path)\b/gi,
       "",
     )
     .replace(/\s+/g, " ")

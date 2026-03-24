@@ -52,7 +52,7 @@ export function buildProjectArtifactFromPrompt(input: {
       input.detail ??
       (input.created
         ? "Eden created this project in the Business workspace and staged the initial agent structure."
-        : "Eden can stage this project in the Business workspace once a builder context is available."),
+        : "Eden can stage this project in the Business workspace once a innovator context is available."),
     groundingMode: input.groundingMode,
     created: input.created ?? false,
     suggestedAgents,

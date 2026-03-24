@@ -53,9 +53,9 @@ const publicLaunchClarityCards = [
   {
     id: "what-eden-is",
     label: "What Eden is",
-    value: "A builder-to-consumer service platform",
+    value: "A innovator-to-consumer service platform",
     detail:
-      "Builders create and publish AI-powered services. Consumers discover them, see visible pricing, and run them through Eden Leaf's.",
+      "Innovators create and publish AI-powered services. Consumers discover them, see visible pricing, and run them through Eden Leaf's.",
   },
   {
     id: "how-pricing-works",
@@ -75,8 +75,8 @@ const publicLaunchClarityCards = [
 
 const publicHowEdenWorksSteps = [
   {
-    id: "builder-publish",
-    label: "1. Builders publish services",
+    id: "innovator-publish",
+    label: "1. Innovators publish services",
     detail:
       "Businesses create, price, and publish services so they can appear in discovery and Ask Eden.",
   },
@@ -96,8 +96,8 @@ const publicHowEdenWorksSteps = [
 
 const publicAudienceCards = [
   {
-    id: "builders",
-    label: "For builders",
+    id: "innovators",
+    label: "For innovators",
     detail:
       "Create, price, and publish services so they become published and available in Eden discovery.",
   },
@@ -313,7 +313,7 @@ export function EdenEntryPanel({
               Start Eden like a real product.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
-              Eden is a builder-to-consumer service platform. Builders publish services with
+              Eden is a innovator-to-consumer service platform. Innovators publish services with
               visible pricing, consumers discover them and top up Eden Leaf's only when needed,
               and service runs happen with no hidden checkout during usage.
             </p>
@@ -354,12 +354,12 @@ export function EdenEntryPanel({
                     Who Eden is for
                   </p>
                   <p className="mt-2 text-sm leading-6 text-white/50">
-                    Eden connects the builder side that publishes services and the consumer side
+                    Eden connects the innovator side that publishes services and the consumer side
                     that discovers and uses them.
                   </p>
                 </div>
                 <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
-                  Builders and consumers
+                  Innovators and consumers
                 </span>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -380,7 +380,7 @@ export function EdenEntryPanel({
                       How Eden works
                     </p>
                     <p className="mt-2 text-sm leading-6 text-white/50">
-                      The same launch-ready loop carries from builder workspace to public discovery
+                      The same launch-ready loop carries from innovator workspace to public discovery
                       to service usage.
                     </p>
                   </div>

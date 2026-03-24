@@ -210,7 +210,7 @@ export function OwnerPayoutDetailPanel({
             ? "Persistent settlements"
             : "No settlements yet",
         ]}
-        summary={`This route reuses the current business payout accounting, internal earned-Leaf’s usage, and persistent settlement history for ${businessProfile.name}. Builder earnings are still internal-only, but settlement rows and internal Eden use now adjust what Eden considers paid out, unpaid, and payout-ready.`}
+        summary={`This route reuses the current business payout accounting, internal earned-Leaf’s usage, and persistent settlement history for ${businessProfile.name}. Innovator earnings are still internal-only, but settlement rows and internal Eden use now adjust what Eden considers paid out, unpaid, and payout-ready.`}
         metadata={[
           { label: "Owner", value: businessOwner?.displayName ?? "Unknown owner" },
           { label: "Total earned", value: formatCredits(payoutAccounting.totalEarnedCredits) },

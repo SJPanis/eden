@@ -206,7 +206,7 @@ type BusinessDashboardPanelProps = {
 const workspaceNav = [
   { id: "business-overview", label: "Overview" },
   { id: "projects", label: "Projects" },
-  { id: "service-builder", label: "Service Builder" },
+  { id: "service-innovator", label: "Service Innovator" },
   { id: "pipeline", label: "Pipeline" },
   { id: "release-activity", label: "Release Activity" },
   { id: "assistant", label: "AI Assistant" },
@@ -780,7 +780,7 @@ export function BusinessDashboardPanel({
           id: "billing-usage-04",
           label: "Active service pricing",
           value: activeServicePricingLabel,
-          detail: "Current monetization setting on the active service target. Adjust it in the Service Builder to change earnings projections.",
+          detail: "Current monetization setting on the active service target. Adjust it in the Service Innovator to change earnings projections.",
         },
         {
           id: "billing-usage-05",
@@ -795,7 +795,7 @@ export function BusinessDashboardPanel({
           id: "billing-usage-06",
           label: edenEarnedLeavesLabel,
           value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
-          detail: "Estimated builder share derived from the active services' stored per-use pricing.",
+          detail: "Estimated innovator share derived from the active services' stored per-use pricing.",
         },
         {
           id: "billing-usage-07",
@@ -816,7 +816,7 @@ export function BusinessDashboardPanel({
       id: "payout-total-earned",
       label: `${edenEarnedLeavesLabel} total`,
       value: formatCredits(payoutAccounting.totalEarnedCredits),
-      detail: "Builder-side earned Leaf’s accrued from priced service usage across this workspace.",
+      detail: "Innovator-side earned Leaf’s accrued from priced service usage across this workspace.",
     },
     {
       id: "payout-internal-used",
@@ -937,7 +937,7 @@ export function BusinessDashboardPanel({
             pricePerUse: highestEarningService.pricePerUseCredits,
             pricingUnit: highestEarningService.pricingUnit,
           })}.`
-        : "Builder earnings highlights appear once priced service usage is recorded.",
+        : "Innovator earnings highlights appear once priced service usage is recorded.",
     },
     {
       id: "analytics-highlight-customer-value",
@@ -1065,7 +1065,7 @@ export function BusinessDashboardPanel({
             <EdenBrandLockup
               size="sm"
               label="Eden"
-              subtitle="Builder workspace"
+              subtitle="Innovator workspace"
             />
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
               Business Workspace
@@ -1248,7 +1248,7 @@ export function BusinessDashboardPanel({
             id="assistant"
             eyebrow="Business AI Assistant"
             title="Interactive AI workspace help"
-            description="Run mocked Eden AI actions against the active service draft, compare the output, and apply useful changes back into the shared builder form."
+            description="Run mocked Eden AI actions against the active service draft, compare the output, and apply useful changes back into the shared innovator form."
             actions={
               <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                 4 actions
@@ -1364,8 +1364,8 @@ export function BusinessDashboardPanel({
 
         <motion.div variants={sectionVariants} className="xl:col-span-2">
           <WorkspaceSection
-            id="service-builder"
-            eyebrow="Service Builder"
+            id="service-innovator"
+            eyebrow="Service Innovator"
             title="Create the next active service"
             description="Stage a new local service draft, attach it to the active workspace, and send it through the mocked release pipeline."
             actions={
@@ -1390,7 +1390,7 @@ export function BusinessDashboardPanel({
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(pipelineSnapshot?.service?.tags ?? businessProfile.tags).map((tag) => (
                       <span
-                        key={`service-builder-${tag}`}
+                        key={`service-innovator-${tag}`}
                         className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
                       >
                         {tag}
@@ -1401,7 +1401,7 @@ export function BusinessDashboardPanel({
 
                 <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Builder handoff
+                    Innovator handoff
                   </p>
                   <p className="mt-2 text-sm font-semibold text-white">
                     {workspaceService
@@ -1422,7 +1422,7 @@ export function BusinessDashboardPanel({
                         {activeServicePricingLabel}
                       </p>
                       <p className="mt-2 text-xs leading-5 text-white/50">
-                        Update the numeric rate in the Service Builder form to change monetization analytics.
+                        Update the numeric rate in the Service Innovator form to change monetization analytics.
                       </p>
                     </div>
                     <div
@@ -1575,7 +1575,7 @@ export function BusinessDashboardPanel({
                   Pipeline controls
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/50">
-                  These controls mutate mocked local release state only. They are designed to preview the future builder workflow without adding backend persistence.
+                  These controls mutate mocked local release state only. They are designed to preview the future innovator workflow without adding backend persistence.
                 </p>
                 <div className="mt-4">
                   <MockPipelineControls
@@ -1990,7 +1990,7 @@ export function BusinessDashboardPanel({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                      Builder payout accounting
+                      Innovator payout accounting
                     </p>
                     <p className="mt-2 text-sm leading-6 text-white/50">
                       {payoutAccounting.accountingRuleLabel}
@@ -2201,7 +2201,7 @@ export function BusinessDashboardPanel({
                       Internal earned Leaf’s use
                     </p>
                     <p className="mt-2 text-sm leading-6 text-white/50">
-                      Builders can now reuse earned Leaf’s for internal Eden work without converting them into the spendable wallet or an external payout.
+                      Innovators can now reuse earned Leaf’s for internal Eden work without converting them into the spendable wallet or an external payout.
                     </p>
                   </div>
                   <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
@@ -2372,7 +2372,7 @@ export function BusinessDashboardPanel({
                               {index + 1}. {service.serviceTitle}
                             </p>
                             <p className="mt-2 text-sm leading-6 text-white/50">
-                              Builder keeps{" "}
+                              Innovator keeps{" "}
                               {formatCredits(service.monetization.estimatedBuilderEarningsCredits)}
                               {" "}from {formatCredits(service.monetization.estimatedGrossCredits)} gross.
                             </p>
@@ -2508,7 +2508,7 @@ export function BusinessDashboardPanel({
                               })}
                             </p>
                             <p className="mt-2 text-sm leading-6 text-white/50">
-                              Estimated builder earnings:{" "}
+                              Estimated innovator earnings:{" "}
                               {formatCredits(service.monetization.estimatedBuilderEarningsCredits)}.
                             </p>
                           </div>
@@ -2555,7 +2555,7 @@ export function BusinessDashboardPanel({
                                 Gross estimate: {formatCredits(event.estimatedGrossCredits)}
                               </p>
                               <p className="mt-1 text-xs text-white/50">
-                                Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
+                                Innovator share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
                                 {formatCredits(event.platformFeeCredits)}
                               </p>
                             </div>
@@ -2591,7 +2591,7 @@ export function BusinessDashboardPanel({
                       </p>
                     </div>
                     <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Builder keeps</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-white/50">Innovator keeps</p>
                       <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
                       </p>
@@ -2642,7 +2642,7 @@ export function BusinessDashboardPanel({
                                 customer.monetization.estimatedBuilderEarningsCredits,
                               )}
                             </p>
-                            <p className="mt-1 text-xs text-white/50">Builder value</p>
+                            <p className="mt-1 text-xs text-white/50">Innovator value</p>
                           </div>
                         </div>
                       </div>
@@ -2709,7 +2709,7 @@ export function BusinessDashboardPanel({
                       {highestValueCustomer
                         ? `${formatCredits(highestValueCustomer.projectedCustomerValueCredits)} projected value with ${formatCredits(
                             highestValueCustomer.monetization.estimatedBuilderEarningsCredits,
-                          )} in builder-side earnings.`
+                          )} in innovator-side earnings.`
                         : "Projected customer value appears once priced service usage is tracked."}
                     </p>
                   </div>
@@ -2791,7 +2791,7 @@ export function BusinessDashboardPanel({
                               {customer.usageSharePercent}% of tracked runs
                             </p>
                             <p className="mt-1 text-xs text-white/50">
-                              Builder earnings:{" "}
+                              Innovator earnings:{" "}
                               {formatCredits(
                                 customer.monetization.estimatedBuilderEarningsCredits,
                               )}
@@ -2841,7 +2841,7 @@ export function BusinessDashboardPanel({
                               {formatCredits(event.estimatedGrossCredits)}
                             </p>
                             <p className="mt-1 text-xs text-white/50">
-                              Builder share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
+                              Innovator share: {formatCredits(event.builderEarningsCredits)} | Eden fee:{" "}
                               {formatCredits(event.platformFeeCredits)}
                             </p>
                           </div>
@@ -2939,7 +2939,7 @@ export function BusinessWorkspaceStarterPanel({
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
             This business-role session does not have an active workspace yet. Start with the
-            mocked creation flow, review the idea-to-business summary, and then enter the builder
+            mocked creation flow, review the idea-to-business summary, and then enter the innovator
             shell with a live local business context.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">

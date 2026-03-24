@@ -109,7 +109,7 @@ const categoryOutcomeVariants: Record<string, string[]> = {
 const categoryPositioningVariants: Record<string, string[]> = {
   Productivity: [
     "positioned as a premium execution layer",
-    "framed as a lightweight builder offer",
+    "framed as a lightweight innovator offer",
     "shaped as a repeatable team or solo workflow product",
   ],
   Wellness: [
@@ -338,7 +338,7 @@ function buildIdeaOutputs(
   if (primaryService && primaryServiceBusiness) {
     connectedIdeas.push({
       id: `idea-${primaryService.id}-workspace`,
-      title: `${primaryService.title} Builder Extension`,
+      title: `${primaryService.title} Innovator Extension`,
       description: `Turn ${primaryService.title} into a deeper Eden workspace flow for ${primaryServiceBusiness.name}, with AI-assisted copy, Eden Leaves visibility, and publish preparation.`,
       actionLabel: "Start Building",
     });
@@ -359,8 +359,8 @@ function buildIdeaOutputs(
   if (!connectedIdeas.length) {
     connectedIdeas.push(
       {
-        id: `idea-${promptTopic.toLowerCase().replace(/\s+/g, "-")}-builder`,
-        title: `${promptTopic} Builder Sprint`,
+        id: `idea-${promptTopic.toLowerCase().replace(/\s+/g, "-")}-innovator`,
+        title: `${promptTopic} Innovator Sprint`,
         description:
           "Open the Business Dashboard to turn this discovery path into a mocked workspace concept with projects, billing, AI actions, and publish checkpoints.",
         actionLabel: "Start Building",
@@ -589,7 +589,7 @@ function buildGeneratedDescription(options: {
     positioningOptions[variantIndex % positioningOptions.length] ?? positioningOptions[0];
   const automationPhrase = automationLed
     ? "It leans into a mocked AI-assisted workflow with structured automation support."
-    : "It keeps the experience lightweight while still fitting Eden's AI-assisted builder flow.";
+    : "It keeps the experience lightweight while still fitting Eden's AI-assisted innovator flow.";
   const relatedServicePhrase = relatedServiceTitle
     ? ` The offer is positioned to sit alongside ${relatedServiceTitle} without duplicating it.`
     : "";
@@ -682,7 +682,7 @@ function buildGenerateDescriptionOutput(
   routeDecision: EdenRouteDecision,
 ): EdenWorkspaceAssistantOutput {
   const routeLabels = routeDecision.routes.map(formatRouteLabel).join(", ");
-  const description = `${context.serviceName} is a mocked ${context.category.toLowerCase()} offer from ${context.businessName} that helps customers move from intent to a concrete outcome with ${context.pricingModel.toLowerCase()} packaging and ${context.automationSummary.toLowerCase()}. It is positioned around ${context.tags.slice(0, 3).join(", ") || context.category} and is ready for the ${toTitleCase(context.pipelineStatus)} stage inside Eden's builder flow.`;
+  const description = `${context.serviceName} is a mocked ${context.category.toLowerCase()} offer from ${context.businessName} that helps customers move from intent to a concrete outcome with ${context.pricingModel.toLowerCase()} packaging and ${context.automationSummary.toLowerCase()}. It is positioned around ${context.tags.slice(0, 3).join(", ") || context.category} and is ready for the ${toTitleCase(context.pipelineStatus)} stage inside Eden's innovator flow.`;
 
   return {
     headline: `Generated description for ${context.serviceName}`,
@@ -811,7 +811,7 @@ function buildPackagingVariantOutput(
 
   return {
     headline: `Packaging variant for ${request.context.serviceName}`,
-    summary: `Created a new mocked packaging direction using the same service-draft generator that powers the Service Builder.`,
+    summary: `Created a new mocked packaging direction using the same service-draft generator that powers the Service Innovator.`,
     bullets: [
       `Try ${packagingDraft.pricingModel.toLowerCase()} packaging to change how the offer is perceived in the marketplace.`,
       `Use ${packagingDraft.suggestedTags.slice(0, 3).join(", ")} as the strongest positioning tags for this variant.`,
@@ -846,7 +846,7 @@ function buildAutomationSummary(
       ][variantIndex % 3];
   const projectNote = relatedProjectTitle
     ? ` ${relatedProjectTitle} can anchor the first mocked validation pass.`
-    : " The builder can use this as the starting point for testing and publish review.";
+    : " The innovator can use this as the starting point for testing and publish review.";
 
   return `${serviceName} uses a mocked AI layer for ${automationMode} across ${routeLabels}.${projectNote}`;
 }

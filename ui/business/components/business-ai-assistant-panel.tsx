@@ -58,7 +58,7 @@ const assistantActionCards: AssistantActionCard[] = [
   {
     action: "create_packaging_variant",
     title: "Create Packaging Variant",
-    description: "Generate another packaging direction using the same Eden AI builder path.",
+    description: "Generate another packaging direction using the same Eden AI innovator path.",
     resultHint: "Creates a fresh variant without overwriting the current draft automatically.",
   },
 ];
@@ -518,7 +518,7 @@ export function BusinessAiAssistantPanel({
                         Editable draft patch
                       </p>
                       <p className="mt-2 text-sm leading-6 text-white/50">
-                        Apply any useful output back into the shared Service Builder draft.
+                        Apply any useful output back into the shared Service Innovator draft.
                       </p>
                     </div>
                     {appliedHistoryEntryId === selectedHistoryEntry.id ? (

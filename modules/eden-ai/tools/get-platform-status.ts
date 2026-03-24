@@ -11,7 +11,7 @@ export async function getPlatformStatus(
     kind: "platform_status",
     title: "Eden platform status",
     summary:
-      "Eden can currently inspect published discovery, wallet position, and builder workspace state through the first operator layer.",
+      "Eden can currently inspect published discovery, wallet position, and innovator workspace state through the first operator layer.",
     groundingMode: "live",
     metrics: [
       {
@@ -30,11 +30,11 @@ export async function getPlatformStatus(
         detail: "Current spendable Eden wallet balance for the authenticated user.",
       },
       {
-        label: "Builder context",
+        label: "Innovator context",
         value: context.activeBusinessId ? "Available" : "Not selected",
         detail: context.activeBusinessId
           ? "A business workspace is available for Eden AI project actions."
-          : "No builder workspace is currently available for direct project actions.",
+          : "No innovator workspace is currently available for direct project actions.",
       },
     ],
   };

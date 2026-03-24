@@ -60,7 +60,7 @@ export const publicRoleOptions: EdenPublicRoleOption[] = [
   {
     id: "business",
     label: "Business",
-    description: "Open the builder workspace and manage mocked projects, billing, and release flow.",
+    description: "Open the innovator workspace and manage mocked projects, billing, and release flow.",
   },
 ];
 

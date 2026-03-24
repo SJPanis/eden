@@ -534,7 +534,7 @@ function getSelectedIdeaDetails(idea: EdenAiIdeaResult): SelectedResultDetails {
     href: buildBusinessCreationHref(idea),
     supportingText:
       idea.projectArtifact?.created
-        ? "This project is already staged in the Business workspace, so the next step is to open the builder surface and continue operating it."
+        ? "This project is already staged in the Business workspace, so the next step is to open the innovator surface and continue operating it."
         : "This idea is still a proposed build path until you stage it inside the Business workspace.",
   };
 }
@@ -706,10 +706,10 @@ export function ConsumerHomePanel({
   const consumerHeaderSummaryCards = useMemo(
     () => [
       {
-        id: "header-builders",
-        label: "For builders",
+        id: "header-innovators",
+        label: "For innovators",
         detail:
-          "Builders publish services with visible pricing so they can appear as published and available in discovery.",
+          "Innovators publish services with visible pricing so they can appear as published and available in discovery.",
       },
       {
         id: "header-consumers",
@@ -983,7 +983,7 @@ export function ConsumerHomePanel({
               Explore published services with visible pricing.
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/50">
-              Eden connects builders who publish services with consumers who explore them, top up
+              Eden connects innovators who publish services with consumers who explore them, top up
               Eden Leaf's only if needed, and run with no hidden charges during service use.
             </p>
           </div>
@@ -1682,7 +1682,7 @@ export function ConsumerHomePanel({
               subtitle={
                 savedOnly
                   ? "Favorites filter is active. Showing saved businesses only."
-                  : "Popular builder spaces in Eden right now. Open a business to inspect what they publish into the consumer marketplace."
+                  : "Popular innovator spaces in Eden right now. Open a business to inspect what they publish into the consumer marketplace."
               }
               hasItems={trendingBusinesses.length > 0}
               emptyMessage="No businesses match the current filters yet."

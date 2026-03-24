@@ -25,7 +25,7 @@ const laneSignals: Record<EdenAiRouteLane, string[]> = {
     "company",
     "studio",
     "agency",
-    "builder",
+    "innovator",
     "publisher",
   ],
   idea_generation: [
