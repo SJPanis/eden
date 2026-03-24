@@ -11,7 +11,7 @@ export default async function Home() {
   ]);
 
   if (session.auth.source === "persistent") {
-    redirect(getCanonicalRouteForRole(session.role));
+    redirect("/consumer");
   }
 
   return (

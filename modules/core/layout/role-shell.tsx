@@ -66,9 +66,7 @@ export function RoleShell({
   const activeBusinessFrozen =
     activeBusinessId && adminState ? isBusinessFrozen(activeBusinessId, adminState) : false;
   const showMockSessionSwitcher = session.auth.source === "mock";
-  const visibleTopNavItems = topNavItems.filter(
-    (item) => item.href !== "/owner" || session.role === "owner",
-  );
+  const visibleTopNavItems = topNavItems;
 
   function handleSignOut() {
     startSignOutTransition(() => {
@@ -109,12 +107,21 @@ export function RoleShell({
 
           <nav className="flex flex-wrap gap-2">
             {visibleTopNavItems.map((item) => {
-              const isConsumerDetailRoute =
+              const isConsumerHome =
                 item.href === "/consumer" &&
                 (pathname === "/consumer" ||
+                  pathname.startsWith("/consumer/services") ||
+                  pathname.startsWith("/consumer/businesses") ||
                   pathname.startsWith("/services") ||
                   pathname.startsWith("/businesses"));
-              const isActive = isConsumerDetailRoute || pathname.startsWith(item.href);
+              const isProjectsRoute =
+                item.href === "/consumer/projects" && pathname.startsWith("/consumer/projects");
+              const isActive =
+                isConsumerHome ||
+                isProjectsRoute ||
+                (item.href !== "/consumer" &&
+                  item.href !== "/consumer/projects" &&
+                  pathname.startsWith(item.href));
               const isAllowed = canAccessRoles(session.role, item.allowedRoles);
 
               return (

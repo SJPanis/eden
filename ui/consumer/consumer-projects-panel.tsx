@@ -1,0 +1,315 @@
+"use client";
+
+import Link from "next/link";
+import type { EdenMockSession } from "@/modules/core/session/mock-session";
+import type { EdenMockCreatedBusinessState } from "@/modules/core/business/mock-created-business";
+import { formatLeaves } from "@/modules/core/credits/eden-currency";
+
+type ProjectBusiness = {
+  id: string;
+  name: string;
+  tagline: string;
+  status: string;
+  visibility: string;
+  publishReadinessPercent: number;
+  featuredServiceId: string | null;
+  creditBalanceCredits: number;
+};
+
+type ConsumerProjectsPanelProps = {
+  session: EdenMockSession;
+  businesses: ProjectBusiness[];
+  createdBusiness: EdenMockCreatedBusinessState | null;
+};
+
+const statusColors: Record<string, string> = {
+  published: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  testing: "border-amber-200 bg-amber-50 text-amber-700",
+  draft: "border-eden-edge bg-white text-eden-muted",
+};
+
+export function ConsumerProjectsPanel({
+  session,
+  businesses,
+  createdBusiness,
+}: ConsumerProjectsPanelProps) {
+  const isOwner = session.role === "owner";
+  const allBusinesses: ProjectBusiness[] = [
+    ...businesses,
+    ...(createdBusiness?.business
+      ? [
+          {
+            id: createdBusiness.business.id,
+            name: createdBusiness.business.name,
+            tagline: createdBusiness.business.tagline ?? "Your business in Eden",
+            status: createdBusiness.business.status ?? "draft",
+            visibility: createdBusiness.business.visibility ?? "Private preview",
+            publishReadinessPercent: createdBusiness.business.publishReadinessPercent ?? 0,
+            featuredServiceId: createdBusiness.business.featuredServiceId ?? null,
+            creditBalanceCredits: createdBusiness.business.creditBalanceCredits ?? 0,
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Identity header */}
+      <div className="relative overflow-hidden rounded-[28px] border border-eden-edge bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(16,37,58,0.04)_50%,rgba(255,255,255,0.96))] p-6">
+        {/* Dot-grid background pattern */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, #14989a 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
+              Your Eden Space
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-eden-ink">
+              {session.user.displayName}
+            </h1>
+            <p className="mt-1 text-sm text-eden-muted">
+              @{session.user.username}
+              {isOwner ? (
+                <span className="ml-2 rounded-full border border-[rgba(20,152,154,0.3)] bg-[rgba(20,152,154,0.08)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-accent">
+                  Platform Owner
+                </span>
+              ) : null}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <div className="rounded-2xl border border-eden-edge bg-white/88 px-4 py-3 text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-eden-muted">
+                Wallet
+              </p>
+              <p className="mt-1 text-sm font-semibold text-eden-ink">
+                {formatLeaves(session.user.edenBalanceCredits)}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-eden-edge bg-white/88 px-4 py-3 text-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-eden-muted">
+                Projects
+              </p>
+              <p className="mt-1 text-sm font-semibold text-eden-ink">
+                {allBusinesses.length}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Project graph area */}
+      <div className="rounded-[28px] border border-eden-edge bg-white/88 p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
+              Project workspace
+            </p>
+            <p className="mt-1.5 text-sm text-eden-muted">
+              {allBusinesses.length > 0
+                ? "Your businesses and services in Eden."
+                : "No projects yet — start building your first service."}
+            </p>
+          </div>
+          <Link
+            href="/business/create"
+            className="shrink-0 rounded-full border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/75"
+          >
+            + New project
+          </Link>
+        </div>
+
+        {allBusinesses.length > 0 ? (
+          <div className="mt-6">
+            {/* Connection spine */}
+            <div className="relative">
+              {/* Vertical spine line */}
+              <div className="absolute left-5 top-5 bottom-5 w-px bg-[linear-gradient(to_bottom,rgba(20,152,154,0.3),rgba(20,152,154,0.08))]" />
+
+              <div className="flex flex-col gap-4">
+                {allBusinesses.map((biz, index) => (
+                  <div key={biz.id} className="flex items-start gap-4">
+                    {/* Node dot on spine */}
+                    <div className="relative z-10 mt-5 flex h-10 w-10 shrink-0 items-center justify-center">
+                      <div className="h-3 w-3 rounded-full border-2 border-eden-accent bg-white shadow-[0_0_8px_rgba(20,152,154,0.4)]" />
+                    </div>
+
+                    {/* Business card */}
+                    <div className="min-w-0 flex-1 rounded-[20px] border border-eden-edge bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(210,223,235,0.18))] p-4 transition-shadow hover:shadow-[0_4px_20px_-8px_rgba(20,152,154,0.2)]">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-eden-ink">{biz.name}</p>
+                            <span
+                              className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] ${
+                                statusColors[biz.status] ?? statusColors.draft
+                              }`}
+                            >
+                              {biz.status}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-eden-muted">{biz.tagline}</p>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          <Link
+                            href="/business"
+                            className="rounded-full border border-eden-edge bg-white/80 px-3 py-1.5 text-xs font-medium text-eden-ink transition-colors hover:border-eden-ring"
+                          >
+                            Open workspace
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="mt-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[10px] uppercase tracking-[0.12em] text-eden-muted">
+                            Publish readiness
+                          </p>
+                          <p className="text-[10px] font-semibold text-eden-accent">
+                            {biz.publishReadinessPercent}%
+                          </p>
+                        </div>
+                        <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-eden-edge">
+                          <div
+                            className="h-full rounded-full bg-[linear-gradient(to_right,rgba(20,152,154,0.6),rgba(20,152,154,1))] transition-all"
+                            style={{ width: `${biz.publishReadinessPercent}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Metadata chips */}
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        <span className="rounded-full border border-eden-edge bg-white/70 px-2 py-0.5 text-[10px] text-eden-muted">
+                          {biz.visibility}
+                        </span>
+                        <span className="rounded-full border border-eden-edge bg-white/70 px-2 py-0.5 text-[10px] text-eden-muted">
+                          {formatLeaves(biz.creditBalanceCredits)} workspace balance
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-6 rounded-2xl border border-dashed border-eden-edge bg-white/60 p-8 text-center">
+            <p className="text-sm font-medium text-eden-ink">No projects yet</p>
+            <p className="mt-1 text-sm text-eden-muted">
+              Create your first service and publish it to the Eden marketplace.
+            </p>
+            <Link
+              href="/business/create"
+              className="mt-4 inline-block rounded-full border border-eden-ring bg-eden-accent-soft px-5 py-2.5 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/75"
+            >
+              Start building
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Platform Control — owner only */}
+      {isOwner ? (
+        <div className="relative overflow-hidden rounded-[28px] border border-[rgba(20,152,154,0.35)] bg-[linear-gradient(135deg,rgba(16,37,58,0.97),rgba(20,152,154,0.15)_80%,rgba(16,37,58,0.95))] p-6">
+          {/* Dot-grid background */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.07]"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle, #14989a 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+          {/* Glow */}
+          <div className="pointer-events-none absolute -top-10 left-1/2 h-40 w-64 -translate-x-1/2 rounded-full bg-eden-accent/10 blur-3xl" />
+
+          <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full border border-[rgba(20,152,154,0.5)] bg-[rgba(20,152,154,0.15)] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Owner only
+                </span>
+              </div>
+              <h2 className="mt-3 text-xl font-semibold tracking-tight text-white">
+                Eden Platform Control
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-white/60">
+                Monitor users, economy flows, runtime registry, build supervisor, and
+                platform-wide system state. Accessible only from your authenticated owner
+                account.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {["Users", "Economy", "Runtime registry", "Build supervisor", "Autonomy mode"].map(
+                  (label) => (
+                    <span
+                      key={label}
+                      className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] text-white/50"
+                    >
+                      {label}
+                    </span>
+                  ),
+                )}
+              </div>
+            </div>
+
+            <div className="flex shrink-0 flex-col gap-3">
+              <Link
+                href="/owner"
+                className="rounded-2xl border border-eden-accent/50 bg-eden-accent/20 px-6 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-eden-accent/30"
+              >
+                Open control room
+              </Link>
+              <Link
+                href="/owner/runtimes"
+                className="rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-center text-sm font-medium text-white/70 transition-colors hover:bg-white/10"
+              >
+                Runtime registry
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Contribution section */}
+      <div className="rounded-[28px] border border-eden-edge bg-white/88 p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
+              Contribution layer
+            </p>
+            <p className="mt-2 text-sm font-semibold text-eden-ink">
+              Improve Eden, earn from it
+            </p>
+            <p className="mt-1 text-sm leading-6 text-eden-muted">
+              Submit code improvements, design work, bug fixes, or ideas directly to Eden.
+              Each period, the contribution pool distributes Leaf's to approved contributors
+              based on their score.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-eden-edge bg-white/80 px-3 py-1 text-xs text-eden-muted">
+            Coming soon
+          </span>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            { label: "Contribution Score", value: "0 pts", note: "Your earned score" },
+            { label: "Pool share (est.)", value: "—", note: "Based on score weight" },
+            { label: "Next distribution", value: "—", note: "Current period status" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl border border-eden-edge bg-white/70 p-4">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
+              <p className="mt-1.5 text-base font-semibold text-eden-ink">{item.value}</p>
+              <p className="mt-1 text-xs text-eden-muted">{item.note}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
