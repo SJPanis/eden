@@ -27,6 +27,7 @@ import type {
   EdenProjectRuntimeRegistryState,
   EdenProjectRuntimeSecretBoundaryRecord,
   EdenProjectRuntimeTaskArtifactRecord,
+  EdenProjectRuntimeTaskAuditLogRecord,
   EdenProjectRuntimeTaskRecord,
   EdenProjectRuntimeTaskState,
   OwnerRuntimeConfigScope,
@@ -246,6 +247,21 @@ const projectRuntimeTaskInclude = {
         select: {
           id: true,
           sessionLabel: true,
+        },
+      },
+    },
+  },
+  taskAuditLogs: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 10,
+    include: {
+      actorUser: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
         },
       },
     },
@@ -1797,6 +1813,14 @@ export async function createOwnerInternalSandboxTask(
     });
     createdTaskId = createdTask.id;
 
+    await writeTaskAuditLog(prisma, {
+      runtimeId: edenOwnerInternalSandboxRuntimeId,
+      taskId: createdTask.id,
+      actorUserId: actor.id,
+      eventType: "TASK_CREATED",
+      detail: `Sandbox task created: "${createdTask.title}". Task type: ${formatEnumLabel(taskType)}.`,
+    });
+
     const plannerPayload = buildSandboxPlannerPayload({
       taskType,
       title: createdTask.title,
@@ -1814,6 +1838,14 @@ export async function createOwnerInternalSandboxTask(
         plannerPayload: plannerPayload.payload,
         plannerCompletedAt,
       },
+    });
+
+    await writeTaskAuditLog(prisma, {
+      runtimeId: edenOwnerInternalSandboxRuntimeId,
+      taskId: createdTask.id,
+      actorUserId: actor.id,
+      eventType: "PLANNER_COMPLETED",
+      detail: `Planner completed. Summary: ${plannerPayload.summary}`,
     });
 
     const workerPayload = buildSandboxWorkerPayload({
@@ -1850,6 +1882,14 @@ export async function createOwnerInternalSandboxTask(
         completedAt: workerCompletedAt,
       },
       include: projectRuntimeTaskInclude,
+    });
+
+    await writeTaskAuditLog(prisma, {
+      runtimeId: edenOwnerInternalSandboxRuntimeId,
+      taskId: createdTask.id,
+      actorUserId: actor.id,
+      eventType: "WORKER_COMPLETED",
+      detail: `Worker completed. Result type: ${taskResult.resultType ?? "none"}. Status: ${taskResult.resultStatus ?? "none"}.`,
     });
 
     const executionSession = dispatchPreflight
@@ -1918,6 +1958,16 @@ export async function createOwnerInternalSandboxTask(
         })
       : null;
 
+    if (dispatchRecord) {
+      await writeTaskAuditLog(prisma, {
+        runtimeId: edenOwnerInternalSandboxRuntimeId,
+        taskId: createdTask.id,
+        actorUserId: actor.id,
+        eventType: "DISPATCH_PREPARED",
+        detail: `Dispatch boundary prepared. Adapter: ${dispatchPreflight!.adapterKey}. Status: ${dispatchPreflight!.dispatchStatus}. ${dispatchPreflight!.blockingReason ? `Blocked: ${dispatchPreflight!.blockingReason}` : ""}`.trim(),
+      });
+    }
+
     const runSummary = dispatchPreflight
       ? dispatchPreflight.summary
       : `${edenInternalSandboxWorkerAgentLabel} recorded a deterministic sandbox control-plane run.`;
@@ -1934,6 +1984,7 @@ export async function createOwnerInternalSandboxTask(
         taskId: createdTask.id,
         actorUserId: actor.id,
         providerKey,
+
         modelLabel,
         executionTargetLabel: runtime.name,
         requestedActionType,
@@ -1944,6 +1995,14 @@ export async function createOwnerInternalSandboxTask(
           dispatchRecord?.resultPayload ?? taskResult.resultPayload,
         completedAt: runStatus === "COMPLETED" ? workerCompletedAt : null,
       },
+    });
+
+    await writeTaskAuditLog(prisma, {
+      runtimeId: edenOwnerInternalSandboxRuntimeId,
+      taskId: createdTask.id,
+      actorUserId: actor.id,
+      eventType: "TASK_COMPLETED",
+      detail: `Task completed. Result: ${taskResult.resultSummary ?? "Sandbox control-plane record stored."}`,
     });
 
     const reloadedTask = await prisma.projectRuntimeTask.findUnique({
@@ -1980,6 +2039,14 @@ export async function createOwnerInternalSandboxTask(
           },
         })
         .catch(() => undefined);
+
+      await writeTaskAuditLog(prisma, {
+        runtimeId: edenOwnerInternalSandboxRuntimeId,
+        taskId: createdTaskId,
+        actorUserId: actor.id,
+        eventType: "TASK_FAILED",
+        detail: `Task failed: ${getProjectRuntimeErrorMessage(error)}`,
+      });
     }
 
     logProjectRuntimeFailure("create_owner_internal_sandbox_task", error);
@@ -2370,6 +2437,14 @@ export async function executeOwnerInternalSandboxTaskLiveProvider(
       };
     });
 
+    await writeTaskAuditLog(prisma, {
+      runtimeId: taskRecord.runtimeId,
+      taskId: taskRecord.id,
+      actorUserId: actor.id,
+      eventType: "LIVE_EXECUTION_ATTEMPTED",
+      detail: `Owner triggered live ${providerAvailability.providerLabel} sandbox execution. Model: ${modelLabel ?? "default"}.`,
+    });
+
     const plannerPayload = parseSandboxPlannerPayload(taskRecord.plannerPayload);
     const workerPayload = parseSandboxWorkerPayload(taskRecord.workerPayload);
     const executionResult = await executeWithEdenProviderAdapter({
@@ -2484,6 +2559,16 @@ export async function executeOwnerInternalSandboxTaskLiveProvider(
       }
 
       return reloadedTask;
+    });
+
+    await writeTaskAuditLog(prisma, {
+      runtimeId: finalTask.runtimeId,
+      taskId: finalTask.id,
+      actorUserId: actor.id,
+      eventType: executionResult.ok ? "LIVE_EXECUTION_COMPLETED" : "LIVE_EXECUTION_FAILED",
+      detail: executionResult.ok
+        ? `Live ${providerAvailability.providerLabel} execution completed and stored for owner review.`
+        : `Live ${providerAvailability.providerLabel} execution failed: ${executionResult.error}`,
     });
 
     return {
@@ -3136,6 +3221,36 @@ function mapProjectRuntimeAuditLogRecord(
   };
 }
 
+function mapProjectRuntimeTaskAuditLogRecord(
+  entry: ProjectRuntimeTaskReadRecord["taskAuditLogs"][number],
+): EdenProjectRuntimeTaskAuditLogRecord {
+  return {
+    id: entry.id,
+    taskId: entry.taskId,
+    actorUserId: entry.actorUser.id,
+    actorLabel: `${entry.actorUser.displayName} (@${entry.actorUser.username})`,
+    eventType: entry.eventType.toLowerCase(),
+    eventTypeLabel: formatTaskAuditEventTypeLabel(entry.eventType),
+    detail: entry.detail,
+    createdAtLabel: formatTimestamp(entry.createdAt),
+  };
+}
+
+function formatTaskAuditEventTypeLabel(eventType: string): string {
+  const labels: Record<string, string> = {
+    TASK_CREATED: "Task Created",
+    PLANNER_COMPLETED: "Planner Completed",
+    WORKER_COMPLETED: "Worker Completed",
+    TASK_COMPLETED: "Task Completed",
+    TASK_FAILED: "Task Failed",
+    DISPATCH_PREPARED: "Dispatch Prepared",
+    LIVE_EXECUTION_ATTEMPTED: "Live Execution Attempted",
+    LIVE_EXECUTION_COMPLETED: "Live Execution Completed",
+    LIVE_EXECUTION_FAILED: "Live Execution Failed",
+  };
+  return labels[eventType] ?? formatEnumLabel(eventType);
+}
+
 function mapProjectRuntimeDeploymentRecord(
   record: ProjectRuntimeRegistryRecord["deploymentRecords"][number],
 ): EdenProjectRuntimeDeploymentRecord {
@@ -3200,6 +3315,7 @@ function mapProjectRuntimeTaskRecord(
     failureDetail: task.failureDetail,
     agentRuns: task.agentRuns.map(mapProjectRuntimeAgentRunRecord),
     dispatchRecords: task.dispatchRecords.map(mapProjectRuntimeDispatchRecord),
+    taskAuditEntries: task.taskAuditLogs.map(mapProjectRuntimeTaskAuditLogRecord),
     plannerCompletedAtLabel: task.plannerCompletedAt
       ? formatTimestamp(task.plannerCompletedAt)
       : null,
@@ -5474,4 +5590,32 @@ function logProjectRuntimeFailure(operation: string, error: unknown) {
   console.warn(
     `[eden-project-runtime] Control-plane operation failed during ${operation}. ${message}`,
   );
+}
+
+async function writeTaskAuditLog(
+  prisma: ReturnType<typeof getPrismaClient>,
+  input: {
+    runtimeId: string;
+    taskId: string;
+    actorUserId: string;
+    eventType: Prisma.ProjectRuntimeTaskAuditLogCreateInput["eventType"];
+    detail: string;
+    metadata?: Prisma.InputJsonValue | null;
+  },
+): Promise<void> {
+  try {
+    await prisma.projectRuntimeTaskAuditLog.create({
+      data: {
+        runtimeId: input.runtimeId,
+        taskId: input.taskId,
+        actorUserId: input.actorUserId,
+        eventType: input.eventType,
+        detail: input.detail,
+        metadata: input.metadata ?? Prisma.JsonNull,
+      },
+    });
+  } catch {
+    // Audit log writes must never break primary task operations.
+    // Swallow the error silently — the parent flow continues.
+  }
 }

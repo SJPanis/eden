@@ -1,4 +1,4 @@
--- CreateEnum
+- CreateEnum
 CREATE TYPE "ProjectRuntimeTaskType" AS ENUM ('IMPLEMENTATION_PLAN', 'ANALYSIS', 'QA_REVIEW');
 
 -- CreateEnum

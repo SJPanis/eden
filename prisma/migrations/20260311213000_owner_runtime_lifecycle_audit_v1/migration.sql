@@ -1,4 +1,4 @@
--- CreateTable
+- CreateTable
 CREATE TABLE "ProjectRuntimeAuditLog" (
     "id" TEXT NOT NULL,
     "runtimeId" TEXT NOT NULL,

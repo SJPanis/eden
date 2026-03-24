@@ -21,6 +21,7 @@
     - `20260311235930_provider_approval_secret_status_agent_run_v1`
     - `20260311235959_openclaw_execution_interface_scaffolding_v1`
     - `20260312003000_live_provider_execution_path_v1`
+    - `20260323010000_sandbox_task_lifecycle_audit_v1`
   - mark the baseline as applied on the existing live database
   - then run `prisma migrate deploy` so Prisma can apply all pending migrations in order
 - Exact next commands from `C:\dev\Eden\eden-v1`:
@@ -49,6 +50,10 @@
   - queue one approved Eden self-work item and confirm a real internal sandbox task row is created with the `[eden-self-work:<id>]` title prefix
   - confirm the new build-supervisor panel can prepare `EDEN_CODEX_EXECUTION_PACKET.json`
   - ingest one completed supervisor result and confirm the managed sections in `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md` refresh correctly
+  - confirm the new autonomy-mode panel loads correctly against the migrated database and shows correct scope, stage, and blocker state
+  - create a sandbox task and confirm `TASK_CREATED` audit log row is written to `ProjectRuntimeTaskAuditLog`
+  - complete a sandbox task and confirm `PLANNER_COMPLETED`, `WORKER_COMPLETED`, and `TASK_COMPLETED` audit entries are written and visible in the task card
+  - trigger a live OpenAI execution and confirm `LIVE_EXECUTION_ATTEMPTED` and `LIVE_EXECUTION_COMPLETED` or `LIVE_EXECUTION_FAILED` audit entries are written
 
 ## Needed Before Production-Like Flows
 
@@ -68,6 +73,8 @@
 ## Build Supervisor Tracked Actions
 
 <!-- EDEN_BUILD_SUPERVISOR:START -->
-- No new supervisor-recorded human-required actions yet.
-- Current blocked-task count: 1.
+- New human-required action: apply `20260323010000_sandbox_task_lifecycle_audit_v1` as part of the pending migration deploy sequence.
+- New human-required action: verify `ProjectRuntimeTaskAuditLog` rows are written after task creation, completion, and live execution attempts against the migrated live database.
+- New human-required action: confirm the autonomy-mode panel loads correctly in the intended environment.
+- Current blocked-task count: 1 (migration apply sequence still pending).
 <!-- EDEN_BUILD_SUPERVISOR:END -->

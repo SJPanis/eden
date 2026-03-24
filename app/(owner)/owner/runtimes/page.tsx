@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { loadEdenBuildSupervisorState } from "@/modules/core/agents/eden-build-supervisor";
+import { loadAutonomyModeState } from "@/modules/core/agents/eden-db-action-policy";
 import { loadEdenSelfWorkState } from "@/modules/core/agents/eden-self-work-loop";
 import {
   loadOwnerInternalSandboxTaskState,
@@ -7,6 +8,7 @@ import {
 } from "@/modules/core/services";
 import { layerAccessRules } from "@/modules/core/session/mock-session";
 import { requireMockAccess } from "@/modules/core/session/server";
+import { OwnerAutonomyModePanel } from "@/ui/owner/owner-autonomy-mode-panel";
 import { OwnerBuildSupervisorPanel } from "@/ui/owner/owner-build-supervisor-panel";
 import { OwnerControlAgentPanel } from "@/ui/owner/owner-control-agent-panel";
 import { OwnerEdenSelfWorkPanel } from "@/ui/owner/owner-eden-self-work-panel";
@@ -14,13 +16,14 @@ import { OwnerRuntimeRegistry } from "@/ui/owner/owner-runtime-registry";
 
 export default async function OwnerRuntimesPage() {
   await requireMockAccess(layerAccessRules.owner ?? [], "/owner/runtimes");
-  const [registry, sandboxTaskState, selfWorkState, buildSupervisorState] =
+  const [registry, sandboxTaskState, selfWorkState, buildSupervisorState, autonomyState] =
     await Promise.all([
-    loadOwnerProjectRuntimeRegistryState(),
-    loadOwnerInternalSandboxTaskState(),
-    loadEdenSelfWorkState(),
-    loadEdenBuildSupervisorState(),
-  ]);
+      loadOwnerProjectRuntimeRegistryState(),
+      loadOwnerInternalSandboxTaskState(),
+      loadEdenSelfWorkState(),
+      loadEdenBuildSupervisorState(),
+      loadAutonomyModeState(),
+    ]);
 
   return (
     <div className="space-y-6">
@@ -47,6 +50,8 @@ export default async function OwnerRuntimesPage() {
           </Link>
         </div>
       </div>
+
+      <OwnerAutonomyModePanel initialState={autonomyState} />
 
       <OwnerControlAgentPanel />
 

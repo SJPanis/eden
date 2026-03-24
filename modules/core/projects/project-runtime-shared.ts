@@ -446,11 +446,23 @@ export type EdenProjectRuntimeTaskRecord = {
   failureDetail?: string | null;
   agentRuns: EdenProjectRuntimeAgentRunRecord[];
   dispatchRecords: EdenProjectRuntimeDispatchRecord[];
+  taskAuditEntries: EdenProjectRuntimeTaskAuditLogRecord[];
   plannerCompletedAtLabel?: string | null;
   workerCompletedAtLabel?: string | null;
   completedAtLabel?: string | null;
   createdAtLabel: string;
   updatedAtLabel: string;
+};
+
+export type EdenProjectRuntimeTaskAuditLogRecord = {
+  id: string;
+  taskId: string;
+  actorUserId: string;
+  actorLabel: string;
+  eventType: string;
+  eventTypeLabel: string;
+  detail: string;
+  createdAtLabel: string;
 };
 
 export type EdenProjectRuntimeTaskState = {

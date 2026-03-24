@@ -1,6 +1,6 @@
 # Current State
 
-Last verified: 2026-03-11
+Last verified: 2026-03-23
 
 ## Repo Snapshot
 
@@ -15,8 +15,8 @@ Verified:
 
 - `cmd /c npx prisma format` passed when pointed at the local schema engine binary
 - `cmd /c npx prisma generate` passed
-- `npm run lint` passed
-- `npm run build` passed
+- `npm run lint` passed (most recent: 2026-03-23)
+- `npm run build` passed — clean compile, all 33 pages, exit 0 (most recent: 2026-03-23)
 - `cmd /c npx prisma validate` passed
 
 Partially verified only:
@@ -63,6 +63,7 @@ Prisma models exist for:
 - project runtime execution sessions and dispatch records
 - project runtime tasks for owner-only sandbox execution records
 - project runtime audit logs for owner lifecycle control actions
+- project runtime task audit logs for immutable task lifecycle event trails
 
 ### Business/project flows
 
@@ -85,6 +86,9 @@ Prisma models exist for:
 - owner-only runtime secret-boundary readiness API exists at `/api/owner/project-runtimes/[runtimeId]/secret-boundaries`
 - owner runtime control page now shows an owner constitution/control-agent scaffold panel
 - owner runtime control page now shows an execution console for dispatch/session history
+- owner runtime control page now shows an autonomy-mode panel with scope, stage, blockers, and policy table
+- owner-only autonomy mode API exists at `/api/owner/project-runtimes/internal-sandbox/autonomy`
+- owner-only self-work `?mode=queue_and_execute` path exists for governed auto-execution when policy allows
 
 ## Architectural Reality
 
@@ -329,17 +333,59 @@ What is still mixed or transitional:
   - shows readiness and review-required mode
   - lists approved Eden-core self-work items
   - queues the next approved item into the real internal sandbox task runner
+  - optionally triggers auto-execution via `?mode=queue_and_execute` when autonomy policy allows
+- The self-work loop now has two modes:
+  - queue-only (default): queues the task, stops for owner review
+  - queue_and_execute: queues then auto-executes if autonomy policy, review mode, and task flags all permit
 - The self-work loop is intentionally narrow:
   - scope is Eden-core work only
   - queue state is file-backed and owner-approved
   - execution records are stored in real `ProjectRuntimeTask` rows
-  - the loop stops for owner review when the queue requires it
+  - the loop stops for owner review when the queue or policy requires it
+  - stop reasons are explicit and returned to the owner UI
 - The self-work loop does not:
   - deploy Eden
   - bypass runtime boundaries
   - execute real containers
-  - call live AI providers
+  - call live AI providers outside the guarded OpenAI sandbox path with policy approval
   - mutate arbitrary repo areas outside the queued task scope
+
+## Current Sandbox Task Lifecycle Audit
+
+- `ProjectRuntimeTaskAuditLog` now exists in Prisma schema and migration output.
+- `ProjectRuntimeTaskAuditEventType` enum captures 9 event types:
+  - `TASK_CREATED`, `PLANNER_COMPLETED`, `WORKER_COMPLETED`, `TASK_COMPLETED`, `TASK_FAILED`
+  - `DISPATCH_PREPARED`, `LIVE_EXECUTION_ATTEMPTED`, `LIVE_EXECUTION_COMPLETED`, `LIVE_EXECUTION_FAILED`
+- Audit log writes are fire-and-forget: they never break primary task operations.
+- The `mapProjectRuntimeTaskRecord` service mapper now includes `taskAuditEntries` in every loaded task.
+- The owner task runner UI now renders a "Task lifecycle audit" section inside each task card.
+- Migration created: `prisma/migrations/20260323010000_sandbox_task_lifecycle_audit_v1/migration.sql`
+- All 9 event types are wired at their correct points in `project-runtime-service.ts`.
+
+## Current Autonomy Boundary Model
+
+- `eden-system/specs/EDEN_AUTONOMY_BOUNDARY.md` defines the two-scope two-stage model.
+- `modules/core/agents/eden-autonomy-boundary.ts` is a pure module (no server-only imports):
+  - `resolveEnvironmentScope()` returns `PRIVATE_DEV` or `PUBLIC_PROD`
+  - Detection priority: `EDEN_ENVIRONMENT_SCOPE` env var → `NODE_ENV` → default `PRIVATE_DEV`
+  - `edencloud.app` hostname always forces `PUBLIC_PROD` scope
+  - `resolveAutonomyStage()` maps scope to Stage A (higher autonomy) or Stage B (review-gated)
+  - 17 DB action policies with per-scope `allowed` / `requiresOwnerAcknowledgement` flags
+  - `checkDbActionAllowed(action, scope)` performs a single policy lookup
+  - `buildAutonomyModeState(input)` assembles the full owner-visible state struct
+- `modules/core/agents/eden-db-action-policy.ts` is the server-only DB-reading wrapper:
+  - reads live runtime/approval/secret state from Prisma
+  - returns `EdenAutonomyModeState` via `loadAutonomyModeState()`
+  - never throws — degrades safely to a conservative blocked state
+- `/api/owner/project-runtimes/internal-sandbox/autonomy` GET route returns live autonomy state.
+- `ui/owner/owner-autonomy-mode-panel.tsx` client component shows:
+  - Stage A/B badge and PRIVATE_DEV/PUBLIC_PROD scope badge
+  - live OpenAI path enabled/blocked badge with current blocker list
+  - public prod always-gated notice when scope is PUBLIC_PROD
+  - expandable DB action policy table (auto-allowed, blocked, human-required)
+  - refresh button polling the autonomy API
+- `OwnerAutonomyModePanel` is now the first panel after the page header in `/owner/runtimes`.
+- `loadAutonomyModeState()` is now called in the `Promise.all` in `OwnerRuntimesPage`.
 
 ## Current Build Supervisor
 
@@ -425,17 +471,19 @@ Use the new build supervisor to separate human-gated operational work from Codex
 
 Build next:
 
-1. owner still needs to run the manual migration reconciliation and deploy sequence on the active database
-2. after that, verify `/owner/runtimes` can persist the runtime registry, lifecycle audit, launch intent, deployment history, config policy, provider approvals, secret readiness updates, agent runs, sandbox result capture, self-work queue pulls, build-supervisor packet flow, and one live OpenAI sandbox execution against the live database
-3. the next Codex-ready implementation target is `sandbox_task_lifecycle_audit_logging`
-4. after that, add immutable sandbox task lifecycle audit records so the self-work and supervisor layers can point to concrete queue, dispatch-preparation, completion, and failure evidence
+1. owner still needs to run the manual migration reconciliation and deploy sequence on the active database — now includes the new `20260323010000_sandbox_task_lifecycle_audit_v1` migration
+2. after that, verify `/owner/runtimes` can persist the runtime registry, lifecycle audit, launch intent, deployment history, config policy, provider approvals, secret readiness updates, agent runs, sandbox result capture, self-work queue pulls, build-supervisor packet flow, autonomy mode panel load, and one live OpenAI sandbox execution against the live database
+3. the next Codex-ready implementation targets are:
+   - explicit owner review-acknowledgement step before next build-supervisor packet is actionable
+   - planner/router/worker/QA/ledger agent boundary wiring inside AI orchestration layer
+   - explicit review-required / blocked / waiting transitions for the self-work loop beyond file-backed queue state
 
 ## Build Supervisor Digest
 
 <!-- EDEN_BUILD_SUPERVISOR:START -->
-- Supervisor status: Packet needed.
-- Status detail: The next Codex-ready task is "Add sandbox task lifecycle audit logging", but the packet still needs to be prepared.
-- Next Codex-ready task: sandbox_task_lifecycle_audit_logging - Add sandbox task lifecycle audit logging.
+- Supervisor status: Implementation completed. Awaiting owner review before next packet.
+- Status detail: sandbox_task_lifecycle_audit_logging is now implemented. Autonomy boundary model, DB action policy scaffolding, autonomy-mode panel, and tightened self-work loop are also complete. Build + lint pass. Migration on disk. Live DB apply still pending owner action.
+- Last completed supervised task: sandbox_task_lifecycle_audit_logging + autonomy_boundary_model + db_action_policy_scaffold + self_work_loop_tightening (2026-03-23).
+- Next Codex-ready task: owner_review_acknowledgement_step or planner_router_worker_boundary_wiring.
 - Packet state: not_prepared.
-- Last completed supervised task: None recorded yet.
 <!-- EDEN_BUILD_SUPERVISOR:END -->

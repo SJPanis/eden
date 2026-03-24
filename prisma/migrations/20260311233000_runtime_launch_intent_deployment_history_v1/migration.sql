@@ -1,4 +1,4 @@
--- CreateEnum
+- CreateEnum
 CREATE TYPE "ProjectRuntimeLaunchIntentType" AS ENUM ('INTERNAL_PREVIEW', 'EDEN_HOSTED', 'LINKED_EXTERNAL');
 
 -- CreateEnum

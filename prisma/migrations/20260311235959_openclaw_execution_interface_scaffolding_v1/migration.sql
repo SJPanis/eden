@@ -1,4 +1,4 @@
-﻿-- CreateEnum
+-- CreateEnum
 CREATE TYPE "ProjectRuntimeDispatchStatus" AS ENUM ('QUEUED', 'READY', 'BLOCKED', 'DISPATCHED', 'COMPLETED', 'FAILED', 'REVIEW_REQUIRED');
 
 -- CreateEnum

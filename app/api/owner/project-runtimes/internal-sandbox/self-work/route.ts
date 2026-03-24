@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   loadEdenSelfWorkState,
   queueNextApprovedEdenSelfWorkTask,
+  queueAndExecuteNextApprovedEdenSelfWorkTask,
 } from "@/modules/core/agents/eden-self-work-loop";
 import { getServerSession } from "@/modules/core/session/server";
 
@@ -28,7 +29,7 @@ export async function GET() {
   });
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const session = await getServerSession();
 
   if (session.role !== "owner") {
@@ -41,21 +42,46 @@ export async function POST() {
     );
   }
 
-  const result = await queueNextApprovedEdenSelfWorkTask({
+  const { searchParams } = new URL(request.url);
+  const mode = searchParams.get("mode");
+
+  const actor = {
     id: session.user.id,
     username: session.user.username,
     displayName: session.user.displayName,
     role: session.user.role,
     status: session.user.status,
     edenBalanceCredits: session.user.edenBalanceCredits,
-  });
+  };
+
+  // mode=queue_and_execute: queue + auto-execute if autonomy policy allows.
+  // Default (no mode): queue only — stops for owner review.
+  if (mode === "queue_and_execute") {
+    const result = await queueAndExecuteNextApprovedEdenSelfWorkTask(actor);
+
+    if (!result.ok) {
+      return NextResponse.json(
+        { ok: false, error: result.error },
+        { status: result.status },
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      queueItem: result.queueItem,
+      task: result.task,
+      queued: result.queued,
+      executed: result.executed,
+      autoExecutionSkipped: result.autoExecutionSkipped,
+      stopReason: result.stopReason,
+    });
+  }
+
+  const result = await queueNextApprovedEdenSelfWorkTask(actor);
 
   if (!result.ok) {
     return NextResponse.json(
-      {
-        ok: false,
-        error: result.error,
-      },
+      { ok: false, error: result.error },
       { status: result.status },
     );
   }

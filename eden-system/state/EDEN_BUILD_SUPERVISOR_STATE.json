@@ -4,10 +4,35 @@
   "packetPath": "eden-system/state/EDEN_CODEX_EXECUTION_PACKET.json",
   "completedTaskIds": [
     "secret_boundary_status_controls",
-    "task_audit_and_queue_boundary"
+    "task_audit_and_queue_boundary",
+    "sandbox_task_lifecycle_audit_logging",
+    "autonomy_boundary_model",
+    "db_action_policy_scaffold",
+    "self_work_loop_tightening"
   ],
-  "lastPreparedPacketTaskId": null,
-  "lastPreparedAt": null,
-  "packetStatus": "not_prepared",
-  "history": []
+  "lastPreparedPacketTaskId": "sandbox_task_lifecycle_audit_logging",
+  "lastPreparedAt": "2026-03-23T00:00:00.000Z",
+  "packetStatus": "awaiting_owner_review",
+  "history": [
+    {
+      "taskId": "sandbox_task_lifecycle_audit_logging",
+      "completedAt": "2026-03-23T00:00:00.000Z",
+      "summary": "Added ProjectRuntimeTaskAuditLog model, 9-type enum, migration, fire-and-forget writeTaskAuditLog helper, full event wiring in service layer, and audit UI in task runner cards."
+    },
+    {
+      "taskId": "autonomy_boundary_model",
+      "completedAt": "2026-03-23T00:00:00.000Z",
+      "summary": "Added EDEN_AUTONOMY_BOUNDARY.md spec, eden-autonomy-boundary.ts pure module (scope resolution, stage mapping, 17 DB action policies), and eden-db-action-policy.ts server-only DB-reading wrapper."
+    },
+    {
+      "taskId": "db_action_policy_scaffold",
+      "completedAt": "2026-03-23T00:00:00.000Z",
+      "summary": "17 DB action policies classified by risk level with per-scope allowed/blocked/review-required flags. loadAutonomyModeState() reads live Prisma state and degrades safely."
+    },
+    {
+      "taskId": "self_work_loop_tightening",
+      "completedAt": "2026-03-23T00:00:00.000Z",
+      "summary": "Added queueAndExecuteNextApprovedEdenSelfWorkTask() with governed policy checks. POST route split into explicit branches. queue_and_execute mode available via ?mode=queue_and_execute."
+    }
+  ]
 }

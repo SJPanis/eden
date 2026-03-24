@@ -1,4 +1,4 @@
--- CreateEnum
+- CreateEnum
 CREATE TYPE "EdenAiProvider" AS ENUM ('OPENAI', 'ANTHROPIC');
 
 -- CreateEnum

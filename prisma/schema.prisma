@@ -296,6 +296,18 @@ enum ProjectRuntimeTaskResultStatus {
   INFO
 }
 
+enum ProjectRuntimeTaskAuditEventType {
+  TASK_CREATED
+  PLANNER_COMPLETED
+  WORKER_COMPLETED
+  TASK_COMPLETED
+  TASK_FAILED
+  DISPATCH_PREPARED
+  LIVE_EXECUTION_ATTEMPTED
+  LIVE_EXECUTION_COMPLETED
+  LIVE_EXECUTION_FAILED
+}
+
 model User {
   id                              String                           @id @default(cuid())
   username                        String                           @unique
@@ -322,9 +334,15 @@ model User {
   projectRuntimeDispatchRecords   ProjectRuntimeDispatchRecord[]   @relation("ProjectRuntimeDispatchActor")
   projectRuntimeExecutionSessions ProjectRuntimeExecutionSession[] @relation("ProjectRuntimeExecutionSessionActor")
   projectRuntimeAuditLogs         ProjectRuntimeAuditLog[]         @relation("ProjectRuntimeAuditActor")
+  projectRuntimeTaskAuditLogs     ProjectRuntimeTaskAuditLog[]     @relation("ProjectRuntimeTaskAuditActor")
   projectRuntimeDeploymentRecords ProjectRuntimeDeploymentRecord[] @relation("ProjectRuntimeDeploymentActor")
   receivedLeavesGrants            OwnerLeavesGrant[]               @relation("OwnerLeavesGrantRecipient")
   issuedLeavesGrants              OwnerLeavesGrant[]               @relation("OwnerLeavesGrantIssuer")
+  wallet                          EdenWallet?
+  edenTransactions                EdenTransaction[]                @relation("EdenTransactionActor")
+  contributionRecords             ContributionRecord[]             @relation("ContributorRecords")
+  reviewedContributions           ContributionRecord[]             @relation("ContributionReviewer")
+  contributionAllocations         ContributionAllocation[]         @relation("ContributionAllocationRecipient")
 }
 
 model AuthProviderAccount {
@@ -369,6 +387,8 @@ model Business {
   payoutSettlements       PayoutSettlement[]
   internalLeavesUsages    InternalLeavesUsage[]
   projectBlueprints       ProjectBlueprint[]
+  edenTransactions        EdenTransaction[]
+  contributionRecords     ContributionRecord[]
 
   @@index([ownerUserId])
   @@index([status])
@@ -429,7 +449,10 @@ model ProjectRuntime {
   executionSessions ProjectRuntimeExecutionSession[]
   dispatchRecords   ProjectRuntimeDispatchRecord[]
   auditLogs         ProjectRuntimeAuditLog[]
+  taskAuditLogs     ProjectRuntimeTaskAuditLog[]
   deploymentRecords ProjectRuntimeDeploymentRecord[]
+  edenTransactions  EdenTransaction[]
+  contributions     ContributionRecord[]
 
   @@unique([projectId, environment, runtimeType])
   @@index([projectId, createdAt])
@@ -570,6 +593,7 @@ model ProjectRuntimeTask {
   creatorUser         User                            @relation("ProjectRuntimeTaskCreator", fields: [creatorUserId], references: [id], onDelete: Cascade)
   agentRuns           ProjectRuntimeAgentRun[]
   dispatchRecords     ProjectRuntimeDispatchRecord[]
+  taskAuditLogs       ProjectRuntimeTaskAuditLog[]
 
   @@index([runtimeId, createdAt])
   @@index([status, createdAt])
@@ -680,6 +704,25 @@ model ProjectRuntimeAuditLog {
   @@index([runtimeId, createdAt])
   @@index([actorUserId, createdAt])
   @@index([fieldName, createdAt])
+}
+
+model ProjectRuntimeTaskAuditLog {
+  id          String                             @id @default(cuid())
+  runtimeId   String
+  taskId      String
+  actorUserId String
+  eventType   ProjectRuntimeTaskAuditEventType
+  detail      String
+  metadata    Json?
+  createdAt   DateTime                           @default(now())
+  runtime     ProjectRuntime                     @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  task        ProjectRuntimeTask                 @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actorUser   User                               @relation("ProjectRuntimeTaskAuditActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@index([runtimeId, createdAt])
+  @@index([taskId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([eventType, createdAt])
 }
 
 model ProjectRuntimeDeploymentRecord {
@@ -928,4 +971,166 @@ model PipelineEvent {
   @@index([businessId, occurredAt])
   @@index([serviceId, occurredAt])
   @@index([newStatus])
+}
+
+// ─── Eden Economy MVP ─────────────────────────────────────────────────────────
+
+enum EdenTransactionType {
+  LEAFS_TOPUP
+  LEAFS_DEDUCTION
+  LEAFS_GRANT
+  SERVICE_PURCHASE
+  BUILDER_PAYOUT
+  CONTRIBUTION_BONUS
+  PLATFORM_FEE
+  PROVIDER_RESERVE
+  CONTRIBUTION_POOL
+  MANUAL_ADJUSTMENT
+}
+
+enum EdenTransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum EdenContributionType {
+  CODE_IMPROVEMENT
+  DESIGN_IMPROVEMENT
+  BUG_FIX
+  DOCS_IMPROVEMENT
+  BUSINESS_TEMPLATE
+  RUNTIME_IMPROVEMENT
+  FEEDBACK_ADOPTED
+  OTHER
+}
+
+enum EdenContributionStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum EdenContributionPeriodStatus {
+  OPEN
+  CLOSED
+  DISTRIBUTED
+}
+
+model EdenWallet {
+  id                   String            @id @default(cuid())
+  userId               String            @unique
+  leafsBalance         Int               @default(0)
+  lockedLeafs          Int               @default(0)
+  totalPurchasedLeafs  Int               @default(0)
+  totalGrantedLeafs    Int               @default(0)
+  totalSpentLeafs      Int               @default(0)
+  contributionScore    Int               @default(0)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions         EdenTransaction[]
+
+  @@index([userId])
+}
+
+model EdenTransaction {
+  id                      String                @id @default(cuid())
+  walletId                String
+  actorUserId             String
+  businessId              String?
+  runtimeId               String?
+  transactionType         EdenTransactionType
+  status                  EdenTransactionStatus @default(PENDING)
+  // Cash amounts are stored in cents to avoid floating point
+  cashAmountCents         Int?
+  leafsAmount             Int?
+  // Fee split buckets (in Leaf's units)
+  builderEarningsLeafs    Int?
+  platformFeeLeafs        Int?
+  providerReserveLeafs    Int?
+  contributionPoolLeafs   Int?
+  description             String
+  metadata                Json?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  wallet                  EdenWallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  actor                   User                  @relation("EdenTransactionActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+  business                Business?             @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  runtime                 ProjectRuntime?       @relation(fields: [runtimeId], references: [id], onDelete: SetNull)
+
+  @@index([walletId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([transactionType, createdAt])
+  @@index([status, createdAt])
+  @@index([businessId, createdAt])
+}
+
+model ContributionRecord {
+  id                      String                 @id @default(cuid())
+  contributorUserId       String
+  reviewedByUserId        String?
+  runtimeId               String?
+  businessId              String?
+  contributionType        EdenContributionType
+  title                   String
+  summary                 String
+  artifactRef             String?
+  evidenceRef             String?
+  status                  EdenContributionStatus @default(SUBMITTED)
+  approvedAt              DateTime?
+  contributionScoreAwarded Int?
+  leavesBonusAwarded      Int?
+  notes                   String?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+  contributor             User                   @relation("ContributorRecords", fields: [contributorUserId], references: [id], onDelete: Cascade)
+  reviewer                User?                  @relation("ContributionReviewer", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
+  runtime                 ProjectRuntime?        @relation(fields: [runtimeId], references: [id], onDelete: SetNull)
+  business                Business?              @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  allocations             ContributionAllocation[]
+
+  @@index([contributorUserId, createdAt])
+  @@index([status, createdAt])
+  @@index([contributionType, createdAt])
+}
+
+model ContributionPeriod {
+  id              String                       @id @default(cuid())
+  label           String
+  startDate       DateTime
+  endDate         DateTime
+  poolLeafs       Int                          @default(0)
+  poolCashCents   Int                          @default(0)
+  status          EdenContributionPeriodStatus @default(OPEN)
+  notes           String?
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+  allocations     ContributionAllocation[]
+
+  @@index([status, startDate])
+}
+
+model ContributionAllocation {
+  id                  String              @id @default(cuid())
+  periodId            String
+  contributionId      String
+  contributorUserId   String
+  scoreWeight         Float               @default(0)
+  percentOfPool       Float               @default(0)
+  leafsGranted        Int                 @default(0)
+  cashAllocatedCents  Int                 @default(0)
+  status              EdenTransactionStatus @default(PENDING)
+  notes               String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  period              ContributionPeriod  @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  contribution        ContributionRecord  @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  contributor         User                @relation("ContributionAllocationRecipient", fields: [contributorUserId], references: [id], onDelete: Cascade)
+
+  @@index([periodId, contributorUserId])
+  @@index([contributorUserId, createdAt])
+  @@index([status])
 }

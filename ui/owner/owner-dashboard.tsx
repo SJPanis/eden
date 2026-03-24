@@ -577,7 +577,7 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-credits",
-      label: "Eden Leaves flow",
+      label: "Eden Leaf's flow",
       value: `+${formatCredits(creditFlow.inflow)} / -${formatCredits(creditFlow.outflow)}`,
       detail: "Development ledger-overlay movement across wallet top-ups, usage, reserves, and adjustments.",
     },
@@ -604,12 +604,12 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-usage-credits",
-      label: "Spendable Leaves used",
+      label: "Spendable Leaf's used",
       value: formatCredits(usageMetrics.totalCreditsUsed),
       detail:
         usageMetrics.source === "persistent"
-          ? "Spendable Leaves attached to persisted service usage events for early monetization reporting."
-          : "Spendable Leaves estimated from usage transactions while Prisma-backed usage records are unavailable.",
+          ? "Spendable Leaf's attached to persisted service usage events for early monetization reporting."
+          : "Spendable Leaf's estimated from usage transactions while Prisma-backed usage records are unavailable.",
     },
     {
       id: "overview-platform-earnings",
@@ -621,7 +621,7 @@ export function OwnerDashboardPanel({
       id: "overview-builder-earnings",
       label: `${edenEarnedLeavesLabel} accrued`,
       value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
-      detail: "Builder net earned Leaves projection after the Eden fee share using current service pricing.",
+      detail: "Builder net earned Leaf's projection after the Eden fee share using current service pricing.",
     },
   ];
   const releaseSummaryCards = [
@@ -654,19 +654,19 @@ export function OwnerDashboardPanel({
   ];
   const creditSummary = [
     {
-      label: "Leaves issued",
+      label: "Leaf\'s issued",
       value: formatCredits(creditFlow.inflow),
       detail: "Development-overlay distribution to users, businesses, and owner test accounts.",
     },
     {
-      label: "Leaves consumed",
+      label: "Leaf\'s consumed",
       value: formatCredits(creditFlow.outflow),
       detail: "Overlay usage from AI routing, service discovery, and workspace actions.",
     },
     {
       label: "Reserve held",
       value: formatCredits(creditFlow.reserve),
-      detail: "Leaves reserved for publish staging, safety holds, and owner review buffers.",
+      detail: "Leaf's reserved for publish staging, safety holds, and owner review buffers.",
     },
     {
       label: "Net movement",
@@ -679,7 +679,7 @@ export function OwnerDashboardPanel({
       id: "payments-total",
       label: "Total top-ups",
       value: `${paymentMetrics.totalPayments}`,
-      detail: "Persistent Leaves top-up records tracked through the current owner payment ledger.",
+      detail: "Persistent Leaf's top-up records tracked through the current owner payment ledger.",
     },
     {
       id: "payments-settled",
@@ -695,7 +695,7 @@ export function OwnerDashboardPanel({
     },
     {
       id: "payments-credits",
-      label: "Leaves settled",
+      label: "Leaf\'s settled",
       value: formatCredits(paymentMetrics.totalCreditsSettled),
       detail: `${formatMoneyAmount(
         paymentMetrics.totalSettledAmountCents,
@@ -747,9 +747,9 @@ export function OwnerDashboardPanel({
     },
     {
       id: "payout-internal-use",
-      label: "Earned Leaves used internally",
+      label: "Earned Leaf\'s used internally",
       value: formatCredits(payoutAccounting.totalInternalUseCredits),
-      detail: "Persistent internal-use records where builders reused earned Leaves inside Eden instead of leaving them in payout accounting.",
+      detail: "Persistent internal-use records where builders reused earned Leaf's inside Eden instead of leaving them in payout accounting.",
     },
     {
       id: "payout-ready",
@@ -1616,8 +1616,8 @@ export function OwnerDashboardPanel({
           <ControlRoomSection
             id="transaction-flow"
             eyebrow="Transaction Flow"
-            title="Eden Leaves movement"
-            description="Owner-facing development ledger activity showing how spendable Leaves move across issuing, spending, holds, and adjustments."
+            title="Eden Leaf's movement"
+            description="Owner-facing development ledger activity showing how spendable Leaf's move across issuing, spending, holds, and adjustments."
             actions={
               <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
                 Development ledger overlay
@@ -1643,7 +1643,7 @@ export function OwnerDashboardPanel({
               ))}
             </motion.div>
             <div className="mt-4 rounded-2xl border border-eden-edge bg-white p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaves activity</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaf's activity</p>
               <div className="mt-4 space-y-3">
                 {creditActivity.map((activity) => (
                   <div
@@ -1761,7 +1761,7 @@ export function OwnerDashboardPanel({
                               {index + 1}. {business.businessName}
                             </p>
                             <p className="mt-2 text-sm leading-6 text-eden-muted">
-                              Earned Leaves {formatCredits(business.totalEarnedCredits)} | Ready{" "}
+                              Earned Leaf's {formatCredits(business.totalEarnedCredits)} | Ready{" "}
                               {formatCredits(business.payoutReadyCredits)}
                             </p>
                             <p className="mt-1 text-xs text-eden-muted">
@@ -2033,7 +2033,7 @@ export function OwnerDashboardPanel({
                       Recent top-up payments
                     </p>
                     <p className="mt-2 text-sm leading-6 text-eden-muted">
-                      Owner inspection of pending, settled, failed, and canceled Eden Leaves top-ups.
+                      Owner inspection of pending, settled, failed, and canceled Eden Leaf's top-ups.
                     </p>
                   </div>
                   <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -2395,7 +2395,7 @@ export function OwnerDashboardPanel({
                     <p className="mt-1 text-xs text-eden-muted">
                       {formatCredits(
                         payoutAccounting.statusOverview.internalUseCredits,
-                      )} reused from earned Leaves
+                      )} reused from earned Leaf's
                     </p>
                   </div>
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
@@ -2417,10 +2417,10 @@ export function OwnerDashboardPanel({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Internal earned Leaves usage
+                    Internal earned Leaf's usage
                   </p>
                   <p className="mt-2 text-sm leading-6 text-eden-muted">
-                    Recent business-side internal Eden use recorded against earned Leaves. These rows reduce remaining builder liability without creating a payout.
+                    Recent business-side internal Eden use recorded against earned Leaf's. These rows reduce remaining builder liability without creating a payout.
                   </p>
                 </div>
                 <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
@@ -2470,7 +2470,7 @@ export function OwnerDashboardPanel({
                   ))
                 ) : (
                   <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
-                    No internal earned-Leaves usage has been recorded yet.
+                    No internal earned-Leaf's usage has been recorded yet.
                   </div>
                 )}
               </div>
@@ -2490,7 +2490,7 @@ export function OwnerDashboardPanel({
                       <p className="mt-2 text-lg font-semibold text-eden-ink">{usageMetrics.totalUsageEvents}</p>
                     </div>
                     <div className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
-                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Spendable Leaves used</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">Spendable Leaf's used</p>
                       <p className="mt-2 text-lg font-semibold text-eden-ink">
                         {formatCredits(usageMetrics.totalCreditsUsed)}
                       </p>
@@ -2802,8 +2802,8 @@ export function OwnerDashboardPanel({
                 businessId={simulationBusinessId}
                 description={
                   simulationBusiness
-                    ? `These development-only actions append local Eden Leaves events for ${simulationBusiness.name}.`
-                    : `These development-only actions append local Eden Leaves events for ${session.user.displayName}.`
+                    ? `These development-only actions append local Eden Leaf's events for ${simulationBusiness.name}.`
+                    : `These development-only actions append local Eden Leaf's events for ${session.user.displayName}.`
                 }
               />
             </div>

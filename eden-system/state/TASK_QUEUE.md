@@ -67,7 +67,7 @@
 - [x] Add owner-only provider approval and secret readiness update APIs and UI inside `/owner/runtimes`.
 - [x] Generate a Prisma migration for provider approval gates, secret readiness detail, agent runs, and sandbox result capture.
 - [ ] Run `prisma migrate resolve --applied 20260311120000_pre_runtime_baseline` on the active database.
-- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`, `20260311235930_provider_approval_secret_status_agent_run_v1`, `20260311235959_openclaw_execution_interface_scaffolding_v1`, and `20260312003000_live_provider_execution_path_v1` create the runtime, task, audit, launch-intent, deployment-history, config-policy, secret-boundary, provider-approval, agent-run, execution-session, dispatch, and honest live-provider labeling updates.
+- [ ] Run `prisma migrate deploy` so `20260311143000_project_runtime_control_plane`, `20260311190000_internal_sandbox_task_runner_v1`, `20260311213000_owner_runtime_lifecycle_audit_v1`, `20260311233000_runtime_launch_intent_deployment_history_v1`, `20260311235500_runtime_config_secret_boundary_provider_scaffold_v1`, `20260311235930_provider_approval_secret_status_agent_run_v1`, `20260311235959_openclaw_execution_interface_scaffolding_v1`, `20260312003000_live_provider_execution_path_v1`, and `20260323010000_sandbox_task_lifecycle_audit_v1` create the runtime, task, audit, launch-intent, deployment-history, config-policy, secret-boundary, provider-approval, agent-run, execution-session, dispatch, honest live-provider labeling, and task lifecycle audit log updates.
 - [ ] Execute the owner-only sandbox initializer against the migrated database and confirm the registry loads persistent data.
 - [ ] Create a sandbox task against the migrated database and confirm planner/worker outputs persist.
 - [ ] Create a sandbox task with provider preflight metadata against the migrated database and confirm agent-run and explicit result-capture records persist.
@@ -120,16 +120,20 @@
 - [x] Route the live provider path through existing policy, secret-boundary, dispatch, session, and agent-run governance checks.
 - [x] Add an owner-only execute action plus stored live result capture for eligible sandbox tasks.
 - [x] Generate a Prisma migration for honest live-provider adapter-mode and result-type labeling.
-- [ ] Add sandbox task lifecycle audit logging for creation, completion, failure, and dispatch preparation.
-- [ ] Require every future Codex task to update `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
+- [x] Add sandbox task lifecycle audit logging for creation, completion, failure, and dispatch preparation.
+- [x] Add a clear autonomy boundary model for PRIVATE_DEV vs PUBLIC_PROD scope.
+- [x] Add owner-visible autonomy-mode status panel to `/owner/runtimes`.
+- [x] Add safe DB-action policy scaffolding with per-scope allowed/blocked/review-required classification.
+- [x] Tighten the self-work loop to queue + execute via governed OpenAI path when policy allows, stop cleanly for review.
+- [x] Require every future Codex task to update `CURRENT_STATE.md`, `TASK_QUEUE.md`, `CHANGELOG_AGENT.md`, and `HUMAN_ACTIONS_REQUIRED.md`.
+- [ ] Add explicit owner review-acknowledgement step before the next build-supervisor packet is considered actionable.
+- [ ] Add planner/router, worker, QA, and ledger agent boundaries in implementation.
 
 ### Soon
 
 - [ ] Add planner/router, worker, QA, and ledger agent boundaries in implementation.
 - [ ] Connect the owner constitution scaffold to a real Eden control-agent task flow without granting broad unsafe execution.
-- [ ] Add sandbox task audit logging for Eden self-work queue pulls and task completion state.
 - [ ] Add explicit review-required, blocked, and waiting transitions for the Eden self-work loop beyond the file-backed queue state.
-- [ ] Add an explicit owner review-acknowledgement step for build-supervisor completions before the next packet is considered actionable.
 - [ ] Add persistent execution logs and state checkpoints for agent work units.
 
 ### Later
@@ -140,7 +144,8 @@
 
 <!-- EDEN_BUILD_SUPERVISOR:START -->
 - Review mode: Owner review required after each self-work task.
-- Current recommended task: Add sandbox task lifecycle audit logging.
-- Highest blocked approved task: Apply live runtime control-plane migrations and verify persistent runtime records.
-- Build-supervisor packet ready: no.
+- Recently completed: sandbox_task_lifecycle_audit_logging, autonomy_boundary_model, db_action_policy_scaffold, self_work_loop_tightening (2026-03-23).
+- Current recommended task: owner_review_acknowledgement_step or planner_router_worker_boundary_wiring.
+- Highest blocked approved task: Apply live runtime control-plane migrations (now includes 20260323010000_sandbox_task_lifecycle_audit_v1) and verify persistent runtime records.
+- Build-supervisor packet ready: no (awaiting owner review).
 <!-- EDEN_BUILD_SUPERVISOR:END -->

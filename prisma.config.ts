@@ -12,6 +12,8 @@ if (typeof process.loadEnvFile === "function" && existsSync(rootEnvPath)) {
 export default defineConfig({
   schema: "prisma/schema.prisma",
   datasource: {
+    // DIRECT_DATABASE_URL is used for migrations (schema engine requires direct connection,
+    // not a pooler). Falls back to DATABASE_URL if not set.
     url: env("DATABASE_URL"),
   },
 });

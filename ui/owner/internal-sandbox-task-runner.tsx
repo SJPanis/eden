@@ -573,6 +573,34 @@ export function InternalSandboxTaskRunner({
                     </div>
                   ) : null}
 
+                  {task.taskAuditEntries.length > 0 && (
+                    <div className="mt-4 rounded-2xl border border-eden-edge bg-eden-bg/60 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                        Task lifecycle audit
+                      </p>
+                      <div className="mt-2 space-y-1">
+                        {task.taskAuditEntries.map((entry) => (
+                          <div
+                            key={entry.id}
+                            className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-eden-edge bg-white px-3 py-2 text-xs"
+                          >
+                            <div className="min-w-0">
+                              <span className="font-semibold text-eden-ink">
+                                {entry.eventTypeLabel}
+                              </span>
+                              <span className="ml-2 text-eden-muted">
+                                {entry.detail}
+                              </span>
+                            </div>
+                            <span className="shrink-0 text-eden-muted">
+                              {entry.createdAtLabel}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mt-4 flex flex-wrap gap-3 text-xs text-eden-muted">
                     <span>Created {task.createdAtLabel}</span>
                     {task.completedAtLabel ? (

@@ -1,4 +1,4 @@
--- CreateEnum
+- CreateEnum
 CREATE TYPE "ProjectRuntimeType" AS ENUM ('INTERNAL_SANDBOX', 'INTERNAL_PREVIEW', 'EDEN_MANAGED_INSTANCE', 'EXTERNAL_LINKED_DOMAIN');
 
 -- CreateEnum

@@ -1,4 +1,4 @@
--- CreateEnum
+- CreateEnum
 CREATE TYPE "ProjectRuntimeProviderApprovalStatus" AS ENUM ('REVIEW_REQUIRED', 'APPROVED', 'DENIED');
 
 -- CreateEnum

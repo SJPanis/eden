@@ -15,8 +15,10 @@ import { loadEdenOwnerControlPlaneState } from "@/modules/core/agents/eden-owner
 import { edenOwnerInternalSandboxRuntimeId } from "@/modules/core/projects/project-runtime-shared";
 import {
   createOwnerInternalSandboxTask,
+  executeOwnerInternalSandboxTaskLiveProvider,
   describeProjectRuntimeFailure,
 } from "@/modules/core/services/project-runtime-service";
+import { loadAutonomyModeState } from "@/modules/core/agents/eden-db-action-policy";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 
 const edenSelfWorkQueuePath = "eden-system/state/EDEN_SELF_WORK_QUEUE.json";
@@ -64,9 +66,10 @@ type EdenSelfWorkActor = {
 
 export async function loadEdenSelfWorkState(): Promise<EdenSelfWorkLoopState> {
   try {
-    const [queueFile, controlPlaneState] = await Promise.all([
+    const [queueFile, controlPlaneState, autonomyMode] = await Promise.all([
       readEdenSelfWorkQueueFile(),
       loadEdenOwnerControlPlaneState(),
+      loadAutonomyModeState(),
     ]);
     const prisma = getPrismaClient();
     const [runtime, runtimeTasks] = await Promise.all([
@@ -157,6 +160,10 @@ export async function loadEdenSelfWorkState(): Promise<EdenSelfWorkLoopState> {
       inputs,
       queue,
       unavailableReason: null,
+      autonomyStage: autonomyMode.autonomyStage,
+      autonomyScopeLabel: autonomyMode.scopeLabel,
+      autonomyAllowsExecution: autonomyMode.allowsAutoExecution,
+      autonomyBlockers: autonomyMode.currentBlockers,
     };
   } catch (error) {
     return {
@@ -426,4 +433,94 @@ function formatTimestamp(value: Date) {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+/**
+ * Queue the next approved Eden self-work item AND, if the autonomy policy allows it,
+ * immediately execute it through the governed OpenAI live path.
+ *
+ * Autonomy gate checks (all must pass for auto-execution):
+ *   - autonomy stage A (PRIVATE_DEV)
+ *   - sandbox runtime ready
+ *   - OpenAI approved + secret boundary CONFIGURED
+ *   - OPENAI_API_KEY present in server runtime
+ *   - queue mode is NOT owner_review_required (continuous mode only)
+ *
+ * If the queue mode is owner_review_required, this function only queues the task
+ * and stops — returning a clear stop reason for the owner.
+ */
+export async function queueAndExecuteNextApprovedEdenSelfWorkTask(
+  actor: EdenSelfWorkActor,
+) {
+  // First queue the task through the existing path
+  const queueResult = await queueNextApprovedEdenSelfWorkTask(actor);
+
+  if (!queueResult.ok) {
+    return queueResult;
+  }
+
+  const { task, queueItem } = queueResult;
+
+  // If review is required after queueing, stop here
+  const queueFile = await readEdenSelfWorkQueueFile().catch(() => null);
+  const reviewRequiredMode = queueFile?.mode === "owner_review_required";
+
+  if (reviewRequiredMode || queueItem.requiresOwnerReview) {
+    return {
+      ok: true as const,
+      queued: true,
+      executed: false,
+      autoExecutionSkipped: true,
+      stopReason:
+        "Self-work queue is in owner-review-required mode. Task queued — stopping for review before execution.",
+      queueItem,
+      task,
+    };
+  }
+
+  // Check autonomy policy
+  const autonomyMode = await loadAutonomyModeState();
+
+  if (!autonomyMode.allowsProviderExecution) {
+    return {
+      ok: true as const,
+      queued: true,
+      executed: false,
+      autoExecutionSkipped: true,
+      stopReason: autonomyMode.currentBlockers.length > 0
+        ? `Autonomy policy blocked auto-execution: ${autonomyMode.currentBlockers[0]}`
+        : "Autonomy policy does not allow automatic provider execution in the current environment scope.",
+      queueItem,
+      task,
+    };
+  }
+
+  // Attempt live execution through the governed OpenAI path
+  const execResult = await executeOwnerInternalSandboxTaskLiveProvider(actor, {
+    taskId: task.id,
+  });
+
+  if (!execResult.ok) {
+    return {
+      ok: true as const,
+      queued: true,
+      executed: false,
+      autoExecutionSkipped: false,
+      stopReason: `Live execution attempt failed: ${execResult.error}`,
+      queueItem,
+      task,
+    };
+  }
+
+  return {
+    ok: true as const,
+    queued: true,
+    executed: execResult.executed,
+    autoExecutionSkipped: false,
+    stopReason: execResult.executed
+      ? "Live execution completed. Stopping for owner review of result."
+      : `Execution attempted but blocked: ${execResult.message}`,
+    queueItem,
+    task: execResult.task,
+  };
 }

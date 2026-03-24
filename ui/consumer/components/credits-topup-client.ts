@@ -124,7 +124,7 @@ export async function startPaymentBackedCreditsTopUp(
   const payload = await readJsonResponseSafely<EdenTopUpCheckoutResponse>(response);
 
   if (!response.ok || !payload.ok || !payload.checkoutUrl) {
-    throw new Error(payload.error || "Unable to start the payment-backed Leaves top-up.");
+    throw new Error(payload.error || "Unable to start the payment-backed Leaf's top-up.");
   }
 
   window.location.assign(payload.checkoutUrl);
@@ -143,7 +143,7 @@ export async function confirmPaymentBackedCreditsTopUp(sessionId: string) {
   const payload = await readJsonResponseSafely<EdenTopUpConfirmationResponse>(response);
 
   if (!response.ok || !payload.ok) {
-    throw new Error(payload.error || "Unable to confirm the payment-backed Leaves top-up.");
+    throw new Error(payload.error || "Unable to confirm the payment-backed Leaf's top-up.");
   }
 
   return payload;
@@ -175,9 +175,9 @@ export function buildPaymentTopUpReceipt(
     : payload.transactionTitle ?? `${selectedPackage.providerLabel} top-up settled`;
   const receiptDetail = payload.alreadyApplied
     ? payload.settlementSummary ??
-      `Stripe already settled ${selectedPackage.title}. Eden Leaves were previously added to this wallet through the webhook-authoritative top-up flow.`
+      `Stripe already settled ${selectedPackage.title}. Eden Leaf's were previously added to this wallet through the webhook-authoritative top-up flow.`
     : payload.settlementSummary ??
-      `Stripe settlement confirmed for ${selectedPackage.title}. Eden Leaves were added through the webhook-authoritative top-up flow.`;
+      `Stripe settlement confirmed for ${selectedPackage.title}. Eden Leaf's were added through the webhook-authoritative top-up flow.`;
 
   return {
     amountCredits,
@@ -220,7 +220,7 @@ export function buildTopUpCancellationMessage(
   return {
     tone: "warning",
     title: "Checkout cancelled",
-    detail: `${selectedPackage.title} was not purchased. Eden Leaves were not added to the wallet.`,
+    detail: `${selectedPackage.title} was not purchased. Eden Leaf's were not added to the wallet.`,
   };
 }
 
@@ -250,7 +250,7 @@ export function buildTopUpFailureMessage(
     title: "Top-up not settled",
       detail:
         message ??
-      `${selectedPackage.title} did not settle successfully. No Eden Leaves were added.`,
+      `${selectedPackage.title} did not settle successfully. No Eden Leaf's were added.`,
   };
 }
 

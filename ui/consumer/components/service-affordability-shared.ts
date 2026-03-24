@@ -5,9 +5,9 @@ export type EdenServiceAffordabilityTone = "ready" | "warning" | "neutral";
 export const edenLaunchLabels = {
   openService: "Open Service",
   runService: "Run Service",
-  addCredits: "Add Leaves",
+  addCredits: "Add Leaf's",
   visiblePricing: "Visible pricing",
-  creditsOnlyBilling: "Eden Leaves only",
+  creditsOnlyBilling: "Eden Leaf's only",
   noHiddenCheckout: "No hidden checkout during service use.",
   consumerReadiness: "Consumer-facing readiness",
 } as const;

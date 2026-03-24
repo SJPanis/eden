@@ -1,5 +1,70 @@
 # Change Log - Agent
 
+## 2026-03-23
+
+### Sandbox task lifecycle audit logging implemented
+
+- Added `ProjectRuntimeTaskAuditEventType` enum to Prisma schema with 9 event types.
+- Added `ProjectRuntimeTaskAuditLog` model to Prisma schema with indexes on runtimeId, taskId, actorUserId, and eventType.
+- Added `taskAuditLogs` relation to `User`, `ProjectRuntime`, and `ProjectRuntimeTask`.
+- Created migration: `prisma/migrations/20260323010000_sandbox_task_lifecycle_audit_v1/migration.sql`.
+- Added `EdenProjectRuntimeTaskAuditLogRecord` type to `modules/core/projects/project-runtime-shared.ts`.
+- Added `taskAuditEntries` field to `EdenProjectRuntimeTaskRecord`.
+- Added `mapProjectRuntimeTaskAuditLogRecord` and `formatTaskAuditEventTypeLabel` helpers in `project-runtime-service.ts`.
+- Added `taskAuditLogs` to `projectRuntimeTaskInclude` so audit entries are loaded with every task.
+- Added fire-and-forget `writeTaskAuditLog` helper in service layer — audit failures never break primary task operations.
+- Wired all 9 event types at correct points in the task creation and execution flow.
+- Added "Task lifecycle audit" section to each task card in `ui/owner/internal-sandbox-task-runner.tsx`.
+
+### Autonomy boundary model added
+
+- Created `eden-system/specs/EDEN_AUTONOMY_BOUNDARY.md` defining two-scope (PRIVATE_DEV / PUBLIC_PROD) two-stage (A / B) autonomy model.
+- Created `modules/core/agents/eden-autonomy-boundary.ts` (pure, no server-only imports):
+  - `resolveEnvironmentScope()` with detection priority: env var → NODE_ENV → default PRIVATE_DEV
+  - `edencloud.app` always forces PUBLIC_PROD regardless of env vars
+  - `resolveAutonomyStage()` mapping scope to Stage A or B
+  - 17 DB action policies with per-scope allowed/blocked/review-required flags
+  - `checkDbActionAllowed()` for single policy lookups
+  - `buildAutonomyModeState()` assembling the full owner-visible state struct
+- Created `modules/core/agents/eden-db-action-policy.ts` (server-only DB-reading wrapper):
+  - `loadAutonomyModeState()` reads live Prisma state and degrades safely on error
+
+### Owner-visible autonomy-mode panel added
+
+- Created `app/api/owner/project-runtimes/internal-sandbox/autonomy/route.ts` — owner-only GET route.
+- Created `ui/owner/owner-autonomy-mode-panel.tsx` — client component with:
+  - Stage A/B badge, PRIVATE_DEV/PUBLIC_PROD scope badge
+  - live OpenAI path enabled/blocked indicator with current blockers
+  - public prod always-gated notice
+  - expandable DB action policy table
+  - refresh button
+- Integrated `OwnerAutonomyModePanel` as the first panel after the page header in `app/(owner)/owner/runtimes/page.tsx`.
+- Added `loadAutonomyModeState()` to the `Promise.all` in `OwnerRuntimesPage`.
+
+### Self-work loop tightened
+
+- Added `queueAndExecuteNextApprovedEdenSelfWorkTask()` to `modules/core/agents/eden-self-work-loop.ts`:
+  - queues the task via the existing safe path
+  - checks review-required mode and per-task review flag — stops with explicit reason if set
+  - checks autonomy policy via `loadAutonomyModeState()` — stops with explicit reason if blocked
+  - attempts live execution via `executeOwnerInternalSandboxTaskLiveProvider` if policy permits
+  - returns explicit `queued`, `executed`, `autoExecutionSkipped`, `stopReason` fields
+- Updated `app/api/owner/project-runtimes/internal-sandbox/self-work/route.ts`:
+  - `?mode=queue_and_execute` triggers the new governed auto-execute path
+  - default (no mode) remains queue-only, safe
+  - split into explicit branches to resolve TypeScript type narrowing error
+
+### Autonomy state surfaced in loadEdenSelfWorkState
+
+- `loadEdenSelfWorkState()` now loads `autonomyMode` in parallel and includes:
+  - `autonomyStage`, `autonomyScopeLabel`, `autonomyAllowsExecution`, `autonomyBlockers` fields
+
+### Build and lint verified
+
+- `npm run lint` — exit 0, no errors.
+- `npm run build` — exit 0, clean compile, all 33 pages built successfully.
+- TypeScript `tsc --noEmit` — exit 0, no type errors.
+
 ## 2026-03-11
 
 ### Audit completed

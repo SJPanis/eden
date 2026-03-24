@@ -54,4 +54,8 @@ export type EdenSelfWorkLoopState = {
   inputs: EdenSelfWorkControlInputRecord[];
   queue: EdenSelfWorkQueueRecord[];
   unavailableReason?: string | null;
+  autonomyStage?: string | null;
+  autonomyScopeLabel?: string | null;
+  autonomyAllowsExecution?: boolean;
+  autonomyBlockers?: string[];
 };
