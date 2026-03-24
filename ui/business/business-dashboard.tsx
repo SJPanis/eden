@@ -244,15 +244,15 @@ const childVariants = {
 
 function getReleaseStatusClasses(status: EdenMockReleaseStatus) {
   if (status === "published") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (status === "ready") {
-    return "border-sky-200 bg-sky-50 text-sky-700";
+    return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   }
 
   if (status === "testing") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -260,11 +260,11 @@ function getReleaseStatusClasses(status: EdenMockReleaseStatus) {
 
 function getProjectStatusClasses(status: EdenMockProject["status"]) {
   if (status === "Testing") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   if (status === "Building") {
-    return "border-sky-200 bg-sky-50 text-sky-700";
+    return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -272,11 +272,11 @@ function getProjectStatusClasses(status: EdenMockProject["status"]) {
 
 function getPipelineStageClasses(state: EdenMockPipelineStageState) {
   if (state === "ready") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (state === "attention") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -296,11 +296,11 @@ function getChecklistStateClasses(state: EdenMockChecklistState) {
 
 function getAffordabilityClasses(tone: "ready" | "warning" | "neutral") {
   if (tone === "ready") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (tone === "warning") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -308,29 +308,29 @@ function getAffordabilityClasses(tone: "ready" | "warning" | "neutral") {
 
 function getTransactionDirectionClasses(direction: EdenMockTransaction["direction"]) {
   if (direction === "inflow") {
-    return "bg-emerald-100 text-emerald-700";
+    return "bg-emerald-100 text-emerald-400";
   }
 
   if (direction === "outflow") {
-    return "bg-rose-100 text-rose-700";
+    return "bg-rose-100 text-rose-300";
   }
 
   if (direction === "reserve") {
-    return "bg-amber-100 text-amber-700";
+    return "bg-amber-100 text-amber-300";
   }
 
-  return "bg-sky-100 text-sky-700";
+  return "bg-sky-100 text-sky-300";
 }
 
 function getPayoutSettlementStatusClasses(
   status: "pending" | "settled" | "canceled",
 ) {
   if (status === "settled") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (status === "pending") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -1077,7 +1077,7 @@ export function BusinessDashboardPanel({
               {businessProfile.description}
             </p>
             {isSessionCreatedBusiness ? (
-              <div className="mt-4 inline-flex rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2 text-xs leading-5 text-sky-800">
+              <div className="mt-4 inline-flex rounded-2xl border border-sky-500/25 bg-sky-500/10 px-3 py-2 text-xs leading-5 text-sky-300">
                 This is a session-created mock business from the Eden idea-to-workspace flow.
               </div>
             ) : null}
@@ -1209,7 +1209,7 @@ export function BusinessDashboardPanel({
                     {businessProfile.tags.map((tag) => (
                       <span
                         key={`overview-${tag}`}
-                        className="rounded-full border border-white/8 bg-white px-3 py-1 text-xs text-white/50"
+                        className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50"
                       >
                         {tag}
                       </span>
@@ -1218,7 +1218,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent activity
                 </p>
@@ -1277,7 +1277,7 @@ export function BusinessDashboardPanel({
             actions={
               <button
                 type="button"
-                className="rounded-full border border-white/8 bg-white px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
               >
                 New placeholder project
               </button>
@@ -1293,7 +1293,7 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={project.id}
                   variants={childVariants}
-                  className={`rounded-2xl border bg-white p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.3)] ${
+                  className={`rounded-2xl border bg-white/[0.06] p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.3)] ${
                     pipelineSnapshot?.projectId === project.id
                       ? "border-[#14989a]/50 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.35)]"
                       : "border-white/8"
@@ -1376,7 +1376,7 @@ export function BusinessDashboardPanel({
           >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
               <div className="space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Active service target
                   </p>
@@ -1414,7 +1414,7 @@ export function BusinessDashboardPanel({
                     pipeline reaches `Published`.
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Current pricing
                       </p>
@@ -1444,7 +1444,7 @@ export function BusinessDashboardPanel({
                           : "Publish the service to expose the same affordability cue and visible price in discovery."}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Automation layer
                       </p>
@@ -1512,7 +1512,7 @@ export function BusinessDashboardPanel({
               ))}
             </div>
             <div className="grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Active release target
                 </p>
@@ -1570,7 +1570,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Pipeline controls
                 </p>
@@ -1596,7 +1596,7 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={stage.id}
                   variants={childVariants}
-                  className="relative rounded-2xl border border-white/8 bg-white p-4"
+                  className="relative rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   {index < (pipelineSnapshot?.stages.length ?? 0) - 1 ? (
                     <div className="pointer-events-none absolute right-[-1.2rem] top-8 hidden h-px w-[1.8rem] bg-eden-edge lg:block" />
@@ -1622,7 +1622,7 @@ export function BusinessDashboardPanel({
             </motion.div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Readiness checklist
                 </p>
@@ -1677,7 +1677,7 @@ export function BusinessDashboardPanel({
                 </div>
 
                 {publishPrepSuggestions.length ? (
-                  <div className="rounded-2xl border border-white/8 bg-white p-4">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                     <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1756,7 +1756,7 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
                   <p className="mt-2 text-xl font-semibold tracking-tight text-white">{item.value}</p>
@@ -1772,7 +1772,7 @@ export function BusinessDashboardPanel({
                 animate="visible"
                 className="space-y-3"
               >
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1806,7 +1806,7 @@ export function BusinessDashboardPanel({
                     <motion.article
                       key={event.id}
                       variants={childVariants}
-                      className="rounded-2xl border border-white/8 bg-white p-4"
+                      className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -1840,7 +1840,7 @@ export function BusinessDashboardPanel({
                 ) : (
                   <motion.div
                     variants={childVariants}
-                    className="rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50"
                   >
                     {releaseEventFilter === "all"
                       ? "No mocked transition history has been recorded for this workspace yet. Use the pipeline controls above to move the active release through build, testing, ready, and publish states."
@@ -1867,7 +1867,7 @@ export function BusinessDashboardPanel({
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Next release step
                   </p>
@@ -1937,7 +1937,7 @@ export function BusinessDashboardPanel({
                 <motion.div
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
@@ -2004,7 +2004,7 @@ export function BusinessDashboardPanel({
                   {payoutAccountingItems.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-white/8 bg-white p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                     >
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         {item.label}
@@ -2016,7 +2016,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout-ready services
                 </p>
@@ -2065,7 +2065,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2133,7 +2133,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout status overview
                 </p>
@@ -2194,7 +2194,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2249,12 +2249,12 @@ export function BusinessDashboardPanel({
                     }
                     reference={`business-internal-use-${activeBusinessId}`}
                     notes={`Business workspace internal Eden use for ${businessProfile?.name ?? activeBusinessId}`}
-                    className="w-full border-sky-200 bg-sky-50 hover:border-sky-300 hover:bg-sky-100"
+                    className="w-full border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100"
                   />
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2283,7 +2283,7 @@ export function BusinessDashboardPanel({
                               <p className="text-sm font-semibold text-white">
                                 {formatCredits(item.amountCredits)}
                               </p>
-                              <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
+                              <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-300">
                                 {item.usageTypeLabel}
                               </span>
                             </div>
@@ -2316,7 +2316,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest usage services
                 </p>
@@ -2355,7 +2355,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest earning services
                 </p>
@@ -2382,7 +2382,7 @@ export function BusinessDashboardPanel({
                               )}
                             </p>
                           </div>
-                          <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {getServicePricingDisplay({
                               pricingModel: service.pricingModel,
                               pricePerUse: service.pricePerUseCredits,
@@ -2412,7 +2412,7 @@ export function BusinessDashboardPanel({
                       .map((service) => (
                         <div
                           key={service.serviceId}
-                          className="rounded-2xl border border-white/8 bg-white p-3"
+                          className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
@@ -2436,7 +2436,7 @@ export function BusinessDashboardPanel({
                         </div>
                       ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
                       Momentum appears after fresh usage events arrive. The latest eight tracked runs are used for this quick pulse.
                     </div>
                   )}
@@ -2444,7 +2444,7 @@ export function BusinessDashboardPanel({
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Recent Eden transactions
               </p>
@@ -2465,7 +2465,7 @@ export function BusinessDashboardPanel({
                           {transaction.direction}
                         </span>
                         {transaction.simulated ? (
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             Local mock
                           </span>
                         ) : null}
@@ -2482,7 +2482,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(300px,0.94fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Per-service usage
                 </p>
@@ -2534,7 +2534,7 @@ export function BusinessDashboardPanel({
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Recent usage events
                   </p>
@@ -2559,7 +2559,7 @@ export function BusinessDashboardPanel({
                                 {formatCredits(event.platformFeeCredits)}
                               </p>
                             </div>
-                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                            <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                               {event.source === "persistent" ? "Persistent" : "Mock fallback"}
                             </span>
                           </div>
@@ -2584,19 +2584,19 @@ export function BusinessDashboardPanel({
                     {usageMetrics.monetization.pricingRuleLabel}
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Estimated gross</p>
                       <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedGrossCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Builder keeps</p>
                       <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Eden fee share</p>
                       <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
@@ -2608,7 +2608,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by value
                 </p>
@@ -2655,7 +2655,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by usage
                 </p>
@@ -2679,7 +2679,7 @@ export function BusinessDashboardPanel({
                             </p>
                             <p className="mt-1 text-xs text-white/50">{customer.lastUsedAtLabel}</p>
                           </div>
-                          <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {customer.topServiceTitle}
                           </span>
                         </div>
@@ -2698,7 +2698,7 @@ export function BusinessDashboardPanel({
                   Customer growth pulse
                 </p>
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest value customer
                     </p>
@@ -2713,7 +2713,7 @@ export function BusinessDashboardPanel({
                         : "Projected customer value appears once priced service usage is tracked."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest usage customer
                     </p>
@@ -2726,7 +2726,7 @@ export function BusinessDashboardPanel({
                         : "Usage concentration appears once multiple tracked runs are tied to customers."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Latest customer activity
                     </p>
@@ -2749,7 +2749,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by usage
                 </p>
@@ -2766,7 +2766,7 @@ export function BusinessDashboardPanel({
                               <p className="text-sm font-semibold text-white">
                                 {customer.userDisplayName}
                               </p>
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                              <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {customer.isAnonymousUser
                                   ? "Guest"
                                   : customer.username
@@ -2812,7 +2812,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent customer activity
                 </p>
@@ -2829,7 +2829,7 @@ export function BusinessDashboardPanel({
                               <p className="text-sm font-semibold text-white">
                                 {event.userDisplayName}
                               </p>
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                              <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {event.username ? `@${event.username}` : "Guest wallet"}
                               </span>
                             </div>
@@ -2845,7 +2845,7 @@ export function BusinessDashboardPanel({
                               {formatCredits(event.platformFeeCredits)}
                             </p>
                           </div>
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {event.source === "persistent" ? "Persistent" : "Mock fallback"}
                           </span>
                         </div>
@@ -2882,7 +2882,7 @@ export function BusinessDashboardPanel({
             actions={
               <button
                 type="button"
-                className="rounded-full border border-white/8 bg-white px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
               >
                 Edit placeholders
               </button>
@@ -2898,7 +2898,7 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     {item.label}
@@ -2945,7 +2945,7 @@ export function BusinessWorkspaceStarterPanel({
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/business/create?source=business_dashboard"
-              className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
+              className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
             >
               Start business creation
             </Link>

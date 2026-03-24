@@ -58,7 +58,7 @@ export function CreditsTopUpPackageSelector({
               onClick={() => onSelect(pkg.id)}
               className={`rounded-2xl border p-4 text-left transition-colors ${
                 isSelected
-                  ? "border-[#14989a]/50 bg-[#14989a]/15/70 shadow-[0_16px_32px_-24px_rgba(19,33,68,0.28)]"
+                  ? "border-[#14989a]/50 bg-[#14989a]/20 shadow-[0_16px_32px_-24px_rgba(19,33,68,0.28)]"
                   : "border-white/8 bg-white/[0.06] hover:border-[#14989a]/50 hover:bg-white/[0.04]"
               }`}
               aria-pressed={isSelected}
@@ -72,17 +72,17 @@ export function CreditsTopUpPackageSelector({
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
                   {isBestValue ? (
-                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-400">
                       Best value
                     </span>
                   ) : null}
                   {isRecommended ? (
-                    <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">
+                    <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-300">
                       Recommended
                     </span>
                   ) : null}
                   {isSelected ? (
-                    <span className="rounded-full border border-[#14989a]/50 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+                    <span className="rounded-full border border-[#14989a]/50 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
                       Selected
                     </span>
                   ) : null}
@@ -116,12 +116,12 @@ export function CreditsTopUpPackageSelector({
             <p className="mt-3 text-sm leading-6 text-white/50">{selectedPackage.detail}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {selectedPackage.id === bestValuePackageId ? (
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-400">
               Best value package
             </span>
           ) : null}
           {selectedPackage.id === recommendedPackageId ? (
-            <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700">
+            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-300">
               Recommended for most buyers
             </span>
           ) : null}

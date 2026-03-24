@@ -155,7 +155,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
 
         {maintenanceMode ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
             <span className="font-semibold">Platform maintenance notice.</span>{" "}
             Public access is still available, but some platform actions may be limited.
           </div>
@@ -167,7 +167,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
           <button
             type="button"
             onClick={() => setMode("signin")}
-            className="rounded-full border border-eden-edge bg-white/90 px-4 py-2 text-sm font-medium text-eden-ink transition-colors hover:border-eden-ring hover:text-eden-accent"
+            className="rounded-full border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition-colors hover:border-eden-ring hover:text-eden-accent"
           >
             Sign in
           </button>
@@ -180,15 +180,15 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
           <section className="flex flex-col gap-6">
 
             {/* Hero */}
-            <div className="rounded-[28px] border border-eden-edge bg-white/88 p-7">
+            <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-7">
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
                 Eden Platform
               </p>
-              <h1 className="mt-4 text-[2.6rem] font-semibold leading-[1.12] tracking-tight text-eden-ink">
+              <h1 className="mt-4 text-[2.6rem] font-semibold leading-[1.12] tracking-tight text-white">
                 The AI service economy.<br />
                 <span className="text-eden-accent">Open to builders.</span>
               </h1>
-              <p className="mt-5 max-w-xl text-base leading-7 text-eden-muted">
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/50">
                 Eden is a living ecosystem — builders publish and price AI services,
                 consumers discover and run them with transparent Leaf's pricing,
                 and contributors shape the platform itself and earn from it.
@@ -198,26 +198,26 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                 <span className="rounded-full border border-[rgba(20,152,154,0.30)] bg-[rgba(20,152,154,0.07)] px-3 py-1.5 text-xs font-semibold tracking-[0.08em] text-eden-accent">
                   Publish AI services
                 </span>
-                <span className="rounded-full border border-eden-edge bg-white/80 px-3 py-1.5 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/80 px-3 py-1.5 text-xs text-white/50">
                   Visible pricing before every run
                 </span>
-                <span className="rounded-full border border-eden-edge bg-white/80 px-3 py-1.5 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/80 px-3 py-1.5 text-xs text-white/50">
                   Contribution economy
                 </span>
-                <span className="rounded-full border border-eden-edge bg-white/80 px-3 py-1.5 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-white/80 px-3 py-1.5 text-xs text-white/50">
                   No hidden charges
                 </span>
               </div>
             </div>
 
             {/* Eden loop */}
-            <div className="rounded-[28px] border border-eden-edge bg-[linear-gradient(135deg,rgba(20,152,154,0.05),rgba(255,255,255,0.97))] p-6">
+            <div className="rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(20,152,154,0.05),rgba(255,255,255,0.97))] p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
                     How Eden works
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     One closed loop: builders publish, consumers run, the economy distributes,
                     contributors improve Eden.
                   </p>
@@ -230,26 +230,26 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                 {edenLoopSteps.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-eden-edge bg-white/92 p-4"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                   >
                     <p className="font-mono text-[10px] tracking-[0.18em] text-eden-accent/70">
                       {item.step}
                     </p>
-                    <p className="mt-1.5 text-sm font-semibold text-eden-ink">{item.label}</p>
-                    <p className="mt-1.5 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                    <p className="mt-1.5 text-sm font-semibold text-white">{item.label}</p>
+                    <p className="mt-1.5 text-sm leading-6 text-white/50">{item.detail}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Who it's for */}
-            <div className="rounded-[28px] border border-eden-edge bg-white/88 p-6">
+            <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
                     Who Eden is for
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Three ways to participate in the Eden economy.
                   </p>
                 </div>
@@ -258,15 +258,15 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                 {audienceCards.map((item) => (
                   <div
                     key={item.id}
-                    className="flex flex-col gap-2 rounded-2xl border border-eden-edge bg-white/92 p-4"
+                    className="flex flex-col gap-2 rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-eden-ink">{item.label}</p>
-                      <span className="rounded-full border border-eden-edge bg-white px-2 py-0.5 text-[10px] text-eden-muted">
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <span className="rounded-full border border-white/8 bg-white/[0.06] px-2 py-0.5 text-[10px] text-white/50">
                         {item.tag}
                       </span>
                     </div>
-                    <p className="text-sm leading-6 text-eden-muted">{item.detail}</p>
+                    <p className="text-sm leading-6 text-white/50">{item.detail}</p>
                   </div>
                 ))}
               </div>
@@ -275,14 +275,14 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
           </section>
 
           {/* Right: auth */}
-          <section className="flex flex-col gap-0 rounded-[28px] border border-eden-edge bg-white/94 p-6 self-start sticky top-6">
+          <section className="flex flex-col gap-0 rounded-[28px] border border-white/8 bg-white/94 p-6 self-start sticky top-6">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Join Eden
             </p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-eden-ink">
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">
               {mode === "signup" ? "Create your account" : "Welcome back"}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-eden-muted">
+            <p className="mt-2 text-sm leading-6 text-white/50">
               {mode === "signup"
                 ? "New accounts start in the consumer layer. Builder and owner access are role-based and resolved server-side after sign-in."
                 : "Sign in to access your Eden workspace — consumer, builder, or owner dashboard based on your role."}
@@ -300,8 +300,8 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                   }}
                   className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                     mode === nextMode
-                      ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                      : "border-eden-edge bg-white text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                      ? "border-eden-ring bg-eden-accent-soft text-white"
+                      : "border-white/8 bg-white/[0.06] text-white/50 hover:border-eden-ring hover:text-white"
                   }`}
                 >
                   {nextMode === "signup" ? "Create Account" : "Sign In"}
@@ -310,49 +310,49 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
             </div>
 
             <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-              <label className="flex flex-col gap-2 text-sm text-eden-muted">
+              <label className="flex flex-col gap-2 text-sm text-white/50">
                 <span>Username</span>
                 <input
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                   autoComplete="username"
-                  className="rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
                   placeholder="your.username"
                 />
               </label>
 
               {mode === "signup" ? (
-                <label className="flex flex-col gap-2 text-sm text-eden-muted">
+                <label className="flex flex-col gap-2 text-sm text-white/50">
                   <span>Display name</span>
                   <input
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
                     autoComplete="nickname"
-                    className="rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
                     placeholder="Your name in Eden"
                   />
                 </label>
               ) : null}
 
-              <label className="flex flex-col gap-2 text-sm text-eden-muted">
+              <label className="flex flex-col gap-2 text-sm text-white/50">
                 <span>Password</span>
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                  className="rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
                   placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
                 />
               </label>
 
               {submitError ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                <div className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
                   {submitError}
                 </div>
               ) : null}
               {successNote ? (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
                   {successNote}
                 </div>
               ) : null}
@@ -360,7 +360,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full rounded-2xl border border-eden-ring bg-eden-accent-soft px-5 py-3 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/75 disabled:cursor-not-allowed disabled:opacity-70"
+                className="w-full rounded-2xl border border-eden-ring bg-eden-accent-soft px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-eden-accent-soft/75 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isPending
                   ? mode === "signup"
@@ -372,9 +372,9 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               </button>
             </form>
 
-            <div className="mt-5 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4">
-              <p className="text-sm font-semibold text-eden-ink">How access works</p>
-              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-eden-muted">
+            <div className="mt-5 rounded-2xl border border-white/8 bg-eden-bg/60 p-4">
+              <p className="text-sm font-semibold text-white">How access works</p>
+              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-white/50">
                 {mode === "signup" ? (
                   <>
                     <li>Account created with a securely hashed password.</li>
@@ -391,7 +391,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               </ul>
             </div>
 
-            <p className="mt-4 text-xs leading-5 text-eden-muted">
+            <p className="mt-4 text-xs leading-5 text-white/50">
               By continuing, you enter the live Eden authentication flow. Builder and owner
               access depend on server-side role resolution after sign-in.
             </p>
@@ -399,7 +399,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
             <div className="mt-4">
               <Link
                 href="/consumer"
-                className="text-sm font-medium text-eden-ink underline decoration-eden-ring underline-offset-4 transition-colors hover:text-eden-accent"
+                className="text-sm font-medium text-white underline decoration-eden-ring underline-offset-4 transition-colors hover:text-eden-accent"
               >
                 Explore the marketplace first
               </Link>

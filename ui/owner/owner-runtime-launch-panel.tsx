@@ -156,7 +156,7 @@ export function OwnerRuntimeLaunchPanel({
   }
 
   return (
-    <section className="mt-5 rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+    <section className="mt-5 rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -176,16 +176,16 @@ export function OwnerRuntimeLaunchPanel({
         </span>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+      <div className="mt-5 rounded-2xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-300">
         Launch intent and deployment history are control-plane records only. No
         container, preview environment, Eden-managed host, or external domain is
         activated from this panel.
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/8 bg-white p-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Current launch intent
               </p>
@@ -193,7 +193,7 @@ export function OwnerRuntimeLaunchPanel({
                 {runtime.launchIntent?.intentTypeLabel ?? "Not structured yet"}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white p-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Current launch mode
               </p>
@@ -207,8 +207,8 @@ export function OwnerRuntimeLaunchPanel({
             <div
               className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
                 launchFeedback.tone === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-rose-200 bg-rose-50 text-rose-700"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                  : "border-rose-500/25 bg-rose-500/10 text-rose-300"
               }`}
             >
               {launchFeedback.text}
@@ -223,7 +223,7 @@ export function OwnerRuntimeLaunchPanel({
               <select
                 value={intentType}
                 onChange={(event) => setIntentType(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               >
                 {ownerRuntimeLaunchIntentTypeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -240,7 +240,7 @@ export function OwnerRuntimeLaunchPanel({
               <select
                 value={intendedTarget}
                 onChange={(event) => setIntendedTarget(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               >
                 {ownerRuntimeLaunchTargetOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -257,7 +257,7 @@ export function OwnerRuntimeLaunchPanel({
               <select
                 value={launchMode}
                 onChange={(event) => setLaunchMode(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               >
                 {ownerRuntimeLaunchModeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -276,7 +276,7 @@ export function OwnerRuntimeLaunchPanel({
                 value={destinationLabel}
                 onChange={(event) => setDestinationLabel(event.target.value)}
                 placeholder="Optional hostname, route, or destination label"
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               />
             </label>
 
@@ -289,7 +289,7 @@ export function OwnerRuntimeLaunchPanel({
                 onChange={(event) => setNotes(event.target.value)}
                 rows={4}
                 placeholder="Optional detail about the intended launch path"
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
               />
             </label>
 
@@ -297,7 +297,7 @@ export function OwnerRuntimeLaunchPanel({
               type="button"
               disabled={activeAction !== null}
               onClick={handleSaveLaunchIntent}
-              className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {activeAction === "launch"
                 ? "Saving launch intent..."
@@ -306,12 +306,12 @@ export function OwnerRuntimeLaunchPanel({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Deployment history
             </p>
-            <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+            <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
               {runtime.deploymentHistory.length} recent
             </span>
           </div>
@@ -321,7 +321,7 @@ export function OwnerRuntimeLaunchPanel({
               runtime.deploymentHistory.map((record) => (
                 <article
                   key={record.id}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -345,7 +345,7 @@ export function OwnerRuntimeLaunchPanel({
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
                 No deployment-history records are stored for this runtime yet.
               </div>
             )}
@@ -355,15 +355,15 @@ export function OwnerRuntimeLaunchPanel({
             <div
               className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
                 deploymentFeedback.tone === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-rose-200 bg-rose-50 text-rose-700"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                  : "border-rose-500/25 bg-rose-500/10 text-rose-300"
               }`}
             >
               {deploymentFeedback.text}
             </div>
           ) : null}
 
-          <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Add manual record
             </p>
@@ -376,7 +376,7 @@ export function OwnerRuntimeLaunchPanel({
                   <select
                     value={deploymentEventType}
                     onChange={(event) => setDeploymentEventType(event.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                    className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   >
                     {ownerRuntimeDeploymentEventTypeOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -395,7 +395,7 @@ export function OwnerRuntimeLaunchPanel({
                     onChange={(event) =>
                       setDeploymentEventStatus(event.target.value)
                     }
-                    className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                    className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                   >
                     {ownerRuntimeDeploymentEventStatusOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -415,7 +415,7 @@ export function OwnerRuntimeLaunchPanel({
                   value={deploymentSummary}
                   onChange={(event) => setDeploymentSummary(event.target.value)}
                   placeholder="Short deployment-history summary"
-                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                 />
               </label>
 
@@ -428,7 +428,7 @@ export function OwnerRuntimeLaunchPanel({
                   onChange={(event) => setDeploymentDetail(event.target.value)}
                   rows={3}
                   placeholder="Optional deployment-history detail"
-                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
                 />
               </label>
 
@@ -436,7 +436,7 @@ export function OwnerRuntimeLaunchPanel({
                 type="button"
                 disabled={activeAction !== null}
                 onClick={handleAddDeploymentRecord}
-                className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {activeAction === "deployment"
                   ? "Saving record..."

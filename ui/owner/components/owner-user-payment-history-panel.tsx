@@ -24,22 +24,22 @@ function formatPaymentStatus(status: string) {
 
 function getPaymentStatusClasses(status: string) {
   if (status === "settled") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (status === "pending") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   if (status === "failed") {
-    return "border-rose-200 bg-rose-50 text-rose-700";
+    return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
 function getOwnerActionLinkClasses() {
-  return "inline-flex rounded-full border border-white/8 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
+  return "inline-flex rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
 }
 
 function getPaymentFilterEmptyState(filter: OwnerUserPaymentFilter) {
@@ -100,7 +100,7 @@ export function OwnerUserPaymentHistoryPanel({
   );
 
   return (
-    <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+    <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -128,7 +128,7 @@ export function OwnerUserPaymentHistoryPanel({
           filteredPayments.map((payment) => (
             <div
               key={payment.id}
-              className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4"
+              className="rounded-2xl border border-white/8 bg-white/[0.04] p-4"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
@@ -183,7 +183,7 @@ export function OwnerUserPaymentHistoryPanel({
             </div>
           ))
         ) : (
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
             {payments.length ? getPaymentFilterEmptyState(filter) : getPaymentFilterEmptyState("all")}
           </div>
         )}

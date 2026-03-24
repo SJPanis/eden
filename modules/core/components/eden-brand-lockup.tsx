@@ -53,10 +53,10 @@ export function EdenBrandLockup({
 
       {/* Text */}
       <div className="min-w-0">
-        <p className={`font-semibold tracking-tight ${dark ? "text-white" : "text-eden-ink"} ${c.label}`}>
+        <p className={`font-semibold tracking-tight ${dark ? "text-white" : "text-white"} ${c.label}`}>
           {label}
         </p>
-        <p className={`${dark ? "text-white/45" : "text-eden-muted"} ${c.subtitle}`}>
+        <p className={`${dark ? "text-white/45" : "text-white/50"} ${c.subtitle}`}>
           {subtitle}
         </p>
       </div>

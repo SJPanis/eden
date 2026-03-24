@@ -207,7 +207,7 @@ export function MockServiceBuilder({
             setError(null);
             setIsOpen((value) => !value);
           }}
-          className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+          className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isOpen ? "Close Editor" : "Open Editor"}
         </button>
@@ -236,13 +236,13 @@ export function MockServiceBuilder({
             value={generatorPrompt}
             onChange={(event) => setGeneratorPrompt(event.target.value)}
             placeholder="Describe a business idea, automation concept, or tool concept"
-            className="w-full rounded-2xl border border-white/8 bg-white px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
+            className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40"
           />
           <button
             type="button"
             disabled={isGenerating || isSaving}
             onClick={handleGenerateVariant}
-            className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isGenerating ? "Generating..." : "Generate Service Idea"}
           </button>
@@ -256,7 +256,7 @@ export function MockServiceBuilder({
               generatorPrompt.trim() !== variantPrompt
             }
             onClick={handleGenerateVariant}
-            className="rounded-xl border border-white/8 bg-white px-4 py-3 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isGenerating ? "Generating..." : "Regenerate Variant"}
           </button>
@@ -282,7 +282,7 @@ export function MockServiceBuilder({
             transition={{ duration: 0.24, ease: "easeOut" }}
             className="overflow-hidden"
           >
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -298,7 +298,7 @@ export function MockServiceBuilder({
                     {generatedVariants.length} variants
                   </span>
                   {appliedVariantId ? (
-                    <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
+                    <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-300">
                       Variant applied
                     </span>
                   ) : null}
@@ -344,13 +344,13 @@ export function MockServiceBuilder({
                       </div>
 
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="rounded-2xl border border-white/8 bg-white p-3">
+                        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                           <p className="text-xs uppercase tracking-[0.12em] text-white/50">Category</p>
                           <p className="mt-2 text-sm font-semibold text-white">
                             {variant.response.draft.category}
                           </p>
                         </div>
-                        <div className="rounded-2xl border border-white/8 bg-white p-3">
+                        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                           <p className="text-xs uppercase tracking-[0.12em] text-white/50">Pricing</p>
                           <p className="mt-2 text-sm font-semibold text-white">
                             {variant.response.draft.pricingModel}
@@ -364,7 +364,7 @@ export function MockServiceBuilder({
                           {variant.response.draft.suggestedTags.map((tag) => (
                             <span
                               key={`${variant.id}-${tag}`}
-                              className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] text-white/50"
+                              className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] text-white/50"
                             >
                               {tag}
                             </span>
@@ -372,7 +372,7 @@ export function MockServiceBuilder({
                         </div>
                       </div>
 
-                      <div className="mt-4 rounded-2xl border border-white/8 bg-white p-3">
+                      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Automation summary
                         </p>
@@ -385,7 +385,7 @@ export function MockServiceBuilder({
                         {variant.response.routeDecision.routes.map((route) => (
                           <span
                             key={`${variant.id}-${route}`}
-                            className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
+                            className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
                           >
                             {route.replaceAll("_", " ")}
                           </span>
@@ -407,11 +407,11 @@ export function MockServiceBuilder({
                             setError(null);
                             applyGeneratedDraft(variant);
                           }}
-                          className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
+                          className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
                         >
                           {isApplied ? "Applied to Form" : "Apply to Form"}
                         </button>
-                        <span className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm text-white/50">
+                        <span className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm text-white/50">
                           Generated for {businessName}
                         </span>
                       </div>
@@ -568,7 +568,7 @@ export function MockServiceBuilder({
             </div>
 
             {error ? (
-              <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+              <div className="mt-4 rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
                 {error}
               </div>
             ) : null}
@@ -578,7 +578,7 @@ export function MockServiceBuilder({
                 type="button"
                 disabled={isSaving || isGenerating}
                 onClick={handleSubmit}
-                className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSaving ? "Staging service..." : "Stage Service Draft"}
               </button>
@@ -589,7 +589,7 @@ export function MockServiceBuilder({
                   setError(null);
                   setIsOpen(false);
                 }}
-                className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
               >
                 Close Editor
               </button>
@@ -601,7 +601,7 @@ export function MockServiceBuilder({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+            className="mt-4 rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
           >
             {error}
           </motion.div>

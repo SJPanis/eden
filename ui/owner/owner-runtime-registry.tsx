@@ -22,15 +22,15 @@ type OwnerRuntimeRegistryProps = {
 
 function getRuntimeStatusClasses(status: string) {
   if (status === "ready") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (status === "configuring" || status === "registered") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   if (status === "error") {
-    return "border-rose-200 bg-rose-50 text-rose-700";
+    return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -111,7 +111,7 @@ export function OwnerRuntimeRegistry({
   return (
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-4">
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">
             Runtime records
           </p>
@@ -122,7 +122,7 @@ export function OwnerRuntimeRegistry({
             Control-plane runtime metadata records linked to projects.
           </p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">
             Owner only
           </p>
@@ -133,7 +133,7 @@ export function OwnerRuntimeRegistry({
             Runtime records restricted to the Eden owner control surface.
           </p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">
             Internal only
           </p>
@@ -144,7 +144,7 @@ export function OwnerRuntimeRegistry({
             Runtimes that stay inside Eden-owned private scope.
           </p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">
             Active domains
           </p>
@@ -157,7 +157,7 @@ export function OwnerRuntimeRegistry({
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-white/8 bg-white p-6">
+      <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-3xl">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -174,7 +174,7 @@ export function OwnerRuntimeRegistry({
             type="button"
             disabled={isPending || Boolean(initialUnavailableReason)}
             onClick={handleInitializeInternalSandbox}
-            className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isPending
               ? "Registering sandbox..."
@@ -183,12 +183,12 @@ export function OwnerRuntimeRegistry({
                 : "Register internal sandbox"}
           </button>
         </div>
-        <p className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+        <p className="mt-4 rounded-2xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-300">
           Runtime control plane only. No container, deploy job, hosted preview, or
           linked production domain is provisioned by this step.
         </p>
         {initialUnavailableReason ? (
-          <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <p className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
             {initialUnavailableReason}
           </p>
         ) : null}
@@ -196,8 +196,8 @@ export function OwnerRuntimeRegistry({
           <p
             className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
               feedback.tone === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-rose-200 bg-rose-50 text-rose-700"
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                : "border-rose-500/25 bg-rose-500/10 text-rose-300"
             }`}
           >
             {feedback.text}
@@ -210,7 +210,7 @@ export function OwnerRuntimeRegistry({
           initialRuntimes.map((runtime) => (
             <article
               key={runtime.id}
-              className="rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+              className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="max-w-3xl">
@@ -234,7 +234,7 @@ export function OwnerRuntimeRegistry({
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Linked project
                   </p>
@@ -245,7 +245,7 @@ export function OwnerRuntimeRegistry({
                     {runtime.businessName}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Environment / target
                   </p>
@@ -256,7 +256,7 @@ export function OwnerRuntimeRegistry({
                     {runtime.targetLabel}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Visibility / access
                   </p>
@@ -267,7 +267,7 @@ export function OwnerRuntimeRegistry({
                     {runtime.accessPolicyLabel}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Internal owner-only
                   </p>
@@ -281,7 +281,7 @@ export function OwnerRuntimeRegistry({
               </div>
 
               <div className="mt-5 grid gap-3 lg:grid-cols-3">
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Hosted Eden URL
                   </p>
@@ -292,7 +292,7 @@ export function OwnerRuntimeRegistry({
                     Reserved for future Eden-managed runtime hosting.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Internal preview
                   </p>
@@ -303,7 +303,7 @@ export function OwnerRuntimeRegistry({
                     Placeholder for an owner-visible preview route.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Linked domain
                   </p>
@@ -317,12 +317,12 @@ export function OwnerRuntimeRegistry({
               </div>
 
               <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Runtime detail
                     </p>
-                    <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                    <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                       {runtime.domainLinks.length} link
                       {runtime.domainLinks.length === 1 ? "" : "s"}
                     </span>
@@ -367,7 +367,7 @@ export function OwnerRuntimeRegistry({
                   </dl>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Domain link registry
                   </p>
@@ -376,7 +376,7 @@ export function OwnerRuntimeRegistry({
                       runtime.domainLinks.map((link) => (
                         <div
                           key={link.id}
-                          className="rounded-2xl border border-white/8 bg-white p-3"
+                          className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                         >
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
@@ -396,7 +396,7 @@ export function OwnerRuntimeRegistry({
                               <span
                                 className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${
                                   link.isActive
-                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                                     : "border-slate-200 bg-slate-100 text-slate-700"
                                 }`}
                               >
@@ -407,7 +407,7 @@ export function OwnerRuntimeRegistry({
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-2xl border border-white/8 bg-white p-4 text-sm leading-6 text-white/50">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
                         No domain links are registered for this runtime yet.
                       </div>
                     )}
@@ -445,7 +445,7 @@ export function OwnerRuntimeRegistry({
             </article>
           ))
         ) : (
-          <div className="rounded-[28px] border border-white/8 bg-white p-6 text-sm leading-6 text-white/50">
+          <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6 text-sm leading-6 text-white/50">
             No runtime metadata records exist yet. Register the internal sandbox to
             establish Eden&apos;s first project runtime control-plane record.
           </div>

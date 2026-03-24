@@ -26,15 +26,15 @@ type ProjectBlueprintPanelProps = {
 
 function getProjectStatusClasses(status: EdenProjectBlueprintRecord["status"]) {
   if (status === "published") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (status === "testing") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   if (status === "inactive") {
-    return "border-rose-200 bg-rose-50 text-rose-700";
+    return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -375,22 +375,22 @@ export function ProjectBlueprintPanel({
   return (
     <div className="mt-4 space-y-4">
       <div className="grid gap-3 md:grid-cols-4">
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">Blueprints</p>
           <p className="mt-2 text-lg font-semibold text-white">{projects.length}</p>
           <p className="mt-1 text-xs text-white/50">Persistent project records for {businessName}.</p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">Testing now</p>
           <p className="mt-2 text-lg font-semibold text-white">{testingCount}</p>
           <p className="mt-1 text-xs text-white/50">Projects currently inside Eden test mode.</p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">Published active</p>
           <p className="mt-2 text-lg font-semibold text-white">{publishedCount}</p>
           <p className="mt-1 text-xs text-white/50">Projects currently visible as active launches.</p>
         </div>
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">Hosting bank</p>
           <p className="mt-2 text-lg font-semibold text-white">
             {formatCredits(hostingBalanceTotal)}
@@ -405,8 +405,8 @@ export function ProjectBlueprintPanel({
         <div
           className={`rounded-2xl border px-4 py-3 text-sm ${
             feedback.tone === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-rose-200 bg-rose-50 text-rose-700"
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+              : "border-rose-500/25 bg-rose-500/10 text-rose-300"
           }`}
         >
           {feedback.text}
@@ -415,7 +415,7 @@ export function ProjectBlueprintPanel({
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Create project blueprint
             </p>
@@ -448,14 +448,14 @@ export function ProjectBlueprintPanel({
                 type="button"
                 disabled={pendingAction !== null}
                 onClick={handleCreateProject}
-                className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {pendingAction === "create_project" ? "Creating project..." : "Create project"}
               </button>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -505,13 +505,13 @@ export function ProjectBlueprintPanel({
                       </div>
                       <p className="mt-3 text-sm leading-6 text-white/50">{project.description}</p>
                       <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/50">
-                        <span className="rounded-full bg-white px-2.5 py-1">
+                        <span className="rounded-full bg-white/[0.06] px-2.5 py-1">
                           Hosting {formatCredits(project.hostingRemainingLeaves)}
                         </span>
-                        <span className="rounded-full bg-white px-2.5 py-1">
+                        <span className="rounded-full bg-white/[0.06] px-2.5 py-1">
                           {project.agents.length} agent{project.agents.length === 1 ? "" : "s"}
                         </span>
-                        <span className="rounded-full bg-white px-2.5 py-1">
+                        <span className="rounded-full bg-white/[0.06] px-2.5 py-1">
                           {getReadinessLabel(project)}
                         </span>
                       </div>
@@ -519,7 +519,7 @@ export function ProjectBlueprintPanel({
                   );
                 })
               ) : (
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                   No business blueprints exist yet. Create the first project above to start the project side of the workspace.
                 </div>
               )}
@@ -528,7 +528,7 @@ export function ProjectBlueprintPanel({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -555,7 +555,7 @@ export function ProjectBlueprintPanel({
             {selectedProject ? (
               <>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">Publish state</p>
                     <p className="mt-2 text-sm font-semibold text-white">
                       {selectedProject.isPublished ? "Published and available" : "Not published"}
@@ -564,7 +564,7 @@ export function ProjectBlueprintPanel({
                       {selectedProject.publishedAtLabel ?? "Still inside the builder test loop."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">Hosting bank</p>
                     <p className="mt-2 text-sm font-semibold text-white">
                       {formatCredits(selectedProject.hostingRemainingLeaves)}
@@ -579,7 +579,7 @@ export function ProjectBlueprintPanel({
                     type="button"
                     disabled={pendingAction !== null || selectedProject.isActive}
                     onClick={handlePublish}
-                    className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "publish_project"
                       ? "Publishing..."
@@ -591,7 +591,7 @@ export function ProjectBlueprintPanel({
                     type="button"
                     disabled={fundHostingDisabled}
                     onClick={handleFundHosting}
-                    className="rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700 transition-colors hover:border-sky-300 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-sky-500/25 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-300 transition-colors hover:border-sky-300 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "fund_hosting"
                       ? "Funding hosting..."
@@ -607,7 +607,7 @@ export function ProjectBlueprintPanel({
             ) : null}
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Agent tree foundation
             </p>
@@ -663,7 +663,7 @@ export function ProjectBlueprintPanel({
                     type="button"
                     disabled={pendingAction !== null}
                     onClick={handleCreateAgent}
-                    className="rounded-full border border-white/8 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "create_agent" ? "Adding agent..." : "Add agent"}
                   </button>
@@ -673,7 +673,7 @@ export function ProjectBlueprintPanel({
                     selectedProject.agents.map((agent) => (
                       <div
                         key={agent.id}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
@@ -684,12 +684,12 @@ export function ProjectBlueprintPanel({
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {agent.parentAgentId ? (
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                              <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 Child agent
                               </span>
                             ) : null}
                             {agent.branchLabel ? (
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                              <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {agent.branchLabel}
                               </span>
                             ) : null}
@@ -700,20 +700,20 @@ export function ProjectBlueprintPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       No agents have been defined yet. Add the first agent to establish the project team tree.
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                 Select a project before defining agents.
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Runnable project agent
             </p>
@@ -737,7 +737,7 @@ export function ProjectBlueprintPanel({
                       </option>
                     ))}
                   </select>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 px-3 py-2 text-sm text-white/50">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2 text-sm text-white/50">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Agent run cost
                     </p>
@@ -768,14 +768,14 @@ export function ProjectBlueprintPanel({
                       currentAvailableForInternalUseCredits < edenProjectAgentRunLeavesCost
                     }
                     onClick={handleRunAgent}
-                    className="rounded-full border border-white/8 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "run_agent"
                       ? "Running agent..."
                       : `Run agent for ${formatCredits(edenProjectAgentRunLeavesCost)}`}
                   </button>
                 </div>
-                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4">
                   {agentRunResult && selectedProject.id === agentRunResult.projectId ? (
                     <>
                       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -787,7 +787,7 @@ export function ProjectBlueprintPanel({
                             {agentRunResult.agentName} Â· {agentRunResult.agentRoleTitle}
                           </p>
                         </div>
-                        <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                        <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                           {formatCredits(agentRunResult.costLeaves)}
                         </span>
                       </div>
@@ -798,7 +798,7 @@ export function ProjectBlueprintPanel({
                         {agentRunResult.outputLines.map((line) => (
                           <div
                             key={line}
-                            className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white/50"
+                            className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white/50"
                           >
                             {line}
                           </div>
@@ -824,7 +824,7 @@ export function ProjectBlueprintPanel({
                     selectedProject.agentRuns.map((run) => (
                       <div
                         key={run.id}
-                        className="rounded-2xl border border-white/8 bg-white p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
@@ -850,20 +850,20 @@ export function ProjectBlueprintPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       No agent runs have been recorded yet for this project.
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                 Select a project before running a project agent.
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Controlled test window
             </p>
@@ -887,7 +887,7 @@ export function ProjectBlueprintPanel({
                     type="button"
                     disabled={pendingAction !== null}
                     onClick={handleRunTest}
-                    className="rounded-full border border-white/8 bg-white px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "run_test" ? "Running test..." : "Run controlled test"}
                   </button>
@@ -895,7 +895,7 @@ export function ProjectBlueprintPanel({
               </>
             ) : null}
 
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4">
               {testResult && selectedProject && testResult.projectId === selectedProject.id ? (
                 <>
                   <p className="text-sm font-semibold text-white">{testResult.outputTitle}</p>
@@ -904,7 +904,7 @@ export function ProjectBlueprintPanel({
                     {testResult.outputLines.map((line) => (
                       <div
                         key={line}
-                        className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white/50"
+                        className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white/50"
                       >
                         {line}
                       </div>

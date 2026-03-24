@@ -32,7 +32,7 @@ export function OwnerReconciliationFilters({
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors ${
               isActive
                 ? "border-[#14989a]/50 bg-eden-ink text-white"
-                : "border-white/8 bg-white text-white hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                : "border-white/8 bg-white/[0.06] text-white hover:border-[#14989a]/50 hover:bg-white/[0.04]"
             }`}
             aria-pressed={isActive}
           >

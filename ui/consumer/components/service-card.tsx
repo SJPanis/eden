@@ -34,9 +34,9 @@ export function ServiceCard({
     <article
       className={`eden-shell min-h-[228px] min-w-[272px] snap-start p-4 ${
         affordabilityTone === "ready"
-          ? "border-emerald-200 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))]"
+          ? "border-emerald-500/30 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))]"
           : affordabilityTone === "warning"
-            ? "border-amber-200 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))]"
+            ? "border-amber-500/25 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))]"
             : ""
       }`}
     >
@@ -44,7 +44,7 @@ export function ServiceCard({
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
           Service
         </p>
-        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-400">
           {launchBadgeLabel}
         </span>
       </div>
@@ -56,12 +56,12 @@ export function ServiceCard({
         <span className="rounded-full bg-[#14989a]/15 px-2.5 py-1 text-xs text-white">
           {category}
         </span>
-        <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-xs text-white/50">
+        <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-xs text-white/50">
           {availabilityLabel}
         </span>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-white/8 bg-white/82 p-3">
+      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
           {edenLaunchLabels.visiblePricing}
         </p>
@@ -70,10 +70,10 @@ export function ServiceCard({
         <div
           className={`mt-3 rounded-2xl border px-3 py-2 ${
             affordabilityTone === "ready"
-              ? "border-emerald-200 bg-emerald-50"
+              ? "border-emerald-500/30 bg-emerald-500/10"
               : affordabilityTone === "warning"
-                ? "border-amber-200 bg-amber-50"
-                : "border-white/8 bg-white/[0.04]/60"
+                ? "border-amber-500/25 bg-amber-500/10"
+                : "border-white/8 bg-white/[0.04]"
           }`}
         >
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
@@ -89,7 +89,7 @@ export function ServiceCard({
         </span>
         <Link
           href={href}
-          className="inline-flex rounded-xl border border-white/8 bg-white px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+          className="inline-flex rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
         >
           {edenLaunchLabels.openService}
         </Link>

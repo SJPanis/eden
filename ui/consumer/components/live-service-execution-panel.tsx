@@ -182,7 +182,7 @@ export function LiveServiceExecutionPanel({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700">
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-400">
               {definition.badgeLabel}
             </span>
             <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-white/50">
@@ -266,7 +266,7 @@ export function LiveServiceExecutionPanel({
                 input.trim().length < definition.minimumInputLength ||
                 !hasSufficientBalance
               }
-              className="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white disabled:text-white/50"
+              className="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white disabled:text-white/50"
             >
               {isPending
                 ? "Running service..."
@@ -274,22 +274,22 @@ export function LiveServiceExecutionPanel({
             </button>
           </div>
           {disabledReason ? (
-            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
+            <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-6 text-amber-300">
               {disabledReason}
             </div>
           ) : null}
           {!disabled && !hasSufficientBalance ? (
-            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
+            <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-6 text-amber-300">
               This live run needs {formatLeaves(requiredCredits)}. Add Leaf's first, then return here to run the service once the wallet is ready.
             </div>
           ) : null}
           {errorMessage ? (
-            <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700">
+            <div className="mt-4 rounded-2xl border border-rose-500/25 bg-rose-500/10 p-4 text-sm leading-6 text-rose-300">
               {errorMessage}
             </div>
           ) : null}
           {successNote ? (
-            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-700">
+            <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-6 text-emerald-400">
               {successNote}
             </div>
           ) : null}
@@ -301,7 +301,7 @@ export function LiveServiceExecutionPanel({
               What this run records
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Spendable Leaves
                 </p>
@@ -309,7 +309,7 @@ export function LiveServiceExecutionPanel({
                   {formatLeaves(requiredCredits)} debited on success
                 </p>
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Accounting trail
                 </p>
@@ -321,31 +321,31 @@ export function LiveServiceExecutionPanel({
           </div>
 
           {receipt ? (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-700">
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10/80 p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-400">
                 Latest paid run
               </p>
-              <p className="mt-3 text-sm font-semibold text-emerald-900">
+              <p className="mt-3 text-sm font-semibold text-emerald-300">
                 {receipt.transactionTitle}
               </p>
-              <p className="mt-2 text-sm text-emerald-800">
+              <p className="mt-2 text-sm text-emerald-300">
                 {receipt.amountLabel} | {receipt.transactionTimestamp}
               </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-emerald-200 bg-white/[0.06] p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-emerald-700">
+                <div className="rounded-2xl border border-emerald-500/30 bg-white/[0.06] p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-emerald-400">
                     Wallet change
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-emerald-900">
+                  <p className="mt-2 text-sm font-semibold text-emerald-300">
                     {formatLeaves(receipt.previousBalanceCredits)} to{" "}
                     {formatLeaves(receipt.nextBalanceCredits)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-emerald-200 bg-white/[0.06] p-3">
-                  <p className="text-xs uppercase tracking-[0.12em] text-emerald-700">
+                <div className="rounded-2xl border border-emerald-500/30 bg-white/[0.06] p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-emerald-400">
                     Split
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-emerald-900">
+                  <p className="mt-2 text-sm font-semibold text-emerald-300">
                     Builder {formatLeaves(receipt.builderEarningsCredits)} and Eden{" "}
                     {formatLeaves(receipt.platformFeeCredits)}
                   </p>
@@ -367,7 +367,7 @@ export function LiveServiceExecutionPanel({
             {result.sections.map((section) => (
               <div
                 key={section.label}
-                className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4"
+                className="rounded-2xl border border-white/8 bg-white/[0.04] p-4"
               >
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   {section.label}
@@ -376,7 +376,7 @@ export function LiveServiceExecutionPanel({
               </div>
             ))}
           </div>
-          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Tonight&apos;s checklist
             </p>

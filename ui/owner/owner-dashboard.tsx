@@ -262,53 +262,53 @@ function toTitleCase(input: string) {
 }
 
 function getUserStatusClasses(status: EdenMockUserStatus) {
-  if (status === "active") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "review") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-rose-200 bg-rose-50 text-rose-700";
+  if (status === "active") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+  if (status === "review") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
+  return "border-rose-500/25 bg-rose-500/10 text-rose-300";
 }
 
 function getBusinessStatusClasses(status: EdenMockBusinessStatus) {
-  if (status === "published") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "testing") return "border-amber-200 bg-amber-50 text-amber-700";
+  if (status === "published") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+  if (status === "testing") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
 function getAdminStateClasses(state: "active" | "frozen" | "maintenance") {
-  if (state === "frozen") return "border-rose-200 bg-rose-50 text-rose-700";
-  if (state === "maintenance") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (state === "frozen") return "border-rose-500/25 bg-rose-500/10 text-rose-300";
+  if (state === "maintenance") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
+  return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
 }
 
 function getReleaseStatusClasses(status: EdenMockReleaseStatus) {
-  if (status === "published") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "ready") return "border-sky-200 bg-sky-50 text-sky-700";
-  if (status === "testing") return "border-amber-200 bg-amber-50 text-amber-700";
+  if (status === "published") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+  if (status === "ready") return "border-sky-500/25 bg-sky-500/10 text-sky-300";
+  if (status === "testing") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
 function getAgentStatusClasses(status: EdenMockAgentStatus) {
-  if (status === "healthy") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "busy") return "border-sky-200 bg-sky-50 text-sky-700";
-  return "border-amber-200 bg-amber-50 text-amber-700";
+  if (status === "healthy") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+  if (status === "busy") return "border-sky-500/25 bg-sky-500/10 text-sky-300";
+  return "border-amber-500/25 bg-amber-500/10 text-amber-300";
 }
 
 function getLogLevelClasses(level: EdenMockLogLevel) {
-  if (level === "info") return "bg-sky-100 text-sky-700";
-  if (level === "warn") return "bg-amber-100 text-amber-700";
-  return "bg-rose-100 text-rose-700";
+  if (level === "info") return "bg-sky-100 text-sky-300";
+  if (level === "warn") return "bg-amber-100 text-amber-300";
+  return "bg-rose-100 text-rose-300";
 }
 
 function getCreditDirectionClasses(direction: CreditActivity["direction"]) {
-  if (direction === "inflow") return "bg-emerald-100 text-emerald-700";
-  if (direction === "outflow") return "bg-rose-100 text-rose-700";
-  if (direction === "reserve") return "bg-amber-100 text-amber-700";
-  return "bg-sky-100 text-sky-700";
+  if (direction === "inflow") return "bg-emerald-100 text-emerald-400";
+  if (direction === "outflow") return "bg-rose-100 text-rose-300";
+  if (direction === "reserve") return "bg-amber-100 text-amber-300";
+  return "bg-sky-100 text-sky-300";
 }
 
 function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "canceled") {
-  if (status === "settled") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "pending") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-rose-200 bg-rose-50 text-rose-700";
+  if (status === "settled") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+  if (status === "pending") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
+  return "border-rose-500/25 bg-rose-500/10 text-rose-300";
 }
 
 function formatPaymentStatus(status: "pending" | "settled" | "failed" | "canceled") {
@@ -334,10 +334,10 @@ function getPaymentFilterEmptyState(filter: OwnerPaymentFilter) {
 function getPaymentEventStatusClasses(
   status: "info" | "success" | "skipped" | "failed",
 ) {
-  if (status === "success") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (status === "success") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   if (status === "skipped") return "border-slate-200 bg-slate-100 text-slate-700";
-  if (status === "failed") return "border-rose-200 bg-rose-50 text-rose-700";
-  return "border-sky-200 bg-sky-50 text-sky-700";
+  if (status === "failed") return "border-rose-500/25 bg-rose-500/10 text-rose-300";
+  return "border-sky-500/25 bg-sky-500/10 text-sky-300";
 }
 
 function formatPaymentEventStatus(status: "info" | "success" | "skipped" | "failed") {
@@ -347,13 +347,13 @@ function formatPaymentEventStatus(status: "info" | "success" | "skipped" | "fail
 function getPayoutSettlementStatusClasses(
   status: "pending" | "settled" | "canceled",
 ) {
-  if (status === "settled") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (status === "pending") return "border-amber-200 bg-amber-50 text-amber-700";
+  if (status === "settled") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+  if (status === "pending") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
 function getOwnerReconciliationActionClasses() {
-  return "inline-flex rounded-full border border-white/8 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
+  return "inline-flex rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
 }
 
 function formatPayoutSettlementStatus(status: "pending" | "settled" | "canceled") {
@@ -989,7 +989,7 @@ export function OwnerDashboardPanel({
               Central owner console for monitoring the platform, runtime control plane, and the
               remaining development overlays that still back older owner flows.
             </p>
-            <div className="mt-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+            <div className="mt-4 rounded-2xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-300">
               Honest state: payments, payouts, runtime records, sandbox tasks, and several usage
               metrics now persist. Release transitions, freeze toggles, and some ledger views still
               include development overlays until those owner flows are replaced.
@@ -1009,7 +1009,7 @@ export function OwnerDashboardPanel({
               {ownerSignalsDisplay.map((signal) => (
                 <div
                   key={signal.label}
-                  className="rounded-2xl border border-white/8 bg-white/82 p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">{signal.label}</p>
                   <p className="mt-2 text-xl font-semibold tracking-tight text-white">{signal.value}</p>
@@ -1096,7 +1096,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={metric.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
                   <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{metric.value}</p>
@@ -1106,11 +1106,11 @@ export function OwnerDashboardPanel({
             </motion.div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.12fr)_minmax(300px,0.88fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Health monitors</p>
                 <div className="mt-4 space-y-3">
                   {systemHealthChecks.map((check) => (
-                    <div key={check.label} className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div key={check.label} className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-semibold text-white">{check.label}</p>
                         <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
@@ -1164,7 +1164,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={user.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   {(() => {
                     const userFrozen = isUserFrozen(user.id, adminState);
@@ -1192,7 +1192,7 @@ export function OwnerDashboardPanel({
                             {toTitleCase(userStatus)}
                           </span>
                         </div>
-                        <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.04]/60 px-3 py-2">
+                        <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2">
                           <span className="text-xs uppercase tracking-[0.12em] text-white/50">Eden balance</span>
                           <span className="text-sm font-semibold text-white">
                             {formatCredits(getUserCreditsBalance(user.id, simulatedTransactions))}
@@ -1210,8 +1210,8 @@ export function OwnerDashboardPanel({
                             }
                             className={
                               userFrozen
-                                ? "w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
-                                : "w-full border-rose-200 bg-rose-50 hover:border-rose-300 hover:bg-rose-100"
+                                ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
+                                : "w-full border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-100"
                             }
                           />
                         </div>
@@ -1220,7 +1220,7 @@ export function OwnerDashboardPanel({
                             userId={user.id}
                             username={user.username}
                             amountCredits={250}
-                            className="w-full border-sky-200 bg-sky-50 hover:border-sky-300 hover:bg-sky-100"
+                            className="w-full border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100"
                           />
                         </div>
                       </>
@@ -1257,7 +1257,7 @@ export function OwnerDashboardPanel({
                   <motion.article
                     key={entry.business.id}
                     variants={cardVariants}
-                    className="rounded-2xl border border-white/8 bg-white p-4"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -1291,17 +1291,17 @@ export function OwnerDashboardPanel({
                         Workspace {toTitleCase(entry.business.status)}
                       </span>
                       {entry.isFrozen ? (
-                        <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-rose-700">
+                        <span className="rounded-full border border-rose-500/25 bg-rose-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-rose-300">
                           Owner hold
                         </span>
                       ) : (
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-emerald-700">
+                        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-emerald-400">
                           Active
                         </span>
                       )}
                     </div>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">Active service</p>
                         <p className="mt-2 text-sm font-semibold text-white">
                             {getCatalogServiceById(
@@ -1311,7 +1311,7 @@ export function OwnerDashboardPanel({
                               "Active service"}
                           </p>
                       </div>
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">Readiness</p>
                         <p className="mt-2 text-sm font-semibold text-white">
                           {entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}%
@@ -1334,7 +1334,7 @@ export function OwnerDashboardPanel({
                       <div className="mb-3 flex flex-wrap gap-2">
                         <Link
                           href={`/owner/payouts/${entry.business.id}`}
-                          className="rounded-xl border border-white/8 bg-white px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                          className="rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                         >
                           View Payout
                         </Link>
@@ -1356,8 +1356,8 @@ export function OwnerDashboardPanel({
                         }
                         className={
                           entry.isFrozen
-                            ? "w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
-                            : "w-full border-rose-200 bg-rose-50 hover:border-rose-300 hover:bg-rose-100"
+                            ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
+                            : "w-full border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-100"
                         }
                       />
                     </div>
@@ -1390,7 +1390,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={entry.service.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <Link
                     href={`/services/${entry.service.id}`}
@@ -1411,12 +1411,12 @@ export function OwnerDashboardPanel({
                       {getPipelineStatusLabel(entry.releaseStatus)}
                     </span>
                     {entry.businessFrozen ? (
-                      <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-rose-700">
+                      <span className="rounded-full border border-rose-500/25 bg-rose-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-rose-300">
                         Business frozen
                       </span>
                     ) : null}
                   </div>
-                  <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">Latest transition</p>
                     <p className="mt-2 text-sm font-semibold text-white">
                       {entry.latestEvent
@@ -1456,7 +1456,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={item.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
                   <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
@@ -1479,7 +1479,7 @@ export function OwnerDashboardPanel({
                     <motion.article
                       key={event.id}
                       variants={cardVariants}
-                      className="rounded-2xl border border-white/8 bg-white p-4"
+                      className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -1530,7 +1530,7 @@ export function OwnerDashboardPanel({
                       : "Waiting for mock activity"}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Current release queue</p>
                   <div className="mt-4 space-y-3">
                     {businessCards.map((entry) => {
@@ -1538,7 +1538,7 @@ export function OwnerDashboardPanel({
                         entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
 
                       return (
-                        <div key={`queue-${entry.business.id}`} className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                        <div key={`queue-${entry.business.id}`} className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                           <div className="flex items-start justify-between gap-3">
                             <p className="text-sm font-semibold text-white">{entry.business.name}</p>
                             <span
@@ -1591,7 +1591,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={node.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -1634,7 +1634,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={item.label}
                   variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
                   <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
@@ -1642,13 +1642,13 @@ export function OwnerDashboardPanel({
                 </motion.article>
               ))}
             </motion.div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Recent Leaf's activity</p>
               <div className="mt-4 space-y-3">
                 {creditActivity.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3 md:flex-row md:items-start md:justify-between"
+                    className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.04] p-3 md:flex-row md:items-start md:justify-between"
                   >
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -1661,7 +1661,7 @@ export function OwnerDashboardPanel({
                           {activity.direction}
                         </span>
                         {activity.simulated ? (
-                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             Overlay
                           </span>
                         ) : null}
@@ -1696,7 +1696,7 @@ export function OwnerDashboardPanel({
                 {platformGrowthSummaryCards.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-white/8 bg-white p-3"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                   >
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
@@ -1709,7 +1709,7 @@ export function OwnerDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-2">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest usage businesses
                 </p>
@@ -1718,7 +1718,7 @@ export function OwnerDashboardPanel({
                     topBusinessesByUsage.slice(0, 3).map((business, index) => (
                       <div
                         key={`${business.businessId}-usage-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -1737,14 +1737,14 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       Usage-leading businesses appear here once the platform records tracked service runs.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest earning businesses
                 </p>
@@ -1753,7 +1753,7 @@ export function OwnerDashboardPanel({
                     topBusinessesByEarnings.slice(0, 3).map((business, index) => (
                       <div
                         key={`${business.businessId}-earning-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -1773,14 +1773,14 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       Earning leaders appear here once priced service usage and payout accounting are available.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest usage services
                 </p>
@@ -1789,7 +1789,7 @@ export function OwnerDashboardPanel({
                     topServicesByUsage.slice(0, 3).map((service, index) => (
                       <div
                         key={`${service.serviceId}-usage-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -1803,7 +1803,7 @@ export function OwnerDashboardPanel({
                               {service.usageCount} runs | {formatCredits(service.totalCreditsUsed)} used
                             </p>
                           </div>
-                          <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {getServicePricingDisplay({
                               pricingModel: service.pricingModel,
                               pricePerUse: service.pricePerUseCredits,
@@ -1814,14 +1814,14 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       Usage-leading services appear here once the platform records tracked service usage.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest earning services
                 </p>
@@ -1830,7 +1830,7 @@ export function OwnerDashboardPanel({
                     topServicesByEarnings.slice(0, 3).map((service, index) => (
                       <div
                         key={`${service.serviceId}-earning-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -1850,7 +1850,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       Pricing-based service earning leaders appear here after tracked usage is recorded.
                     </div>
                   )}
@@ -1859,7 +1859,7 @@ export function OwnerDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top users by value
                 </p>
@@ -1868,7 +1868,7 @@ export function OwnerDashboardPanel({
                     topUsersByValue.slice(0, 3).map((user, index) => (
                       <div
                         key={`${user.userId ?? user.userDisplayName}-value-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -1897,14 +1897,14 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       User value leaders appear here once service usage is tied to individual platform users.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top users by usage
                 </p>
@@ -1913,7 +1913,7 @@ export function OwnerDashboardPanel({
                     topUsersByUsage.slice(0, 3).map((user, index) => (
                       <div
                         key={`${user.userId ?? user.userDisplayName}-usage-highlight`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -1933,7 +1933,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       Usage-leading users appear here once platform service runs are recorded.
                     </div>
                   )}
@@ -1945,7 +1945,7 @@ export function OwnerDashboardPanel({
                   Recent user activity pulse
                 </p>
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Latest user activity
                     </p>
@@ -1963,7 +1963,7 @@ export function OwnerDashboardPanel({
                       {latestUserActivity?.timestampLabel ?? "Waiting for the next tracked user event."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest value user
                     </p>
@@ -1978,7 +1978,7 @@ export function OwnerDashboardPanel({
                         : "Projected user value appears once priced service usage is attached to users."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Current usage pulse
                     </p>
@@ -2014,7 +2014,7 @@ export function OwnerDashboardPanel({
                 {paymentSummaryCards.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-white/8 bg-white p-3"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                   >
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
@@ -2026,7 +2026,7 @@ export function OwnerDashboardPanel({
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2051,7 +2051,7 @@ export function OwnerDashboardPanel({
                     filteredPayments.map((payment) => (
                       <div
                         key={payment.id}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div className="min-w-0">
@@ -2121,7 +2121,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       {paymentMetrics.recentPayments.length
                         ? getPaymentFilterEmptyState(paymentFilter)
                         : getPaymentFilterEmptyState("all")}
@@ -2129,7 +2129,7 @@ export function OwnerDashboardPanel({
                   )}
                 </div>
             </div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2151,7 +2151,7 @@ export function OwnerDashboardPanel({
                   paymentMetrics.recentEventLogs.map((eventLog) => (
                     <div
                       key={eventLog.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div className="min-w-0">
@@ -2192,7 +2192,7 @@ export function OwnerDashboardPanel({
                               {eventLog.metadataSummary.map((summaryLine) => (
                                 <span
                                   key={`${eventLog.id}-${summaryLine}`}
-                                  className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
+                                  className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50"
                                 >
                                   {summaryLine}
                                 </span>
@@ -2232,7 +2232,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                     No persistent payment lifecycle events are available yet. Once Stripe checkout
                     and webhook events occur, the owner layer will surface the recorded lifecycle
                     trail here.
@@ -2258,7 +2258,7 @@ export function OwnerDashboardPanel({
                 {payoutSummaryCards.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-white/8 bg-white p-3"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                   >
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       {item.label}
@@ -2270,7 +2270,7 @@ export function OwnerDashboardPanel({
               </div>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2297,7 +2297,7 @@ export function OwnerDashboardPanel({
                     filteredPayoutHistory.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
@@ -2332,7 +2332,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       {payoutAccounting.payoutHistory.length
                         ? getPayoutFilterEmptyState(payoutFilter)
                         : getPayoutFilterEmptyState("all")}
@@ -2341,12 +2341,12 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout status overview
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Settled payouts
                     </p>
@@ -2359,7 +2359,7 @@ export function OwnerDashboardPanel({
                       )} recorded as paid
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Pending payouts
                     </p>
@@ -2372,7 +2372,7 @@ export function OwnerDashboardPanel({
                       )} still queued
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Canceled payouts
                     </p>
@@ -2385,7 +2385,7 @@ export function OwnerDashboardPanel({
                       )} removed from queue
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Internal Eden use
                     </p>
@@ -2398,7 +2398,7 @@ export function OwnerDashboardPanel({
                       )} reused from earned Leaf's
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Current state
                     </p>
@@ -2413,7 +2413,7 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
             </div>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2434,7 +2434,7 @@ export function OwnerDashboardPanel({
                   payoutAccounting.internalUseHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -2442,7 +2442,7 @@ export function OwnerDashboardPanel({
                             <p className="text-sm font-semibold text-white">
                               {item.businessName}
                             </p>
-                            <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
+                            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-300">
                               {item.usageTypeLabel}
                             </span>
                           </div>
@@ -2469,7 +2469,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                     No internal earned-Leaf's usage has been recorded yet.
                   </div>
                 )}
@@ -2477,7 +2477,7 @@ export function OwnerDashboardPanel({
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
               <div className="space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Usage earnings snapshot
                   </p>
@@ -2485,23 +2485,23 @@ export function OwnerDashboardPanel({
                     {usageMetrics.monetization.pricingRuleLabel}
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Tracked runs</p>
                       <p className="mt-2 text-lg font-semibold text-white">{usageMetrics.totalUsageEvents}</p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Spendable Leaf's used</p>
                       <p className="mt-2 text-lg font-semibold text-white">
                         {formatCredits(usageMetrics.totalCreditsUsed)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Eden earnings</p>
                       <p className="mt-2 text-lg font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Builder earnings</p>
                       <p className="mt-2 text-lg font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
@@ -2510,7 +2510,7 @@ export function OwnerDashboardPanel({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Top services by usage
                   </p>
@@ -2519,7 +2519,7 @@ export function OwnerDashboardPanel({
                       usageMetrics.topServices.map((service) => (
                         <div
                           key={service.serviceId}
-                          className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                          className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                         >
                           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                             <div>
@@ -2553,7 +2553,7 @@ export function OwnerDashboardPanel({
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                         No service usage has been tracked yet. The leaderboard will populate after service runs are recorded through the current execution paths.
                       </div>
                     )}
@@ -2561,7 +2561,7 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top earning businesses
                 </p>
@@ -2570,7 +2570,7 @@ export function OwnerDashboardPanel({
                     payoutAccounting.topEarningBusinesses.map((business) => (
                       <div
                         key={business.businessId}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
@@ -2614,7 +2614,7 @@ export function OwnerDashboardPanel({
                           <div className="mt-3 space-y-2">
                             <Link
                               href={`/owner/payouts/${business.businessId}`}
-                              className="block rounded-2xl border border-white/8 bg-white px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                              className="block rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                             >
                               View Payout
                             </Link>
@@ -2627,14 +2627,14 @@ export function OwnerDashboardPanel({
                               )} as paid out for ${business.businessName}. This only writes an internal settlement record.`}
                               reference={`owner-payout-${business.businessId}`}
                               notes={`Owner control-room settlement for ${business.businessName}`}
-                              className="w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
+                              className="w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
                             />
                           </div>
                         ) : (
                           <div className="mt-3">
                             <Link
                               href={`/owner/payouts/${business.businessId}`}
-                              className="block rounded-2xl border border-white/8 bg-white px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                              className="block rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-3 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                             >
                               View Payout
                             </Link>
@@ -2643,7 +2643,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       Earning rankings will appear here after the platform records priced service usage.
                     </div>
                   )}
@@ -2652,7 +2652,7 @@ export function OwnerDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top users by platform usage
                 </p>
@@ -2661,7 +2661,7 @@ export function OwnerDashboardPanel({
                     usageMetrics.topUsers.map((user) => (
                       <div
                         key={user.userId ?? `guest-${user.userDisplayName}`}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                       >
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                           <div>
@@ -2669,7 +2669,7 @@ export function OwnerDashboardPanel({
                               <p className="text-sm font-semibold text-white">
                                 {user.userDisplayName}
                               </p>
-                              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                              <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                 {user.isAnonymousUser
                                   ? "Guest"
                                   : user.username
@@ -2703,7 +2703,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                       User rankings will populate after platform usage events are recorded.
                     </div>
                   )}
@@ -2711,12 +2711,12 @@ export function OwnerDashboardPanel({
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Usage concentration by user
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Top user share
                       </p>
@@ -2724,7 +2724,7 @@ export function OwnerDashboardPanel({
                         {usageMetrics.userConcentration.topUserSharePercent}%
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Top 3 users
                       </p>
@@ -2732,7 +2732,7 @@ export function OwnerDashboardPanel({
                         {usageMetrics.userConcentration.topThreeUsersSharePercent}%
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         User buckets
                       </p>
@@ -2746,7 +2746,7 @@ export function OwnerDashboardPanel({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white p-4">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Recent user activity
                   </p>
@@ -2755,7 +2755,7 @@ export function OwnerDashboardPanel({
                       usageMetrics.recentUserActivity.map((event) => (
                         <div
                           key={event.id}
-                          className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                          className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
@@ -2763,7 +2763,7 @@ export function OwnerDashboardPanel({
                                 <p className="text-sm font-semibold text-white">
                                   {event.userDisplayName}
                                 </p>
-                                <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                                <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                                   {event.username ? `@${event.username}` : "Guest wallet"}
                                 </span>
                               </div>
@@ -2779,7 +2779,7 @@ export function OwnerDashboardPanel({
                                 {formatCredits(event.platformFeeCredits)}
                               </p>
                             </div>
-                            <span className="rounded-full bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                            <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                               {event.source === "persistent" ? "Persistent" : "Mock fallback"}
                             </span>
                           </div>
@@ -2789,7 +2789,7 @@ export function OwnerDashboardPanel({
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                         Recent user activity will appear here after service usage is recorded.
                       </div>
                     )}
@@ -2832,7 +2832,7 @@ export function OwnerDashboardPanel({
                 <motion.article
                   key={event.id}
                   variants={cardVariants}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
@@ -2875,7 +2875,7 @@ export function OwnerDashboardPanel({
             >
               <motion.article
                 variants={cardVariants}
-                className="rounded-2xl border border-white/8 bg-white p-4"
+                className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Frozen users
@@ -2889,7 +2889,7 @@ export function OwnerDashboardPanel({
               </motion.article>
               <motion.article
                 variants={cardVariants}
-                className="rounded-2xl border border-white/8 bg-white p-4"
+                className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Frozen businesses
@@ -2903,7 +2903,7 @@ export function OwnerDashboardPanel({
               </motion.article>
               <motion.article
                 variants={cardVariants}
-                className="rounded-2xl border border-white/8 bg-white p-4"
+                className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Maintenance mode
@@ -2931,8 +2931,8 @@ export function OwnerDashboardPanel({
                     }
                     className={
                       maintenanceMode
-                        ? "w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
-                        : "w-full border-amber-200 bg-amber-50 hover:border-amber-300 hover:bg-amber-100"
+                        ? "w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
+                        : "w-full border-amber-500/25 bg-amber-500/10 hover:border-amber-300 hover:bg-amber-100"
                     }
                   />
                 </div>
@@ -2942,7 +2942,7 @@ export function OwnerDashboardPanel({
               <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 text-sm leading-6 text-white/50">
                 Freeze and unfreeze actions are development-only overlays. They update the owner records, detail views, and platform shell immediately without enforcing any real backend restriction.
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-white">{auditLogsControl.title}</p>

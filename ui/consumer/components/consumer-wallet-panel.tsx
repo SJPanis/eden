@@ -207,7 +207,7 @@ export function ConsumerWalletPanel({
   }
 
   return (
-    <div className="rounded-[30px] border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(237,242,255,0.96),rgba(255,255,255,0.98)_52%,rgba(255,247,237,0.88))] p-5 shadow-[0_22px_45px_-30px_rgba(19,33,68,0.28)] md:p-6">
+    <div className="rounded-[30px] border border-white/8 bg-white/[0.05] p-5 shadow-[0_22px_45px_-30px_rgba(19,33,68,0.28)] md:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
@@ -226,7 +226,7 @@ export function ConsumerWalletPanel({
         <div className="flex flex-col gap-3 sm:flex-row" />
       </div>
 
-      <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+      <div className="rounded-2xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-300">
         Honest state: top-up checkout can be real in this environment, but the wallet ledger shown
         below is still the current overlay until a fully persistent consumer wallet replaces it.
       </div>
@@ -255,7 +255,7 @@ export function ConsumerWalletPanel({
               type="button"
               onClick={handleStartPaymentTopUp}
               disabled={!hasSelectedPackage || isPending || !!activeTopUpAction}
-              className="inline-flex min-w-[260px] items-center justify-center rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white disabled:text-white/50"
+              className="inline-flex min-w-[260px] items-center justify-center rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white/[0.04] disabled:text-white/30"
             >
               {activeTopUpAction === "payment"
                 ? "Opening Checkout..."
@@ -285,19 +285,19 @@ export function ConsumerWalletPanel({
             </span>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
               <p className="text-sm font-semibold text-white">1. Pick a package</p>
               <p className="mt-2 text-sm leading-6 text-white/50">
                 Choose the amount of Eden Leaf's you want to add to the wallet.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
               <p className="text-sm font-semibold text-white">2. Add Leaf's</p>
               <p className="mt-2 text-sm leading-6 text-white/50">
                 Continue to checkout for the selected pack. Leaves appear only after the settlement flow completes.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
               <p className="text-sm font-semibold text-white">3. Open Service</p>
               <p className="mt-2 text-sm leading-6 text-white/50">
                 Service cards and detail pages show the exact visible price before any run happens.
@@ -335,7 +335,7 @@ export function ConsumerWalletPanel({
           </p>
           <p className="mt-2 text-xs text-white/50">{edenSpendableLeavesLabel}</p>
         </div>
-        <div className="rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15/35 p-4">
+        <div className="rounded-2xl border border-[#14989a]/50 bg-[#14989a]/10 p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">Selected Package</p>
           <p className="mt-2 text-sm font-semibold text-white">
             {selectedPackage.title}
@@ -352,34 +352,34 @@ export function ConsumerWalletPanel({
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
         {topUpConfig.paymentEnabled
           ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time Leaves purchase here, and Leaves are added only after webhook settlement.`
           : "Stripe Checkout is not available in this environment, so Leaf's cannot be purchased from this wallet surface."}
       </div>
 
       {receipt ? (
-        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-700">
+        <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-6 text-emerald-400">
           <div className="flex items-start justify-between gap-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-700">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-400">
               Latest Wallet Receipt
             </p>
-            <span className="rounded-full border border-emerald-200 bg-white/82 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+            <span className="rounded-full border border-emerald-500/30 bg-white/[0.06] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-400">
               {receipt.source === "payment" ? "Payment-backed" : "Top-up"}
             </span>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="rounded-2xl border border-emerald-200 bg-white/82 p-4">
-              <p className="text-sm font-semibold text-emerald-900">{receipt.title}</p>
-              <p className="mt-2 text-sm text-emerald-800">{receipt.detail}</p>
-              <p className="mt-3 text-xs uppercase tracking-[0.12em] text-emerald-700">
+            <div className="rounded-2xl border border-emerald-500/30 bg-white/[0.06] p-4">
+              <p className="text-sm font-semibold text-emerald-300">{receipt.title}</p>
+              <p className="mt-2 text-sm text-emerald-300">{receipt.detail}</p>
+              <p className="mt-3 text-xs uppercase tracking-[0.12em] text-emerald-400">
                 {receipt.timestamp}
               </p>
             </div>
-            <div className="rounded-2xl border border-emerald-200 bg-white/82 p-4">
-              <p className="text-xs uppercase tracking-[0.12em] text-emerald-700">Wallet Impact</p>
-              <p className="mt-2 text-sm font-semibold text-emerald-900">{receipt.amountLabel}</p>
-              <p className="mt-2 text-sm text-emerald-800">
+            <div className="rounded-2xl border border-emerald-500/30 bg-white/[0.06] p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-emerald-400">Wallet Impact</p>
+              <p className="mt-2 text-sm font-semibold text-emerald-300">{receipt.amountLabel}</p>
+              <p className="mt-2 text-sm text-emerald-300">
                 {formatCreditsValue(receipt.previousBalanceCredits)} to{" "}
                 {formatCreditsValue(receipt.nextBalanceCredits)}
               </p>
@@ -392,10 +392,10 @@ export function ConsumerWalletPanel({
         <div
           className={`mt-4 rounded-2xl border p-4 text-sm leading-6 ${
             statusMessage.tone === "danger"
-              ? "border-rose-200 bg-rose-50 text-rose-700"
+              ? "border-rose-500/25 bg-rose-500/10 text-rose-300"
               : statusMessage.tone === "warning"
-                ? "border-amber-200 bg-amber-50 text-amber-700"
-                : "border-sky-200 bg-sky-50 text-sky-700"
+                ? "border-amber-500/25 bg-amber-500/10 text-amber-300"
+                : "border-sky-500/25 bg-sky-500/10 text-sky-300"
           }`}
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.18em]">
@@ -454,8 +454,8 @@ export function ConsumerWalletPanel({
                 <p
                   className={`text-sm font-semibold ${
                     latestVisibleTransaction.creditsDelta >= 0
-                      ? "text-emerald-700"
-                      : "text-rose-700"
+                      ? "text-emerald-400"
+                      : "text-rose-300"
                   }`}
                 >
                   {formatLeavesAmountLabel(latestVisibleTransaction.amountLabel)}
@@ -475,7 +475,7 @@ export function ConsumerWalletPanel({
               <div className="mt-3">
                 <Link
                   href={latestVisibleTransaction.relatedServiceHref}
-                  className="inline-flex rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                  className="inline-flex rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                 >
                   Open Related Service
                 </Link>
@@ -492,7 +492,7 @@ export function ConsumerWalletPanel({
                 className={`rounded-2xl border p-4 ${
                   index === 0
                     ? "border-[#14989a]/50 bg-white/[0.05]"
-                    : "border-white/8 bg-white/[0.04]/60"
+                    : "border-white/8 bg-white/[0.04]"
                 }`}
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -507,7 +507,7 @@ export function ConsumerWalletPanel({
                         {formatWalletEventLabel(transaction.kind)}
                       </span>
                       {index === 0 ? (
-                        <span className="rounded-full border border-[#14989a]/50 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+                        <span className="rounded-full border border-[#14989a]/50 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
                           Latest visible
                         </span>
                       ) : null}
@@ -521,7 +521,7 @@ export function ConsumerWalletPanel({
                   <div className="text-left md:text-right">
                     <p
                       className={`text-sm font-semibold ${
-                        transaction.creditsDelta >= 0 ? "text-emerald-700" : "text-rose-700"
+                        transaction.creditsDelta >= 0 ? "text-emerald-400" : "text-rose-300"
                       }`}
                     >
                       {formatLeavesAmountLabel(transaction.amountLabel)}
@@ -532,7 +532,7 @@ export function ConsumerWalletPanel({
                   </div>
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Resulting Balance
                     </p>
@@ -541,7 +541,7 @@ export function ConsumerWalletPanel({
                     </p>
                     <p className="mt-2 text-xs text-white/50">After this wallet event</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white p-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Wallet Event
                     </p>
@@ -554,7 +554,7 @@ export function ConsumerWalletPanel({
                   <div className="mt-3">
                     <Link
                       href={transaction.relatedServiceHref}
-                      className="inline-flex rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                      className="inline-flex rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                     >
                       Open Related Service
                     </Link>
@@ -563,7 +563,7 @@ export function ConsumerWalletPanel({
               </div>
             ))
           ) : (
-            <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
               No wallet activity matches the current filter.
             </div>
           )}

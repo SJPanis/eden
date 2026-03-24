@@ -56,7 +56,7 @@ export function MockResetControls({
             id: "ledger" as const,
             label: "Reset Mock Ledger",
             detail: "Clear simulated Eden Leaf’s activity and restore the default mocked ledger state.",
-            tone: "border-rose-200 bg-rose-50 hover:border-rose-300 hover:bg-rose-100",
+            tone: "border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-100",
             request: {
               url: "/api/mock-transactions",
               method: "DELETE" as const,
@@ -70,7 +70,7 @@ export function MockResetControls({
             id: "pipeline" as const,
             label: "Reset Mock Pipeline",
             detail: "Clear local pipeline overrides and restore the default release statuses.",
-            tone: "border-sky-200 bg-sky-50 hover:border-sky-300 hover:bg-sky-100",
+            tone: "border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100",
             request: {
               url: "/api/mock-pipeline?scope=pipeline",
               method: "DELETE" as const,
@@ -84,7 +84,7 @@ export function MockResetControls({
             id: "history" as const,
             label: "Reset Release History",
             detail: "Clear local release events and restore the default mocked history feed.",
-            tone: "border-amber-200 bg-amber-50 hover:border-amber-300 hover:bg-amber-100",
+            tone: "border-amber-500/25 bg-amber-500/10 hover:border-amber-300 hover:bg-amber-100",
             request: {
               url: "/api/mock-pipeline?scope=history",
               method: "DELETE" as const,
@@ -109,12 +109,12 @@ export function MockResetControls({
   }
 
   return (
-    <div className="rounded-2xl border border-eden-edge bg-white/90 p-4">
+    <div className="rounded-2xl border border-white/8 bg-white/90 p-4">
       <div className="flex flex-col gap-1">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
           {title}
         </p>
-        <p className="text-sm text-eden-muted">{description}</p>
+        <p className="text-sm text-white/50">{description}</p>
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -126,8 +126,8 @@ export function MockResetControls({
             onClick={() => handleReset(action)}
             className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${action.tone}`}
           >
-            <p className="text-sm font-semibold text-eden-ink">{action.label}</p>
-            <p className="mt-1 text-xs leading-5 text-eden-muted">{action.detail}</p>
+            <p className="text-sm font-semibold text-white">{action.label}</p>
+            <p className="mt-1 text-xs leading-5 text-white/50">{action.detail}</p>
           </button>
         ))}
       </div>

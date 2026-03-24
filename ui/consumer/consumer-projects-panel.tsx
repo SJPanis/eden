@@ -23,9 +23,9 @@ type ConsumerProjectsPanelProps = {
 };
 
 const statusColors: Record<string, string> = {
-  published: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  testing: "border-amber-200 bg-amber-50 text-amber-700",
-  draft: "border-white/8 bg-white text-white/50",
+  published: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+  testing: "border-amber-500/25 bg-amber-500/10 text-amber-300",
+  draft: "border-white/8 bg-white/[0.06] text-white/50",
 };
 
 export function ConsumerProjectsPanel({
@@ -136,7 +136,7 @@ export function ConsumerProjectsPanel({
                   <div key={biz.id} className="flex items-start gap-4">
                     {/* Node dot on spine */}
                     <div className="relative z-10 mt-5 flex h-10 w-10 shrink-0 items-center justify-center">
-                      <div className="h-3 w-3 rounded-full border-2 border-eden-accent bg-white shadow-[0_0_8px_rgba(20,152,154,0.4)]" />
+                      <div className="h-3 w-3 rounded-full border-2 border-eden-accent bg-white/[0.06] shadow-[0_0_8px_rgba(20,152,154,0.4)]" />
                     </div>
 
                     {/* Business card */}

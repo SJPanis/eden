@@ -25,11 +25,11 @@ const sectionVariants = {
 
 function getSettlementStatusClasses(status: "pending" | "settled" | "canceled") {
   if (status === "settled") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (status === "pending") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -78,25 +78,25 @@ function getPayoutSummaryStatusClasses(
   payoutAccounting: EdenBusinessPayoutAccountingSummary,
 ) {
   if (payoutAccounting.statusOverview.pendingCount > 0) {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   if (
     payoutAccounting.unpaidEarningsCredits <= 0 &&
     payoutAccounting.paidOutCredits > 0
   ) {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (payoutAccounting.payoutReadyCredits > 0) {
-    return "border-sky-200 bg-sky-50 text-sky-700";
+    return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
 function getOwnerActionLinkClasses() {
-  return "inline-flex rounded-full border border-white/8 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
+  return "inline-flex rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
 }
 
 export function OwnerPayoutDetailPanel({
@@ -266,7 +266,7 @@ export function OwnerPayoutDetailPanel({
               {payoutSummaryCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-white/8 bg-white p-3"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
@@ -321,7 +321,7 @@ export function OwnerPayoutDetailPanel({
                 </span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Settled rows
                   </p>
@@ -334,7 +334,7 @@ export function OwnerPayoutDetailPanel({
                     )} recorded as paid
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Pending rows
                   </p>
@@ -347,7 +347,7 @@ export function OwnerPayoutDetailPanel({
                     )} queued internally
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Canceled rows
                   </p>
@@ -360,7 +360,7 @@ export function OwnerPayoutDetailPanel({
                     )} removed from settlement
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Internal Eden use
                   </p>
@@ -371,7 +371,7 @@ export function OwnerPayoutDetailPanel({
                     {formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leaf’s
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Business detail
                   </p>
@@ -385,7 +385,7 @@ export function OwnerPayoutDetailPanel({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/8 bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -403,7 +403,7 @@ export function OwnerPayoutDetailPanel({
                 </Link>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Total earned
                   </p>
@@ -411,7 +411,7 @@ export function OwnerPayoutDetailPanel({
                     {formatCredits(payoutAccounting.totalEarnedCredits)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Unpaid
                   </p>
@@ -419,7 +419,7 @@ export function OwnerPayoutDetailPanel({
                     {formatCredits(payoutAccounting.unpaidEarningsCredits)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Used internally
                   </p>
@@ -427,7 +427,7 @@ export function OwnerPayoutDetailPanel({
                     {formatCredits(payoutAccounting.earnedLeavesUsedInternallyCredits)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Payout-ready
                   </p>
@@ -450,14 +450,14 @@ export function OwnerPayoutDetailPanel({
                   }
                   reference={`owner-payout-detail-${businessProfile.id}`}
                   notes={`Owner payout detail settlement for ${businessProfile.name}`}
-                  className="w-full border-emerald-200 bg-emerald-50 hover:border-emerald-300 hover:bg-emerald-100"
+                  className="w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
                 />
               </div>
             </div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
-            <div className="rounded-2xl border border-white/8 bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout history
@@ -477,7 +477,7 @@ export function OwnerPayoutDetailPanel({
                   filteredPayoutHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -517,7 +517,7 @@ export function OwnerPayoutDetailPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                     {payoutAccounting.payoutHistory.length
                       ? getPayoutFilterEmptyState(payoutFilter)
                       : getPayoutFilterEmptyState("all")}
@@ -526,7 +526,7 @@ export function OwnerPayoutDetailPanel({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/8 bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -545,7 +545,7 @@ export function OwnerPayoutDetailPanel({
                   payoutAccounting.internalUseHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -553,7 +553,7 @@ export function OwnerPayoutDetailPanel({
                             <p className="text-sm font-semibold text-white">
                               {formatCredits(item.amountCredits)}
                             </p>
-                            <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-700">
+                            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-sky-300">
                               {item.usageTypeLabel}
                             </span>
                           </div>
@@ -577,14 +577,14 @@ export function OwnerPayoutDetailPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                     No internal earned-Leaf’s usage has been recorded for this business yet.
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/8 bg-white p-4">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Per-service payout breakdown
               </p>
@@ -593,7 +593,7 @@ export function OwnerPayoutDetailPanel({
                   payoutAccounting.perService.map((service) => (
                     <div
                       key={service.serviceId}
-                      className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-3"
+                      className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -631,7 +631,7 @@ export function OwnerPayoutDetailPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4 text-sm leading-6 text-white/50">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
                     Service-level payout breakdown appears here once priced usage is recorded.
                   </div>
                 )}

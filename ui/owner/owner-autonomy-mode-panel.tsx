@@ -10,24 +10,24 @@ type OwnerAutonomyModePanelProps = {
 
 function getStageBadgeClasses(stage: string) {
   if (stage === "A") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
-  return "border-amber-200 bg-amber-50 text-amber-700";
+  return "border-amber-500/25 bg-amber-500/10 text-amber-300";
 }
 
 function getScopeBadgeClasses(scope: string) {
   if (scope === "PRIVATE_DEV") {
-    return "border-sky-200 bg-sky-50 text-sky-700";
+    return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   }
-  return "border-rose-200 bg-rose-50 text-rose-700";
+  return "border-rose-500/25 bg-rose-500/10 text-rose-300";
 }
 
 function getBlockerSeverityClasses(blocker: string) {
   if (blocker.includes("migration")) {
-    return "text-rose-700";
+    return "text-rose-300";
   }
   if (blocker.includes("OPENAI_API_KEY") || blocker.includes("secret")) {
-    return "text-amber-700";
+    return "text-amber-300";
   }
   return "text-slate-600";
 }
@@ -63,7 +63,7 @@ export function OwnerAutonomyModePanel({
   const hasBlockers = state.currentBlockers.length > 0;
 
   return (
-    <div className="rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+    <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -103,12 +103,12 @@ export function OwnerAutonomyModePanel({
           {state.scopeLabel}
         </span>
         {state.allowsProviderExecution && (
-          <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+          <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
             Live OpenAI path: enabled
           </span>
         )}
         {!state.allowsProviderExecution && state.environmentScope === "PRIVATE_DEV" && (
-          <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+          <span className="inline-flex items-center rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300">
             Live OpenAI path: blocked
           </span>
         )}
@@ -140,15 +140,15 @@ export function OwnerAutonomyModePanel({
       )}
 
       {!hasBlockers && state.environmentScope === "PRIVATE_DEV" && (
-        <p className="mt-4 text-sm font-medium text-emerald-700">
+        <p className="mt-4 text-sm font-medium text-emerald-400">
           No blockers. The self-work loop can pull and execute the next approved item.
         </p>
       )}
 
       {/* Public prod is always gated notice */}
       {state.publicProdIsGated && (
-        <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
-          <p className="text-sm font-medium text-rose-700">
+        <div className="mt-4 rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3">
+          <p className="text-sm font-medium text-rose-300">
             edencloud.app is always Stage B. All write operations against the production
             database require explicit owner action. No autonomous execution is permitted.
           </p>
@@ -167,7 +167,7 @@ export function OwnerAutonomyModePanel({
         <div className="mt-4 space-y-4">
           {/* Auto-allowed */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-400">
               Auto-allowed in {state.scopeLabel}
             </p>
             {state.autoAllowedActions.length > 0 ? (
@@ -186,7 +186,7 @@ export function OwnerAutonomyModePanel({
           {/* Blocked in scope */}
           {state.blockedActions.length > 0 && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">
                 Blocked in {state.scopeLabel} (not human-required)
               </p>
               <ul className="mt-2 space-y-0.5">
@@ -201,7 +201,7 @@ export function OwnerAutonomyModePanel({
 
           {/* Always human-required */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-rose-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-rose-300">
               Always requires owner acknowledgement (all scopes)
             </p>
             <ul className="mt-2 space-y-0.5">

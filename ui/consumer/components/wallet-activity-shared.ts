@@ -16,11 +16,11 @@ export function formatWalletEventLabel(kind: string) {
 
 export function getWalletEventBadgeClasses(kind: string) {
   if (kind === "wallet") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (kind === "usage") {
-    return "border-rose-200 bg-rose-50 text-rose-700";
+    return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";

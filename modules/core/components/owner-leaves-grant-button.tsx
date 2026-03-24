@@ -64,16 +64,16 @@ export function OwnerLeavesGrantButton({
         type="button"
         disabled={isPending}
         onClick={handleGrant}
-        className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${className ?? "border-sky-200 bg-sky-50 hover:border-sky-300 hover:bg-sky-100"}`}
+        className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${className ?? "border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100"}`}
       >
-        <p className="text-sm font-semibold text-eden-ink">
+        <p className="text-sm font-semibold text-white">
           {isPending ? "Granting Leaf’s..." : `Grant ${formatCredits(amountCredits)}`}
         </p>
-        <p className="mt-1 text-xs leading-5 text-eden-muted">
+        <p className="mt-1 text-xs leading-5 text-white/50">
           Record a visible owner-funded Leaf’s grant for this account.
         </p>
       </button>
-      {feedback ? <p className="text-xs leading-5 text-eden-muted">{feedback}</p> : null}
+      {feedback ? <p className="text-xs leading-5 text-white/50">{feedback}</p> : null}
     </div>
   );
 }

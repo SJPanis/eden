@@ -40,13 +40,13 @@ export function AskEdenServiceResultCard({
           onSelect();
         }
       }}
-      className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-white p-3 text-left shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eden-ring/40 ${
+      className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-white/[0.06] p-3 text-left shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eden-ring/40 ${
         isSelected
           ? "border-[#14989a]/50 bg-[#14989a]/15/45 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.45)]"
           : affordabilityTone === "ready"
-            ? "border-emerald-200 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+            ? "border-emerald-500/30 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
             : affordabilityTone === "warning"
-              ? "border-amber-200 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+              ? "border-amber-500/25 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
               : "border-white/8 hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
       }`}
     >
@@ -59,7 +59,7 @@ export function AskEdenServiceResultCard({
         </div>
         <span
           className={`rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] ${
-            isSelected ? "bg-eden-ink text-white" : "bg-emerald-50 text-emerald-700"
+            isSelected ? "bg-eden-ink text-white" : "bg-emerald-500/10 text-emerald-400"
           }`}
         >
           {isSelected ? "Selected" : launchBadgeLabel}
@@ -67,10 +67,10 @@ export function AskEdenServiceResultCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/50">
+        <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/50">
           {availabilityLabel}
         </span>
-        <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/50">
+        <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/50">
           {edenLaunchLabels.creditsOnlyBilling}
         </span>
       </div>
@@ -86,10 +86,10 @@ export function AskEdenServiceResultCard({
         <div
           className={`mt-3 rounded-2xl border px-3 py-2 ${
             affordabilityTone === "ready"
-              ? "border-emerald-200 bg-emerald-50"
+              ? "border-emerald-500/30 bg-emerald-500/10"
               : affordabilityTone === "warning"
-                ? "border-amber-200 bg-amber-50"
-                : "border-white/8 bg-white/[0.04]/60"
+                ? "border-amber-500/25 bg-amber-500/10"
+                : "border-white/8 bg-white/[0.04]"
           }`}
         >
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
@@ -106,7 +106,7 @@ export function AskEdenServiceResultCard({
           onSelect();
           onAction();
         }}
-        className="mt-4 inline-flex items-center rounded-xl border border-white/8 bg-white px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+        className="mt-4 inline-flex items-center rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
       >
         {edenLaunchLabels.openService}
       </button>

@@ -288,7 +288,7 @@ export function EdenEntryPanel({
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,237,213,0.8),rgba(255,255,255,0.95)_42%,rgba(219,234,254,0.9))] px-4 py-5 md:px-8 md:py-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
         {maintenanceMode ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
             <span className="font-semibold">Mock maintenance mode is active.</span> The public
             entry experience stays available because this remains a local development-only state.
           </div>
@@ -299,7 +299,7 @@ export function EdenEntryPanel({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28, ease: "easeOut" }}
-            className="rounded-[32px] border border-eden-edge bg-white/88 p-6"
+            className="rounded-[32px] border border-white/8 bg-white/[0.06] p-6"
           >
             <EdenBrandLockup
               size="md"
@@ -309,25 +309,25 @@ export function EdenEntryPanel({
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
               Eden Entry
             </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-eden-ink">
+            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white">
               Start Eden like a real product.
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-eden-muted md:text-base">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
               Eden is a builder-to-consumer service platform. Builders publish services with
               visible pricing, consumers discover them and top up Eden Leaf's only when needed,
               and service runs happen with no hidden checkout during usage.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-400">
                 Published and priced
               </span>
-              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.visiblePricing}
               </span>
-              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.creditsOnlyBilling}
               </span>
-              <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.noHiddenCheckout}
               </span>
             </div>
@@ -336,63 +336,63 @@ export function EdenEntryPanel({
               {publicLaunchClarityCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(219,234,254,0.28),rgba(255,255,255,0.98))] p-4"
+                  className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(219,234,254,0.28),rgba(255,255,255,0.98))] p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-eden-edge bg-white/92 p-5">
+            <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.06] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Who Eden is for
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-eden-muted">
+                  <p className="mt-2 text-sm leading-6 text-white/50">
                     Eden connects the builder side that publishes services and the consumer side
                     that discovers and uses them.
                   </p>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                   Builders and consumers
                 </span>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {publicAudienceCards.map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-eden-edge bg-eden-bg/65 p-4">
-                    <p className="text-sm font-semibold text-eden-ink">{item.label}</p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">{item.detail}</p>
+                  <div key={item.id} className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4">
+                    <p className="text-sm font-semibold text-white">{item.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(255,247,237,0.9),rgba(255,255,255,0.98))] p-5">
+              <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),rgba(255,255,255,0.98))] p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                       How Eden works
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">
+                    <p className="mt-2 text-sm leading-6 text-white/50">
                       The same launch-ready loop carries from builder workspace to public discovery
                       to service usage.
                     </p>
                   </div>
-                  <span className="rounded-full border border-eden-edge bg-white/92 px-3 py-1 text-xs text-eden-muted">
+                  <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
                     One visible loop
                   </span>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   {publicHowEdenWorksSteps.map((step) => (
-                    <div key={step.id} className="rounded-2xl border border-eden-edge bg-white/92 p-4">
-                      <p className="text-sm font-semibold text-eden-ink">{step.label}</p>
-                      <p className="mt-2 text-sm leading-6 text-eden-muted">{step.detail}</p>
+                    <div key={step.id} className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                      <p className="text-sm font-semibold text-white">{step.label}</p>
+                      <p className="mt-2 text-sm leading-6 text-white/50">{step.detail}</p>
                     </div>
                   ))}
                 </div>
@@ -402,24 +402,24 @@ export function EdenEntryPanel({
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Public next step
                 </p>
-                <p className="mt-3 text-base font-semibold text-eden-ink">
+                <p className="mt-3 text-base font-semibold text-white">
                   Explore the consumer marketplace first
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   Start in the consumer layer to see published services, visible pricing, wallet
                   guidance, and the Leaves-only run flow before you go deeper into onboarding.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     href="/consumer"
-                    className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70"
+                    className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-eden-accent-soft/70"
                   >
                     Explore consumer marketplace
                   </Link>
                   <button
                     type="button"
                     onClick={() => setActiveStep("mode")}
-                    className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                    className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
                   >
                     Continue onboarding
                   </button>
@@ -438,8 +438,8 @@ export function EdenEntryPanel({
                   }}
                   className={`rounded-2xl border p-4 text-left transition-colors ${
                     entryMode === option.id
-                      ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                      : "border-eden-edge bg-eden-bg/70 text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                      ? "border-eden-ring bg-eden-accent-soft text-white"
+                      : "border-white/8 bg-eden-bg/70 text-white/50 hover:border-eden-ring hover:text-white"
                   }`}
                 >
                   <p className="text-sm font-semibold">{option.label}</p>
@@ -448,7 +448,7 @@ export function EdenEntryPanel({
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(239,246,255,0.8),rgba(255,255,255,0.96))] p-5">
+            <div className="mt-6 rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(239,246,255,0.8),rgba(255,255,255,0.96))] p-5">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Public roles
               </p>
@@ -456,51 +456,51 @@ export function EdenEntryPanel({
                 {publicRoleOptions.map((role) => (
                   <div
                     key={role.id}
-                    className="rounded-2xl border border-eden-edge bg-white/92 p-4"
+                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                   >
-                    <p className="text-sm font-semibold text-eden-ink">{role.label}</p>
-                    <p className="mt-2 text-sm leading-6 text-eden-muted">{role.description}</p>
+                    <p className="text-sm font-semibold text-white">{role.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/50">{role.description}</p>
                   </div>
                 ))}
               </div>
-              <p className="mt-4 text-sm leading-6 text-eden-muted">
+              <p className="mt-4 text-sm leading-6 text-white/50">
                 Owner access stays out of public onboarding and remains available only through the
                 existing development session controls.
               </p>
             </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1.05fr)_minmax(240px,0.95fr)]">
-              <div className="rounded-2xl border border-eden-edge bg-eden-bg/70 p-4">
+              <div className="rounded-2xl border border-white/8 bg-eden-bg/70 p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Current mock session
                 </p>
-                <p className="mt-2 text-lg font-semibold text-eden-ink">
+                <p className="mt-2 text-lg font-semibold text-white">
                   {session.user.displayName}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   {roleMeta[session.role].label} - @{session.user.username}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     href={currentWorkspaceHref}
-                    className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70"
+                    className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-eden-accent-soft/70"
                   >
                     Continue to current workspace
                   </Link>
                   <Link
                     href="/consumer"
-                    className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                    className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
                   >
                     Explore consumer layer
                   </Link>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-edge bg-white/92 p-4">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Last onboarding
                 </p>
-                <p className="mt-2 text-sm leading-6 text-eden-muted">
+                <p className="mt-2 text-sm leading-6 text-white/50">
                   {lastOnboardingSummary ?? "No mocked onboarding flow has been completed yet."}
                 </p>
               </div>
@@ -513,17 +513,17 @@ export function EdenEntryPanel({
             transition={{ duration: 0.3, ease: "easeOut", delay: 0.04 }}
             className="space-y-4"
           >
-            <div className="rounded-[32px] border border-eden-edge bg-white/90 p-5">
+            <div className="rounded-[32px] border border-white/8 bg-white/[0.06] p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Mock onboarding
                   </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-eden-ink">
+                  <h2 className="mt-2 text-2xl font-semibold text-white">
                     Create, sign in, or enter as guest
                   </h2>
                 </div>
-                <span className="rounded-full border border-eden-edge bg-eden-bg px-3 py-1 text-xs text-eden-muted">
+                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
                   {stepOrder.findIndex((step) => step.id === activeStep) + 1}/{stepOrder.length}
                 </span>
               </div>
@@ -545,10 +545,10 @@ export function EdenEntryPanel({
                       }}
                       className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                         isActive
-                          ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
+                          ? "border-eden-ring bg-eden-accent-soft text-white"
                           : isComplete
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                            : "border-eden-edge bg-white text-eden-muted"
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                            : "border-white/8 bg-white/[0.06] text-white/50"
                       }`}
                     >
                       {step.label}
@@ -577,8 +577,8 @@ export function EdenEntryPanel({
                             onClick={() => setEntryMode(option.id)}
                             className={`rounded-2xl border p-4 text-left transition-colors ${
                               entryMode === option.id
-                                ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                                : "border-eden-edge bg-eden-bg/70 text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                                ? "border-eden-ring bg-eden-accent-soft text-white"
+                                : "border-white/8 bg-eden-bg/70 text-white/50 hover:border-eden-ring hover:text-white"
                             }`}
                           >
                             <p className="text-sm font-semibold">{option.label}</p>
@@ -611,14 +611,14 @@ export function EdenEntryPanel({
                               onClick={() => setSelectedRole(role.id)}
                               className={`rounded-2xl border p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
                                 resolvedRole === role.id
-                                  ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                                  : "border-eden-edge bg-eden-bg/70 text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                                  ? "border-eden-ring bg-eden-accent-soft text-white"
+                                  : "border-white/8 bg-eden-bg/70 text-white/50 hover:border-eden-ring hover:text-white"
                               }`}
                             >
                               <p className="text-sm font-semibold">{role.label}</p>
                               <p className="mt-2 text-sm leading-6">{role.description}</p>
                               {isDisabled ? (
-                                <p className="mt-3 text-xs uppercase tracking-[0.12em] text-eden-muted">
+                                <p className="mt-3 text-xs uppercase tracking-[0.12em] text-white/50">
                                   Guest mode is consumer-only
                                 </p>
                               ) : null}
@@ -628,12 +628,12 @@ export function EdenEntryPanel({
                       </div>
 
                       {entryMode === "sign_in" ? (
-                        <label className="flex flex-col gap-2 text-sm text-eden-muted">
+                        <label className="flex flex-col gap-2 text-sm text-white/50">
                           <span>Choose mock account</span>
                           <select
                             value={selectedUserId}
                             onChange={(event) => setSelectedSignInUserId(event.target.value)}
-                            className="rounded-2xl border border-eden-edge bg-white px-4 py-3 text-sm text-eden-ink outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                            className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
                           >
                             {accountOptions.map((option) => (
                               <option key={option.userId} value={option.userId}>
@@ -643,7 +643,7 @@ export function EdenEntryPanel({
                           </select>
                         </label>
                       ) : (
-                        <div className="rounded-2xl border border-eden-edge bg-white p-4 text-sm leading-6 text-eden-muted">
+                        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
                           {entryMode === "guest"
                             ? "Guest access will continue into the consumer layer using the shared public mock consumer profile."
                             : "Create Account stays mocked. Completing this flow will bind the selected public role to the shared default mock user for that layer."}
@@ -674,8 +674,8 @@ export function EdenEntryPanel({
                               onClick={() => setIntendedUse(option.id)}
                               className={`rounded-2xl border p-4 text-left transition-colors ${
                                 intendedUse === option.id
-                                  ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                                  : "border-eden-edge bg-eden-bg/70 text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                                  ? "border-eden-ring bg-eden-accent-soft text-white"
+                                  : "border-white/8 bg-eden-bg/70 text-white/50 hover:border-eden-ring hover:text-white"
                               }`}
                             >
                               <p className="text-sm font-semibold">{option.label}</p>
@@ -689,7 +689,7 @@ export function EdenEntryPanel({
                         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                           Interest preferences
                         </p>
-                        <p className="mt-2 text-sm leading-6 text-eden-muted">
+                        <p className="mt-2 text-sm leading-6 text-white/50">
                           Choose up to three categories to guide the mocked discovery and workspace
                           setup.
                         </p>
@@ -704,8 +704,8 @@ export function EdenEntryPanel({
                                 onClick={() => toggleInterest(option.id)}
                                 className={`rounded-2xl border p-4 text-left transition-colors ${
                                   isSelected
-                                    ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                                    : "border-eden-edge bg-white text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                                    ? "border-eden-ring bg-eden-accent-soft text-white"
+                                    : "border-white/8 bg-white/[0.06] text-white/50 hover:border-eden-ring hover:text-white"
                                 }`}
                               >
                                 <p className="text-sm font-semibold">{option.label}</p>
@@ -724,7 +724,7 @@ export function EdenEntryPanel({
                           <button
                             type="button"
                             onClick={() => setWorkspaceStyle("")}
-                            className="text-xs uppercase tracking-[0.12em] text-eden-muted transition-colors hover:text-eden-ink"
+                            className="text-xs uppercase tracking-[0.12em] text-white/50 transition-colors hover:text-white"
                           >
                             Clear preference
                           </button>
@@ -737,8 +737,8 @@ export function EdenEntryPanel({
                               onClick={() => setWorkspaceStyle(option.id)}
                               className={`rounded-2xl border p-4 text-left transition-colors ${
                                 workspaceStyle === option.id
-                                  ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                                  : "border-eden-edge bg-eden-bg/70 text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                                  ? "border-eden-ring bg-eden-accent-soft text-white"
+                                  : "border-white/8 bg-eden-bg/70 text-white/50 hover:border-eden-ring hover:text-white"
                               }`}
                             >
                               <p className="text-sm font-semibold">{option.label}</p>
@@ -760,7 +760,7 @@ export function EdenEntryPanel({
                       transition={{ duration: 0.22, ease: "easeOut" }}
                       className="space-y-4"
                     >
-                      <p className="text-sm leading-6 text-eden-muted">
+                      <p className="text-sm leading-6 text-white/50">
                         These choices are placeholders only for now. They prepare Eden for future
                         authentication and security layers without adding any real backend logic
                         yet.
@@ -773,8 +773,8 @@ export function EdenEntryPanel({
                             onClick={() => setSecurityChoice(option.id)}
                             className={`rounded-2xl border p-4 text-left transition-colors ${
                               securityChoice === option.id
-                                ? "border-eden-ring bg-eden-accent-soft text-eden-ink"
-                                : "border-eden-edge bg-eden-bg/70 text-eden-muted hover:border-eden-ring hover:text-eden-ink"
+                                ? "border-eden-ring bg-eden-accent-soft text-white"
+                                : "border-white/8 bg-eden-bg/70 text-white/50 hover:border-eden-ring hover:text-white"
                             }`}
                           >
                             <p className="text-sm font-semibold">{option.label}</p>
@@ -795,14 +795,14 @@ export function EdenEntryPanel({
                       transition={{ duration: 0.22, ease: "easeOut" }}
                       className="space-y-4"
                     >
-                      <div className="rounded-2xl border border-eden-edge bg-[linear-gradient(135deg,rgba(255,237,213,0.55),rgba(255,255,255,0.96))] p-4">
+                      <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(255,237,213,0.55),rgba(255,255,255,0.96))] p-4">
                         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                           Destination
                         </p>
-                        <p className="mt-2 text-lg font-semibold text-eden-ink">
+                        <p className="mt-2 text-lg font-semibold text-white">
                           {destinationHref}
                         </p>
-                        <p className="mt-2 text-sm leading-6 text-eden-muted">
+                        <p className="mt-2 text-sm leading-6 text-white/50">
                           Completing onboarding will update the mocked session and route into the{" "}
                           {roleMeta[resolvedRole].label.toLowerCase()} layer.
                         </p>
@@ -811,17 +811,17 @@ export function EdenEntryPanel({
                         {reviewItems.map((item) => (
                           <div
                             key={item.label}
-                            className="rounded-2xl border border-eden-edge bg-white p-4"
+                            className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                           >
-                            <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">
+                            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                               {item.label}
                             </p>
-                            <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                            <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
                           </div>
                         ))}
                       </div>
                       {entryError ? (
-                        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                        <div className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
                           {entryError}
                         </div>
                       ) : null}
@@ -831,7 +831,7 @@ export function EdenEntryPanel({
               </div>
 
               <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="text-sm text-eden-muted">
+                <div className="text-sm text-white/50">
                   {activeStep === "review"
                     ? "All onboarding and security choices stay mocked only."
                     : "Use Next to move through the public Eden setup flow."}
@@ -841,7 +841,7 @@ export function EdenEntryPanel({
                     <button
                       type="button"
                       onClick={goToPreviousStep}
-                      className="rounded-xl border border-eden-edge bg-white px-4 py-2 text-sm font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+                      className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
                     >
                       Back
                     </button>
@@ -851,7 +851,7 @@ export function EdenEntryPanel({
                       type="button"
                       disabled={!canAdvance(activeStep)}
                       onClick={goToNextStep}
-                      className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+                      className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       Next
                     </button>
@@ -860,7 +860,7 @@ export function EdenEntryPanel({
                       type="button"
                       disabled={isPending}
                       onClick={handleComplete}
-                      className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-eden-ink transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
+                      className="rounded-xl border border-eden-ring bg-eden-accent-soft px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-eden-accent-soft/70 disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       {isPending
                         ? "Starting..."

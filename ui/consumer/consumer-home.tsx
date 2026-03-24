@@ -156,7 +156,7 @@ function ConsumerTopBarActions({
         className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors ${
           savedOnly
             ? "border-[#14989a]/50 bg-[#14989a]/15 text-white"
-            : "border-white/8 bg-white text-white/50 hover:border-[#14989a]/50 hover:text-white"
+            : "border-white/8 bg-white/[0.06] text-white/50 hover:border-[#14989a]/50 hover:text-white"
         }`}
       >
         Saved Businesses ({savedBusinessCount})
@@ -989,7 +989,7 @@ export function ConsumerHomePanel({
           </div>
           <div className="flex flex-col items-start gap-3 lg:items-end">
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-400">
                 Published and priced
               </span>
               <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
@@ -1136,7 +1136,7 @@ export function ConsumerHomePanel({
               <button
                 type="submit"
                 disabled={isThinking}
-                className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isThinking ? "Routing..." : "Ask Eden"}
               </button>
@@ -1175,7 +1175,7 @@ export function ConsumerHomePanel({
                   </div>
                 ) : null}
 
-                <div className="mr-auto max-w-4xl rounded-xl border border-white/8 bg-white p-3 text-left">
+                <div className="mr-auto max-w-4xl rounded-xl border border-white/8 bg-white/[0.06] p-3 text-left">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
                     Ask Eden
                   </p>
@@ -1198,7 +1198,7 @@ export function ConsumerHomePanel({
                         {route.replace("_", " ")}
                       </span>
                     ))}
-                    <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-xs text-white/50">
+                    <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-xs text-white/50">
                       Grounding: {latestTurn.response.groundingMode}
                     </span>
                   </div>
@@ -1210,7 +1210,7 @@ export function ConsumerHomePanel({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="mt-4 rounded-lg border border-white/8 bg-[#14989a]/15/35 px-3 py-2 text-sm text-white"
+                      className="mt-4 rounded-lg border border-white/8 bg-[#14989a]/10 px-3 py-2 text-sm text-white"
                     >
                       {assistantStateText}
                     </motion.p>
@@ -1226,7 +1226,7 @@ export function ConsumerHomePanel({
                           onClick={() => {
                             void handleAskEdenAction(action);
                           }}
-                          className="rounded-xl border border-white/8 bg-white px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {action.label}
                         </button>
@@ -1235,8 +1235,8 @@ export function ConsumerHomePanel({
                   ) : null}
 
                   {latestTurn.response.warnings.length > 0 ? (
-                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3">
-                      <p className="text-[10px] uppercase tracking-[0.14em] text-amber-700">
+                    <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10/70 p-3">
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-amber-300">
                         Grounding notes
                       </p>
                       <ul className="mt-2 space-y-1 text-sm text-amber-900/80">
@@ -1470,14 +1470,14 @@ export function ConsumerHomePanel({
                                         selectedResultDetails.href,
                                       )
                                     }
-                                    className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
+                                    className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
                                   >
                                     {selectedResultDetails.actionLabel}
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => setSelectedResult(null)}
-                                    className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                                    className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
                                   >
                                     Clear selection
                                   </button>
@@ -1489,9 +1489,9 @@ export function ConsumerHomePanel({
                                   <div
                                     className={`rounded-2xl border p-4 ${
                                       selectedResultDetails.guidanceTone === "ready"
-                                        ? "border-emerald-200 bg-emerald-50/70"
+                                        ? "border-emerald-500/30 bg-emerald-500/10/70"
                                         : selectedResultDetails.guidanceTone === "warning"
-                                          ? "border-amber-200 bg-amber-50/70"
+                                          ? "border-amber-500/25 bg-amber-500/10/70"
                                           : "border-white/8 bg-white/[0.06]"
                                     }`}
                                   >
@@ -1577,7 +1577,7 @@ export function ConsumerHomePanel({
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -12 }}
                               transition={{ duration: 0.2, ease: "easeOut" }}
-                              className="mt-4 rounded-2xl border border-dashed border-white/8 bg-white/82 p-4 text-sm text-white/50"
+                              className="mt-4 rounded-2xl border border-dashed border-white/8 bg-white/[0.06] p-4 text-sm text-white/50"
                             >
                               Select a service, business, or idea card to inspect the grounded
                               details and next step here.
@@ -1613,7 +1613,7 @@ export function ConsumerHomePanel({
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-400">
                   Published and priced
                 </span>
                 <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">

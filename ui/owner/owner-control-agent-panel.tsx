@@ -8,7 +8,7 @@ export async function OwnerControlAgentPanel() {
   const controlPlaneState = await loadEdenOwnerControlPlaneState();
 
   return (
-    <section className="rounded-[28px] border border-white/8 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+    <section className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -28,19 +28,19 @@ export async function OwnerControlAgentPanel() {
         </span>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
+      <div className="mt-5 rounded-2xl border border-sky-500/25 bg-sky-500/10 px-4 py-3 text-sm text-sky-300">
         This is an owner-aligned constitutional scaffold only. Eden does not claim
         unrestricted autonomy, raw secret access, or live provider execution from
         this panel.
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Required control inputs
             </p>
-            <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+            <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
               {controlPlaneState.inputs.length} tracked
             </span>
           </div>
@@ -48,7 +48,7 @@ export async function OwnerControlAgentPanel() {
             {controlPlaneState.inputs.map((input) => (
               <article
                 key={input.id}
-                className="rounded-2xl border border-white/8 bg-white p-4"
+                className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -60,8 +60,8 @@ export async function OwnerControlAgentPanel() {
                   <span
                     className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${
                       input.status === "loaded"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-rose-200 bg-rose-50 text-rose-700"
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                        : "border-rose-500/25 bg-rose-500/10 text-rose-300"
                     }`}
                   >
                     {input.status}
@@ -79,7 +79,7 @@ export async function OwnerControlAgentPanel() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Owner constitution
             </p>
@@ -93,7 +93,7 @@ export async function OwnerControlAgentPanel() {
               {edenOwnerControlConstitution.directives.map((directive) => (
                 <div
                   key={directive.id}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <p className="text-sm font-semibold text-white">
                     {directive.title}
@@ -106,7 +106,7 @@ export async function OwnerControlAgentPanel() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Hard limits
             </p>
@@ -114,7 +114,7 @@ export async function OwnerControlAgentPanel() {
               {edenOwnerControlConstitution.controlLimits.map((limit) => (
                 <div
                   key={limit}
-                  className="rounded-2xl border border-white/8 bg-white px-3 py-2 text-sm text-white/50"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white/50"
                 >
                   {limit}
                 </div>
@@ -122,12 +122,12 @@ export async function OwnerControlAgentPanel() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04]/60 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Approved provider scaffolds
               </p>
-              <span className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+              <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                 {edenProviderAdapterRegistry.length} registered
               </span>
             </div>
@@ -135,7 +135,7 @@ export async function OwnerControlAgentPanel() {
               {edenProviderAdapterRegistry.map((adapter) => (
                 <article
                   key={adapter.providerKey}
-                  className="rounded-2xl border border-white/8 bg-white p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -149,8 +149,8 @@ export async function OwnerControlAgentPanel() {
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${
                         adapter.providerKey === "openai"
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          : "border-amber-200 bg-amber-50 text-amber-700"
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                          : "border-amber-500/25 bg-amber-500/10 text-amber-300"
                       }`}
                     >
                       {adapter.providerKey === "openai"

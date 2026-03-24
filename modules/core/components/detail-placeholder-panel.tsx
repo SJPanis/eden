@@ -40,19 +40,19 @@ const sectionVariants = {
 
 function getStatusClasses(statusTone: DetailStatusTone) {
   if (statusTone === "success") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   }
 
   if (statusTone === "warning") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
   if (statusTone === "info") {
-    return "border-sky-200 bg-sky-50 text-sky-700";
+    return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   }
 
   if (statusTone === "danger") {
-    return "border-rose-200 bg-rose-50 text-rose-700";
+    return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
   return "border-slate-200 bg-slate-100 text-slate-700";
@@ -80,21 +80,21 @@ export function DetailPlaceholderPanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.28, ease: "easeOut" }}
-        className="overflow-hidden rounded-[30px] border border-eden-edge bg-[radial-gradient(circle_at_top_left,rgba(219,234,254,0.74),rgba(255,255,255,0.96)_52%,rgba(255,237,213,0.78))] p-5 md:p-6"
+        className="overflow-hidden rounded-[30px] border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(219,234,254,0.74),rgba(255,255,255,0.96)_52%,rgba(255,237,213,0.78))] p-5 md:p-6"
       >
         <Link
           href={backHref}
-          className="inline-flex rounded-full border border-eden-edge bg-white/80 px-3 py-2 text-xs font-medium text-eden-muted transition-colors hover:border-eden-ring hover:text-eden-ink"
+          className="inline-flex rounded-full border border-white/8 bg-white/80 px-3 py-2 text-xs font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
         >
           {backLabel}
         </Link>
         <p className="mt-4 font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
           {eyebrow}
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-eden-ink md:text-4xl">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">
           {title}
         </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-eden-muted md:text-base">
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/50 md:text-base">
           {description}
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
@@ -108,7 +108,7 @@ export function DetailPlaceholderPanel({
           {tags.map((tag) => (
             <span
               key={`${title}-${tag}`}
-              className="rounded-full border border-eden-edge bg-white/82 px-3 py-1 text-xs text-eden-muted"
+              className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50"
             >
               {tag}
             </span>
@@ -122,12 +122,12 @@ export function DetailPlaceholderPanel({
           animate="visible"
           variants={sectionVariants}
           transition={{ duration: 0.28, ease: "easeOut", delay: 0.04 }}
-          className="rounded-[28px] border border-eden-edge bg-white/84 p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5"
+          className="rounded-[28px] border border-white/8 bg-white/84 p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5"
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
             Summary
           </p>
-          <p className="mt-3 text-sm leading-7 text-eden-muted md:text-base">{summary}</p>
+          <p className="mt-3 text-sm leading-7 text-white/50 md:text-base">{summary}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             {actions.map((action) => (
               <Link
@@ -135,8 +135,8 @@ export function DetailPlaceholderPanel({
                 href={action.href}
                 className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                   action.tone === "secondary"
-                    ? "border border-eden-edge bg-white text-eden-muted hover:border-eden-ring hover:text-eden-ink"
-                    : "border border-eden-ring bg-eden-accent-soft text-eden-ink hover:bg-eden-accent-soft/70"
+                    ? "border border-white/8 bg-white/[0.06] text-white/50 hover:border-eden-ring hover:text-white"
+                    : "border border-eden-ring bg-eden-accent-soft text-white hover:bg-eden-accent-soft/70"
                 }`}
               >
                 {action.label}
@@ -144,7 +144,7 @@ export function DetailPlaceholderPanel({
             ))}
           </div>
           {note ? (
-            <div className="mt-5 rounded-2xl border border-eden-edge bg-eden-bg/60 p-4 text-sm leading-6 text-eden-muted">
+            <div className="mt-5 rounded-2xl border border-white/8 bg-eden-bg/60 p-4 text-sm leading-6 text-white/50">
               {note}
             </div>
           ) : null}
@@ -155,7 +155,7 @@ export function DetailPlaceholderPanel({
           animate="visible"
           variants={sectionVariants}
           transition={{ duration: 0.28, ease: "easeOut", delay: 0.08 }}
-          className="rounded-[28px] border border-eden-edge bg-white/84 p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5"
+          className="rounded-[28px] border border-white/8 bg-white/84 p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5"
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
             Related Actions
@@ -164,10 +164,10 @@ export function DetailPlaceholderPanel({
             {metadata.map((item) => (
               <div
                 key={`${title}-${item.label}`}
-                className="rounded-2xl border border-eden-edge bg-eden-bg/60 p-4"
+                className="rounded-2xl border border-white/8 bg-eden-bg/60 p-4"
               >
-                <p className="text-xs uppercase tracking-[0.12em] text-eden-muted">{item.label}</p>
-                <p className="mt-2 text-sm font-semibold text-eden-ink">{item.value}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
+                <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
               </div>
             ))}
           </div>
@@ -180,7 +180,7 @@ export function DetailPlaceholderPanel({
           animate="visible"
           variants={sectionVariants}
           transition={{ duration: 0.28, ease: "easeOut", delay: 0.12 }}
-          className="rounded-[28px] border border-eden-edge bg-white/84 p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5"
+          className="rounded-[28px] border border-white/8 bg-white/84 p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5"
         >
           {children}
         </motion.section>

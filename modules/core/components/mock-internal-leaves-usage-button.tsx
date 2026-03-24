@@ -77,13 +77,13 @@ export function MockInternalLeavesUsageButton({
         type="button"
         disabled={isDisabled}
         onClick={handleAction}
-        className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${className ?? "border-eden-edge bg-white hover:border-eden-ring hover:bg-eden-bg"}`}
+        className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${className ?? "border-white/8 bg-white/[0.06] hover:border-eden-ring hover:bg-eden-bg"}`}
       >
-        <p className="text-sm font-semibold text-eden-ink">{label}</p>
-        <p className="mt-1 text-xs leading-5 text-eden-muted">{detail}</p>
+        <p className="text-sm font-semibold text-white">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-white/50">{detail}</p>
       </button>
       {feedback ? (
-        <p className="text-xs leading-5 text-eden-muted">{feedback}</p>
+        <p className="text-xs leading-5 text-white/50">{feedback}</p>
       ) : null}
     </div>
   );

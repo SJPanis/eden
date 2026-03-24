@@ -14,11 +14,11 @@ export function DashboardCard({
   children,
 }: DashboardCardProps) {
   return (
-    <article className="rounded-xl border border-eden-edge bg-white/80 p-4 md:p-5">
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-eden-muted">{eyebrow}</p>
-      <h2 className="mt-2 text-lg font-semibold text-eden-ink">{title}</h2>
-      <p className="mt-2 text-sm text-eden-muted">{description}</p>
-      {children ? <div className="mt-4 text-sm text-eden-ink">{children}</div> : null}
+    <article className="rounded-xl border border-white/8 bg-white/80 p-4 md:p-5">
+      <p className="font-mono text-xs uppercase tracking-[0.18em] text-white/50">{eyebrow}</p>
+      <h2 className="mt-2 text-lg font-semibold text-white">{title}</h2>
+      <p className="mt-2 text-sm text-white/50">{description}</p>
+      {children ? <div className="mt-4 text-sm text-white">{children}</div> : null}
     </article>
   );
 }

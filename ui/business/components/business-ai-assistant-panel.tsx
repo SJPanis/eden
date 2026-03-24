@@ -279,11 +279,11 @@ export function BusinessAiAssistantPanel({
           </div>
           <p className="mt-2 text-sm leading-6 text-white/50">{context.description}</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/8 bg-white p-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">Category</p>
               <p className="mt-2 text-sm font-semibold text-white">{context.category}</p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white p-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">Pricing</p>
               <p className="mt-2 text-sm font-semibold text-white">{context.pricingModel}</p>
             </div>
@@ -292,13 +292,13 @@ export function BusinessAiAssistantPanel({
             {context.tags.map((tag) => (
               <span
                 key={`assistant-context-${tag}`}
-                className="rounded-full border border-white/8 bg-white px-2.5 py-1 text-[11px] text-white/50"
+                className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] text-white/50"
               >
                 {tag}
               </span>
             ))}
           </div>
-          <div className="mt-4 rounded-2xl border border-white/8 bg-white p-3">
+          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Automation summary
             </p>
@@ -334,7 +334,7 @@ export function BusinessAiAssistantPanel({
                 className={`rounded-2xl border p-4 text-left transition-colors ${
                   isActive
                     ? "border-[#14989a]/50 bg-white/[0.05]"
-                    : "border-white/8 bg-white hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                    : "border-white/8 bg-white/[0.06] hover:border-[#14989a]/50 hover:bg-white/[0.04]"
                 } disabled:cursor-not-allowed disabled:opacity-70`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -352,7 +352,7 @@ export function BusinessAiAssistantPanel({
           })}
         </motion.div>
 
-        <div className="rounded-2xl border border-white/8 bg-white p-4">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -370,7 +370,7 @@ export function BusinessAiAssistantPanel({
                 type="button"
                 disabled={isRunning || historyEntries.length === 0}
                 onClick={handleClearHistory}
-                className="rounded-full border border-white/8 bg-white px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50 transition-colors hover:border-rose-300 hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50 transition-colors hover:border-rose-300 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Clear Assistant History
               </button>
@@ -404,7 +404,7 @@ export function BusinessAiAssistantPanel({
                             {formatActionLabel(entry.action)}
                           </p>
                           {isApplied ? (
-                            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-emerald-700">
+                            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-emerald-400">
                               Applied
                             </span>
                           ) : null}
@@ -442,7 +442,7 @@ export function BusinessAiAssistantPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="rounded-2xl border border-white/8 bg-white p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.35)]"
+              className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.35)]"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -457,7 +457,7 @@ export function BusinessAiAssistantPanel({
                   <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {formatActionLabel(selectedHistoryEntry.action)}
                   </span>
-                  <span className="rounded-full border border-white/8 bg-white px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                  <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {formatPipelineTimestamp(selectedHistoryEntry.generatedAt)}
                   </span>
                 </div>
@@ -490,7 +490,7 @@ export function BusinessAiAssistantPanel({
                     {publishChecklistSuggestions.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-white/8 bg-white p-3"
+                        className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           <span
@@ -511,7 +511,7 @@ export function BusinessAiAssistantPanel({
               ) : null}
 
               {patchPreviewItems.length ? (
-                <div className="mt-4 rounded-2xl border border-white/8 bg-white p-4">
+                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -522,7 +522,7 @@ export function BusinessAiAssistantPanel({
                       </p>
                     </div>
                     {appliedHistoryEntryId === selectedHistoryEntry.id ? (
-                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-emerald-700">
+                      <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-emerald-400">
                         Applied to draft
                       </span>
                     ) : null}
@@ -546,11 +546,11 @@ export function BusinessAiAssistantPanel({
                     <button
                       type="button"
                       onClick={handleApply}
-                      className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/15/70"
+                      className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
                     >
                       {selectedHistoryEntry.applyLabel ?? "Apply to Draft"}
                     </button>
-                    <span className="rounded-xl border border-white/8 bg-white px-4 py-2 text-sm text-white/50">
+                    <span className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm text-white/50">
                       Local mock output only
                     </span>
                   </div>
@@ -586,7 +586,7 @@ export function BusinessAiAssistantPanel({
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+            className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
           >
             {error}
           </motion.div>
