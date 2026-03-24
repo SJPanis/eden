@@ -255,7 +255,7 @@ function getReleaseStatusClasses(status: EdenMockReleaseStatus) {
     return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function getProjectStatusClasses(status: EdenMockProject["status"]) {
@@ -267,7 +267,7 @@ function getProjectStatusClasses(status: EdenMockProject["status"]) {
     return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function getPipelineStageClasses(state: EdenMockPipelineStageState) {
@@ -279,7 +279,7 @@ function getPipelineStageClasses(state: EdenMockPipelineStageState) {
     return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function getChecklistStateClasses(state: EdenMockChecklistState) {
@@ -291,7 +291,7 @@ function getChecklistStateClasses(state: EdenMockChecklistState) {
     return "bg-amber-400";
   }
 
-  return "bg-slate-300";
+  return "bg-white/20";
 }
 
 function getAffordabilityClasses(tone: "ready" | "warning" | "neutral") {
@@ -303,23 +303,23 @@ function getAffordabilityClasses(tone: "ready" | "warning" | "neutral") {
     return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function getTransactionDirectionClasses(direction: EdenMockTransaction["direction"]) {
   if (direction === "inflow") {
-    return "bg-emerald-100 text-emerald-400";
+    return "bg-emerald-500/10 text-emerald-400";
   }
 
   if (direction === "outflow") {
-    return "bg-rose-100 text-rose-300";
+    return "bg-rose-500/10 text-rose-300";
   }
 
   if (direction === "reserve") {
-    return "bg-amber-100 text-amber-300";
+    return "bg-amber-500/10 text-amber-300";
   }
 
-  return "bg-sky-100 text-sky-300";
+  return "bg-sky-500/10 text-sky-300";
 }
 
 function getPayoutSettlementStatusClasses(
@@ -333,7 +333,7 @@ function getPayoutSettlementStatusClasses(
     return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function formatPayoutSettlementStatus(status: "pending" | "settled" | "canceled") {
@@ -1557,7 +1557,7 @@ export function BusinessDashboardPanel({
                     {consumerLaunchPreviewCards.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-current/15 bg-white/75 p-3 text-white"
+                        className="rounded-2xl border border-white/[0.07] bg-white/[0.05] p-3 text-white"
                       >
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           {item.label}
@@ -2249,7 +2249,7 @@ export function BusinessDashboardPanel({
                     }
                     reference={`business-internal-use-${activeBusinessId}`}
                     notes={`Business workspace internal Eden use for ${businessProfile?.name ?? activeBusinessId}`}
-                    className="w-full border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100"
+                    className="w-full border-sky-500/25 bg-sky-500/10 hover:border-sky-500/50 hover:bg-sky-500/15"
                   />
                 </div>
               </div>
@@ -2949,7 +2949,7 @@ export function BusinessWorkspaceStarterPanel({
             >
               Start business creation
             </Link>
-            <span className="rounded-xl border border-white/8 bg-white/85 px-4 py-2 text-sm text-white/50">
+            <span className="rounded-xl border border-white/[0.07] bg-white/[0.05] px-4 py-2 text-sm text-white/50">
               Active operator: {session.user.displayName}
             </span>
           </div>

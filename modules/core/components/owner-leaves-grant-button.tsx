@@ -64,7 +64,7 @@ export function OwnerLeavesGrantButton({
         type="button"
         disabled={isPending}
         onClick={handleGrant}
-        className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${className ?? "border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100"}`}
+        className={`rounded-2xl border p-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${className ?? "border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-500/15"}`}
       >
         <p className="text-sm font-semibold text-white">
           {isPending ? "Granting Leaf’s..." : `Grant ${formatCredits(amountCredits)}`}

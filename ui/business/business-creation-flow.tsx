@@ -537,7 +537,7 @@ export function BusinessCreationFlow({
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(239,246,255,0.76),rgba(255,255,255,0.98))] p-4">
+                <div className="rounded-2xl border border-[#14989a]/25 bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(13,31,48,0.5))] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Workspace handoff
                   </p>

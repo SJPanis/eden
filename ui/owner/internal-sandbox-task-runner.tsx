@@ -32,7 +32,7 @@ function getTaskStatusClasses(status: string) {
     return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 export function InternalSandboxTaskRunner({
@@ -563,7 +563,7 @@ export function InternalSandboxTaskRunner({
                             activeExecutionTaskId === task.id
                           }
                           onClick={() => handleRunLiveProviderTask(task.id)}
-                          className="rounded-full border border-emerald-300 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-70"
+                          className="rounded-full border border-emerald-300 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           {activeExecutionTaskId === task.id
                             ? "Running live path..."

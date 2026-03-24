@@ -33,7 +33,7 @@ function getRuntimeStatusClasses(status: string) {
     return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 export function OwnerRuntimeRegistry({
@@ -397,7 +397,7 @@ export function OwnerRuntimeRegistry({
                                 className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] ${
                                   link.isActive
                                     ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                                    : "border-slate-200 bg-slate-100 text-slate-700"
+                                    : "border-white/[0.07] bg-white/[0.05] text-white/40"
                                 }`}
                               >
                                 {link.isActive ? "Active" : "Planned"}

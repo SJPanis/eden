@@ -69,7 +69,7 @@ export function MockPipelineControls({
             type="button"
             disabled={isPending}
             onClick={() => handleReset("pipeline")}
-            className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-left transition-colors hover:border-rose-300 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-left transition-colors hover:border-rose-300 hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <p className="text-sm font-semibold text-eden-ink">Reset Mock Pipeline</p>
             <p className="mt-1 text-xs leading-5 text-eden-muted">
@@ -80,7 +80,7 @@ export function MockPipelineControls({
             type="button"
             disabled={isPending}
             onClick={() => handleReset("history")}
-            className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-left transition-colors hover:border-amber-300 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-left transition-colors hover:border-amber-300 hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <p className="text-sm font-semibold text-eden-ink">Reset Release History</p>
             <p className="mt-1 text-xs leading-5 text-eden-muted">

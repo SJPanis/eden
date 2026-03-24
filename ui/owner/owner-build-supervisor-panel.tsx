@@ -34,7 +34,7 @@ function getTaskReadinessClasses(label: string) {
   }
 
   if (label === "Pending review") {
-    return "border-slate-200 bg-slate-100 text-slate-700";
+    return "border-white/[0.07] bg-white/[0.05] text-white/40";
   }
 
   return "border-amber-500/25 bg-amber-500/10 text-amber-300";

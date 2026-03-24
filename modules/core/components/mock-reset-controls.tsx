@@ -56,7 +56,7 @@ export function MockResetControls({
             id: "ledger" as const,
             label: "Reset Mock Ledger",
             detail: "Clear simulated Eden Leaf’s activity and restore the default mocked ledger state.",
-            tone: "border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-100",
+            tone: "border-rose-500/25 bg-rose-500/10 hover:border-rose-300 hover:bg-rose-500/15",
             request: {
               url: "/api/mock-transactions",
               method: "DELETE" as const,
@@ -70,7 +70,7 @@ export function MockResetControls({
             id: "pipeline" as const,
             label: "Reset Mock Pipeline",
             detail: "Clear local pipeline overrides and restore the default release statuses.",
-            tone: "border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-100",
+            tone: "border-sky-500/25 bg-sky-500/10 hover:border-sky-300 hover:bg-sky-500/15",
             request: {
               url: "/api/mock-pipeline?scope=pipeline",
               method: "DELETE" as const,
@@ -84,7 +84,7 @@ export function MockResetControls({
             id: "history" as const,
             label: "Reset Release History",
             detail: "Clear local release events and restore the default mocked history feed.",
-            tone: "border-amber-500/25 bg-amber-500/10 hover:border-amber-300 hover:bg-amber-100",
+            tone: "border-amber-500/25 bg-amber-500/10 hover:border-amber-300 hover:bg-amber-500/15",
             request: {
               url: "/api/mock-pipeline?scope=history",
               method: "DELETE" as const,

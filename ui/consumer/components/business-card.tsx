@@ -12,7 +12,7 @@ export function BusinessCard({
   saved = false,
 }: BusinessCardProps) {
   return (
-    <article className="eden-shell min-h-[164px] min-w-[248px] snap-start p-4">
+    <article className="eden-shell eden-card-hover min-h-[164px] min-w-[248px] snap-start p-4">
       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Business</p>
       <h3 className="mt-2 text-base font-semibold text-white">{name}</h3>
       <p className="mt-1 text-sm text-white/50">{tagline}</p>

@@ -285,7 +285,7 @@ export function EdenEntryPanel({
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,237,213,0.8),rgba(255,255,255,0.95)_42%,rgba(219,234,254,0.9))] px-4 py-5 md:px-8 md:py-8">
+    <div className="min-h-screen eden-grid px-4 py-5 md:px-8 md:py-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
         {maintenanceMode ? (
           <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
@@ -336,7 +336,7 @@ export function EdenEntryPanel({
               {publicLaunchClarityCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(219,234,254,0.28),rgba(255,255,255,0.98))] p-4"
+                  className="rounded-2xl border border-white/8 bg-white/[0.04] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
@@ -373,7 +373,7 @@ export function EdenEntryPanel({
             </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
-              <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(255,247,237,0.9),rgba(255,255,255,0.98))] p-5">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -398,7 +398,7 @@ export function EdenEntryPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(219,234,254,0.5),rgba(255,255,255,0.98))] p-5">
+              <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(13,31,48,0.5))] p-5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Public next step
                 </p>
@@ -448,7 +448,7 @@ export function EdenEntryPanel({
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(239,246,255,0.8),rgba(255,255,255,0.96))] p-5">
+            <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.04] p-5">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Public roles
               </p>
@@ -795,7 +795,7 @@ export function EdenEntryPanel({
                       transition={{ duration: 0.22, ease: "easeOut" }}
                       className="space-y-4"
                     >
-                      <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(255,237,213,0.55),rgba(255,255,255,0.96))] p-4">
+                      <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(13,31,48,0.5))] p-4">
                         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                           Destination
                         </p>

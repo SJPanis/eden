@@ -44,9 +44,9 @@ export function AskEdenServiceResultCard({
         isSelected
           ? "border-[#14989a]/50 bg-[#14989a]/15/45 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.45)]"
           : affordabilityTone === "ready"
-            ? "border-emerald-500/30 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+            ? "border-emerald-500/25 bg-[linear-gradient(145deg,rgba(16,185,129,0.06),rgba(13,31,48,0.4))] hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-[0_8px_24px_-8px_rgba(16,185,129,0.15)]"
             : affordabilityTone === "warning"
-              ? "border-amber-500/25 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))] hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+              ? "border-amber-500/20 bg-[linear-gradient(145deg,rgba(245,158,11,0.06),rgba(13,31,48,0.4))] hover:-translate-y-0.5 hover:border-amber-500/35 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.12)]"
               : "border-white/8 hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
       }`}
     >

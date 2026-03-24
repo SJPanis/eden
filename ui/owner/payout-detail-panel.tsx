@@ -32,7 +32,7 @@ function getSettlementStatusClasses(status: "pending" | "settled" | "canceled") 
     return "border-amber-500/25 bg-amber-500/10 text-amber-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function formatSettlementStatus(status: "pending" | "settled" | "canceled") {
@@ -92,7 +92,7 @@ function getPayoutSummaryStatusClasses(
     return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function getOwnerActionLinkClasses() {
@@ -450,7 +450,7 @@ export function OwnerPayoutDetailPanel({
                   }
                   reference={`owner-payout-detail-${businessProfile.id}`}
                   notes={`Owner payout detail settlement for ${businessProfile.name}`}
-                  className="w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-100"
+                  className="w-full border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-300 hover:bg-emerald-500/15"
                 />
               </div>
             </div>

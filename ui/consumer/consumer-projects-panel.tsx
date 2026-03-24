@@ -55,7 +55,7 @@ export function ConsumerProjectsPanel({
   return (
     <div className="flex flex-col gap-6">
       {/* Identity header */}
-      <div className="relative overflow-hidden rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(16,37,58,0.04)_50%,rgba(255,255,255,0.96))] p-6">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(20,152,154,0.10),rgba(13,31,48,0.6)_60%,rgba(10,24,37,0.8))] p-6">
         {/* Dot-grid background pattern */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -140,7 +140,7 @@ export function ConsumerProjectsPanel({
                     </div>
 
                     {/* Business card */}
-                    <div className="min-w-0 flex-1 rounded-[20px] border border-white/8 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(210,223,235,0.18))] p-4 transition-shadow hover:shadow-[0_4px_20px_-8px_rgba(20,152,154,0.2)]">
+                    <div className="min-w-0 flex-1 rounded-[20px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(20,152,154,0.05),rgba(13,31,48,0.5))] p-4 transition-all hover:border-[rgba(20,152,154,0.25)] hover:shadow-[0_4px_20px_-8px_rgba(20,152,154,0.2)]">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">

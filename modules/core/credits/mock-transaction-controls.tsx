@@ -101,7 +101,7 @@ export function MockTransactionControls({
             type="button"
             disabled={isPending}
             onClick={handleResetLedger}
-            className="w-full rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-left transition-colors hover:border-rose-300 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-left transition-colors hover:border-rose-300 hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <p className="text-sm font-semibold text-eden-ink">Reset Mock Ledger</p>
             <p className="mt-1 text-xs leading-5 text-eden-muted">

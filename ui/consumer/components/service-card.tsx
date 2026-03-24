@@ -32,11 +32,11 @@ export function ServiceCard({
 }: ServiceCardProps) {
   return (
     <article
-      className={`eden-shell min-h-[228px] min-w-[272px] snap-start p-4 ${
+      className={`eden-shell eden-card-hover min-h-[228px] min-w-[272px] snap-start p-4 ${
         affordabilityTone === "ready"
-          ? "border-emerald-500/30 bg-[linear-gradient(145deg,rgba(236,253,245,0.9),rgba(255,255,255,0.98))]"
+          ? "border-emerald-500/25 bg-[linear-gradient(145deg,rgba(16,185,129,0.06),rgba(13,31,48,0.4))]"
           : affordabilityTone === "warning"
-            ? "border-amber-500/25 bg-[linear-gradient(145deg,rgba(255,251,235,0.92),rgba(255,255,255,0.98))]"
+            ? "border-amber-500/20 bg-[linear-gradient(145deg,rgba(245,158,11,0.06),rgba(13,31,48,0.4))]"
             : ""
       }`}
     >

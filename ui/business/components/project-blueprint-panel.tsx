@@ -37,7 +37,7 @@ function getProjectStatusClasses(status: EdenProjectBlueprintRecord["status"]) {
     return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function getReadinessLabel(project: EdenProjectBlueprintRecord | null) {
@@ -546,7 +546,7 @@ export function ProjectBlueprintPanel({
                 className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${
                   selectedProject
                     ? getProjectStatusClasses(selectedProject.status)
-                    : "border-slate-200 bg-slate-100 text-slate-700"
+                    : "border-white/[0.07] bg-white/[0.05] text-white/40"
                 }`}
               >
                 {selectedProject ? getReadinessLabel(selectedProject) : "Awaiting selection"}
@@ -591,7 +591,7 @@ export function ProjectBlueprintPanel({
                     type="button"
                     disabled={fundHostingDisabled}
                     onClick={handleFundHosting}
-                    className="rounded-full border border-sky-500/25 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-300 transition-colors hover:border-sky-300 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="rounded-full border border-sky-500/25 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-300 transition-colors hover:border-sky-300 hover:bg-sky-500/15 disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {pendingAction === "fund_hosting"
                       ? "Funding hosting..."

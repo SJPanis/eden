@@ -44,7 +44,7 @@ function getPaymentStatusClasses(status: "pending" | "settled" | "failed" | "can
     return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   }
 
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  return "border-white/[0.07] bg-white/[0.05] text-white/40";
 }
 
 function formatPaymentStatus(status: "pending" | "settled" | "failed" | "canceled") {
@@ -61,7 +61,7 @@ function getEventStatusClasses(status: "info" | "success" | "skipped" | "failed"
   }
 
   if (status === "skipped") {
-    return "border-slate-200 bg-slate-100 text-slate-700";
+    return "border-white/[0.07] bg-white/[0.05] text-white/40";
   }
 
   return "border-sky-500/25 bg-sky-500/10 text-sky-300";

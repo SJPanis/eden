@@ -6,10 +6,14 @@
   --eden-panel: rgba(255, 255, 255, 0.05);
   --eden-ink: #10253a;
   --eden-muted: #597087;
-  --eden-edge: rgba(255, 255, 255, 0.09);
+  --eden-edge: rgba(255, 255, 255, 0.08);
   --eden-accent: #14989a;
-  --eden-accent-soft: rgba(20, 152, 154, 0.18);
-  --eden-ring: rgba(123, 201, 207, 0.55);
+  --eden-accent-soft: rgba(20, 152, 154, 0.15);
+  --eden-ring: rgba(20, 152, 154, 0.35);
+  --eden-radius: 1rem;
+  --eden-radius-sm: 0.75rem;
+  --eden-radius-lg: 1.25rem;
+  --eden-transition: 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
@@ -26,11 +30,39 @@
   --font-mono: var(--font-ibm-plex-mono);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
   background: #0d1f30;
   color: #e8f1f8;
   font-family: var(--font-space-grotesk), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 152, 154, 0.25);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 152, 154, 0.45);
 }
 
 a {
@@ -38,29 +70,68 @@ a {
   text-decoration: none;
 }
 
-/* App shell background with teal dot grid */
+/* App shell background with subtle teal dot grid */
 .eden-grid {
   background-color: #0d1f30;
-  background-image: radial-gradient(circle, rgba(20, 152, 154, 0.18) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-image: radial-gradient(circle, rgba(20, 152, 154, 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 /* Dark glass card — used for nav header, role heading, main content wrapper */
 .eden-shell {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   background: linear-gradient(
     160deg,
-    rgba(255, 255, 255, 0.055) 0%,
-    rgba(255, 255, 255, 0.028) 100%
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.025) 100%
   );
-  border-radius: 1.05rem;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  border-radius: var(--eden-radius-lg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 /* Inner content cards — light glass on dark, for service/business/project cards */
 .eden-card {
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--eden-radius);
+  transition: border-color var(--eden-transition), transform var(--eden-transition),
+    box-shadow var(--eden-transition);
+}
+
+/* Lift card on hover — teal glow + subtle scale */
+.eden-card-hover:hover {
+  border-color: rgba(20, 152, 154, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -8px rgba(20, 152, 154, 0.2);
+}
+
+/* Teal accent pill chip */
+.eden-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 1rem;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Focus ring reset */
+:focus-visible {
+  outline: 2px solid rgba(20, 152, 154, 0.6);
+  outline-offset: 2px;
+}
+
+/* Horizontal scroll rail — hide scrollbar but keep functionality */
+.eden-scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.eden-scroll-x::-webkit-scrollbar {
+  display: none;
 }
