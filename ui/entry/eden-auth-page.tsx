@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { EdenLogoMark } from "@/modules/core/components/eden-logo-mark";
 
 type EdenAuthPageProps = {
   maintenanceMode: boolean;
@@ -21,6 +23,12 @@ export function EdenAuthPage({ maintenanceMode, initialMode, callbackUrl }: Eden
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successNote, setSuccessNote] = useState<string | null>(null);
   const resolvedCallbackUrl = useMemo(() => callbackUrl || "/consumer", [callbackUrl]);
+
+  function handleModeSwitch(next: AuthMode) {
+    setMode(next);
+    setSubmitError(null);
+    setSuccessNote(null);
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,126 +90,173 @@ export function EdenAuthPage({ maintenanceMode, initialMode, callbackUrl }: Eden
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_160%_90%_at_top,rgba(20,152,154,0.10),rgba(255,255,255,0.98)_50%,rgba(210,223,235,0.3))] px-4 py-8 md:px-8">
-      <div className="mx-auto flex w-full max-w-md flex-col gap-6">
-
+    <div
+      className="eden-grid min-h-screen px-4 py-10 md:px-8"
+      style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-sm"
+      >
         {maintenanceMode ? (
-          <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
-            <span className="font-semibold">Platform maintenance notice.</span>{" "}
+          <div className="mb-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+            <span className="font-semibold">Maintenance active.</span>{" "}
             Some actions may be limited.
           </div>
         ) : null}
 
-        {/* Back to homepage */}
+        {/* Back link */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-white w-fit"
+          className="mb-7 flex w-fit items-center gap-2 text-xs uppercase tracking-[0.14em] text-white/30 transition-colors hover:text-white/70"
         >
-          <span className="text-base leading-none">←</span>
-          <span>Back to Eden</span>
+          <span>←</span>
+          <span>Eden</span>
         </Link>
 
-        {/* Brand */}
-        <div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-950/20 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),rgba(20,83,45,0.96))] shadow-lg overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/eden-logo.png" alt="Eden" className="h-7 w-7 object-contain" />
+        {/* Logo + heading */}
+        <div className="mb-7 flex items-center gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-[rgba(20,152,154,0.35)] bg-[radial-gradient(circle_at_35%_25%,rgba(20,152,154,0.18),rgba(13,31,48,0.97))] shadow-[0_4px_20px_-6px_rgba(20,152,154,0.45)]">
+            <EdenLogoMark size={28} />
           </div>
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">
-            {mode === "signup" ? "Create your Eden account" : "Welcome back to Eden"}
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-white/50">
-            {mode === "signup"
-              ? "New accounts start in the consumer layer. Builder and owner access are granted server-side."
-              : "Sign in to access your Eden workspace."}
-          </p>
+          <div>
+            <p className="font-semibold text-white">Eden</p>
+            <p className="text-xs text-white/40">AI service economy</p>
+          </div>
         </div>
 
         {/* Mode toggle */}
-        <div className="flex gap-2">
+        <div className="mb-6 flex rounded-2xl border border-white/8 bg-white/[0.04] p-1">
           {(["signup", "signin"] as const).map((m) => (
             <button
               key={m}
               type="button"
-              onClick={() => { setMode(m); setSubmitError(null); setSuccessNote(null); }}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+              onClick={() => handleModeSwitch(m)}
+              className={`flex-1 rounded-xl py-2 text-sm font-medium transition-colors ${
                 mode === m
-                  ? "border-eden-ring bg-eden-accent-soft text-white"
-                  : "border-white/8 bg-white/[0.06] text-white/50 hover:border-eden-ring hover:text-white"
+                  ? "bg-[#14989a]/20 text-white border border-[#14989a]/40"
+                  : "text-white/40 hover:text-white/70"
               }`}
             >
-              {m === "signup" ? "Create Account" : "Sign In"}
+              {m === "signup" ? "Create account" : "Sign in"}
             </button>
           ))}
         </div>
 
-        {/* Form */}
-        <form
-          className="flex flex-col gap-4 rounded-[28px] border border-white/8 bg-white/94 p-6 shadow-[0_8px_32px_-12px_rgba(16,37,58,0.10)]"
-          onSubmit={handleSubmit}
-        >
-          <label className="flex flex-col gap-2 text-sm text-white/50">
-            <span>Username</span>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
-              className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/30"
-              placeholder="your.username"
-            />
-          </label>
+        {/* Form card */}
+        <div className="rounded-[24px] border border-white/8 bg-white/[0.05] p-6 backdrop-blur-xl">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={mode}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <p className="text-lg font-semibold text-white">
+                {mode === "signup" ? "Create your Eden account" : "Welcome back to Eden"}
+              </p>
+              <p className="mt-1 text-sm text-white/40">
+                {mode === "signup"
+                  ? "New accounts start in the consumer layer."
+                  : "Sign in to access your workspace."}
+              </p>
+            </motion.div>
+          </AnimatePresence>
 
-          {mode === "signup" ? (
-            <label className="flex flex-col gap-2 text-sm text-white/50">
-              <span>Display name</span>
+          <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-[0.12em] text-white/40">Username</label>
               <input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                autoComplete="nickname"
-                className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/30"
-                placeholder="Your name in Eden"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                placeholder="your.username"
+                className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
               />
-            </label>
-          ) : null}
-
-          <label className="flex flex-col gap-2 text-sm text-white/50">
-            <span>Password</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/30"
-              placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
-            />
-          </label>
-
-          {submitError ? (
-            <div className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
-              {submitError}
             </div>
-          ) : null}
-          {successNote ? (
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-              {successNote}
+
+            <AnimatePresence initial={false}>
+              {mode === "signup" ? (
+                <motion.div
+                  key="display-name"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="overflow-hidden space-y-1"
+                >
+                  <label className="text-xs uppercase tracking-[0.12em] text-white/40">Display name</label>
+                  <input
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    autoComplete="nickname"
+                    placeholder="Your name in Eden"
+                    className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                  />
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+
+            <div className="space-y-1">
+              <label className="text-xs uppercase tracking-[0.12em] text-white/40">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
+                className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+              />
             </div>
-          ) : null}
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full rounded-2xl bg-eden-ink px-5 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isPending
-              ? mode === "signup" ? "Creating account..." : "Signing in..."
-              : mode === "signup" ? "Create Account" : "Sign In"}
-          </button>
-        </form>
+            <AnimatePresence initial={false}>
+              {submitError ? (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="rounded-xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+                    {submitError}
+                  </div>
+                </motion.div>
+              ) : null}
+              {successNote ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
+                    {successNote}
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
 
-        <p className="text-center text-xs text-white/50">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full rounded-xl border border-[#14989a]/50 bg-[#14989a]/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/30 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isPending
+                ? mode === "signup" ? "Creating account…" : "Signing in…"
+                : mode === "signup" ? "Create Account" : "Sign In"}
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-5 text-center text-xs text-white/30">
           Builder and owner access are granted server-side after sign-in.
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
