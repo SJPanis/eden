@@ -63,7 +63,7 @@ export function OwnerAutonomyModePanel({
   const hasBlockers = state.currentBlockers.length > 0;
 
   return (
-    <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+    <div className="rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -84,7 +84,7 @@ export function OwnerAutonomyModePanel({
         <button
           onClick={handleRefresh}
           disabled={isPending}
-          className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white disabled:opacity-50"
+          className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-white disabled:opacity-50"
         >
           {isPending ? "Refreshing…" : "Refresh"}
         </button>

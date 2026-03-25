@@ -126,8 +126,8 @@ export function EdenChatPanel({ initialPrompt, canUseAi }: EdenChatPanelProps) {
             transition={{ duration: 0.3 }}
             className="flex flex-1 flex-col items-center justify-center py-16 text-center"
           >
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#14989a]/30 bg-[#14989a]/10">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#14989a]">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#2dd4bf]/30 bg-[#2dd4bf]/10">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#2dd4bf]">
                 <path d="M12 3C6.477 3 2 6.925 2 11.75c0 2.282.997 4.35 2.629 5.9L3 21l4.243-1.5C8.605 20.133 10.255 20.5 12 20.5c5.523 0 10-3.925 10-8.75S17.523 3 12 3z" />
               </svg>
             </div>
@@ -153,7 +153,7 @@ export function EdenChatPanel({ initialPrompt, canUseAi }: EdenChatPanelProps) {
                     key={s}
                     type="button"
                     onClick={() => handleSend(s)}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/60 transition hover:border-[#14989a]/40 hover:bg-[#14989a]/10 hover:text-white"
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/60 transition hover:border-[#2dd4bf]/40 hover:bg-[#2dd4bf]/10 hover:text-white"
                   >
                     {s}
                   </button>
@@ -181,12 +181,12 @@ export function EdenChatPanel({ initialPrompt, canUseAi }: EdenChatPanelProps) {
                   <div
                     className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "ml-auto border border-[#14989a]/30 bg-[#14989a]/15 text-white"
-                        : "border border-white/8 bg-white/[0.05] text-white/90"
+                        ? "ml-auto border border-[#2dd4bf]/30 bg-[#2dd4bf]/15 text-white"
+                        : "border border-[rgba(45,212,191,0.08)] bg-white/[0.03] text-white/90"
                     }`}
                   >
                     {msg.role === "eden" && (
-                      <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[#14989a]">Eden</p>
+                      <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[#2dd4bf]">Eden</p>
                     )}
                     <p className="whitespace-pre-wrap">{msg.text}</p>
                   </div>
@@ -205,13 +205,13 @@ export function EdenChatPanel({ initialPrompt, canUseAi }: EdenChatPanelProps) {
               animate={{ opacity: 1 }}
               className="flex justify-start"
             >
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] px-4 py-3">
-                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#14989a]">Eden</p>
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-4 py-3">
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#2dd4bf]">Eden</p>
                 <div className="mt-2 flex gap-1.5">
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
-                      className="h-1.5 w-1.5 rounded-full bg-[#14989a]/50"
+                      className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf]/50"
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
                     />
@@ -233,7 +233,7 @@ export function EdenChatPanel({ initialPrompt, canUseAi }: EdenChatPanelProps) {
 
       {/* Input area */}
       <div className="mt-4 shrink-0">
-        <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] focus-within:border-[#14989a]/40 focus-within:ring-2 focus-within:ring-[#14989a]/15 transition">
+        <div className="relative rounded-2xl border border-white/10 bg-white/[0.05] focus-within:border-[#2dd4bf]/40 focus-within:ring-2 focus-within:ring-[#2dd4bf]/15 transition">
           <textarea
             ref={inputRef}
             value={input}
@@ -248,7 +248,7 @@ export function EdenChatPanel({ initialPrompt, canUseAi }: EdenChatPanelProps) {
             type="button"
             onClick={() => handleSend(input)}
             disabled={isPending || !input.trim() || !canUseAi}
-            className="absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-xl border border-[#14989a]/40 bg-[#14989a]/20 text-[#14989a] transition hover:bg-[#14989a]/30 disabled:cursor-not-allowed disabled:opacity-30"
+            className="absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-xl border border-[#2dd4bf]/40 bg-[#2dd4bf]/20 text-[#2dd4bf] transition hover:bg-[#2dd4bf]/30 disabled:cursor-not-allowed disabled:opacity-30"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" />
@@ -295,7 +295,7 @@ function ResultCards({ result }: { result: EdenAiRouteResult }) {
           {businesses.map((biz) => (
             <div
               key={biz.id}
-              className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2"
+              className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2"
             >
               <p className="text-sm font-semibold text-white">{biz.name}</p>
               <p className="mt-0.5 text-xs text-white/40">{biz.summary}</p>
@@ -313,10 +313,10 @@ function IdeaCard({ idea }: { idea: EdenAiIdeaResult }) {
     : `/business/create?idea=${encodeURIComponent(idea.title)}`;
 
   return (
-    <div className="rounded-2xl border border-[#14989a]/25 bg-[#14989a]/[0.07] p-4">
+    <div className="rounded-2xl border border-[#2dd4bf]/25 bg-[#2dd4bf]/[0.07] p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
-          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#14989a]/70">Idea</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#2dd4bf]/70">Idea</p>
           <p className="mt-1 font-semibold text-white">{idea.title}</p>
           <p className="mt-1 text-sm text-white/50">{idea.description}</p>
         </div>
@@ -324,12 +324,12 @@ function IdeaCard({ idea }: { idea: EdenAiIdeaResult }) {
       <div className="mt-3 flex gap-2">
         <Link
           href={buildHref}
-          className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#14989a]/30"
+          className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2dd4bf]/30"
         >
           Build this idea →
         </Link>
         {idea.projectArtifact?.suggestedAgents && idea.projectArtifact.suggestedAgents.length > 0 && (
-          <div className="flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2 text-xs text-white/40">
+          <div className="flex items-center gap-1.5 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2 text-xs text-white/40">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="3" />
               <path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.5-6.5-1.5 1.5m-9 9L4.5 19.5m0-15L6 6m12 12-1.5-1.5" />
@@ -346,14 +346,14 @@ function ServiceCard({ service }: { service: EdenAiServiceResult }) {
   return (
     <Link
       href={`/services/${service.id}`}
-      className="block rounded-xl border border-white/8 bg-white/[0.04] p-3 transition hover:border-white/15"
+      className="block rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3 transition hover:border-white/15"
     >
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-white">{service.title}</p>
           <p className="mt-0.5 text-xs text-white/40">{service.description}</p>
         </div>
-        <span className="shrink-0 rounded-full border border-white/8 bg-white/[0.05] px-2 py-0.5 text-[11px] text-white/40">
+        <span className="shrink-0 rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-2 py-0.5 text-[11px] text-white/40">
           {service.pricingLabel}
         </span>
       </div>

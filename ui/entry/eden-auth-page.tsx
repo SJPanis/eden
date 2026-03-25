@@ -680,7 +680,7 @@ export function EdenAuthPage({
                 className="w-full rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
                   background:
-                    "linear-gradient(135deg, rgba(45,212,191,0.85) 0%, rgba(20,152,154,0.9) 100%)",
+                    "linear-gradient(135deg, rgba(45,212,191,0.85) 0%, rgba(45,212,191,0.9) 100%)",
                   border: "1px solid rgba(45,212,191,0.4)",
                   boxShadow: "0 4px 20px -4px rgba(45,212,191,0.3)",
                 }}

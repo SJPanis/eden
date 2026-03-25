@@ -58,8 +58,8 @@ export function CreditsTopUpPackageSelector({
               onClick={() => onSelect(pkg.id)}
               className={`rounded-2xl border p-4 text-left transition-colors ${
                 isSelected
-                  ? "border-[#14989a]/50 bg-[#14989a]/20 shadow-[0_16px_32px_-24px_rgba(19,33,68,0.28)]"
-                  : "border-white/8 bg-white/[0.06] hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                  ? "border-[#2dd4bf]/50 bg-[#2dd4bf]/20 shadow-[0_16px_32px_-24px_rgba(19,33,68,0.28)]"
+                  : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]"
               }`}
               aria-pressed={isSelected}
             >
@@ -82,7 +82,7 @@ export function CreditsTopUpPackageSelector({
                     </span>
                   ) : null}
                   {isSelected ? (
-                    <span className="rounded-full border border-[#14989a]/50 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
+                    <span className="rounded-full border border-[#2dd4bf]/50 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
                       Selected
                     </span>
                   ) : null}
@@ -100,7 +100,7 @@ export function CreditsTopUpPackageSelector({
         })}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+      <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -109,7 +109,7 @@ export function CreditsTopUpPackageSelector({
             <p className="mt-2 text-sm font-semibold text-white">{selectedPackage.title}</p>
             <p className="mt-1 text-xs text-white/50">{selectedPackage.chargeLabel}</p>
           </div>
-          <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
+          <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs text-white/50">
             Ready
           </span>
         </div>
@@ -125,7 +125,7 @@ export function CreditsTopUpPackageSelector({
               Recommended for most buyers
             </span>
           ) : null}
-          <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
+          <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
             Selected for next top-up
           </span>
         </div>

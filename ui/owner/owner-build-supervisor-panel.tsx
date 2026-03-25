@@ -172,7 +172,7 @@ export function OwnerBuildSupervisorPanel({
   }
 
   return (
-    <section className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+    <section className="rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -202,7 +202,7 @@ export function OwnerBuildSupervisorPanel({
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
@@ -212,7 +212,7 @@ export function OwnerBuildSupervisorPanel({
                   {initialState.reviewModeLabel}
                 </p>
               </div>
-              <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                 {initialState.trackedHumanActions} human actions tracked
               </span>
             </div>
@@ -252,7 +252,7 @@ export function OwnerBuildSupervisorPanel({
             </dl>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
@@ -281,7 +281,7 @@ export function OwnerBuildSupervisorPanel({
                 {initialState.nextRecommendedTask.acceptanceCriteria.map((criterion) => (
                   <div
                     key={criterion}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white/50"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white/50"
                   >
                     {criterion}
                   </div>
@@ -296,13 +296,13 @@ export function OwnerBuildSupervisorPanel({
                 Boolean(initialState.unavailableReason)
               }
               onClick={handlePreparePacket}
-              className="mt-4 rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-4 rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending ? "Working..." : "Prepare Codex packet"}
             </button>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Blocker state
             </p>
@@ -327,7 +327,7 @@ export function OwnerBuildSupervisorPanel({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
@@ -359,7 +359,7 @@ export function OwnerBuildSupervisorPanel({
                 .map((entry) => (
                   <div
                     key={entry}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white/50"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white/50"
                   >
                     {entry}
                   </div>
@@ -367,7 +367,7 @@ export function OwnerBuildSupervisorPanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Last completed task
             </p>
@@ -380,7 +380,7 @@ export function OwnerBuildSupervisorPanel({
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Ingest completed result
             </p>
@@ -390,7 +390,7 @@ export function OwnerBuildSupervisorPanel({
               memory sections.
             </p>
             <div className="mt-4 space-y-3">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Prepared task
                 </p>
@@ -405,7 +405,7 @@ export function OwnerBuildSupervisorPanel({
                 <select
                   value={resultStatus}
                   onChange={(event) => setResultStatus(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                  className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
                 >
                   <option value="completed">Completed</option>
                   <option value="blocked">Blocked</option>
@@ -420,7 +420,7 @@ export function OwnerBuildSupervisorPanel({
                   value={summary}
                   onChange={(event) => setSummary(event.target.value)}
                   rows={4}
-                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                  className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
                   placeholder="Summarize what Codex completed or why it stopped."
                 />
               </label>
@@ -432,7 +432,7 @@ export function OwnerBuildSupervisorPanel({
                   value={verification}
                   onChange={(event) => setVerification(event.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                  className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
                   placeholder="One verification item per line."
                 />
               </label>
@@ -444,7 +444,7 @@ export function OwnerBuildSupervisorPanel({
                   value={blockers}
                   onChange={(event) => setBlockers(event.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                  className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
                   placeholder="One blocker per line if the task did not complete cleanly."
                 />
               </label>
@@ -456,7 +456,7 @@ export function OwnerBuildSupervisorPanel({
                   value={humanActions}
                   onChange={(event) => setHumanActions(event.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                  className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
                   placeholder="One human-required action per line if owner follow-up is needed."
                 />
               </label>
@@ -465,7 +465,7 @@ export function OwnerBuildSupervisorPanel({
               type="button"
               disabled={isPending || !preparedTaskId || !summary.trim()}
               onClick={handleIngestResult}
-              className="mt-4 rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-4 rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending ? "Working..." : "Ingest task result"}
             </button>

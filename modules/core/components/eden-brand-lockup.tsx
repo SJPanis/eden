@@ -46,7 +46,7 @@ export function EdenBrandLockup({
     <div className={`flex items-center ${c.gap} ${className}`.trim()}>
       {/* Logo mark container */}
       <div
-        className={`flex shrink-0 items-center justify-center overflow-hidden border border-[rgba(20,152,154,0.35)] bg-[radial-gradient(circle_at_35%_25%,rgba(20,152,154,0.18),rgba(13,31,48,0.97))] shadow-[0_4px_20px_-6px_rgba(20,152,154,0.45)] ${c.mark}`}
+        className={`flex shrink-0 items-center justify-center overflow-hidden border border-[rgba(45,212,191,0.35)] bg-[radial-gradient(circle_at_35%_25%,rgba(45,212,191,0.18),rgba(13,31,48,0.97))] shadow-[0_4px_20px_-6px_rgba(45,212,191,0.45)] ${c.mark}`}
       >
         <EdenLogoMark size={c.logoSize} />
       </div>

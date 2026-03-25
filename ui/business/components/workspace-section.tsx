@@ -22,7 +22,7 @@ export function WorkspaceSection({
   return (
     <section
       id={id}
-      className={`rounded-[28px] border border-white/8 bg-white/[0.06] p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5 ${
+      className={`rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5 ${
         className ?? ""
       }`}
     >

@@ -80,21 +80,18 @@ a {
 
 /* Dark glass card — used for nav header, role heading, main content wrapper */
 .eden-shell {
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.025) 100%
-  );
+  border: 1px solid rgba(45, 212, 191, 0.12);
+  background: rgba(13, 30, 46, 0.82);
   border-radius: var(--eden-radius-lg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* Inner content cards — light glass on dark, for service/business/project cards */
+/* Inner content cards — glassmorphism on dark, for service/business/project cards */
 .eden-card {
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(45, 212, 191, 0.09);
+  background: rgba(255, 255, 255, 0.035);
   border-radius: var(--eden-radius);
   transition: border-color var(--eden-transition), transform var(--eden-transition),
     box-shadow var(--eden-transition);
@@ -104,7 +101,7 @@ a {
 .eden-card-hover:hover {
   border-color: rgba(45, 212, 191, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -8px rgba(45, 212, 191, 0.2);
+  box-shadow: 0 8px 24px -8px rgba(45, 212, 191, 0.22);
 }
 
 /* Teal accent pill chip */

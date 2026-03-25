@@ -155,8 +155,8 @@ function ConsumerTopBarActions({
         onClick={onToggleSaved}
         className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors ${
           savedOnly
-            ? "border-[#14989a]/50 bg-[#14989a]/15 text-white"
-            : "border-white/8 bg-white/[0.06] text-white/50 hover:border-[#14989a]/50 hover:text-white"
+            ? "border-[#2dd4bf]/50 bg-[#2dd4bf]/15 text-white"
+            : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50 hover:border-[#2dd4bf]/50 hover:text-white"
         }`}
       >
         Saved Businesses ({savedBusinessCount})
@@ -967,7 +967,12 @@ export function ConsumerHomePanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut", delay: 0.01 }}
-        className="rounded-[28px] border border-white/8 bg-white/[0.05] p-5"
+        className="rounded-[28px] p-5"
+        style={{
+          border: "1px solid rgba(45,212,191,0.12)",
+          background: "rgba(13,30,46,0.6)",
+          backdropFilter: "blur(12px)",
+        }}
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -979,7 +984,7 @@ export function ConsumerHomePanel({
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
               Public marketplace
             </p>
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+            <h1 className="mt-4 text-2xl tracking-tight text-white md:text-3xl" style={{ fontFamily: "var(--font-serif)" }}>
               Explore published services with visible pricing.
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/50">
@@ -992,10 +997,10 @@ export function ConsumerHomePanel({
               <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-400">
                 Published and priced
               </span>
-              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.visiblePricing}
               </span>
-              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.creditsOnlyBilling}
               </span>
             </div>
@@ -1007,14 +1012,28 @@ export function ConsumerHomePanel({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <motion.div
+          className="mt-4 grid gap-3 md:grid-cols-3"
+          initial="hidden"
+          animate="visible"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+        >
           {consumerHeaderSummaryCards.map((item) => (
-            <div key={item.id} className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+            <motion.div
+              key={item.id}
+              variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.35 }}
+              className="rounded-2xl p-4"
+              style={{
+                border: "1px solid rgba(45,212,191,0.1)",
+                background: "rgba(255,255,255,0.035)",
+              }}
+            >
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
               <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </motion.section>
 
       <motion.section
@@ -1034,7 +1053,7 @@ export function ConsumerHomePanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut", delay: 0.04 }}
-        className="rounded-[28px] border border-white/8 bg-white/[0.05] p-5"
+        className="rounded-[28px] p-5" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.55)", backdropFilter: "blur(10px)" }}
       >
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -1048,7 +1067,7 @@ export function ConsumerHomePanel({
               Eden&apos;s consumer loop is simple: discover a published service, check the visible Eden Leaf's price, top up only if needed, and run the service through the wallet flow.
             </p>
           </div>
-          <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+          <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
             First-time clarity
           </span>
         </div>
@@ -1056,7 +1075,7 @@ export function ConsumerHomePanel({
           {consumerLaunchClarityCards.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
             >
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 {item.label}
@@ -1067,7 +1086,7 @@ export function ConsumerHomePanel({
           ))}
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1091,7 +1110,7 @@ export function ConsumerHomePanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#14989a]/50 bg-white/[0.05] p-4">
+          <div className="rounded-2xl border border-[#2dd4bf]/50 bg-white/[0.05] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Next step right now
             </p>
@@ -1101,7 +1120,7 @@ export function ConsumerHomePanel({
             <p className="mt-2 text-sm leading-6 text-white/50">
               {consumerNextStepSummary.detail}
             </p>
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+            <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">Recommended action</p>
               <p className="mt-2 text-sm font-semibold text-white">
                 {consumerNextStepSummary.cue}
@@ -1123,7 +1142,7 @@ export function ConsumerHomePanel({
             onSubmit={(event) => {
               void handleAskEden(event);
             }}
-            className="mt-5 rounded-2xl border border-white/8 bg-white/[0.06] p-3 md:p-4"
+            className="mt-5 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3 md:p-4"
           >
             <div className="flex flex-col gap-2 md:flex-row">
               <input
@@ -1131,12 +1150,12 @@ export function ConsumerHomePanel({
                 value={promptInput}
                 onChange={(event) => setPromptInput(event.target.value)}
                 placeholder="What's on your mind?"
-                className="w-full rounded-xl border border-white/8 bg-eden-bg px-4 py-3 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-eden-ring/40 md:text-base"
+                className="w-full rounded-xl border border-white/8 bg-eden-bg px-4 py-3 text-sm text-white outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-eden-ring/40 md:text-base"
               />
               <button
                 type="submit"
                 disabled={isThinking}
-                className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isThinking ? "Routing..." : "Ask Eden"}
               </button>
@@ -1154,7 +1173,7 @@ export function ConsumerHomePanel({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.32, ease: "easeOut" }}
-              className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.06] p-4 md:p-5"
+              className="overflow-hidden rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 md:p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-accent">
@@ -1169,13 +1188,13 @@ export function ConsumerHomePanel({
 
               <div className="mt-4 space-y-3">
                 {pendingPrompt || latestTurn ? (
-                  <div className="ml-auto max-w-3xl rounded-xl border border-white/8 bg-[#14989a]/15/55 p-3 text-left">
+                  <div className="ml-auto max-w-3xl rounded-xl border border-white/8 bg-[#2dd4bf]/15/55 p-3 text-left">
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">You</p>
                     <p className="mt-1 text-sm text-white">{pendingPrompt || latestTurn?.prompt}</p>
                   </div>
                 ) : null}
 
-                <div className="mr-auto max-w-4xl rounded-xl border border-white/8 bg-white/[0.06] p-3 text-left">
+                <div className="mr-auto max-w-4xl rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3 text-left">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
                     Ask Eden
                   </p>
@@ -1198,7 +1217,7 @@ export function ConsumerHomePanel({
                         {route.replace("_", " ")}
                       </span>
                     ))}
-                    <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-xs text-white/50">
+                    <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-xs text-white/50">
                       Grounding: {latestTurn.response.groundingMode}
                     </span>
                   </div>
@@ -1210,7 +1229,7 @@ export function ConsumerHomePanel({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="mt-4 rounded-lg border border-white/8 bg-[#14989a]/10 px-3 py-2 text-sm text-white"
+                      className="mt-4 rounded-lg border border-white/8 bg-[#2dd4bf]/10 px-3 py-2 text-sm text-white"
                     >
                       {assistantStateText}
                     </motion.p>
@@ -1226,7 +1245,7 @@ export function ConsumerHomePanel({
                           onClick={() => {
                             void handleAskEdenAction(action);
                           }}
-                          className="rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {action.label}
                         </button>
@@ -1248,7 +1267,7 @@ export function ConsumerHomePanel({
                   ) : null}
 
                   <div className="mt-5 grid gap-3 xl:grid-cols-3">
-                    <section className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <h3 className="text-sm font-semibold text-white">
@@ -1313,7 +1332,7 @@ export function ConsumerHomePanel({
                       </motion.div>
                     </section>
 
-                    <section className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <h3 className="text-sm font-semibold text-white">Business matches</h3>
@@ -1355,7 +1374,7 @@ export function ConsumerHomePanel({
                       </motion.div>
                     </section>
 
-                    <section className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <h3 className="text-sm font-semibold text-white">
@@ -1397,7 +1416,7 @@ export function ConsumerHomePanel({
                     </section>
 
                     <section className="xl:col-span-3">
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                      <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                           <div>
                             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1415,7 +1434,7 @@ export function ConsumerHomePanel({
                             {latestTurn.response.lanes.map((route) => (
                               <span
                                 key={`preview-${route}`}
-                                className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
+                                className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
                               >
                                 {route.replace("_", " ")}
                               </span>
@@ -1433,7 +1452,7 @@ export function ConsumerHomePanel({
                               transition={{ duration: 0.22, ease: "easeOut" }}
                               className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.95fr)]"
                             >
-                              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                              <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                   <div>
                                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1470,14 +1489,14 @@ export function ConsumerHomePanel({
                                         selectedResultDetails.href,
                                       )
                                     }
-                                    className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
+                                    className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
                                   >
                                     {selectedResultDetails.actionLabel}
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => setSelectedResult(null)}
-                                    className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                                    className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#2dd4bf]/50 hover:text-white"
                                   >
                                     Clear selection
                                   </button>
@@ -1492,7 +1511,7 @@ export function ConsumerHomePanel({
                                         ? "border-emerald-500/30 bg-emerald-500/10/70"
                                         : selectedResultDetails.guidanceTone === "warning"
                                           ? "border-amber-500/25 bg-amber-500/10/70"
-                                          : "border-white/8 bg-white/[0.06]"
+                                          : "border-[rgba(45,212,191,0.09)] bg-white/[0.035]"
                                     }`}
                                   >
                                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1509,7 +1528,7 @@ export function ConsumerHomePanel({
                                         {selectedResultDetails.guidanceCards.map((card) => (
                                           <div
                                             key={`${selectedResultDetails.id}-${card.label}`}
-                                            className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
+                                            className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
                                           >
                                             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                                               {card.label}
@@ -1526,7 +1545,7 @@ export function ConsumerHomePanel({
                                     ) : null}
                                   </div>
                                 ) : null}
-                                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                     What this unlocks
                                   </p>
@@ -1534,7 +1553,7 @@ export function ConsumerHomePanel({
                                     {selectedResultDetails.supportingText}
                                   </p>
                                 </div>
-                                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                     Routing signals
                                   </p>
@@ -1555,7 +1574,7 @@ export function ConsumerHomePanel({
                                       ))}
                                   </div>
                                 </div>
-                                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                                     Grounding mode
                                   </p>
@@ -1577,7 +1596,7 @@ export function ConsumerHomePanel({
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -12 }}
                               transition={{ duration: 0.2, ease: "easeOut" }}
-                              className="mt-4 rounded-2xl border border-dashed border-white/8 bg-white/[0.06] p-4 text-sm text-white/50"
+                              className="mt-4 rounded-2xl border border-dashed border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm text-white/50"
                             >
                               Select a service, business, or idea card to inspect the grounded
                               details and next step here.
@@ -1599,7 +1618,7 @@ export function ConsumerHomePanel({
             animate="visible"
             variants={sectionVariants}
             transition={{ duration: 0.3, ease: "easeOut", delay: 0.045 }}
-            className="rounded-[24px] border border-white/8 bg-white/[0.06] p-4"
+            className="rounded-[24px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
           >
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>

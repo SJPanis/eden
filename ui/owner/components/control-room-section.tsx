@@ -22,7 +22,7 @@ export function ControlRoomSection({
   return (
     <section
       id={id}
-      className={`rounded-[28px] border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5 ${
+      className={`rounded-[28px] border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4 shadow-[0_18px_40px_-28px_rgba(19,33,68,0.28)] md:p-5 ${
         className ?? ""
       }`}
     >

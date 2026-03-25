@@ -31,8 +31,8 @@ export function OwnerReconciliationFilters({
             onClick={() => onChange(option.value)}
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors ${
               isActive
-                ? "border-[#14989a]/50 bg-eden-ink text-white"
-                : "border-white/8 bg-white/[0.06] text-white hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                ? "border-[#2dd4bf]/50 bg-eden-ink text-white"
+                : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]"
             }`}
             aria-pressed={isActive}
           >

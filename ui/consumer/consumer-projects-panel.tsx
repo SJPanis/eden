@@ -25,7 +25,7 @@ type ConsumerProjectsPanelProps = {
 const statusColors: Record<string, string> = {
   published: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
   testing: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-  draft: "border-white/8 bg-white/[0.06] text-white/50",
+  draft: "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50",
 };
 
 export function ConsumerProjectsPanel({
@@ -55,13 +55,13 @@ export function ConsumerProjectsPanel({
   return (
     <div className="flex flex-col gap-6">
       {/* Identity header */}
-      <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(20,152,154,0.10),rgba(13,31,48,0.6)_60%,rgba(10,24,37,0.8))] p-6">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(45,212,191,0.10),rgba(13,31,48,0.6)_60%,rgba(10,24,37,0.8))] p-6">
         {/* Dot-grid background pattern */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage:
-              "radial-gradient(circle, #14989a 1px, transparent 1px)",
+              "radial-gradient(circle, #2dd4bf 1px, transparent 1px)",
             backgroundSize: "28px 28px",
           }}
         />
@@ -76,14 +76,14 @@ export function ConsumerProjectsPanel({
             <p className="mt-1 text-sm text-white/50">
               @{session.user.username}
               {isOwner ? (
-                <span className="ml-2 rounded-full border border-[rgba(20,152,154,0.3)] bg-[rgba(20,152,154,0.08)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-accent">
+                <span className="ml-2 rounded-full border border-[rgba(45,212,191,0.3)] bg-[rgba(45,212,191,0.08)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-eden-accent">
                   Platform Owner
                 </span>
               ) : null}
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-center">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-3 text-center">
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/50">
                 Wallet
               </p>
@@ -91,7 +91,7 @@ export function ConsumerProjectsPanel({
                 {formatLeaves(session.user.edenBalanceCredits)}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-center">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-3 text-center">
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/50">
                 Projects
               </p>
@@ -104,7 +104,7 @@ export function ConsumerProjectsPanel({
       </div>
 
       {/* Project graph area */}
-      <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6">
+      <div className="rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
@@ -118,7 +118,7 @@ export function ConsumerProjectsPanel({
           </div>
           <Link
             href="/business/create"
-            className="shrink-0 rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
+            className="shrink-0 rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
           >
             + New project
           </Link>
@@ -129,18 +129,18 @@ export function ConsumerProjectsPanel({
             {/* Connection spine */}
             <div className="relative">
               {/* Vertical spine line */}
-              <div className="absolute left-5 top-5 bottom-5 w-px bg-[linear-gradient(to_bottom,rgba(20,152,154,0.3),rgba(20,152,154,0.08))]" />
+              <div className="absolute left-5 top-5 bottom-5 w-px bg-[linear-gradient(to_bottom,rgba(45,212,191,0.3),rgba(45,212,191,0.08))]" />
 
               <div className="flex flex-col gap-4">
                 {allBusinesses.map((biz, index) => (
                   <div key={biz.id} className="flex items-start gap-4">
                     {/* Node dot on spine */}
                     <div className="relative z-10 mt-5 flex h-10 w-10 shrink-0 items-center justify-center">
-                      <div className="h-3 w-3 rounded-full border-2 border-eden-accent bg-white/[0.06] shadow-[0_0_8px_rgba(20,152,154,0.4)]" />
+                      <div className="h-3 w-3 rounded-full border-2 border-eden-accent bg-white/[0.06] shadow-[0_0_8px_rgba(45,212,191,0.4)]" />
                     </div>
 
                     {/* Business card */}
-                    <div className="min-w-0 flex-1 rounded-[20px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(20,152,154,0.05),rgba(13,31,48,0.5))] p-4 transition-all hover:border-[rgba(20,152,154,0.25)] hover:shadow-[0_4px_20px_-8px_rgba(20,152,154,0.2)]">
+                    <div className="min-w-0 flex-1 rounded-[20px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(45,212,191,0.05),rgba(13,31,48,0.5))] p-4 transition-all hover:border-[rgba(45,212,191,0.25)] hover:shadow-[0_4px_20px_-8px_rgba(45,212,191,0.2)]">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
@@ -158,7 +158,7 @@ export function ConsumerProjectsPanel({
                         <div className="flex shrink-0 flex-wrap gap-2">
                           <Link
                             href="/business"
-                            className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:border-[#14989a]/50"
+                            className="rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:border-[#2dd4bf]/50"
                           >
                             Open workspace
                           </Link>
@@ -177,7 +177,7 @@ export function ConsumerProjectsPanel({
                         </div>
                         <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-eden-edge">
                           <div
-                            className="h-full rounded-full bg-[linear-gradient(to_right,rgba(20,152,154,0.6),rgba(20,152,154,1))] transition-all"
+                            className="h-full rounded-full bg-[linear-gradient(to_right,rgba(45,212,191,0.6),rgba(45,212,191,1))] transition-all"
                             style={{ width: `${biz.publishReadinessPercent}%` }}
                           />
                         </div>
@@ -185,10 +185,10 @@ export function ConsumerProjectsPanel({
 
                       {/* Metadata chips */}
                       <div className="mt-3 flex flex-wrap gap-1.5">
-                        <span className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/50">
+                        <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2 py-0.5 text-[10px] text-white/50">
                           {biz.visibility}
                         </span>
-                        <span className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/50">
+                        <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2 py-0.5 text-[10px] text-white/50">
                           {formatLeaves(biz.creditBalanceCredits)} workspace balance
                         </span>
                       </div>
@@ -199,14 +199,14 @@ export function ConsumerProjectsPanel({
             </div>
           </div>
         ) : (
-          <div className="mt-6 rounded-2xl border border-dashed border-white/8 bg-white/[0.04] p-8 text-center">
+          <div className="mt-6 rounded-2xl border border-dashed border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-8 text-center">
             <p className="text-sm font-medium text-white">No projects yet</p>
             <p className="mt-1 text-sm text-white/50">
               Create your first service and publish it to the Eden marketplace.
             </p>
             <Link
               href="/business/create"
-              className="mt-4 inline-block rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
+              className="mt-4 inline-block rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
             >
               Start building
             </Link>
@@ -216,13 +216,13 @@ export function ConsumerProjectsPanel({
 
       {/* Platform Control — owner only */}
       {isOwner ? (
-        <div className="relative overflow-hidden rounded-[28px] border border-[rgba(20,152,154,0.35)] bg-[linear-gradient(135deg,rgba(16,37,58,0.97),rgba(20,152,154,0.15)_80%,rgba(16,37,58,0.95))] p-6">
+        <div className="relative overflow-hidden rounded-[28px] border border-[rgba(45,212,191,0.35)] bg-[linear-gradient(135deg,rgba(16,37,58,0.97),rgba(45,212,191,0.15)_80%,rgba(16,37,58,0.95))] p-6">
           {/* Dot-grid background */}
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.07]"
             style={{
               backgroundImage:
-                "radial-gradient(circle, #14989a 1px, transparent 1px)",
+                "radial-gradient(circle, #2dd4bf 1px, transparent 1px)",
               backgroundSize: "24px 24px",
             }}
           />
@@ -232,7 +232,7 @@ export function ConsumerProjectsPanel({
           <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-[rgba(20,152,154,0.5)] bg-[rgba(20,152,154,0.15)] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                <span className="rounded-full border border-[rgba(45,212,191,0.5)] bg-[rgba(45,212,191,0.15)] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Owner only
                 </span>
               </div>
@@ -277,7 +277,7 @@ export function ConsumerProjectsPanel({
       ) : null}
 
       {/* Contribution section */}
-      <div className="rounded-[28px] border border-white/8 bg-white/[0.06] p-6">
+      <div className="rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">
@@ -292,7 +292,7 @@ export function ConsumerProjectsPanel({
               based on their score.
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-white/8 bg-white/[0.05] px-3 py-1 text-xs text-white/50">
+          <span className="shrink-0 rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-3 py-1 text-xs text-white/50">
             Coming soon
           </span>
         </div>
@@ -302,7 +302,7 @@ export function ConsumerProjectsPanel({
             { label: "Pool share (est.)", value: "—", note: "Based on score weight" },
             { label: "Next distribution", value: "—", note: "Current period status" },
           ].map((item) => (
-            <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+            <div key={item.label} className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
               <p className="text-[10px] uppercase tracking-[0.12em] text-white/50">{item.label}</p>
               <p className="mt-1.5 text-base font-semibold text-white">{item.value}</p>
               <p className="mt-1 text-xs text-white/50">{item.note}</p>

@@ -215,7 +215,7 @@ export function BusinessCreationFlow({
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="overflow-hidden rounded-[32px] border border-white/8 bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(16,37,58,0.04)_50%,rgba(255,255,255,0.04))] p-5 md:p-6"
+        className="overflow-hidden rounded-[32px] border border-white/8 bg-[linear-gradient(135deg,rgba(45,212,191,0.08),rgba(16,37,58,0.04)_50%,rgba(255,255,255,0.04))] p-5 md:p-6"
       >
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
           <div>
@@ -231,7 +231,7 @@ export function BusinessCreationFlow({
               Workspace with the new context active.
             </p>
             {initialIdeaTitle ? (
-              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Ask Eden seed
                 </p>
@@ -245,7 +245,7 @@ export function BusinessCreationFlow({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Active session
               </p>
@@ -255,7 +255,7 @@ export function BusinessCreationFlow({
                 business-role test account before opening the workspace.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Flow
               </p>
@@ -278,7 +278,7 @@ export function BusinessCreationFlow({
             animate="animate"
             exit="exit"
             transition={{ duration: 0.24, ease: "easeOut" }}
-            className="rounded-[28px] border border-white/8 bg-white/[0.06] p-5"
+            className="rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-5"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -302,7 +302,7 @@ export function BusinessCreationFlow({
               <button
                 type="button"
                 onClick={() => setShowPlanImport((v) => !v)}
-                className="flex w-full items-center justify-between rounded-2xl border border-[#14989a]/30 bg-[#14989a]/8 px-4 py-3 text-left transition-colors hover:bg-[#14989a]/12"
+                className="flex w-full items-center justify-between rounded-2xl border border-[#2dd4bf]/30 bg-[#2dd4bf]/8 px-4 py-3 text-left transition-colors hover:bg-[#2dd4bf]/12"
               >
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -312,7 +312,7 @@ export function BusinessCreationFlow({
                     Paste a business plan, idea notes, or brief — Eden will pre-fill the form fields
                   </p>
                 </div>
-                <span className="ml-3 shrink-0 rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+                <span className="ml-3 shrink-0 rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                   {showPlanImport ? "Close" : "Paste plan"}
                 </span>
               </button>
@@ -327,7 +327,7 @@ export function BusinessCreationFlow({
                     transition={{ duration: 0.22, ease: "easeOut" }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-3 rounded-2xl border border-[#14989a]/25 bg-[#14989a]/8 p-4">
+                    <div className="mt-3 rounded-2xl border border-[#2dd4bf]/25 bg-[#2dd4bf]/8 p-4">
                       <p className="text-xs text-white/50">
                         Paste anything — a product description, pitch deck notes, or bullet points. Eden will extract the name, description, tags, audience, and monetization model.
                       </p>
@@ -336,21 +336,21 @@ export function BusinessCreationFlow({
                         onChange={(e) => setPlanText(e.target.value)}
                         rows={7}
                         placeholder={"Business: Northstar Studio\nDescription: An AI-powered habit tracking platform...\nTags: AI, habit, productivity\nTarget audience: Busy professionals\nMonetization: Subscription"}
-                        className="mt-3 w-full rounded-xl border border-white/8 bg-[#0d1f30] px-4 py-3 text-sm text-white/80 placeholder-white/25 outline-none transition focus:border-[#14989a]/50 focus:ring-1 focus:ring-[#14989a]/30"
+                        className="mt-3 w-full rounded-xl border border-white/8 bg-[#0d1f30] px-4 py-3 text-sm text-white/80 placeholder-white/25 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-1 focus:ring-[#2dd4bf]/30"
                       />
                       <div className="mt-3 flex gap-3">
                         <button
                           type="button"
                           onClick={handleImportPlan}
                           disabled={!planText.trim()}
-                          className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-40"
+                          className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           Extract &amp; fill form
                         </button>
                         <button
                           type="button"
                           onClick={() => { setShowPlanImport(false); setPlanText(""); }}
-                          className="rounded-xl border border-white/8 bg-white/[0.04] px-4 py-2 text-sm text-white/50 transition-colors hover:text-white"
+                          className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-4 py-2 text-sm text-white/50 transition-colors hover:text-white"
                         >
                           Cancel
                         </button>
@@ -418,7 +418,7 @@ export function BusinessCreationFlow({
                     {tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50"
+                        className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50"
                       >
                         {tag}
                       </span>
@@ -480,7 +480,7 @@ export function BusinessCreationFlow({
                 onClick={() =>
                   router.push(initialSource === "business_dashboard" ? "/business" : "/consumer")
                 }
-                className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
+                className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
               >
                 {initialSource === "business_dashboard" ? "Back to workspace" : "Back to Ask Eden"}
               </button>
@@ -494,7 +494,7 @@ export function BusinessCreationFlow({
             animate="animate"
             exit="exit"
             transition={{ duration: 0.24, ease: "easeOut" }}
-            className="rounded-[28px] border border-white/8 bg-white/[0.06] p-5"
+            className="rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-5"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -537,7 +537,7 @@ export function BusinessCreationFlow({
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-[#14989a]/25 bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(13,31,48,0.5))] p-4">
+                <div className="rounded-2xl border border-[#2dd4bf]/25 bg-[linear-gradient(135deg,rgba(45,212,191,0.08),rgba(13,31,48,0.5))] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Workspace handoff
                   </p>
@@ -552,7 +552,7 @@ export function BusinessCreationFlow({
                   </ul>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Source
                   </p>
@@ -587,7 +587,7 @@ export function BusinessCreationFlow({
                 type="button"
                 disabled={isPending}
                 onClick={() => setStep(1)}
-                className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
               >
                 Back to details
               </button>
@@ -651,7 +651,7 @@ function StepPill({ label, active }: StepPillProps) {
       className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.12em] ${
         active
           ? "border-eden-ring bg-eden-accent-soft text-white"
-          : "border-white/8 bg-white/[0.06] text-white/50"
+          : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50"
       }`}
     >
       {label}

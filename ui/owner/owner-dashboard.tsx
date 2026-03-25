@@ -277,7 +277,7 @@ function getUserStatusClasses(status: EdenMockUserStatus) {
 function getBusinessStatusClasses(status: EdenMockBusinessStatus) {
   if (status === "published") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   if (status === "testing") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
-  return "border-white/8 bg-white/[0.06] text-white/50";
+  return "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50";
 }
 
 function getAdminStateClasses(state: "active" | "frozen" | "maintenance") {
@@ -290,7 +290,7 @@ function getReleaseStatusClasses(status: EdenMockReleaseStatus) {
   if (status === "published") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   if (status === "ready") return "border-sky-500/25 bg-sky-500/10 text-sky-300";
   if (status === "testing") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
-  return "border-white/8 bg-white/[0.06] text-white/50";
+  return "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50";
 }
 
 function getAgentStatusClasses(status: EdenMockAgentStatus) {
@@ -342,7 +342,7 @@ function getPaymentEventStatusClasses(
   status: "info" | "success" | "skipped" | "failed",
 ) {
   if (status === "success") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
-  if (status === "skipped") return "border-white/8 bg-white/[0.06] text-white/50";
+  if (status === "skipped") return "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50";
   if (status === "failed") return "border-rose-500/25 bg-rose-500/10 text-rose-300";
   return "border-sky-500/25 bg-sky-500/10 text-sky-300";
 }
@@ -356,11 +356,11 @@ function getPayoutSettlementStatusClasses(
 ) {
   if (status === "settled") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   if (status === "pending") return "border-amber-500/25 bg-amber-500/10 text-amber-300";
-  return "border-white/8 bg-white/[0.06] text-white/50";
+  return "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50";
 }
 
 function getOwnerReconciliationActionClasses() {
-  return "inline-flex rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
+  return "inline-flex rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]";
 }
 
 function formatPayoutSettlementStatus(status: "pending" | "settled" | "canceled") {
@@ -421,7 +421,13 @@ function getFallbackReleaseStatus(status: string) {
 // Compact stat cell used across all tabs
 function StatCell({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.05] p-3">
+    <div
+      className="rounded-xl p-3"
+      style={{
+        border: "1px solid rgba(45,212,191,0.1)",
+        background: "rgba(255,255,255,0.035)",
+      }}
+    >
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">{label}</p>
       <p className="mt-1.5 text-lg font-semibold tracking-tight text-white">{value}</p>
       {sub ? <p className="mt-1 text-[11px] leading-4 text-white/40">{sub}</p> : null}
@@ -446,11 +452,11 @@ function PanelHeader({ eyebrow, title, badge }: { eyebrow: string; title: string
   return (
     <div className="mb-4 flex items-center justify-between gap-3">
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">{eyebrow}</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">{eyebrow}</p>
         <p className="mt-0.5 text-sm font-semibold text-white">{title}</p>
       </div>
       {badge ? (
-        <span className="rounded-full border border-white/8 bg-white/[0.05] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">
+        <span className="rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">
           {badge}
         </span>
       ) : null}
@@ -1026,19 +1032,19 @@ export function OwnerDashboardPanel({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="rounded-2xl border border-white/8 bg-white/[0.05] px-5 py-4">
+      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.6)", backdropFilter: "blur(12px)" }}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <EdenBrandLockup size="sm" label="Eden" subtitle="Owner control room" />
             <div className="hidden h-6 w-px bg-white/10 sm:block" />
             <div className="hidden sm:block">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">Owner Layer</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Owner Layer</p>
               <p className="mt-0.5 text-sm font-semibold text-white">Mission Control</p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {adminSummaryStrip.map((item) => (
-              <div key={item.id} className="flex items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.05] px-3 py-1.5">
+              <div key={item.id} className="flex items-center gap-1.5 rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-3 py-1.5">
                 <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${item.tone}`}>{item.value}</span>
                 <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{item.label}</span>
               </div>
@@ -1048,16 +1054,27 @@ export function OwnerDashboardPanel({
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-2xl border border-white/8 bg-white/[0.04] p-1">
+      <div
+        className="flex gap-1 rounded-2xl p-1"
+        style={{ border: "1px solid rgba(45,212,191,0.1)", background: "rgba(13,30,46,0.55)" }}
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 rounded-xl px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-all ${
               activeTab === tab.id
-                ? "bg-[#14989a]/20 text-[#14989a] shadow-[0_0_0_1px_rgba(20,152,154,0.35)]"
-                : "text-white/40 hover:bg-white/[0.04] hover:text-white/70"
+                ? "text-[#2dd4bf]"
+                : "text-white/40 hover:text-white/70"
             }`}
+            style={
+              activeTab === tab.id
+                ? {
+                    background: "rgba(45,212,191,0.15)",
+                    boxShadow: "0 0 0 1px rgba(45,212,191,0.35)",
+                  }
+                : undefined
+            }
           >
             {tab.label}
           </button>
@@ -1089,11 +1106,11 @@ export function OwnerDashboardPanel({
 
             {/* Signals + health */}
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.72fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Owner Signals" title="Live signal feed" />
                 <div className="grid gap-2 sm:grid-cols-3">
                   {ownerSignalsDisplay.map((signal) => (
-                    <div key={signal.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div key={signal.label} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                       <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">{signal.label}</p>
                       <p className="mt-1.5 text-base font-semibold text-white">{signal.value}</p>
                       <p className="mt-1 text-[11px] leading-4 text-white/40">{signal.detail}</p>
@@ -1101,11 +1118,11 @@ export function OwnerDashboardPanel({
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Health Monitors" title="System status" badge={`${systemHealthChecks.length} checks`} />
                 <div className="space-y-2">
                   {systemHealthChecks.map((check) => (
-                    <div key={check.label} className="flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                    <div key={check.label} className="flex items-start justify-between gap-3 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2">
                       <div className="flex items-center gap-2">
                         <StatusDot tone={check.status === "Stable" ? "green" : check.status === "Watch" ? "amber" : "red"} />
                         <p className="text-xs font-medium text-white">{check.label}</p>
@@ -1119,7 +1136,7 @@ export function OwnerDashboardPanel({
 
             {/* Admin controls */}
             <div className="grid gap-3 lg:grid-cols-3">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Admin State" title="Maintenance toggle" />
                 <div className="mb-3 flex items-center gap-2">
                   <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${getAdminStateClasses(maintenanceMode ? "maintenance" : "active")}`}>
@@ -1144,7 +1161,7 @@ export function OwnerDashboardPanel({
                   }
                 />
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 lg:col-span-2">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4 lg:col-span-2">
                 <PanelHeader eyebrow="Dev Controls" title="Reset + grant actions" />
                 <div className="space-y-3">
                   <MockResetControls
@@ -1165,7 +1182,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Mock transaction controls */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Ledger Simulation" title="Mock transaction controls" />
               <MockTransactionControls
                 businessId={simulationBusinessId}
@@ -1189,20 +1206,20 @@ export function OwnerDashboardPanel({
             className="space-y-4"
           >
             <div className="flex items-center justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">Account Monitoring</p>
-              <span className="rounded-full border border-white/8 bg-white/[0.05] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">{users.length} records</span>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Account Monitoring</p>
+              <span className="rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">{users.length} records</span>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {users.map((user) => {
                 const userFrozen = isUserFrozen(user.id, adminState);
                 const userStatus = userFrozen ? "frozen" : user.status;
                 return (
-                  <div key={user.id} className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                  <div key={user.id} className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <Link
                           href={`/owner/users/${user.id}`}
-                          className="text-sm font-semibold text-white transition-colors hover:text-[#14989a]"
+                          className="text-sm font-semibold text-white transition-colors hover:text-[#2dd4bf]"
                         >
                           {user.username}
                         </Link>
@@ -1214,7 +1231,7 @@ export function OwnerDashboardPanel({
                         {toTitleCase(userStatus)}
                       </span>
                     </div>
-                    <div className="mt-3 flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                    <div className="mt-3 flex items-center justify-between rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2">
                       <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/40">Balance</span>
                       <span className="text-sm font-semibold text-white">
                         {formatCredits(getUserCreditsBalance(user.id, simulatedTransactions))}
@@ -1260,7 +1277,7 @@ export function OwnerDashboardPanel({
             className="space-y-4"
           >
             {/* Credit summary */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Credit Flow" title="Leaf's movement summary" badge="Dev ledger overlay" />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {creditSummary.map((item) => (
@@ -1270,11 +1287,11 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Credit activity */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Recent Activity" title="Leaf's transaction feed" badge={`${creditActivity.length} entries`} />
               <div className="space-y-2">
                 {creditActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                  <div key={activity.id} className="flex items-start justify-between gap-3 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getCreditDirectionClasses(activity.direction)}`}>
                         {activity.direction}
@@ -1294,7 +1311,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Payment summary */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader
                 eyebrow="Payment Ledger"
                 title="Top-up payment summary"
@@ -1308,7 +1325,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Recent payments */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Top-up Payments" title="Recent payment records" badge={`${filteredPayments.length} of ${paymentMetrics.recentPayments.length}`} />
               <OwnerReconciliationFilters
                 ariaLabel="Filter owner payment inspection rows"
@@ -1319,7 +1336,7 @@ export function OwnerDashboardPanel({
               <div className="mt-3 space-y-2">
                 {filteredPayments.length ? (
                   filteredPayments.map((payment) => (
-                    <div key={payment.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div key={payment.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
@@ -1358,7 +1375,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                  <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                     {paymentMetrics.recentPayments.length ? getPaymentFilterEmptyState(paymentFilter) : getPaymentFilterEmptyState("all")}
                   </div>
                 )}
@@ -1366,7 +1383,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Payment lifecycle events */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader
                 eyebrow="Payment Lifecycle"
                 title="Webhook event log"
@@ -1375,7 +1392,7 @@ export function OwnerDashboardPanel({
               <div className="space-y-2">
                 {paymentMetrics.recentEventLogs.length ? (
                   paymentMetrics.recentEventLogs.map((eventLog) => (
-                    <div key={eventLog.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div key={eventLog.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
@@ -1418,7 +1435,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                  <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                     No persistent payment lifecycle events are available yet. Once Stripe checkout and webhook events occur, the owner layer will surface the recorded lifecycle trail here.
                   </div>
                 )}
@@ -1426,7 +1443,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Payout accounting */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Innovator Payouts" title="Payout accounting summary" badge={payoutAccounting.payoutStatusLabel} />
               <p className="mb-3 text-[11px] text-white/40">{payoutAccounting.accountingRuleLabel}</p>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
@@ -1438,7 +1455,7 @@ export function OwnerDashboardPanel({
 
             {/* Payout history + status overview */}
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader
                   eyebrow="Payout History"
                   title="Settlement records"
@@ -1453,7 +1470,7 @@ export function OwnerDashboardPanel({
                 <div className="mt-3 space-y-2">
                   {filteredPayoutHistory.length ? (
                     filteredPayoutHistory.map((item) => (
-                      <div key={item.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div key={item.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
@@ -1473,14 +1490,14 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                       {payoutAccounting.payoutHistory.length ? getPayoutFilterEmptyState(payoutFilter) : getPayoutFilterEmptyState("all")}
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Payout Status" title="Settlement overview" />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <StatCell label="Settled payouts" value={`${payoutAccounting.statusOverview.settledCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.settledSettlementCredits)} recorded as paid`} />
@@ -1495,7 +1512,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Internal earned use */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader
                 eyebrow="Internal Earned Use"
                 title="Innovator Leaf's reused internally"
@@ -1504,7 +1521,7 @@ export function OwnerDashboardPanel({
               <div className="space-y-2">
                 {payoutAccounting.internalUseHistory.length ? (
                   payoutAccounting.internalUseHistory.map((item) => (
-                    <div key={item.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div key={item.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
@@ -1526,7 +1543,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                  <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                     No internal earned-Leaf's usage has been recorded yet.
                   </div>
                 )}
@@ -1534,12 +1551,12 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Top earning businesses with payout actions */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Earning Leaders" title="Top earning businesses" />
               <div className="space-y-3">
                 {payoutAccounting.topEarningBusinesses.length ? (
                   payoutAccounting.topEarningBusinesses.map((business) => (
-                    <div key={business.businessId} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div key={business.businessId} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                         <div>
                           <p className="text-sm font-semibold text-white">{business.businessName}</p>
@@ -1564,7 +1581,7 @@ export function OwnerDashboardPanel({
                       </div>
                       {business.payoutReadyCredits > 0 ? (
                         <div className="mt-3 space-y-2">
-                          <Link href={`/owner/payouts/${business.businessId}`} className="block rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]">
+                          <Link href={`/owner/payouts/${business.businessId}`} className="block rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]">
                             View Payout
                           </Link>
                           <MockPayoutSettlementButton
@@ -1579,7 +1596,7 @@ export function OwnerDashboardPanel({
                         </div>
                       ) : (
                         <div className="mt-3">
-                          <Link href={`/owner/payouts/${business.businessId}`} className="block rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]">
+                          <Link href={`/owner/payouts/${business.businessId}`} className="block rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]">
                             View Payout
                           </Link>
                         </div>
@@ -1587,7 +1604,7 @@ export function OwnerDashboardPanel({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                  <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                     Earning rankings will appear here after the platform records priced service usage.
                   </div>
                 )}
@@ -1596,12 +1613,12 @@ export function OwnerDashboardPanel({
 
             {/* Usage analytics: top services, users */}
             <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Usage Analytics" title="Top services by usage" />
                 <div className="space-y-2">
                   {usageMetrics.topServices.length ? (
                     usageMetrics.topServices.map((service) => (
-                      <div key={service.serviceId} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div key={service.serviceId} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                           <div>
                             <p className="text-sm font-semibold text-white">{service.serviceTitle}</p>
@@ -1619,19 +1636,19 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                       No service usage has been tracked yet.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="User Analytics" title="Top users by platform usage" />
                 <div className="space-y-2">
                   {usageMetrics.topUsers.length ? (
                     usageMetrics.topUsers.map((user) => (
-                      <div key={user.userId ?? `guest-${user.userDisplayName}`} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div key={user.userId ?? `guest-${user.userDisplayName}`} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
@@ -1653,7 +1670,7 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                       User rankings will populate after platform usage events are recorded.
                     </div>
                   )}
@@ -1663,12 +1680,12 @@ export function OwnerDashboardPanel({
 
             {/* User concentration + recent activity */}
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Usage Pulse" title="Recent user activity" />
                 <div className="space-y-2">
                   {usageMetrics.recentUserActivity.length ? (
                     usageMetrics.recentUserActivity.map((event) => (
-                      <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div key={event.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
@@ -1689,14 +1706,14 @@ export function OwnerDashboardPanel({
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-xl border border-white/8 bg-white/[0.04] p-4 text-sm text-white/40">
+                    <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
                       Recent user activity will appear here after service usage is recorded.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Concentration" title="Usage distribution" />
                 <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
                   <StatCell label="Top user share" value={`${usageMetrics.userConcentration.topUserSharePercent}%`} />
@@ -1726,14 +1743,14 @@ export function OwnerDashboardPanel({
 
             {/* Release events + queue */}
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Release Events" title="Recent transition history" badge={`${releaseEvents.length} events`} />
                 <div className="space-y-2">
                   {releaseEvents.map((event) => {
                     const business = getCatalogBusinessById(event.businessId);
                     const service = getCatalogServiceById(event.serviceId);
                     return (
-                      <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                      <div key={event.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                         <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
@@ -1761,7 +1778,7 @@ export function OwnerDashboardPanel({
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                   <PanelHeader eyebrow="Latest Publish" title="Most recent publish event" />
                   <p className="text-base font-semibold text-white">
                     {publishSummary.latestPublishEvent
@@ -1777,13 +1794,13 @@ export function OwnerDashboardPanel({
                       : "Waiting for mock activity"}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                   <PanelHeader eyebrow="Release Queue" title="Current business queue" />
                   <div className="space-y-2">
                     {businessCards.map((entry) => {
                       const releaseStatus = entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
                       return (
-                        <div key={`queue-${entry.business.id}`} className="flex items-start justify-between gap-2 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2">
+                        <div key={`queue-${entry.business.id}`} className="flex items-start justify-between gap-2 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2">
                           <div>
                             <p className="text-sm font-semibold text-white">{entry.business.name}</p>
                             <p className="text-[11px] text-white/40">
@@ -1803,16 +1820,16 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Business cards */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Businesses" title="Business workspace monitoring" badge={`${businessCards.length} watched`} />
               <div className="grid gap-3 lg:grid-cols-2">
                 {businessCards.map((entry) => {
                   const releaseStatus = entry.snapshot?.status ?? getFallbackReleaseStatus(entry.business.status);
                   return (
-                    <div key={entry.business.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                    <div key={entry.business.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <Link href={`/businesses/${entry.business.id}`} className="text-sm font-semibold text-white transition-colors hover:text-[#14989a]">
+                          <Link href={`/businesses/${entry.business.id}`} className="text-sm font-semibold text-white transition-colors hover:text-[#2dd4bf]">
                             {entry.business.name}
                           </Link>
                           <p className="text-[11px] text-white/40">Owner: {entry.ownerName}</p>
@@ -1833,18 +1850,18 @@ export function OwnerDashboardPanel({
                         )}
                       </div>
                       <div className="mt-2 grid grid-cols-2 gap-2">
-                        <div className="rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                        <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2 py-1.5">
                           <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Active service</p>
                           <p className="mt-0.5 text-xs font-semibold text-white">
                             {getCatalogServiceById(entry.snapshot?.serviceId ?? entry.business.featuredServiceId)?.title ?? entry.snapshot?.service?.title ?? "Active service"}
                           </p>
                         </div>
-                        <div className="rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                        <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2 py-1.5">
                           <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Readiness</p>
                           <p className="mt-0.5 text-xs font-semibold text-white">{entry.snapshot?.readinessPercent ?? entry.business.publishReadinessPercent}%</p>
                         </div>
                       </div>
-                      <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                      <div className="mt-2 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2 py-1.5">
                         <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Latest release activity</p>
                         <p className="mt-0.5 text-xs font-semibold text-white">
                           {entry.latestEvent ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} → ${getPipelineStatusLabel(entry.latestEvent.newStatus)}` : "Seeded from shared mock data"}
@@ -1853,8 +1870,8 @@ export function OwnerDashboardPanel({
                       </div>
                       <div className="mt-2 space-y-2">
                         <div className="flex gap-2">
-                          <Link href={`/owner/payouts/${entry.business.id}`} className="flex-1 rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-center text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50">View Payout</Link>
-                          <Link href={`/businesses/${entry.business.id}`} className="flex-1 rounded-xl border border-white/8 bg-white/[0.04] px-3 py-2 text-center text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white">Open Business</Link>
+                          <Link href={`/owner/payouts/${entry.business.id}`} className="flex-1 rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-center text-xs font-semibold text-white transition-colors hover:border-[#2dd4bf]/50">View Payout</Link>
+                          <Link href={`/businesses/${entry.business.id}`} className="flex-1 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2 text-center text-xs font-medium text-white/50 transition-colors hover:border-[#2dd4bf]/50 hover:text-white">Open Business</Link>
                         </div>
                         <MockAdminActionButton
                           action={entry.isFrozen ? "unfreeze_business" : "freeze_business"}
@@ -1879,12 +1896,12 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Services table */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Services" title="Service release visibility" badge={`${services.length} monitored`} />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {services.map((entry) => (
-                  <div key={entry.service.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
-                    <Link href={`/services/${entry.service.id}`} className="text-sm font-semibold text-white transition-colors hover:text-[#14989a]">
+                  <div key={entry.service.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
+                    <Link href={`/services/${entry.service.id}`} className="text-sm font-semibold text-white transition-colors hover:text-[#2dd4bf]">
                       {entry.service.title}
                     </Link>
                     <p className="mt-0.5 text-[11px] text-white/40">Business: {entry.businessName}</p>
@@ -1897,7 +1914,7 @@ export function OwnerDashboardPanel({
                         <span className="rounded-full border border-rose-500/25 bg-rose-500/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-rose-300">Business frozen</span>
                       ) : null}
                     </div>
-                    <div className="mt-2 rounded-xl border border-white/8 bg-white/[0.04] px-2 py-1.5">
+                    <div className="mt-2 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2 py-1.5">
                       <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/30">Latest transition</p>
                       <p className="mt-0.5 text-xs font-semibold text-white">
                         {entry.latestEvent ? `${getPipelineStatusLabel(entry.latestEvent.previousStatus)} → ${getPipelineStatusLabel(entry.latestEvent.newStatus)}` : entry.service.status}
@@ -1922,14 +1939,14 @@ export function OwnerDashboardPanel({
           >
             {/* Security controls */}
             <div className="grid gap-3 lg:grid-cols-3">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Freeze State" title="Frozen accounts" />
                 <div className="grid grid-cols-2 gap-2">
                   <StatCell label="Frozen users" value={`${frozenUsersCount}`} sub="Local freeze overlay" />
                   <StatCell label="Frozen businesses" value={`${frozenBusinessesCount}`} sub="Owner flagged" />
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Maintenance" title="Platform overlay toggle" />
                 <div className="mb-3 flex items-center gap-2">
                   <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${getAdminStateClasses(maintenanceMode ? "maintenance" : "active")}`}>
@@ -1952,22 +1969,22 @@ export function OwnerDashboardPanel({
                   }
                 />
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
                 <PanelHeader eyebrow="Audit Logs" title={auditLogsControl.title} />
                 <div className="mb-2 flex items-center gap-2">
                   <span className="rounded-full bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{auditLogsControl.stateLabel}</span>
                 </div>
                 <p className="mb-3 text-[11px] text-white/40">{auditLogsControl.description}</p>
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#14989a]">{auditLogsControl.actionLabel}</p>
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#2dd4bf]">{auditLogsControl.actionLabel}</p>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 text-[11px] text-white/40">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4 text-[11px] text-white/40">
               Freeze and unfreeze actions are development-only overlays. They update the owner records, detail views, and platform shell immediately without enforcing any real backend restriction.
             </div>
 
             {/* Reset controls */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Dev Resets" title="Owner reset actions" />
               <MockResetControls
                 showAll
@@ -1979,11 +1996,11 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Agent nodes */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Agent System" title="Node health and activity" badge={`${agentNodes.length} nodes`} />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {agentNodes.map((node) => (
-                  <div key={node.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                  <div key={node.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold text-white">{node.name}</p>
@@ -2000,11 +2017,11 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Health checks */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="Health Monitors" title="System health checks" badge={`${systemHealthChecks.length} checks`} />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {systemHealthChecks.map((check) => (
-                  <div key={check.label} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                  <div key={check.label} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <StatusDot tone={check.status === "Stable" ? "green" : check.status === "Watch" ? "amber" : "red"} />
@@ -2019,11 +2036,11 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Platform logs */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
               <PanelHeader eyebrow="System Logs" title="Recent control-room events" badge="Seeded overlay feed" />
               <div className="space-y-2">
                 {platformLogs.slice(0, 5).map((event) => (
-                  <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.04] p-3">
+                  <div key={event.id} className="rounded-xl p-3" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.03)" }}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <span className={`rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${getLogLevelClasses(event.level)}`}>
@@ -2051,8 +2068,8 @@ export function OwnerDashboardPanel({
             exit="exit"
             className="space-y-4"
           >
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">Early Access</p>
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Early Access</p>
               <p className="mt-0.5 text-sm font-semibold text-white">Invite Code Manager</p>
               <p className="mt-1 text-xs text-white/40">
                 Generate and manage early access codes. Each code can be given to a user to allow sign-up while early access is active.

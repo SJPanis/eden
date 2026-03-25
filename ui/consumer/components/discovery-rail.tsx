@@ -20,7 +20,7 @@ export function DiscoveryRail({
   return (
     <section>
       <div className="mb-4 flex items-end justify-between gap-3">
-        <div className="border-l-2 border-[#14989a]/40 pl-3">
+        <div className="border-l-2 border-[#2dd4bf]/40 pl-3">
           <h2 className="text-base font-semibold tracking-tight text-white md:text-lg">{title}</h2>
           <p className="mt-0.5 text-sm text-white/45">{subtitle}</p>
         </div>
@@ -34,7 +34,7 @@ export function DiscoveryRail({
       {hasItems ? (
         children
       ) : (
-        <div className="rounded-xl border border-dashed border-white/8 bg-white/[0.04] p-4 text-sm text-white/50">
+        <div className="rounded-xl border border-dashed border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/50">
           {emptyMessage}
         </div>
       )}

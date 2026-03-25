@@ -75,7 +75,7 @@ export function OwnerRuntimeLifecyclePanel({
   }
 
   return (
-    <section className="mt-5 rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+    <section className="mt-5 rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -90,7 +90,7 @@ export function OwnerRuntimeLifecyclePanel({
             infrastructure jobs, or change deployment reality.
           </p>
         </div>
-        <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
+        <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
           Control plane only
         </span>
       </div>
@@ -113,9 +113,9 @@ export function OwnerRuntimeLifecyclePanel({
       ) : null}
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Current status
               </p>
@@ -123,7 +123,7 @@ export function OwnerRuntimeLifecyclePanel({
                 {runtime.statusLabel}
               </p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                 Last health check
               </p>
@@ -141,7 +141,7 @@ export function OwnerRuntimeLifecyclePanel({
               <select
                 value={status}
                 onChange={(event) => setStatus(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
               >
                 {ownerRuntimeLifecycleStatusOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -160,7 +160,7 @@ export function OwnerRuntimeLifecyclePanel({
                 onChange={(event) => setStatusDetail(event.target.value)}
                 rows={4}
                 placeholder="Describe the current runtime control-plane state"
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
               />
             </label>
 
@@ -171,7 +171,7 @@ export function OwnerRuntimeLifecyclePanel({
               <select
                 value={healthCheckAction}
                 onChange={(event) => setHealthCheckAction(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="mt-2 w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
               >
                 {ownerRuntimeHealthCheckActionOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -185,19 +185,19 @@ export function OwnerRuntimeLifecyclePanel({
               type="button"
               disabled={isPending}
               onClick={handleSaveLifecycle}
-              className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending ? "Saving lifecycle..." : "Save lifecycle update"}
             </button>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Recent audit entries
             </p>
-            <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+            <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
               {runtime.auditEntries.length} recent
             </span>
           </div>
@@ -207,7 +207,7 @@ export function OwnerRuntimeLifecyclePanel({
               runtime.auditEntries.map((entry) => (
                 <article
                   key={entry.id}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                  className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -218,7 +218,7 @@ export function OwnerRuntimeLifecyclePanel({
                         {entry.actorLabel}
                       </p>
                     </div>
-                    <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                    <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                       {entry.createdAtLabel}
                     </span>
                   </div>
@@ -228,7 +228,7 @@ export function OwnerRuntimeLifecyclePanel({
                   </p>
 
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Previous
                       </p>
@@ -236,7 +236,7 @@ export function OwnerRuntimeLifecyclePanel({
                         {entry.previousValueLabel ?? "Not recorded"}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Next
                       </p>
@@ -248,7 +248,7 @@ export function OwnerRuntimeLifecyclePanel({
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50">
                 No runtime lifecycle audit entries are stored yet for this runtime.
               </div>
             )}

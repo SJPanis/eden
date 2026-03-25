@@ -26,9 +26,9 @@ export function SettingsPanel({ displayName, username, role, balanceLabel, authS
       className="mx-auto max-w-2xl space-y-5"
     >
       {/* Header */}
-      <div className="rounded-2xl border border-white/8 bg-white/[0.04] px-5 py-4">
+      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-5 py-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#14989a]/30 bg-[#14989a]/10 text-lg font-bold text-[#14989a]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#2dd4bf]/30 bg-[#2dd4bf]/10 text-lg font-bold text-[#2dd4bf]">
             {displayName.charAt(0).toUpperCase()}
           </div>
           <div>
@@ -36,7 +36,7 @@ export function SettingsPanel({ displayName, username, role, balanceLabel, authS
             <p className="text-sm text-white/40">@{username}</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <span className="rounded-full border border-[#14989a]/30 bg-[#14989a]/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-[#14989a]">
+            <span className="rounded-full border border-[#2dd4bf]/30 bg-[#2dd4bf]/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-[#2dd4bf]">
               {role}
             </span>
           </div>
@@ -55,7 +55,7 @@ export function SettingsPanel({ displayName, username, role, balanceLabel, authS
       </div>
 
       {/* Section nav */}
-      <div className="flex gap-1 rounded-2xl border border-white/8 bg-white/[0.04] p-1">
+      <div className="flex gap-1 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-1">
         {(["profile", "password", "account"] as const).map((s) => (
           <button
             key={s}
@@ -63,7 +63,7 @@ export function SettingsPanel({ displayName, username, role, balanceLabel, authS
             onClick={() => setActiveSection(s)}
             className={`flex-1 rounded-xl py-2 text-sm font-medium transition-colors ${
               activeSection === s
-                ? "border border-[#14989a]/40 bg-[#14989a]/15 text-white"
+                ? "border border-[#2dd4bf]/40 bg-[#2dd4bf]/15 text-white"
                 : "text-white/40 hover:text-white/70"
             }`}
           >
@@ -138,7 +138,7 @@ function ProfileSection({
   }
 
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
       <p className="mb-4 text-sm font-semibold text-white">Profile</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField label="Display Name" disabled={disabled}>
@@ -208,7 +208,7 @@ function PasswordSection({ disabled }: { disabled: boolean }) {
   }
 
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
       <p className="mb-4 text-sm font-semibold text-white">Change Password</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField label="Current Password">
@@ -274,10 +274,10 @@ function AccountSection({ isPersistent, role }: { isPersistent: boolean; role: s
   return (
     <div className="space-y-4">
       {/* Role info */}
-      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
         <p className="mb-3 text-sm font-semibold text-white">Account Role</p>
         <div className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/[0.03] p-3">
-          <span className="mt-0.5 rounded-full border border-[#14989a]/30 bg-[#14989a]/10 px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#14989a]">
+          <span className="mt-0.5 rounded-full border border-[#2dd4bf]/30 bg-[#2dd4bf]/10 px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#2dd4bf]">
             {role}
           </span>
           <p className="text-sm text-white/60">
@@ -290,7 +290,7 @@ function AccountSection({ isPersistent, role }: { isPersistent: boolean; role: s
       </div>
 
       {/* Sign out */}
-      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
         <p className="mb-1 text-sm font-semibold text-white">Sign Out</p>
         <p className="mb-4 text-sm text-white/40">Sign out of your current Eden session.</p>
         {isPersistent ? (
@@ -341,7 +341,7 @@ function Feedback({ error, success }: { error: string | null; success: string | 
 }
 
 const fieldClass = (disabled?: boolean) =>
-  `mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20 ${disabled ? "cursor-not-allowed opacity-50" : ""}`;
+  `mt-1 w-full rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20 ${disabled ? "cursor-not-allowed opacity-50" : ""}`;
 
 const submitClass =
-  "rounded-xl border border-[#14989a]/50 bg-[#14989a]/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#14989a]/30 disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2dd4bf]/30 disabled:cursor-not-allowed disabled:opacity-50";
