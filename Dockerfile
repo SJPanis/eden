@@ -39,13 +39,8 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 # Copy startup script
-COPY --from=builder /app/scripts/start.sh ./scripts/start.sh
-RUN chmod +x ./scripts/start.sh
-
 USER nextjs
-
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-
-CMD ["sh", "./scripts/start.sh"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
