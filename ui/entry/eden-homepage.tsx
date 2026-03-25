@@ -785,7 +785,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
         </header>
 
         {/* ── Hero ── */}
-        <section ref={heroRef} className="relative overflow-hidden px-5 pb-24 pt-20 md:pb-32 md:pt-28">
+        <section ref={heroRef} className="relative overflow-hidden px-5 py-20 md:py-28">
           {/* Glow blobs */}
           <div aria-hidden className="pointer-events-none absolute inset-0">
             <div
@@ -923,7 +923,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.05 }}
+              viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="text-center"
             >
@@ -949,7 +949,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={{ once: true, amount: 0.05 }}
+                  viewport={{ once: true }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.1 }}
                   className="rounded-[20px] p-5"
                   style={{
@@ -981,7 +981,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.05 }}
+              viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="text-center"
             >
@@ -1002,7 +1002,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   key={card.id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.05 }}
+                  viewport={{ once: true }}
                   transition={{
                     type: "spring",
                     stiffness: 100,
@@ -1046,9 +1046,9 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.05 }}
+              viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-20 flex justify-center overflow-visible"
+              className="mb-12 flex justify-center overflow-visible"
             >
               <OrbitalDiagram />
             </motion.div>
@@ -1059,7 +1059,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.05 }}
+                viewport={{ once: true }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
                 <p
@@ -1092,7 +1092,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.05 }}
+                viewport={{ once: true }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
                 className="rounded-[24px] p-6"
                 style={{
@@ -1133,7 +1133,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.05 }}
+              viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="relative overflow-hidden rounded-[32px] px-8 py-14"
               style={{
@@ -1216,7 +1216,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.05 }}
+              viewport={{ once: true }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="relative overflow-hidden rounded-[32px] px-8 py-14"
               style={{
