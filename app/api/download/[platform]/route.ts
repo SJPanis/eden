@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 
 const PLACEHOLDER_URLS: Record<string, string> = {
-  windows: "https://github.com/SJPanis/eden/releases/latest/download/eden-setup.exe",
-  mac: "https://github.com/SJPanis/eden/releases/latest/download/eden-setup.dmg",
+  windows: "https://github.com/SJPanis/eden/releases/latest/download/Eden-Setup.exe",
+  mac: "https://github.com/SJPanis/eden/releases/latest/download/Eden.dmg",
 };
 
 type RouteParams = { params: Promise<{ platform: string }> };
