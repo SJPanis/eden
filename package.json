@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
-    "postinstall": "prisma generate",
+    
     "start": "next start",
     "lint": "eslint",
     "owner:bootstrap": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/bootstrap-owner.ts",
