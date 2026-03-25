@@ -923,7 +923,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="text-center"
             >
@@ -949,7 +949,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={{ once: true, margin: "-60px" }}
+                  viewport={{ once: true, amount: 0.05 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.1 }}
                   className="rounded-[20px] p-5"
                   style={{
@@ -981,7 +981,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="text-center"
             >
@@ -1002,7 +1002,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   key={card.id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
+                  viewport={{ once: true, amount: 0.05 }}
                   transition={{
                     type: "spring",
                     stiffness: 100,
@@ -1046,7 +1046,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="mb-20 flex justify-center overflow-visible"
             >
@@ -1059,7 +1059,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, margin: "-80px" }}
+                viewport={{ once: true, amount: 0.05 }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
                 <p
@@ -1092,7 +1092,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, margin: "-80px" }}
+                viewport={{ once: true, amount: 0.05 }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
                 className="rounded-[24px] p-6"
                 style={{
@@ -1133,7 +1133,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="relative overflow-hidden rounded-[32px] px-8 py-14"
               style={{
@@ -1216,7 +1216,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="relative overflow-hidden rounded-[32px] px-8 py-14"
               style={{
