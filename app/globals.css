@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --eden-bg: #0d1f30;
+  --eden-bg: #0b1622;
   --eden-bg-alt: #0a1825;
   --eden-panel: rgba(255, 255, 255, 0.05);
   --eden-ink: #10253a;
   --eden-muted: #597087;
   --eden-edge: rgba(255, 255, 255, 0.08);
-  --eden-accent: #14989a;
-  --eden-accent-soft: rgba(20, 152, 154, 0.15);
-  --eden-ring: rgba(20, 152, 154, 0.35);
+  --eden-accent: #2dd4bf;
+  --eden-accent-soft: rgba(45, 212, 191, 0.15);
+  --eden-ring: rgba(45, 212, 191, 0.35);
   --eden-radius: 1rem;
   --eden-radius-sm: 0.75rem;
   --eden-radius-lg: 1.25rem;
@@ -26,7 +26,8 @@
   --color-eden-accent: var(--eden-accent);
   --color-eden-accent-soft: var(--eden-accent-soft);
   --color-eden-ring: var(--eden-ring);
-  --font-sans: var(--font-space-grotesk);
+  --font-sans: var(--font-outfit);
+  --font-serif: var(--font-instrument-serif);
   --font-mono: var(--font-ibm-plex-mono);
 }
 
@@ -42,9 +43,9 @@ html {
 
 body {
   min-height: 100vh;
-  background: #0d1f30;
+  background: #0b1622;
   color: #e8f1f8;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-outfit), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -58,11 +59,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(20, 152, 154, 0.25);
+  background: rgba(45, 212, 191, 0.25);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(20, 152, 154, 0.45);
+  background: rgba(45, 212, 191, 0.45);
 }
 
 a {
@@ -72,8 +73,8 @@ a {
 
 /* App shell background with subtle teal dot grid */
 .eden-grid {
-  background-color: #0d1f30;
-  background-image: radial-gradient(circle, rgba(20, 152, 154, 0.12) 1px, transparent 1px);
+  background-color: #0b1622;
+  background-image: radial-gradient(circle, rgba(45, 212, 191, 0.1) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -101,9 +102,9 @@ a {
 
 /* Lift card on hover — teal glow + subtle scale */
 .eden-card-hover:hover {
-  border-color: rgba(20, 152, 154, 0.3);
+  border-color: rgba(45, 212, 191, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -8px rgba(20, 152, 154, 0.2);
+  box-shadow: 0 8px 24px -8px rgba(45, 212, 191, 0.2);
 }
 
 /* Teal accent pill chip */
@@ -123,7 +124,7 @@ a {
 
 /* Focus ring reset */
 :focus-visible {
-  outline: 2px solid rgba(20, 152, 154, 0.6);
+  outline: 2px solid rgba(45, 212, 191, 0.6);
   outline-offset: 2px;
 }
 
