@@ -1,0 +1,31 @@
+name: Build Electron App
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: electron
+        run: npm install
+      - name: Build
+        working-directory: electron
+        run: npm run build:${{ matrix.os == 'macos-latest' && 'mac' || 'win' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: eden-${{ matrix.os }}
+          path: electron/dist/
