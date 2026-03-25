@@ -345,6 +345,8 @@ model User {
   contributionAllocations         ContributionAllocation[]         @relation("ContributionAllocationRecipient")
   accessCodeId                    String?
   accessCode                      EarlyAccessCode?                 @relation("UserAccessCode", fields: [accessCodeId], references: [id])
+  garden                          Garden?                          @relation("UserGarden")
+  edenAgents                      EdenAgent[]                      @relation("UserAgents")
 }
 
 model AuthProviderAccount {
@@ -1156,4 +1158,44 @@ model WaitlistEntry {
   name      String?
   note      String?
   createdAt DateTime @default(now())
+}
+
+// ── Garden & Agent (Spatial World) ────────────────────────────────────────────
+
+enum EdenAgentStatus {
+  IDLE
+  RUNNING
+  PAUSED
+  ERROR
+}
+
+model Garden {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  name        String   @default("My Garden")
+  isPublic    Boolean  @default(false)
+  leafsEarned Int      @default(0)
+  level       Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation("UserGarden", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model EdenAgent {
+  id          String          @id @default(cuid())
+  userId      String
+  name        String
+  type        String
+  animal      String
+  status      EdenAgentStatus @default(IDLE)
+  currentTask String?
+  heartbeatAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  user        User            @relation("UserAgents", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
 }
