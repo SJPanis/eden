@@ -24,7 +24,7 @@ export function EdenAuthPage({
 }: EdenAuthPageProps) {
   const [isPending, startTransition] = useTransition();
   const startMode: AuthMode =
-    earlyAccessEnabled && initialMode === "signup" ? "invite" : initialMode;
+    initialMode === "signup" ? "invite" : initialMode;
   const [mode, setMode] = useState<AuthMode>(startMode);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -269,11 +269,7 @@ export function EdenAuthPage({
                     type="button"
                     onClick={() =>
                       handleModeSwitch(
-                        m === "signup"
-                          ? earlyAccessEnabled
-                            ? "invite"
-                            : "signup"
-                          : "signin",
+                        m === "signup" ? "invite" : "signin",
                       )
                     }
                     className="flex-1 rounded-xl py-2 text-sm font-medium transition-colors"
