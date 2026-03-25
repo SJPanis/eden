@@ -1206,6 +1206,110 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           </div>
         </section>
 
+        {/* ── Download Section ── */}
+        <section
+          className="border-t px-5 py-20 md:py-28"
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        >
+          <div className="mx-auto max-w-5xl">
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="relative overflow-hidden rounded-[32px] px-8 py-14"
+              style={{
+                border: `1px solid rgba(${ACCENT_RGB}, 0.15)`,
+                background: "rgba(13,30,46,0.82)",
+                backdropFilter: "blur(16px)",
+                boxShadow: "0 4px 32px -8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
+              }}
+            >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 top-0 h-40 w-80 -translate-x-1/2 rounded-full blur-[50px]"
+                style={{ background: `rgba(${ACCENT_RGB}, 0.08)` }}
+              />
+
+              <div className="relative text-center">
+                <span
+                  className="inline-block rounded-full px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.22em]"
+                  style={{
+                    border: `1px solid rgba(${ACCENT_RGB}, 0.3)`,
+                    background: `rgba(${ACCENT_RGB}, 0.08)`,
+                    color: ACCENT,
+                  }}
+                >
+                  Desktop App
+                </span>
+                <h2
+                  className="mt-5 text-3xl tracking-tight text-white md:text-4xl"
+                  style={{ fontFamily: "var(--font-serif)" }}
+                >
+                  Download Eden
+                </h2>
+                <p className="mx-auto mt-4 max-w-xl text-base text-white/45">
+                  Run Eden as a native desktop app. No browser required.
+                </p>
+
+                <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                  <Link
+                    href="/api/download/windows"
+                    className="group flex items-center gap-3 rounded-2xl px-6 py-3.5 text-sm font-semibold text-white transition-all"
+                    style={{
+                      background: `linear-gradient(135deg, rgba(${ACCENT_RGB}, 0.85), rgba(${ACCENT_RGB}, 0.6))`,
+                      border: `1px solid rgba(${ACCENT_RGB}, 0.4)`,
+                      boxShadow: `0 4px 20px -4px rgba(${ACCENT_RGB}, 0.3)`,
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+                      <path d="M3 5.5L10.5 4.4V11.4H3V5.5Z" fill="currentColor" />
+                      <path d="M11.5 4.2L21 3V11.4H11.5V4.2Z" fill="currentColor" />
+                      <path d="M3 12.6H10.5V19.6L3 18.5V12.6Z" fill="currentColor" />
+                      <path d="M11.5 12.6H21V21L11.5 19.8V12.6Z" fill="currentColor" />
+                    </svg>
+                    Download for Windows
+                  </Link>
+                  <Link
+                    href="/api/download/mac"
+                    className="flex items-center gap-3 rounded-2xl px-6 py-3.5 text-sm font-semibold text-white transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: `1px solid rgba(${ACCENT_RGB}, 0.25)`,
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+                      <path
+                        d="M18.7 12.6c0-2.7 2.2-4 2.3-4.1-1.3-1.9-3.2-2.1-3.9-2.2-1.7-.2-3.2 1-4.1 1s-2.1-1-3.5-1c-1.8 0-3.4 1-4.3 2.6-1.9 3.2-.5 8 1.3 10.7.9 1.3 2 2.8 3.4 2.7 1.4-.1 1.9-.9 3.5-.9s2.1.9 3.5.8c1.5 0 2.3-1.3 3.2-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.8-1-2.8-4z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M16.1 4.8c.7-.9 1.2-2.1 1.1-3.3-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.2 1.2.1 2.3-.6 3-1.5z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    Download for Mac
+                  </Link>
+                </div>
+
+                <p className="mt-6 text-xs text-white/30">
+                  Open source · MIT license ·{" "}
+                  <a
+                    href="https://github.com/SJPanis/eden"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-white/50"
+                    style={{ color: `rgba(${ACCENT_RGB}, 0.5)` }}
+                  >
+                    github.com/SJPanis/eden
+                  </a>
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* ── Footer ── */}
         <footer
           className="border-t px-5 py-8"

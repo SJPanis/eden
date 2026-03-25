@@ -1199,3 +1199,14 @@ model EdenAgent {
   @@index([userId])
   @@index([status])
 }
+
+model Download {
+  id        String   @id @default(cuid())
+  platform  String
+  userAgent String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([platform])
+  @@index([createdAt])
+}
