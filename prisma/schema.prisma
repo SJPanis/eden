@@ -317,6 +317,8 @@ model User {
   status                          UserStatus                       @default(ACTIVE)
   summary                         String?
   edenBalanceCredits              Int                              @default(0)
+  stripeConnectAccountId          String?
+  payoutEnabled                   Boolean                          @default(false)
   createdAt                       DateTime                         @default(now())
   updatedAt                       DateTime                         @updatedAt
   ownedBusinesses                 Business[]                       @relation("BusinessOwner")
@@ -347,6 +349,7 @@ model User {
   accessCode                      EarlyAccessCode?                 @relation("UserAccessCode", fields: [accessCodeId], references: [id])
   garden                          Garden?                          @relation("UserGarden")
   edenAgents                      EdenAgent[]                      @relation("UserAgents")
+  payoutRecords                   PayoutRecord[]                   @relation("UserPayoutRecords")
 }
 
 model AuthProviderAccount {
@@ -1209,4 +1212,28 @@ model Download {
 
   @@index([platform])
   @@index([createdAt])
+}
+
+enum PayoutStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model PayoutRecord {
+  id                 String       @id @default(cuid())
+  userId             String
+  leafsAmount        Int
+  cashAmountCents    Int
+  currency           String       @default("usd")
+  stripeTransferId   String?
+  status             PayoutStatus @default(PENDING)
+  failureReason      String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  completedAt        DateTime?
+  user               User         @relation("UserPayoutRecords", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status])
 }
