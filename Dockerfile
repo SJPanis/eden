@@ -10,7 +10,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Generate Prisma client before building
-RUN npx prisma generate
+RUN DATABASE_URL="placeholder://build" npx prisma generate --no-engine
 RUN npm run build
 
 # ── Stage 3: Production runner ─────────────────────────────────────────────────
