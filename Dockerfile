@@ -1,34 +1,51 @@
-# ── Stage 1: Install dependencies ──────────────────────────────────────────────
+# ── Stage 1: Dependencies ──────────────────────────────────────────────────────
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # ── Stage 2: Build ─────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Generate Prisma client before building
-RUN DATABASE_URL="placeholder://build" npx prisma generate --no-engine
+
+# Generate Prisma client with a dummy URL so prisma.config.ts parser is satisfied
+# DATABASE_URL is only needed at runtime — this is build-time client generation only
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+ENV DIRECT_DATABASE_URL="postgresql://build:build@localhost:5432/build"
+RUN npx prisma generate
+
 RUN npm run build
 
-# ── Stage 3: Production runner ─────────────────────────────────────────────────
+# ── Stage 3: Runner ─────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
 
-# Standalone output bundles server.js + required node_modules
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy standalone output
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-EXPOSE 3000
+# Copy Prisma schema, migrations, and generated client for runtime
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-# All secrets (DATABASE_URL, OPENAI_API_KEY, NEXTAUTH_SECRET, etc.)
-# are injected at runtime via env_file or platform env vars — nothing is baked in.
-CMD ["node", "server.js"]
+# Copy startup script
+COPY --from=builder /app/scripts/start.sh ./scripts/start.sh
+RUN chmod +x ./scripts/start.sh
+
+USER nextjs
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["sh", "./scripts/start.sh"]
