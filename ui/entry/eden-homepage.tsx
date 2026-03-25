@@ -1,19 +1,34 @@
 "use client";
 
-import { useState, useEffect, useRef, type FormEvent } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  useSpring,
+  useInView,
+} from "framer-motion";
 import { EdenLogoMark } from "@/modules/core/components/eden-logo-mark";
 
 type EdenHomepageProps = {
   maintenanceMode: boolean;
 };
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0 },
-};
+// ── Design tokens ──────────────────────────────────────────────────────────────
+const ACCENT = "#2dd4bf";
+const ACCENT_RGB = "45, 212, 191";
+const BG = "#0b1622";
 
+// ── Static copy ────────────────────────────────────────────────────────────────
 const audienceCards = [
   {
     id: "innovators",
@@ -48,14 +63,522 @@ const trustSignals = [
   { label: "Owner-authenticated platform control" },
 ];
 
-// ── Intro Gate Component ───────────────────────────────────────────────────────
+const loopCards = [
+  {
+    step: "01",
+    label: "Innovators publish",
+    detail: "Services appear in discovery once visible pricing and publish state are set.",
+    accent: false,
+  },
+  {
+    step: "02",
+    label: "Consumers discover",
+    detail: "Ask Eden or browse the marketplace. Visible pricing, no hidden checkout.",
+    accent: false,
+  },
+  {
+    step: "03",
+    label: "Economy distributes",
+    detail: "Every run triggers an automatic 4-bucket split in Leaf's.",
+    accent: true,
+  },
+  {
+    step: "04",
+    label: "Contributors improve",
+    detail: "Submit improvements to Eden itself. Earn from the contribution pool each period.",
+    accent: false,
+  },
+];
+
+const feeSplit = [
+  { label: "Innovator earnings", pct: 70, color: `rgba(${ACCENT_RGB}, 0.8)` },
+  { label: "Platform fee", pct: 15, color: "rgba(255,255,255,0.22)" },
+  { label: "Provider reserve", pct: 10, color: "rgba(255,255,255,0.14)" },
+  { label: "Contribution pool", pct: 5, color: `rgba(${ACCENT_RGB}, 0.45)` },
+];
+
+// ── Shared animation variants ──────────────────────────────────────────────────
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+// ── Particle Canvas ─────────────────────────────────────────────────────────────
+function ParticleCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: -9999, y: -9999 });
+  const animRef = useRef<number>(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Capture non-null references for use inside closures
+    const c = canvas;
+    const cx = ctx;
+
+    const resize = () => {
+      c.width = window.innerWidth;
+      c.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const NUM = 110;
+    const CONNECT = 100;
+    const REPEL = 85;
+
+    const particles = Array.from({ length: NUM }, () => ({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height,
+      vx: (Math.random() - 0.5) * 0.38,
+      vy: (Math.random() - 0.5) * 0.38,
+      r: Math.random() * 1.2 + 0.4,
+    }));
+
+    const onMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener("mousemove", onMove);
+
+    function draw() {
+      const W = c.width;
+      const H = c.height;
+      cx.clearRect(0, 0, W, H);
+
+      for (const p of particles) {
+        const dx = p.x - mouseRef.current.x;
+        const dy = p.y - mouseRef.current.y;
+        const d = Math.hypot(dx, dy);
+        if (d < REPEL && d > 0) {
+          const f = ((REPEL - d) / REPEL) * 0.55;
+          p.vx += (dx / d) * f;
+          p.vy += (dy / d) * f;
+        }
+        p.vx *= 0.975;
+        p.vy *= 0.975;
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+        cx.beginPath();
+        cx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        cx.fillStyle = `rgba(${ACCENT_RGB}, 0.42)`;
+        cx.fill();
+      }
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d = Math.hypot(dx, dy);
+          if (d < CONNECT) {
+            cx.beginPath();
+            cx.moveTo(particles[i].x, particles[i].y);
+            cx.lineTo(particles[j].x, particles[j].y);
+            cx.strokeStyle = `rgba(${ACCENT_RGB}, ${(1 - d / CONNECT) * 0.16})`;
+            cx.lineWidth = 0.5;
+            cx.stroke();
+          }
+        }
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    }
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMove);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 z-0 pointer-events-none"
+      aria-hidden
+    />
+  );
+}
+
+// ── Custom Cursor ──────────────────────────────────────────────────────────────
+function CustomCursor() {
+  const x = useMotionValue(-200);
+  const y = useMotionValue(-200);
+  const springX = useSpring(x, { stiffness: 120, damping: 18 });
+  const springY = useSpring(y, { stiffness: 120, damping: 18 });
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    setActive(true);
+    document.documentElement.style.cursor = "none";
+
+    const onMove = (e: MouseEvent) => {
+      x.set(e.clientX);
+      y.set(e.clientY);
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      document.documentElement.style.cursor = "";
+    };
+  }, [x, y]);
+
+  if (!active) return null;
+
+  return (
+    <>
+      {/* 8px dot — exact position */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none fixed z-[200] rounded-full"
+        style={{
+          width: 8,
+          height: 8,
+          background: ACCENT,
+          x,
+          y,
+          translateX: "-50%",
+          translateY: "-50%",
+        }}
+      />
+      {/* 32px ring — spring lag */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none fixed z-[199] rounded-full"
+        style={{
+          width: 32,
+          height: 32,
+          border: `1.5px solid rgba(${ACCENT_RGB}, 0.45)`,
+          x: springX,
+          y: springY,
+          translateX: "-50%",
+          translateY: "-50%",
+        }}
+      />
+    </>
+  );
+}
+
+// ── Grain Overlay ──────────────────────────────────────────────────────────────
+function GrainOverlay() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-[2]"
+      style={{ opacity: 0.038 }}
+    >
+      <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+        <filter id="eden-grain">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.72"
+            numOctaves="4"
+            stitchTiles="stitch"
+          />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#eden-grain)" />
+      </svg>
+    </div>
+  );
+}
+
+// ── Orbital Economy Diagram ────────────────────────────────────────────────────
+function OrbitalDiagram() {
+  const SIZE = 380;
+  const CX = SIZE / 2;
+  const CY = SIZE / 2;
+
+  const rings = [
+    {
+      r: 82,
+      dur: 20,
+      nodes: [
+        { label: "Publish", angle: -90 },
+        { label: "Run", angle: 30 },
+        { label: "Earn", angle: 150 },
+      ],
+    },
+    {
+      r: 134,
+      dur: 30,
+      nodes: [
+        { label: "Discover", angle: 60 },
+        { label: "Contribute", angle: 220 },
+      ],
+    },
+    {
+      r: 174,
+      dur: 40,
+      nodes: [] as { label: string; angle: number }[],
+    },
+  ];
+
+  return (
+    <div className="relative mx-auto" style={{ width: SIZE, height: SIZE }}>
+      {/* Static SVG rings */}
+      <svg
+        width={SIZE}
+        height={SIZE}
+        className="absolute inset-0"
+        style={{ overflow: "visible" }}
+        aria-hidden
+      >
+        <defs>
+          <radialGradient id="orb-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={`rgba(${ACCENT_RGB}, 0.35)`} />
+            <stop offset="100%" stopColor={`rgba(${ACCENT_RGB}, 0)`} />
+          </radialGradient>
+        </defs>
+        {/* Outer ambient */}
+        <circle cx={CX} cy={CY} r={rings[2].r + 24} fill={`rgba(${ACCENT_RGB}, 0.018)`} />
+        {/* Ring 3 dashed */}
+        <circle
+          cx={CX} cy={CY} r={rings[2].r}
+          fill="none"
+          stroke={`rgba(${ACCENT_RGB}, 0.1)`}
+          strokeWidth={0.75}
+          strokeDasharray="5 9"
+        />
+        {/* Ring 2 */}
+        <circle
+          cx={CX} cy={CY} r={rings[1].r}
+          fill="none"
+          stroke={`rgba(${ACCENT_RGB}, 0.14)`}
+          strokeWidth={0.75}
+        />
+        {/* Ring 1 */}
+        <circle
+          cx={CX} cy={CY} r={rings[0].r}
+          fill="none"
+          stroke={`rgba(${ACCENT_RGB}, 0.18)`}
+          strokeWidth={0.75}
+        />
+        {/* Center glow */}
+        <circle cx={CX} cy={CY} r={32} fill="url(#orb-glow)" />
+        <circle cx={CX} cy={CY} r={22} fill={`rgba(${ACCENT_RGB}, 0.14)`} />
+      </svg>
+
+      {/* Center label */}
+      <div
+        className="absolute flex items-center justify-center rounded-full"
+        style={{
+          width: 44,
+          height: 44,
+          left: CX,
+          top: CY,
+          transform: "translate(-50%,-50%)",
+          border: `1px solid rgba(${ACCENT_RGB}, 0.4)`,
+          background: `rgba(${ACCENT_RGB}, 0.1)`,
+        }}
+      >
+        <span
+          className="font-mono text-[9px] font-semibold tracking-widest"
+          style={{ color: ACCENT }}
+        >
+          LEAF
+        </span>
+      </div>
+
+      {/* Rotating rings with counter-rotating nodes */}
+      {rings.slice(0, 2).map((ring, ri) => (
+        <motion.div
+          key={ri}
+          className="absolute inset-0"
+          animate={{ rotate: 360 }}
+          transition={{ duration: ring.dur, repeat: Infinity, ease: "linear" }}
+        >
+          {ring.nodes.map((node, ni) => {
+            const rad = (node.angle * Math.PI) / 180;
+            const nx = CX + ring.r * Math.cos(rad);
+            const ny = CY + ring.r * Math.sin(rad);
+            return (
+              <div
+                key={ni}
+                className="absolute"
+                style={{
+                  left: nx,
+                  top: ny,
+                  transform: "translate(-50%,-50%)",
+                }}
+              >
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: ring.dur, repeat: Infinity, ease: "linear" }}
+                >
+                  <div
+                    className="whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-medium"
+                    style={{
+                      border: `1px solid rgba(${ACCENT_RGB}, 0.35)`,
+                      background: `rgba(11,22,34,0.82)`,
+                      color: `rgba(${ACCENT_RGB}, 0.9)`,
+                      backdropFilter: "blur(6px)",
+                    }}
+                  >
+                    {node.label}
+                  </div>
+                </motion.div>
+              </div>
+            );
+          })}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// ── Animated Fee Split Bar ──────────────────────────────────────────────────────
+function FeeSplitBar({
+  label,
+  pct,
+  bgColor,
+  delay = 0,
+}: {
+  label: string;
+  pct: number;
+  bgColor: string;
+  delay?: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+
+  return (
+    <div ref={ref}>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="text-sm text-white/60">{label}</span>
+        <span className="font-mono text-sm font-semibold text-white">{pct}%</span>
+      </div>
+      <div
+        className="h-1.5 overflow-hidden rounded-full"
+        style={{ background: "rgba(255,255,255,0.07)" }}
+      >
+        <motion.div
+          className="h-full rounded-full"
+          style={{ background: bgColor }}
+          initial={{ width: "0%" }}
+          animate={{ width: inView ? `${pct}%` : "0%" }}
+          transition={{ duration: 1.1, delay, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ── Network Stats Panel ─────────────────────────────────────────────────────────
+function NetworkStatsPanel() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 55]);
+
+  return (
+    <motion.div ref={ref} style={{ y }} className="relative mx-auto mt-16 max-w-3xl">
+      <div
+        className="rounded-[28px] p-6 backdrop-blur-sm"
+        style={{
+          border: `1px solid rgba(255,255,255,0.07)`,
+          background: "rgba(255,255,255,0.025)",
+        }}
+      >
+        <div
+          className="flex items-center justify-between gap-2 pb-4"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+        >
+          <div className="flex items-center gap-2">
+            <div
+              className="h-2 w-2 rounded-full"
+              style={{
+                background: ACCENT,
+                boxShadow: `0 0 6px rgba(${ACCENT_RGB}, 0.8)`,
+              }}
+            />
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+              Eden live network
+            </span>
+          </div>
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-2.5 w-2.5 rounded-full bg-white/10" />
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          {[
+            { label: "Innovators", count: "—", sublabel: "services published" },
+            { label: "Consumers", count: "—", sublabel: "Leaf's in circulation" },
+            { label: "Contributors", count: "—", sublabel: "contributions pending" },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="rounded-2xl p-4"
+              style={{ border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.03)" }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.14em] text-white/30">{item.label}</p>
+              <p className="mt-1.5 text-xl font-semibold text-white/80">{item.count}</p>
+              <p className="mt-1 text-[10px] text-white/30">{item.sublabel}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-3">
+          <div
+            className="flex-1 rounded-2xl p-4"
+            style={{
+              border: `1px solid rgba(${ACCENT_RGB}, 0.18)`,
+              background: `rgba(${ACCENT_RGB}, 0.05)`,
+            }}
+          >
+            <p
+              className="text-[10px] uppercase tracking-[0.14em]"
+              style={{ color: `rgba(${ACCENT_RGB}, 0.7)` }}
+            >
+              Fee split
+            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <div
+                className="flex-1 overflow-hidden rounded-full h-1.5"
+                style={{ background: "rgba(255,255,255,0.07)" }}
+              >
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: "70%", background: `rgba(${ACCENT_RGB}, 0.7)` }}
+                />
+              </div>
+              <span
+                className="text-xs font-semibold"
+                style={{ color: ACCENT }}
+              >
+                70% to innovators
+              </span>
+            </div>
+            <p className="mt-1.5 text-[10px] text-white/30">
+              15% platform · 10% provider reserve · 5% contribution pool
+            </p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Intro Gate ──────────────────────────────────────────────────────────────────
 function EdenIntroGate({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<"logo" | "opening" | "done">("logo");
 
   useEffect(() => {
-    // Phase 1: show logo for 1.1s
     const t1 = setTimeout(() => setPhase("opening"), 1100);
-    // Phase 2: gates open over 0.9s, then signal done
     const t2 = setTimeout(() => {
       setPhase("done");
       onDone();
@@ -71,74 +594,73 @@ function EdenIntroGate({ onDone }: { onDone: () => void }) {
       {phase !== "done" ? (
         <motion.div
           key="gate-overlay"
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-[#0a1825]"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+          style={{ background: BG }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          {/* Ambient teal glow behind logo */}
+          {/* Ambient glow */}
           <motion.div
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#14989a]/12 blur-[80px]"
-            animate={{
-              scale: phase === "opening" ? 2.5 : 1,
-              opacity: phase === "opening" ? 0 : 1,
-            }}
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px]"
+            style={{ background: `rgba(${ACCENT_RGB}, 0.1)` }}
+            animate={{ scale: phase === "opening" ? 2.5 : 1, opacity: phase === "opening" ? 0 : 1 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           />
 
-          {/* Left gate panel */}
+          {/* Left gate */}
           <motion.div
-            className="absolute left-0 top-0 h-full w-1/2 bg-[#0a1825]"
-            style={{
-              borderRight: "1px solid rgba(20,152,154,0.15)",
-            }}
-            animate={{
-              x: phase === "opening" ? "-100%" : "0%",
-            }}
+            aria-hidden
+            className="absolute left-0 top-0 h-full w-1/2"
+            style={{ background: BG, borderRight: `1px solid rgba(${ACCENT_RGB}, 0.12)` }}
+            animate={{ x: phase === "opening" ? "-100%" : "0%" }}
             transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
           />
 
-          {/* Right gate panel */}
+          {/* Right gate */}
           <motion.div
-            className="absolute right-0 top-0 h-full w-1/2 bg-[#0a1825]"
-            style={{
-              borderLeft: "1px solid rgba(20,152,154,0.15)",
-            }}
-            animate={{
-              x: phase === "opening" ? "100%" : "0%",
-            }}
+            aria-hidden
+            className="absolute right-0 top-0 h-full w-1/2"
+            style={{ background: BG, borderLeft: `1px solid rgba(${ACCENT_RGB}, 0.12)` }}
+            animate={{ x: phase === "opening" ? "100%" : "0%" }}
             transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
           />
 
-          {/* Dot grid overlay on gates */}
+          {/* Dot grid */}
           <div
+            aria-hidden
             className="pointer-events-none absolute inset-0"
             style={{
-              backgroundImage: "radial-gradient(circle, rgba(20,152,154,0.08) 1px, transparent 1px)",
+              backgroundImage: `radial-gradient(circle, rgba(${ACCENT_RGB}, 0.06) 1px, transparent 1px)`,
               backgroundSize: "28px 28px",
             }}
           />
 
-          {/* Center logo — fades out as gates open */}
+          {/* Center logo */}
           <motion.div
             className="relative z-10 flex flex-col items-center gap-5"
-            animate={{
-              opacity: phase === "opening" ? 0 : 1,
-              scale: phase === "opening" ? 0.85 : 1,
-            }}
+            animate={{ opacity: phase === "opening" ? 0 : 1, scale: phase === "opening" ? 0.85 : 1 }}
             transition={{ duration: 0.4, ease: "easeIn" }}
           >
-            {/* Logo mark with pulse ring */}
             <div className="relative">
               <motion.div
-                className="absolute inset-0 rounded-[24px] border border-[#14989a]/20"
+                aria-hidden
+                className="absolute inset-0 rounded-[24px]"
+                style={{ border: `1px solid rgba(${ACCENT_RGB}, 0.2)` }}
                 animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0, 0.4] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               />
-              <div className="flex h-16 w-16 items-center justify-center rounded-[20px] border border-[rgba(20,152,154,0.4)] bg-[radial-gradient(circle_at_35%_25%,rgba(20,152,154,0.22),rgba(10,24,37,0.98))] shadow-[0_0_40px_rgba(20,152,154,0.3)]">
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-[20px]"
+                style={{
+                  border: `1px solid rgba(${ACCENT_RGB}, 0.4)`,
+                  background: `radial-gradient(circle at 35% 25%, rgba(${ACCENT_RGB}, 0.2), rgba(11,22,34,0.98))`,
+                  boxShadow: `0 0 40px rgba(${ACCENT_RGB}, 0.22)`,
+                }}
+              >
                 <EdenLogoMark size={38} />
               </div>
             </div>
-
             <motion.div
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -146,15 +668,22 @@ function EdenIntroGate({ onDone }: { onDone: () => void }) {
               className="text-center"
             >
               <p className="text-lg font-semibold tracking-tight text-white">Eden</p>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[#14989a]/70">
+              <p
+                className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.25em]"
+                style={{ color: `rgba(${ACCENT_RGB}, 0.65)` }}
+              >
                 AI service economy
               </p>
             </motion.div>
           </motion.div>
 
-          {/* Gate edge glow lines */}
+          {/* Center seam line */}
           <motion.div
-            className="pointer-events-none absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[linear-gradient(to_bottom,transparent,rgba(20,152,154,0.5)_30%,rgba(20,152,154,0.5)_70%,transparent)]"
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-0 h-full w-px -translate-x-1/2"
+            style={{
+              background: `linear-gradient(to bottom, transparent, rgba(${ACCENT_RGB}, 0.4) 30%, rgba(${ACCENT_RGB}, 0.4) 70%, transparent)`,
+            }}
             animate={{ opacity: phase === "opening" ? 0 : 1 }}
             transition={{ duration: 0.3 }}
           />
@@ -164,7 +693,7 @@ function EdenIntroGate({ onDone }: { onDone: () => void }) {
   );
 }
 
-// ── Waitlist inline section ────────────────────────────────────────────────────
+// ── Waitlist Form ───────────────────────────────────────────────────────────────
 function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -212,7 +741,7 @@ function WaitlistForm() {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-6 py-5 text-center"
           >
-            <p className="text-sm font-semibold text-emerald-400">You're in!</p>
+            <p className="text-sm font-semibold text-emerald-400">You&apos;re in!</p>
             <p className="mt-1 text-sm text-white/50">{msg}</p>
           </motion.div>
         ) : (
@@ -220,7 +749,9 @@ function WaitlistForm() {
             key="form"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            onSubmit={(e) => { void handleSubmit(e); }}
+            onSubmit={(e) => {
+              void handleSubmit(e);
+            }}
             className="space-y-3"
           >
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -229,7 +760,7 @@ function WaitlistForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name (optional)"
-                className="flex-1 rounded-xl border border-white/8 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#14989a]/40 focus:ring-1 focus:ring-[#14989a]/20"
+                className="flex-1 rounded-xl border border-white/8 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#2dd4bf]/40 focus:ring-1 focus:ring-[#2dd4bf]/20"
               />
               <input
                 type="email"
@@ -237,16 +768,14 @@ function WaitlistForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email"
                 required
-                className="flex-1 rounded-xl border border-white/8 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#14989a]/40 focus:ring-1 focus:ring-[#14989a]/20"
+                className="flex-1 rounded-xl border border-white/8 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#2dd4bf]/40 focus:ring-1 focus:ring-[#2dd4bf]/20"
               />
             </div>
-            {state === "error" ? (
-              <p className="text-xs text-rose-400">{msg}</p>
-            ) : null}
+            {state === "error" ? <p className="text-xs text-rose-400">{msg}</p> : null}
             <button
               type="submit"
               disabled={state === "loading"}
-              className="w-full rounded-xl border border-[#14989a]/40 bg-[#14989a]/15 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/25 disabled:opacity-60"
+              className="w-full rounded-xl border border-[#2dd4bf]/40 bg-[#2dd4bf]/10 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:opacity-60"
             >
               {state === "loading" ? "Joining…" : "Request early access"}
             </button>
@@ -257,67 +786,20 @@ function WaitlistForm() {
   );
 }
 
-// ── Parallax hero visual ───────────────────────────────────────────────────────
-function HeroVisual() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 60]);
-
-  return (
-    <motion.div ref={ref} style={{ y }} className="relative mx-auto mt-16 max-w-3xl">
-      <div className="rounded-[28px] border border-white/8 bg-white/[0.03] p-6 backdrop-blur-sm">
-        <div className="flex items-center justify-between gap-2 border-b border-white/8 pb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#14989a] shadow-[0_0_6px_rgba(20,152,154,0.8)]" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-              Eden live network
-            </span>
-          </div>
-          <div className="flex gap-1.5">
-            <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
-            <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
-            <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
-          </div>
-        </div>
-        <div className="mt-5 grid grid-cols-3 gap-3">
-          {[
-            { label: "Innovators", count: "—", sublabel: "services published" },
-            { label: "Consumers", count: "—", sublabel: "Leaf's in circulation" },
-            { label: "Contributors", count: "—", sublabel: "contributions pending" },
-          ].map((item) => (
-            <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-white/30">{item.label}</p>
-              <p className="mt-1.5 text-xl font-semibold text-white/80">{item.count}</p>
-              <p className="mt-1 text-[10px] text-white/30">{item.sublabel}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3 flex gap-3">
-          <div className="flex-1 rounded-2xl border border-[#14989a]/20 bg-[#14989a]/6 p-4">
-            <p className="text-[10px] uppercase tracking-[0.14em] text-[#14989a]/70">Fee split</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex-1 overflow-hidden rounded-full bg-white/8 h-1.5">
-                <div className="h-full w-[70%] rounded-full bg-[#14989a]/70" />
-              </div>
-              <span className="text-xs font-semibold text-[#14989a]">70% to innovators</span>
-            </div>
-            <p className="mt-1.5 text-[10px] text-white/30">
-              15% platform · 10% provider reserve · 5% contribution pool
-            </p>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Main homepage ──────────────────────────────────────────────────────────────
+// ── Main Homepage ────────────────────────────────────────────────────────────────
 export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
   const [introPlayed, setIntroPlayed] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
 
+  // Hero headline parallax
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroHeadlineY = useTransform(heroScroll, [0, 1], [0, -38]);
+
   useEffect(() => {
-    // Only play once per session
     const played = sessionStorage.getItem("eden_intro_played");
     if (played) {
       setIntroPlayed(true);
@@ -325,21 +807,33 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
     }
   }, []);
 
-  function handleIntroDone() {
+  const handleIntroDone = useCallback(() => {
     sessionStorage.setItem("eden_intro_played", "1");
     setIntroPlayed(true);
     setTimeout(() => setContentVisible(true), 100);
-  }
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#0d1f30] text-white">
-      {/* Gate intro — only shown once per session */}
+    <div
+      className="relative min-h-screen overflow-x-hidden"
+      style={{ background: BG, color: "#e8f1f8" }}
+    >
+      {/* Fixed background layers */}
+      <ParticleCanvas />
+      <GrainOverlay />
+
+      {/* Custom cursor */}
+      <CustomCursor />
+
+      {/* Intro gate — once per session */}
       {!introPlayed ? <EdenIntroGate onDone={handleIntroDone} /> : null}
 
+      {/* Page content */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: contentVisible ? 1 : 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-[10]"
       >
         {maintenanceMode ? (
           <div className="border-b border-amber-800/40 bg-amber-950/60 px-4 py-2.5 text-center text-sm text-amber-300">
@@ -348,10 +842,22 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
         ) : null}
 
         {/* ── Nav ── */}
-        <header className="sticky top-0 z-50 border-b border-white/8 bg-[#0d1f30]/90 backdrop-blur-md">
+        <header
+          className="sticky top-0 z-50 border-b backdrop-blur-md"
+          style={{
+            borderColor: "rgba(255,255,255,0.06)",
+            background: `rgba(11,22,34,0.88)`,
+          }}
+        >
           <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl border border-[rgba(20,152,154,0.3)] bg-[radial-gradient(circle_at_35%_25%,rgba(20,152,154,0.15),rgba(10,24,37,0.95))]">
+              <div
+                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-xl"
+                style={{
+                  border: `1px solid rgba(${ACCENT_RGB}, 0.3)`,
+                  background: `radial-gradient(circle at 35% 25%, rgba(${ACCENT_RGB}, 0.14), rgba(11,18,30,0.95))`,
+                }}
+              >
                 <EdenLogoMark size={20} />
               </div>
               <span className="text-base font-semibold tracking-tight text-white">Eden</span>
@@ -373,7 +879,8 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               </Link>
               <Link
                 href="#waitlist"
-                className="rounded-full bg-[#14989a] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/85"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ background: ACCENT }}
               >
                 Get early access
               </Link>
@@ -382,43 +889,65 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
         </header>
 
         {/* ── Hero ── */}
-        <section className="relative overflow-hidden px-5 pb-24 pt-20 md:pb-32 md:pt-28">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[#14989a]/10 blur-[100px]" />
-            <div className="absolute -right-32 top-40 h-64 w-64 rounded-full bg-[#14989a]/6 blur-[80px]" />
+        <section ref={heroRef} className="relative overflow-hidden px-5 pb-24 pt-20 md:pb-32 md:pt-28">
+          {/* Glow blobs */}
+          <div aria-hidden className="pointer-events-none absolute inset-0">
+            <div
+              className="absolute left-1/2 top-0 h-[520px] w-[720px] -translate-x-1/2 rounded-full blur-[120px]"
+              style={{ background: `rgba(${ACCENT_RGB}, 0.065)` }}
+            />
+            <div
+              className="absolute -right-32 top-40 h-64 w-64 rounded-full blur-[80px]"
+              style={{ background: `rgba(${ACCENT_RGB}, 0.045)` }}
+            />
           </div>
+
+          {/* Dot grid */}
           <div
-            className="pointer-events-none absolute inset-0 opacity-[0.035]"
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.028]"
             style={{
-              backgroundImage: "radial-gradient(circle, #14989a 1px, transparent 1px)",
+              backgroundImage: `radial-gradient(circle, ${ACCENT} 1px, transparent 1px)`,
               backgroundSize: "32px 32px",
             }}
           />
 
           <div className="relative mx-auto max-w-4xl text-center">
+            {/* Eyebrow */}
             <motion.div
               variants={fadeUp}
               initial="hidden"
               animate={contentVisible ? "visible" : "hidden"}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
             >
-              <span className="inline-block rounded-full border border-[#14989a]/30 bg-[#14989a]/10 px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[#14989a]">
+              <span
+                className="inline-block rounded-full px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.2em]"
+                style={{
+                  border: `1px solid rgba(${ACCENT_RGB}, 0.3)`,
+                  background: `rgba(${ACCENT_RGB}, 0.08)`,
+                  color: ACCENT,
+                }}
+              >
                 Eden Platform — Early Access
               </span>
             </motion.div>
 
-            <motion.h1
-              variants={fadeUp}
-              initial="hidden"
-              animate={contentVisible ? "visible" : "hidden"}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
-              className="mt-6 text-5xl font-semibold leading-[1.08] tracking-tight text-white md:text-6xl lg:text-7xl"
-            >
-              The AI service economy.
-              <br />
-              <span className="text-[#14989a]">Open to innovators.</span>
-            </motion.h1>
+            {/* H1 with floating parallax */}
+            <motion.div style={{ y: heroHeadlineY }}>
+              <motion.h1
+                variants={fadeUp}
+                initial="hidden"
+                animate={contentVisible ? "visible" : "hidden"}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+                className="mt-6 font-serif text-5xl leading-[1.08] tracking-tight text-white md:text-6xl lg:text-7xl"
+              >
+                The AI service economy.
+                <br />
+                <span style={{ color: ACCENT }}>Open to innovators.</span>
+              </motion.h1>
+            </motion.div>
 
+            {/* Subtitle */}
             <motion.p
               variants={fadeUp}
               initial="hidden"
@@ -431,6 +960,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               who improve Eden earn from it too.
             </motion.p>
 
+            {/* CTA buttons */}
             <motion.div
               variants={fadeUp}
               initial="hidden"
@@ -440,7 +970,11 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
             >
               <Link
                 href="#waitlist"
-                className="rounded-full bg-[#14989a] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_0_32px_rgba(20,152,154,0.35)] transition-all hover:bg-[#14989a]/90 hover:shadow-[0_0_48px_rgba(20,152,154,0.5)]"
+                className="rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{
+                  background: ACCENT,
+                  boxShadow: `0 0 32px rgba(${ACCENT_RGB}, 0.28)`,
+                }}
               >
                 Request early access
               </Link>
@@ -452,6 +986,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               </Link>
             </motion.div>
 
+            {/* Trust signals */}
             <motion.div
               variants={fadeUp}
               initial="hidden"
@@ -462,7 +997,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               {trustSignals.map((signal) => (
                 <span
                   key={signal.label}
-                  className="rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-white/40"
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/40"
                 >
                   {signal.label}
                 </span>
@@ -470,18 +1005,23 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
             </motion.div>
           </div>
 
+          {/* Network stats panel */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate={contentVisible ? "visible" : "hidden"}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
           >
-            <HeroVisual />
+            <NetworkStatsPanel />
           </motion.div>
         </section>
 
-        {/* ── How it works ── */}
-        <section id="how-it-works" className="border-t border-white/8 px-5 py-20 md:py-28">
+        {/* ── How it works (Eden Loop) ── */}
+        <section
+          id="how-it-works"
+          className="border-t px-5 py-20 md:py-28"
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        >
           <div className="mx-auto max-w-5xl">
             <motion.div
               variants={fadeUp}
@@ -491,7 +1031,10 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="text-center"
             >
-              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#14989a]">
+              <p
+                className="font-mono text-[11px] uppercase tracking-[0.22em]"
+                style={{ color: ACCENT }}
+              >
                 The Eden loop
               </p>
               <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
@@ -504,46 +1047,24 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
             </motion.div>
 
             <div className="mt-14 grid gap-4 md:grid-cols-4">
-              {[
-                {
-                  step: "01",
-                  label: "Innovators publish",
-                  detail: "Services appear in discovery once visible pricing and publish state are set.",
-                  accent: false,
-                },
-                {
-                  step: "02",
-                  label: "Consumers discover",
-                  detail: "Ask Eden or browse the marketplace. Visible pricing, no hidden checkout.",
-                  accent: false,
-                },
-                {
-                  step: "03",
-                  label: "Economy distributes",
-                  detail: "Every run triggers an automatic 4-bucket split in Leaf's.",
-                  accent: true,
-                },
-                {
-                  step: "04",
-                  label: "Contributors improve",
-                  detail: "Submit improvements to Eden itself. Earn from the contribution pool each period.",
-                  accent: false,
-                },
-              ].map((item, i) => (
+              {loopCards.map((item, i) => (
                 <motion.div
                   key={item.step}
                   variants={fadeUp}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.08 }}
-                  className={`rounded-[20px] border p-5 ${
-                    item.accent
-                      ? "border-[#14989a]/30 bg-[#14989a]/8"
-                      : "border-white/8 bg-white/[0.03]"
-                  }`}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.1 }}
+                  className="rounded-[20px] p-5"
+                  style={{
+                    border: `1px solid ${item.accent ? `rgba(${ACCENT_RGB}, 0.28)` : "rgba(255,255,255,0.06)"}`,
+                    background: item.accent ? `rgba(${ACCENT_RGB}, 0.065)` : "rgba(255,255,255,0.022)",
+                  }}
                 >
-                  <p className={`font-mono text-[11px] tracking-[0.2em] ${item.accent ? "text-[#14989a]" : "text-white/25"}`}>
+                  <p
+                    className="font-mono text-[11px] tracking-[0.2em]"
+                    style={{ color: item.accent ? ACCENT : "rgba(255,255,255,0.2)" }}
+                  >
                     {item.step}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-white">{item.label}</p>
@@ -554,8 +1075,11 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           </div>
         </section>
 
-        {/* ── Who it's for ── */}
-        <section className="border-t border-white/8 px-5 py-20 md:py-28">
+        {/* ── Who it's for (Role cards with spring) ── */}
+        <section
+          className="border-t px-5 py-20 md:py-28"
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        >
           <div className="mx-auto max-w-5xl">
             <motion.div
               variants={fadeUp}
@@ -565,7 +1089,10 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="text-center"
             >
-              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#14989a]">
+              <p
+                className="font-mono text-[11px] uppercase tracking-[0.22em]"
+                style={{ color: ACCENT }}
+              >
                 Who Eden is for
               </p>
               <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
@@ -577,15 +1104,26 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               {audienceCards.map((card, i) => (
                 <motion.div
                   key={card.id}
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="visible"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.1 }}
-                  className="group rounded-[24px] border border-white/8 bg-white/[0.03] p-6 transition-all hover:border-[#14989a]/30 hover:bg-[#14989a]/5"
+                  transition={{
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 15,
+                    delay: i * 0.1,
+                  }}
+                  className="group rounded-[24px] p-6 transition-colors"
+                  style={{
+                    border: "1px solid rgba(255,255,255,0.07)",
+                    background: "rgba(255,255,255,0.025)",
+                  }}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl text-[#14989a]/60 transition-colors group-hover:text-[#14989a]">
+                    <span
+                      className="text-2xl"
+                      style={{ color: `rgba(${ACCENT_RGB}, 0.6)` }}
+                    >
                       {card.icon}
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] text-white/40">
@@ -600,9 +1138,26 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           </div>
         </section>
 
-        {/* ── Economy section ── */}
-        <section id="economy" className="border-t border-white/8 px-5 py-20 md:py-28">
+        {/* ── Economy (Orbital diagram + fee split) ── */}
+        <section
+          id="economy"
+          className="border-t px-5 py-20 md:py-28"
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        >
           <div className="mx-auto max-w-5xl">
+            {/* Orbital diagram */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-20 flex justify-center overflow-visible"
+            >
+              <OrbitalDiagram />
+            </motion.div>
+
+            {/* Leafs copy + fee split bars */}
             <div className="grid gap-8 md:grid-cols-2 md:items-center">
               <motion.div
                 variants={fadeUp}
@@ -611,7 +1166,10 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
-                <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#14989a]">
+                <p
+                  className="font-mono text-[11px] uppercase tracking-[0.22em]"
+                  style={{ color: ACCENT }}
+                >
                   Eden Leaf&apos;s
                 </p>
                 <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
@@ -624,7 +1182,11 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 </p>
                 <Link
                   href="#waitlist"
-                  className="mt-8 inline-block rounded-full bg-[#14989a] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_0_24px_rgba(20,152,154,0.3)] transition-all hover:bg-[#14989a]/90"
+                  className="mt-8 inline-block rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  style={{
+                    background: ACCENT,
+                    boxShadow: `0 0 24px rgba(${ACCENT_RGB}, 0.22)`,
+                  }}
                 >
                   Join Eden
                 </Link>
@@ -636,30 +1198,27 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
-                className="rounded-[24px] border border-white/8 bg-white/[0.03] p-6"
+                className="rounded-[24px] p-6"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  background: "rgba(255,255,255,0.025)",
+                }}
               >
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#14989a]">
+                <p
+                  className="font-mono text-[11px] uppercase tracking-[0.18em]"
+                  style={{ color: ACCENT }}
+                >
                   Per service run
                 </p>
-                <div className="mt-5 space-y-3">
-                  {[
-                    { label: "Innovator earnings", pct: 70, color: "bg-[#14989a]" },
-                    { label: "Platform fee", pct: 15, color: "bg-white/20" },
-                    { label: "Provider reserve", pct: 10, color: "bg-white/14" },
-                    { label: "Contribution pool", pct: 5, color: "bg-[#14989a]/40" },
-                  ].map((item) => (
-                    <div key={item.label}>
-                      <div className="mb-1.5 flex items-center justify-between gap-2">
-                        <span className="text-sm text-white/60">{item.label}</span>
-                        <span className="font-mono text-sm font-semibold text-white">{item.pct}%</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
-                        <div
-                          className={`h-full rounded-full ${item.color} transition-all`}
-                          style={{ width: `${item.pct}%` }}
-                        />
-                      </div>
-                    </div>
+                <div className="mt-5 space-y-4">
+                  {feeSplit.map((item, i) => (
+                    <FeeSplitBar
+                      key={item.label}
+                      label={item.label}
+                      pct={item.pct}
+                      bgColor={item.color}
+                      delay={i * 0.1}
+                    />
                   ))}
                 </div>
               </motion.div>
@@ -667,8 +1226,12 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           </div>
         </section>
 
-        {/* ── Early access / Waitlist ── */}
-        <section id="waitlist" className="border-t border-white/8 px-5 py-20 md:py-28">
+        {/* ── Early Access / Waitlist ── */}
+        <section
+          id="waitlist"
+          className="border-t px-5 py-20 md:py-28"
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        >
           <div className="mx-auto max-w-5xl">
             <motion.div
               variants={fadeUp}
@@ -676,21 +1239,41 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               whileInView="visible"
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="relative overflow-hidden rounded-[32px] border border-[#14989a]/25 bg-[linear-gradient(135deg,rgba(20,152,154,0.10),rgba(13,31,48,0.95))] px-8 py-14"
+              className="relative overflow-hidden rounded-[32px] px-8 py-14"
+              style={{
+                border: `1px solid rgba(${ACCENT_RGB}, 0.18)`,
+                background: `linear-gradient(135deg, rgba(${ACCENT_RGB}, 0.07), rgba(11,22,34,0.96))`,
+              }}
             >
-              <div className="pointer-events-none absolute inset-0 rounded-[32px] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]" />
-              <div className="pointer-events-none absolute left-1/2 top-0 h-48 w-96 -translate-x-1/2 rounded-full bg-[#14989a]/12 blur-[60px]" />
               <div
-                className="pointer-events-none absolute inset-0 opacity-[0.03]"
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-[32px]"
+                style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 top-0 h-48 w-96 -translate-x-1/2 rounded-full blur-[60px]"
+                style={{ background: `rgba(${ACCENT_RGB}, 0.09)` }}
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-[0.022]"
                 style={{
-                  backgroundImage: "radial-gradient(circle, #14989a 1px, transparent 1px)",
+                  backgroundImage: `radial-gradient(circle, ${ACCENT} 1px, transparent 1px)`,
                   backgroundSize: "24px 24px",
                 }}
               />
 
               <div className="relative">
                 <div className="text-center">
-                  <span className="inline-block rounded-full border border-[#14989a]/30 bg-[#14989a]/10 px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-[#14989a]">
+                  <span
+                    className="inline-block rounded-full px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.22em]"
+                    style={{
+                      border: `1px solid rgba(${ACCENT_RGB}, 0.3)`,
+                      background: `rgba(${ACCENT_RGB}, 0.08)`,
+                      color: ACCENT,
+                    }}
+                  >
                     Early access
                   </span>
                   <h2 className="mt-5 text-3xl font-semibold tracking-tight text-white md:text-4xl">
@@ -708,7 +1291,11 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/40">
                       Already have a code?{" "}
-                      <Link href="/auth" className="text-[#14989a]/70 hover:text-[#14989a]">
+                      <Link
+                        href="/auth"
+                        style={{ color: `rgba(${ACCENT_RGB}, 0.7)` }}
+                        className="hover:underline"
+                      >
                         Sign up →
                       </Link>
                     </span>
@@ -724,10 +1311,19 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
         </section>
 
         {/* ── Footer ── */}
-        <footer className="border-t border-white/8 px-5 py-8">
+        <footer
+          className="border-t px-5 py-8"
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        >
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-lg border border-[rgba(20,152,154,0.25)] bg-[radial-gradient(circle_at_35%_25%,rgba(20,152,154,0.12),rgba(10,24,37,0.95))]">
+              <div
+                className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-lg"
+                style={{
+                  border: `1px solid rgba(${ACCENT_RGB}, 0.22)`,
+                  background: `radial-gradient(circle at 35% 25%, rgba(${ACCENT_RGB}, 0.1), rgba(11,18,30,0.95))`,
+                }}
+              >
                 <EdenLogoMark size={14} />
               </div>
               <span className="text-sm font-medium text-white/40">Eden</span>
