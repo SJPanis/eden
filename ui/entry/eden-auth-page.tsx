@@ -91,12 +91,18 @@ export function EdenAuthPage({
       ok?: boolean;
       error?: string;
       requiresCode?: boolean;
+      welcomeLeaves?: number;
     } | null;
     if (!response.ok) {
       setSubmitError(body?.error ?? "Unable to create your Eden account.");
       return;
     }
-    setSuccessNote("Account created. Signing you in now.");
+    const leaves = body?.welcomeLeaves ?? 0;
+    setSuccessNote(
+      leaves > 0
+        ? `Account created! You've been gifted ${leaves} Leaf's. Signing you in now.`
+        : "Account created. Signing you in now.",
+    );
     await handleSignIn();
   }
 

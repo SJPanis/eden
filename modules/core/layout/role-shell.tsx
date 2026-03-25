@@ -173,13 +173,17 @@ export function RoleShell({
                 </button>
               ) : null}
 
-              {/* Avatar */}
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#14989a]/35 bg-[#14989a]/12 text-xs font-semibold text-white">
+              {/* Avatar — links to settings */}
+              <Link
+                href="/settings"
+                className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#14989a]/35 bg-[#14989a]/12 text-xs font-semibold text-white transition-opacity hover:opacity-80"
+                title="Account settings"
+              >
                 {session.user.initials}
                 {(activeUserFrozen || activeBusinessFrozen) ? (
                   <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border border-[#0d1f30] bg-rose-500" />
                 ) : null}
-              </div>
+              </Link>
             </div>
           </div>
 

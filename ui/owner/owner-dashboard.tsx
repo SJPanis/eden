@@ -58,6 +58,7 @@ import type { EdenOwnerPayoutAccountingSummary } from "@/modules/core/services/p
 import { formatServicePricingLabel } from "@/modules/core/services/service-pricing";
 import { OwnerReconciliationFilters } from "@/ui/owner/components/owner-reconciliation-filters";
 import { ControlRoomSection } from "@/ui/owner/components/control-room-section";
+import { OwnerAccessCodesPanel } from "@/ui/owner/components/owner-access-codes-panel";
 
 type OwnerDashboardPanelProps = {
   session: EdenMockSession;
@@ -474,7 +475,7 @@ export function OwnerDashboardPanel({
   paymentMetrics,
   payoutAccounting,
 }: OwnerDashboardPanelProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "users" | "economy" | "pipeline" | "security">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "economy" | "pipeline" | "security" | "codes">("overview");
   const [paymentFilter, setPaymentFilter] = useState<OwnerPaymentFilter>("all");
   const [payoutFilter, setPayoutFilter] = useState<OwnerPayoutFilter>("all");
 
@@ -1019,6 +1020,7 @@ export function OwnerDashboardPanel({
     { id: "economy" as const, label: "Economy" },
     { id: "pipeline" as const, label: "Pipeline" },
     { id: "security" as const, label: "Security" },
+    { id: "codes" as const, label: "Access Codes" },
   ];
 
   return (
@@ -1042,9 +1044,6 @@ export function OwnerDashboardPanel({
               </div>
             ))}
           </div>
-        </div>
-        <div className="mt-3 rounded-xl border border-sky-500/20 bg-sky-500/[0.08] px-3 py-2 font-mono text-[11px] text-sky-300/80">
-          Honest state: payments, payouts, runtime records, sandbox tasks, and several usage metrics now persist. Release transitions, freeze toggles, and some ledger views still include development overlays.
         </div>
       </div>
 
@@ -2040,6 +2039,26 @@ export function OwnerDashboardPanel({
                 ))}
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {activeTab === "codes" && (
+          <motion.div
+            key="codes"
+            variants={tabVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-4"
+          >
+            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#14989a]">Early Access</p>
+              <p className="mt-0.5 text-sm font-semibold text-white">Invite Code Manager</p>
+              <p className="mt-1 text-xs text-white/40">
+                Generate and manage early access codes. Each code can be given to a user to allow sign-up while early access is active.
+              </p>
+            </div>
+            <OwnerAccessCodesPanel />
           </motion.div>
         )}
       </AnimatePresence>

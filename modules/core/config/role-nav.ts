@@ -36,6 +36,7 @@ export const roleMeta: Record<EdenRole, EdenRoleMeta> = {
 
 export const topNavItems: EdenTopNavItem[] = [
   { label: "Home", href: "/consumer", accessLabel: "Consumer and owner", allowedRoles: ["consumer", "owner"] },
+  { label: "Chat", href: "/consumer/chat", accessLabel: "All roles", allowedRoles: ["consumer", "business", "owner"] },
   { label: "Projects", href: "/consumer/projects", accessLabel: "All roles", allowedRoles: ["consumer", "business", "owner"] },
   { label: "Innovator", href: "/business", accessLabel: "Business and owner", allowedRoles: ["business", "owner"] },
 ];

@@ -9,6 +9,7 @@ import {
 } from "@/modules/core/session/password-auth";
 
 const earlyAccessEnabled = process.env.EDEN_EARLY_ACCESS_ENABLED === "true";
+const BETA_WELCOME_LEAVES = 100;
 
 export async function POST(request: Request) {
   const requestBody = (await request.json().catch(() => null)) as
@@ -89,6 +90,8 @@ export async function POST(request: Request) {
       displayName,
       passwordHash,
       role: "CONSUMER",
+      // Beta welcome gift: 100 Leaf's granted when signing up with an access code
+      edenBalanceCredits: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
       ...(resolvedCodeId ? { accessCodeId: resolvedCodeId } : {}),
     },
     select: { id: true, username: true, displayName: true },
@@ -102,13 +105,37 @@ export async function POST(request: Request) {
     },
   });
 
-  // Increment code use count
+  // Increment code use count and record the welcome grant audit trail
   if (resolvedCodeId) {
-    await getPrismaClient().earlyAccessCode.update({
-      where: { id: resolvedCodeId },
-      data: { useCount: { increment: 1 } },
-    });
+    const ownerUsername = resolveConfiguredOwnerUsername();
+    const ownerUser = ownerUsername
+      ? await getPrismaClient().user.findUnique({
+          where: { username: ownerUsername },
+          select: { id: true },
+        })
+      : null;
+
+    await Promise.all([
+      // Increment use count on the code
+      getPrismaClient().earlyAccessCode.update({
+        where: { id: resolvedCodeId },
+        data: { useCount: { increment: 1 } },
+      }),
+      // Create audit grant record (uses owner's ID if found, otherwise self-grant)
+      getPrismaClient().ownerLeavesGrant.create({
+        data: {
+          userId: createdUser.id,
+          grantedByUserId: ownerUser?.id ?? createdUser.id,
+          amountCredits: BETA_WELCOME_LEAVES,
+          note: `Beta welcome gift — ${BETA_WELCOME_LEAVES} Leaf's granted on account creation with access code.`,
+        },
+      }),
+    ]);
   }
 
-  return NextResponse.json({ ok: true, user: createdUser });
+  return NextResponse.json({
+    ok: true,
+    user: createdUser,
+    welcomeLeaves: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
+  });
 }

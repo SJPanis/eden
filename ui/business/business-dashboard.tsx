@@ -204,14 +204,14 @@ type BusinessDashboardPanelProps = {
 };
 
 const workspaceNav = [
-  { id: "business-overview", label: "Overview" },
-  { id: "projects", label: "Projects" },
-  { id: "service-innovator", label: "Service Innovator" },
-  { id: "pipeline", label: "Pipeline" },
-  { id: "release-activity", label: "Release Activity" },
-  { id: "assistant", label: "AI Assistant" },
-  { id: "billing", label: "Billing" },
-  { id: "settings", label: "Settings" },
+  { id: "business-overview", label: "Overview", href: null },
+  { id: "projects", label: "Projects", href: null },
+  { id: "service-innovator", label: "Services", href: null },
+  { id: "pipeline", label: "Pipeline", href: null },
+  { id: "release-activity", label: "Releases", href: null },
+  { id: "billing", label: "Earnings", href: null },
+  { id: "", label: "Chat with Eden", href: "/consumer/chat" },
+  { id: "", label: "Account Settings", href: "/settings" },
 ];
 
 const releaseEventFilters: Array<{
@@ -1101,11 +1101,16 @@ export function BusinessDashboardPanel({
             <div className="mt-6 flex flex-wrap gap-2">
               {workspaceNav.map((item) => (
                 <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-2 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                  key={item.href ?? item.id}
+                  href={item.href ?? `#${item.id}`}
+                  className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors hover:border-[#14989a]/50 hover:text-white ${
+                    item.href
+                      ? "border-[#14989a]/25 bg-[#14989a]/8 text-[#14989a]/70"
+                      : "border-white/8 bg-white/[0.05] text-white/50"
+                  }`}
                 >
                   {item.label}
+                  {item.href ? " ↗" : ""}
                 </a>
               ))}
             </div>
@@ -1246,25 +1251,21 @@ export function BusinessDashboardPanel({
         <motion.div variants={sectionVariants}>
           <WorkspaceSection
             id="assistant"
-            eyebrow="Business AI Assistant"
-            title="Interactive AI workspace help"
-            description="Run mocked Eden AI actions against the active service draft, compare the output, and apply useful changes back into the shared innovator form."
-            actions={
-              <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
-                4 actions
-              </span>
-            }
+            eyebrow="Eden AI"
+            title="Chat with Eden"
+            description="Have a conversation with Eden to brainstorm ideas, refine your service, or explore what to build next. Ideas from chat carry directly into your project and service builder."
           >
-            <BusinessAiAssistantPanel
-              key={activeDraftSeedKey}
-              context={assistantContext}
-              discoverySnapshot={discoverySnapshot}
-              businessId={activeBusinessId}
-              initialHistory={assistantHistory}
-              onApplyPatch={handleApplyAssistantPatch}
-              onOpenEditor={handleOpenServiceBuilder}
-              onResponseFocus={handleAssistantResponseFocus}
-            />
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-white/50">
+                The Eden AI chat has moved to its own dedicated page for a better, full-context experience.
+              </p>
+              <Link
+                href="/consumer/chat"
+                className="shrink-0 rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/25"
+              >
+                Open Eden Chat →
+              </Link>
+            </div>
           </WorkspaceSection>
         </motion.div>
 
@@ -2876,38 +2877,21 @@ export function BusinessDashboardPanel({
         <motion.div variants={sectionVariants}>
           <WorkspaceSection
             id="settings"
-            eyebrow="Settings"
-            title="Business controls"
-            description="Use these mocked controls to shape profile, discovery metadata, visibility, and team ownership."
-            actions={
-              <button
-                type="button"
-                className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
-              >
-                Edit placeholders
-              </button>
-            }
+            eyebrow="Account"
+            title="Your account settings"
+            description="Manage your display name, username, password, and account details from the unified settings page."
           >
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-3 sm:grid-cols-2"
-            >
-              {settingsItems.map((item) => (
-                <motion.article
-                  key={item.id}
-                  variants={childVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
-                >
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    {item.label}
-                  </p>
-                  <p className="mt-2 text-base font-semibold text-white">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-                </motion.article>
-              ))}
-            </motion.div>
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-white/50">
+                Account settings — including profile, password, and role information — live in one place for all Eden workspaces.
+              </p>
+              <Link
+                href="/settings"
+                className="shrink-0 rounded-xl border border-white/10 bg-white/[0.05] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/40 hover:bg-[#14989a]/10"
+              >
+                Go to Settings →
+              </Link>
+            </div>
           </WorkspaceSection>
         </motion.div>
       </motion.div>
