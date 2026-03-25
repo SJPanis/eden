@@ -13,7 +13,9 @@ type EdenAuthPageProps = {
   earlyAccessEnabled?: boolean;
 };
 
-type AuthMode = "signin" | "signup" | "waitlist";
+// "invite" is the code-gate step shown before "signup" when earlyAccessEnabled
+type AuthMode = "signin" | "invite" | "signup" | "waitlist";
+
 
 export function EdenAuthPage({
   maintenanceMode,
@@ -22,50 +24,93 @@ export function EdenAuthPage({
   earlyAccessEnabled = false,
 }: EdenAuthPageProps) {
   const [isPending, startTransition] = useTransition();
-  const [mode, setMode] = useState<AuthMode>(initialMode);
+
+  // When early access is on, the signup flow starts at the invite gate
+  const startMode: AuthMode =
+    earlyAccessEnabled && initialMode === "signup" ? "invite" : initialMode;
+
+  const [mode, setMode] = useState<AuthMode>(startMode);
+
+  // Invite gate state
+  const [inviteCodeInput, setInviteCodeInput] = useState("");
+  const [validatedCode, setValidatedCode] = useState<string | null>(null);
+  const [inviteShake, setInviteShake] = useState(false);
+
+  // Account fields
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
-  const [accessCode, setAccessCode] = useState("");
+
+  // Waitlist fields
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [waitlistName, setWaitlistName] = useState("");
+
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successNote, setSuccessNote] = useState<string | null>(null);
+
   const resolvedCallbackUrl = useMemo(() => callbackUrl || "/consumer", [callbackUrl]);
 
   function handleModeSwitch(next: AuthMode) {
     setMode(next);
     setSubmitError(null);
     setSuccessNote(null);
+    setInviteShake(false);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError(null);
     setSuccessNote(null);
-    if (mode === "waitlist") {
-      startTransition(() => {
-        void handleWaitlist();
-      });
+    if (mode === "invite") {
+      startTransition(() => void handleValidateInvite());
+    } else if (mode === "waitlist") {
+      startTransition(() => void handleWaitlist());
+    } else if (mode === "signup") {
+      startTransition(() => void handleSignUp());
     } else {
-      startTransition(() => {
-        void (mode === "signup" ? handleSignUp() : handleSignIn());
-      });
+      startTransition(() => void handleSignIn());
     }
   }
 
+  // ── Step 1: validate invite code ───────────────────────────────────────────
+  async function handleValidateInvite() {
+    const res = await fetch("/api/auth/validate-invite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: inviteCodeInput }),
+    });
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      code?: string;
+      error?: string;
+    } | null;
+
+    if (!res.ok || !body?.ok) {
+      setSubmitError(body?.error ?? "This code isn't valid or has already been used.");
+      setInviteShake(true);
+      setTimeout(() => setInviteShake(false), 600);
+      return;
+    }
+
+    // Store validated code, advance to signup form
+    setValidatedCode(body.code ?? inviteCodeInput.trim().toUpperCase());
+    setSubmitError(null);
+    setMode("signup");
+  }
+
+  // ── Waitlist ───────────────────────────────────────────────────────────────
   async function handleWaitlist() {
-    const response = await fetch("/api/auth/join-waitlist", {
+    const res = await fetch("/api/auth/join-waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: waitlistEmail, name: waitlistName }),
     });
-    const body = (await response.json().catch(() => null)) as {
+    const body = (await res.json().catch(() => null)) as {
       ok?: boolean;
       alreadyRegistered?: boolean;
       error?: string;
     } | null;
-    if (!response.ok) {
+    if (!res.ok) {
       setSubmitError(body?.error ?? "Unable to join the waitlist.");
       return;
     }
@@ -76,24 +121,26 @@ export function EdenAuthPage({
     );
   }
 
+  // ── Sign up ────────────────────────────────────────────────────────────────
   async function handleSignUp() {
-    const response = await fetch("/api/auth/sign-up", {
+    const res = await fetch("/api/auth/sign-up", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username,
         displayName,
         password,
-        accessCode: accessCode || undefined,
+        // Pass the pre-validated code; sign-up API handles use count increment
+        accessCode: validatedCode ?? undefined,
       }),
     });
-    const body = (await response.json().catch(() => null)) as {
+    const body = (await res.json().catch(() => null)) as {
       ok?: boolean;
       error?: string;
       requiresCode?: boolean;
       welcomeLeaves?: number;
     } | null;
-    if (!response.ok) {
+    if (!res.ok) {
       setSubmitError(body?.error ?? "Unable to create your Eden account.");
       return;
     }
@@ -106,41 +153,43 @@ export function EdenAuthPage({
     await handleSignIn();
   }
 
+  // ── Sign in ────────────────────────────────────────────────────────────────
   async function handleSignIn() {
     try {
-      const response = await signIn("credentials", {
+      const res = await signIn("credentials", {
         username,
         password,
         redirect: false,
         callbackUrl: resolvedCallbackUrl,
       });
-      if (!response) {
+      if (!res) {
         setSubmitError("Eden could not complete sign-in. Please try again.");
         setSuccessNote(null);
         return;
       }
-      if (response.error) {
+      if (res.error) {
         setSubmitError(
-          response.error === "CredentialsSignin"
+          res.error === "CredentialsSignin"
             ? "Invalid username or password."
             : "Sign-in is temporarily unavailable. Please try again.",
         );
         setSuccessNote(null);
         return;
       }
-      if (!response.ok || !response.url) {
+      if (!res.ok || !res.url) {
         setSubmitError("Eden could not complete sign-in. Please try again.");
         setSuccessNote(null);
         return;
       }
       setSuccessNote("Signed in. Taking you to your workspace.");
-      window.location.assign(response.url);
+      window.location.assign(res.url);
     } catch {
       setSubmitError("Eden could not complete sign-in. Please try again.");
       setSuccessNote(null);
     }
   }
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div
       className="eden-grid min-h-screen px-4 py-10 md:px-8"
@@ -167,7 +216,7 @@ export function EdenAuthPage({
         </Link>
 
         <div className="mb-7 flex items-center gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-[rgba(20,152,154,0.35)] bg-[radial-gradient(circle_at_35%_25%,rgba(20,152,154,0.18),rgba(13,31,48,0.97))] shadow-[0_4px_20px_-6px_rgba(20,152,154,0.45)]">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-[rgba(45,212,191,0.35)] bg-[radial-gradient(circle_at_35%_25%,rgba(45,212,191,0.18),rgba(11,22,34,0.97))] shadow-[0_4px_20px_-6px_rgba(45,212,191,0.35)]">
             <EdenLogoMark size={28} />
           </div>
           <div>
@@ -176,26 +225,38 @@ export function EdenAuthPage({
           </div>
         </div>
 
-        {mode !== "waitlist" ? (
+        {/* Tab toggle — shown for signin/signup/invite, not waitlist */}
+        {mode === "signin" || mode === "signup" || mode === "invite" ? (
           <div className="mb-6 flex rounded-2xl border border-white/8 bg-white/[0.04] p-1">
-            {(["signup", "signin"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => handleModeSwitch(m)}
-                className={`flex-1 rounded-xl py-2 text-sm font-medium transition-colors ${
-                  mode === m
-                    ? "border border-[#14989a]/40 bg-[#14989a]/15 text-white"
-                    : "text-white/40 hover:text-white/70"
-                }`}
-              >
-                {m === "signup" ? "Create account" : "Sign in"}
-              </button>
-            ))}
+            {(["signup", "signin"] as const).map((m) => {
+              const isActive =
+                m === "signup"
+                  ? mode === "signup" || mode === "invite"
+                  : mode === "signin";
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() =>
+                    handleModeSwitch(
+                      m === "signup" && earlyAccessEnabled ? "invite" : m,
+                    )
+                  }
+                  className={`flex-1 rounded-xl py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "border border-[#2dd4bf]/40 bg-[#2dd4bf]/15 text-white"
+                      : "text-white/40 hover:text-white/70"
+                  }`}
+                >
+                  {m === "signup" ? "Create account" : "Sign in"}
+                </button>
+              );
+            })}
           </div>
         ) : null}
 
         <div className="rounded-[24px] border border-white/8 bg-white/[0.05] p-6 backdrop-blur-xl">
+          {/* ── Mode heading ── */}
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={mode}
@@ -204,23 +265,28 @@ export function EdenAuthPage({
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.18 }}
             >
-              {mode === "waitlist" ? (
+              {mode === "invite" ? (
                 <>
-                  <p className="text-lg font-semibold text-white">Join the waitlist</p>
+                  <p className="font-serif text-lg text-white">Enter Eden</p>
+                  <p className="mt-1 text-sm text-white/40">
+                    You&apos;ll need an invite code to create an account.
+                  </p>
+                </>
+              ) : mode === "waitlist" ? (
+                <>
+                  <p className="font-serif text-lg text-white">Join the waitlist</p>
                   <p className="mt-1 text-sm text-white/40">
                     We&apos;ll send your access code when a spot opens.
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-lg font-semibold text-white">
+                  <p className="font-serif text-lg text-white">
                     {mode === "signup" ? "Create your Eden account" : "Welcome back to Eden"}
                   </p>
                   <p className="mt-1 text-sm text-white/40">
                     {mode === "signup"
-                      ? earlyAccessEnabled
-                        ? "Early access — an invite code is required."
-                        : "New accounts start in the consumer layer."
+                      ? "New accounts start in the consumer layer."
                       : "Sign in to access your workspace."}
                   </p>
                 </>
@@ -229,8 +295,55 @@ export function EdenAuthPage({
           </AnimatePresence>
 
           <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-            <AnimatePresence initial={false}>
-              {mode === "waitlist" ? (
+            <AnimatePresence mode="wait" initial={false}>
+              {/* ── Invite gate step ── */}
+              {mode === "invite" ? (
+                <motion.div
+                  key="invite-fields"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden space-y-4"
+                >
+                  <div className="space-y-1">
+                    <label className="text-xs uppercase tracking-[0.12em] text-white/40">
+                      Invite Code
+                    </label>
+                    <motion.div
+                      animate={{ x: inviteShake ? [-10, 10, -8, 8, -4, 4, 0] : 0 }}
+                      transition={{ duration: 0.45, ease: "easeInOut" as const }}
+                    >
+                      <input
+                        value={inviteCodeInput}
+                        onChange={(e) => {
+                          setInviteCodeInput(e.target.value.toUpperCase());
+                          setSubmitError(null);
+                        }}
+                        autoComplete="off"
+                        spellCheck={false}
+                        placeholder="EDEN-XXXX-XXXX"
+                        className={`mt-1 w-full rounded-xl border px-4 py-3 font-mono text-sm text-white placeholder-white/20 outline-none transition focus:ring-2 ${
+                          submitError
+                            ? "border-rose-500/50 bg-rose-500/8 focus:border-rose-500/60 focus:ring-rose-500/20"
+                            : "border-[#2dd4bf]/25 bg-[#2dd4bf]/5 focus:border-[#2dd4bf]/50 focus:ring-[#2dd4bf]/20"
+                        }`}
+                      />
+                    </motion.div>
+                    <p className="mt-2 text-[11px] text-white/30">
+                      No code?{" "}
+                      <button
+                        type="button"
+                        onClick={() => handleModeSwitch("waitlist")}
+                        className="text-[#2dd4bf]/70 underline hover:text-[#2dd4bf]"
+                      >
+                        Join the waitlist
+                      </button>
+                    </p>
+                  </div>
+                </motion.div>
+              ) : mode === "waitlist" ? (
+                /* ── Waitlist fields ── */
                 <motion.div
                   key="waitlist-fields"
                   initial={{ opacity: 0, height: 0 }}
@@ -247,7 +360,7 @@ export function EdenAuthPage({
                       onChange={(e) => setWaitlistEmail(e.target.value)}
                       autoComplete="email"
                       placeholder="you@example.com"
-                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                     />
                   </div>
                   <div className="space-y-1">
@@ -260,11 +373,12 @@ export function EdenAuthPage({
                       onChange={(e) => setWaitlistName(e.target.value)}
                       autoComplete="name"
                       placeholder="Your name"
-                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                     />
                   </div>
                 </motion.div>
               ) : (
+                /* ── Auth fields (signin / signup) ── */
                 <motion.div
                   key="auth-fields"
                   initial={{ opacity: 0, height: 0 }}
@@ -280,7 +394,7 @@ export function EdenAuthPage({
                       onChange={(e) => setUsername(e.target.value)}
                       autoComplete="username"
                       placeholder="your.username"
-                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                     />
                   </div>
 
@@ -294,13 +408,15 @@ export function EdenAuthPage({
                         transition={{ duration: 0.18 }}
                         className="overflow-hidden space-y-1"
                       >
-                        <label className="text-xs uppercase tracking-[0.12em] text-white/40">Display name</label>
+                        <label className="text-xs uppercase tracking-[0.12em] text-white/40">
+                          Display name
+                        </label>
                         <input
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
                           autoComplete="nickname"
                           placeholder="Your name in Eden"
-                          className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                          className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                         />
                       </motion.div>
                     ) : null}
@@ -314,40 +430,30 @@ export function EdenAuthPage({
                       onChange={(e) => setPassword(e.target.value)}
                       autoComplete={mode === "signup" ? "new-password" : "current-password"}
                       placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
-                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                      className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                     />
                   </div>
 
+                  {/* Validated code badge — shown when invite was pre-validated */}
                   <AnimatePresence initial={false}>
-                    {mode === "signup" && earlyAccessEnabled ? (
+                    {mode === "signup" && validatedCode ? (
                       <motion.div
-                        key="access-code"
+                        key="validated-badge"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.18 }}
-                        className="overflow-hidden space-y-1"
+                        className="overflow-hidden"
                       >
-                        <label className="text-xs uppercase tracking-[0.12em] text-white/40">
-                          Early Access Code
-                        </label>
-                        <input
-                          value={accessCode}
-                          onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-                          autoComplete="off"
-                          placeholder="EDEN-XXXX-XXXX"
-                          className="mt-1 w-full rounded-xl border border-[#14989a]/25 bg-[#14989a]/5 px-4 py-3 font-mono text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
-                        />
-                        <p className="mt-1 text-[11px] text-white/30">
-                          No code?{" "}
-                          <button
-                            type="button"
-                            onClick={() => handleModeSwitch("waitlist")}
-                            className="text-[#14989a]/70 underline hover:text-[#14989a]"
-                          >
-                            Join the waitlist
-                          </button>
-                        </p>
+                        <div className="flex items-center gap-2 rounded-xl border border-[#2dd4bf]/25 bg-[#2dd4bf]/8 px-4 py-2.5">
+                          <div className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf]" />
+                          <span className="font-mono text-xs text-[#2dd4bf]/80">
+                            {validatedCode}
+                          </span>
+                          <span className="ml-auto text-[11px] text-[#2dd4bf]/50">
+                            Code verified
+                          </span>
+                        </div>
                       </motion.div>
                     ) : null}
                   </AnimatePresence>
@@ -355,6 +461,7 @@ export function EdenAuthPage({
               )}
             </AnimatePresence>
 
+            {/* ── Feedback messages ── */}
             <AnimatePresence initial={false}>
               {submitError ? (
                 <motion.div
@@ -384,28 +491,35 @@ export function EdenAuthPage({
               ) : null}
             </AnimatePresence>
 
+            {/* ── Submit button ── */}
             <button
               type="submit"
               disabled={isPending}
-              className="w-full rounded-xl border border-[#14989a]/50 bg-[#14989a]/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/30 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/30 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending
-                ? mode === "signup"
-                  ? "Creating account…"
-                  : mode === "waitlist"
-                    ? "Joining…"
-                    : "Signing in…"
-                : mode === "signup"
-                  ? "Create Account"
-                  : mode === "waitlist"
-                    ? "Join Waitlist"
-                    : "Sign In"}
+                ? mode === "invite"
+                  ? "Checking…"
+                  : mode === "signup"
+                    ? "Creating account…"
+                    : mode === "waitlist"
+                      ? "Joining…"
+                      : "Signing in…"
+                : mode === "invite"
+                  ? "Enter Eden →"
+                  : mode === "signup"
+                    ? "Create Account"
+                    : mode === "waitlist"
+                      ? "Join Waitlist"
+                      : "Sign In"}
             </button>
 
             {mode === "waitlist" ? (
               <button
                 type="button"
-                onClick={() => handleModeSwitch("signup")}
+                onClick={() =>
+                  handleModeSwitch(earlyAccessEnabled ? "invite" : "signup")
+                }
                 className="w-full text-center text-xs text-white/30 transition-colors hover:text-white/60"
               >
                 ← Back to sign up
