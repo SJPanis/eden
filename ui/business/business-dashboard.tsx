@@ -1058,7 +1058,12 @@ export function BusinessDashboardPanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="overflow-hidden rounded-[32px] border border-white/8 bg-white/[0.05] p-5 md:p-6"
+        className="overflow-hidden rounded-[32px] p-5 md:p-6"
+        style={{
+          border: "1px solid rgba(45,212,191,0.12)",
+          background: "rgba(13,30,46,0.6)",
+          backdropFilter: "blur(12px)",
+        }}
       >
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(300px,0.82fr)]">
           <div>
@@ -1070,7 +1075,7 @@ export function BusinessDashboardPanel({
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
               Business Workspace
             </p>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+            <h1 className="mt-4 text-3xl tracking-tight text-white md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
               {businessProfile.name}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
@@ -1092,7 +1097,7 @@ export function BusinessDashboardPanel({
               {businessProfile.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-white/8 bg-white/[0.05] px-3 py-1 text-xs text-white/50"
+                  className="rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-3 py-1 text-xs text-white/50"
                 >
                   {tag}
                 </span>
@@ -1103,10 +1108,10 @@ export function BusinessDashboardPanel({
                 <a
                   key={item.href ?? item.id}
                   href={item.href ?? `#${item.id}`}
-                  className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors hover:border-[#14989a]/50 hover:text-white ${
+                  className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors hover:border-[#2dd4bf]/50 hover:text-white ${
                     item.href
-                      ? "border-[#14989a]/25 bg-[#14989a]/8 text-[#14989a]/70"
-                      : "border-white/8 bg-white/[0.05] text-white/50"
+                      ? "border-[#2dd4bf]/25 bg-[#2dd4bf]/8 text-[#2dd4bf]/70"
+                      : "border-[rgba(45,212,191,0.08)] bg-white/[0.03] text-white/50"
                   }`}
                 >
                   {item.label}
@@ -1126,7 +1131,7 @@ export function BusinessDashboardPanel({
               <motion.article
                 key={metric.label}
                 variants={childVariants}
-                className="rounded-2xl border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
+                className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
               >
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
@@ -1149,7 +1154,7 @@ export function BusinessDashboardPanel({
           <motion.article
             key={`top-${item.id}`}
             variants={childVariants}
-            className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+            className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}
           >
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
             <p className="mt-2 text-lg font-semibold tracking-tight text-white">{item.value}</p>
@@ -1214,7 +1219,7 @@ export function BusinessDashboardPanel({
                     {businessProfile.tags.map((tag) => (
                       <span
                         key={`overview-${tag}`}
-                        className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50"
+                        className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50"
                       >
                         {tag}
                       </span>
@@ -1223,7 +1228,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent activity
                 </p>
@@ -1261,7 +1266,7 @@ export function BusinessDashboardPanel({
               </p>
               <Link
                 href="/consumer/chat"
-                className="shrink-0 rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/25"
+                className="shrink-0 rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25"
               >
                 Open Eden Chat →
               </Link>
@@ -1278,7 +1283,7 @@ export function BusinessDashboardPanel({
             actions={
               <button
                 type="button"
-                className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-[#2dd4bf]/50 hover:text-white"
               >
                 New placeholder project
               </button>
@@ -1296,7 +1301,7 @@ export function BusinessDashboardPanel({
                   variants={childVariants}
                   className={`rounded-2xl border bg-white/[0.06] p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.3)] ${
                     pipelineSnapshot?.projectId === project.id
-                      ? "border-[#14989a]/50 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.35)]"
+                      ? "border-[#2dd4bf]/50 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.35)]"
                       : "border-white/8"
                   }`}
                 >
@@ -1377,7 +1382,7 @@ export function BusinessDashboardPanel({
           >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
               <div className="space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Active service target
                   </p>
@@ -1400,7 +1405,7 @@ export function BusinessDashboardPanel({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Innovator handoff
                   </p>
@@ -1415,7 +1420,7 @@ export function BusinessDashboardPanel({
                     pipeline reaches `Published`.
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Current pricing
                       </p>
@@ -1445,7 +1450,7 @@ export function BusinessDashboardPanel({
                           : "Publish the service to expose the same affordability cue and visible price in discovery."}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Automation layer
                       </p>
@@ -1502,7 +1507,7 @@ export function BusinessDashboardPanel({
               {publishLaunchSummaryCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-white/8 bg-white/[0.05] p-4"
+                  className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
@@ -1513,7 +1518,7 @@ export function BusinessDashboardPanel({
               ))}
             </div>
             <div className="grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Active release target
                 </p>
@@ -1537,7 +1542,7 @@ export function BusinessDashboardPanel({
                     </p>
                   </div>
                 </div>
-                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-3">
+                <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">Current state</p>
                   <p className="mt-2 text-sm font-semibold text-white">
                     {pipelineSnapshot?.lastActionLabel}
@@ -1571,7 +1576,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Pipeline controls
                 </p>
@@ -1597,7 +1602,7 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={stage.id}
                   variants={childVariants}
-                  className="relative rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                  className="relative rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                 >
                   {index < (pipelineSnapshot?.stages.length ?? 0) - 1 ? (
                     <div className="pointer-events-none absolute right-[-1.2rem] top-8 hidden h-px w-[1.8rem] bg-eden-edge lg:block" />
@@ -1623,7 +1628,7 @@ export function BusinessDashboardPanel({
             </motion.div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Readiness checklist
                 </p>
@@ -1648,7 +1653,7 @@ export function BusinessDashboardPanel({
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Publish gate
                   </p>
@@ -1664,7 +1669,7 @@ export function BusinessDashboardPanel({
                       style={{ width: `${pipelineSnapshot?.readinessPercent ?? businessProfile.publishReadinessPercent}%` }}
                     />
                   </div>
-                  <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                  <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Next unblocker
                     </p>
@@ -1678,7 +1683,7 @@ export function BusinessDashboardPanel({
                 </div>
 
                 {publishPrepSuggestions.length ? (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                  <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                     <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1690,7 +1695,7 @@ export function BusinessDashboardPanel({
                       </div>
                       <a
                         href="#assistant"
-                        className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50 transition-colors hover:border-[#14989a]/50 hover:text-white"
+                        className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50 transition-colors hover:border-[#2dd4bf]/50 hover:text-white"
                       >
                         Review assistant
                       </a>
@@ -1757,7 +1762,7 @@ export function BusinessDashboardPanel({
                 <motion.article
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                  className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
                   <p className="mt-2 text-xl font-semibold tracking-tight text-white">{item.value}</p>
@@ -1773,7 +1778,7 @@ export function BusinessDashboardPanel({
                 animate="visible"
                 className="space-y-3"
               >
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1791,8 +1796,8 @@ export function BusinessDashboardPanel({
                           onClick={() => setReleaseEventFilter(filter.id)}
                           className={`rounded-full border px-3 py-1.5 text-xs font-medium uppercase tracking-[0.12em] transition-colors ${
                             releaseEventFilter === filter.id
-                              ? "border-[#14989a]/50 bg-[#14989a]/15 text-white"
-                              : "border-white/8 bg-eden-bg text-white/50 hover:border-[#14989a]/50 hover:text-white"
+                              ? "border-[#2dd4bf]/50 bg-[#2dd4bf]/15 text-white"
+                              : "border-white/8 bg-eden-bg text-white/50 hover:border-[#2dd4bf]/50 hover:text-white"
                           }`}
                         >
                           {filter.label}
@@ -1807,7 +1812,7 @@ export function BusinessDashboardPanel({
                     <motion.article
                       key={event.id}
                       variants={childVariants}
-                      className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                      className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -1841,7 +1846,7 @@ export function BusinessDashboardPanel({
                 ) : (
                   <motion.div
                     variants={childVariants}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50"
                   >
                     {releaseEventFilter === "all"
                       ? "No mocked transition history has been recorded for this workspace yet. Use the pipeline controls above to move the active release through build, testing, ready, and publish states."
@@ -1851,7 +1856,7 @@ export function BusinessDashboardPanel({
               </motion.div>
 
               <div className="space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Current release summary
                   </p>
@@ -1868,7 +1873,7 @@ export function BusinessDashboardPanel({
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Next release step
                   </p>
@@ -1938,7 +1943,7 @@ export function BusinessDashboardPanel({
                 <motion.div
                   key={item.id}
                   variants={childVariants}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                  className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
@@ -1953,7 +1958,7 @@ export function BusinessDashboardPanel({
               {analyticsHighlights.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-white/8 bg-white/[0.05] p-4"
+                  className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
@@ -1987,7 +1992,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -1997,7 +2002,7 @@ export function BusinessDashboardPanel({
                       {payoutAccounting.accountingRuleLabel}
                     </p>
                   </div>
-                  <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+                  <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                     {payoutAccounting.payoutStatusLabel}
                   </span>
                 </div>
@@ -2005,7 +2010,7 @@ export function BusinessDashboardPanel({
                   {payoutAccountingItems.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
+                      className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
                     >
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         {item.label}
@@ -2017,7 +2022,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout-ready services
                 </p>
@@ -2066,7 +2071,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2134,7 +2139,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Payout status overview
                 </p>
@@ -2195,7 +2200,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2255,7 +2260,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -2317,7 +2322,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest usage services
                 </p>
@@ -2356,7 +2361,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Highest earning services
                 </p>
@@ -2383,7 +2388,7 @@ export function BusinessDashboardPanel({
                               )}
                             </p>
                           </div>
-                          <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {getServicePricingDisplay({
                               pricingModel: service.pricingModel,
                               pricePerUse: service.pricePerUseCredits,
@@ -2401,7 +2406,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent usage momentum
                 </p>
@@ -2413,7 +2418,7 @@ export function BusinessDashboardPanel({
                       .map((service) => (
                         <div
                           key={service.serviceId}
-                          className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
+                          className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
@@ -2437,7 +2442,7 @@ export function BusinessDashboardPanel({
                         </div>
                       ))
                   ) : (
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50">
                       Momentum appears after fresh usage events arrive. The latest eight tracked runs are used for this quick pulse.
                     </div>
                   )}
@@ -2445,7 +2450,7 @@ export function BusinessDashboardPanel({
               </div>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+            <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Recent Eden transactions
               </p>
@@ -2483,7 +2488,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(300px,0.94fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Per-service usage
                 </p>
@@ -2535,7 +2540,7 @@ export function BusinessDashboardPanel({
               </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Recent usage events
                   </p>
@@ -2577,7 +2582,7 @@ export function BusinessDashboardPanel({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Monetization-ready projection
                   </p>
@@ -2585,19 +2590,19 @@ export function BusinessDashboardPanel({
                     {usageMetrics.monetization.pricingRuleLabel}
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Estimated gross</p>
                       <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedGrossCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Innovator keeps</p>
                       <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits)}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">Eden fee share</p>
                       <p className="mt-2 text-sm font-semibold text-white">
                         {formatCredits(usageMetrics.monetization.estimatedPlatformEarningsCredits)}
@@ -2609,7 +2614,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by value
                 </p>
@@ -2656,7 +2661,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by usage
                 </p>
@@ -2680,7 +2685,7 @@ export function BusinessDashboardPanel({
                             </p>
                             <p className="mt-1 text-xs text-white/50">{customer.lastUsedAtLabel}</p>
                           </div>
-                          <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                          <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                             {customer.topServiceTitle}
                           </span>
                         </div>
@@ -2694,12 +2699,12 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Customer growth pulse
                 </p>
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest value customer
                     </p>
@@ -2714,7 +2719,7 @@ export function BusinessDashboardPanel({
                         : "Projected customer value appears once priced service usage is tracked."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Highest usage customer
                     </p>
@@ -2727,7 +2732,7 @@ export function BusinessDashboardPanel({
                         : "Usage concentration appears once multiple tracked runs are tied to customers."}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                       Latest customer activity
                     </p>
@@ -2750,7 +2755,7 @@ export function BusinessDashboardPanel({
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Top customers by usage
                 </p>
@@ -2813,7 +2818,7 @@ export function BusinessDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Recent customer activity
                 </p>
@@ -2887,7 +2892,7 @@ export function BusinessDashboardPanel({
               </p>
               <Link
                 href="/settings"
-                className="shrink-0 rounded-xl border border-white/10 bg-white/[0.05] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#14989a]/40 hover:bg-[#14989a]/10"
+                className="shrink-0 rounded-xl border border-white/10 bg-white/[0.05] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:border-[#2dd4bf]/40 hover:bg-[#2dd4bf]/10"
               >
                 Go to Settings →
               </Link>
@@ -2911,14 +2916,19 @@ export function BusinessWorkspaceStarterPanel({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="overflow-hidden rounded-[32px] border border-white/8 bg-white/[0.05] p-5 md:p-6"
+      className="overflow-hidden rounded-[32px] p-5 md:p-6"
+      style={{
+        border: "1px solid rgba(45,212,191,0.12)",
+        background: "rgba(13,30,46,0.6)",
+        backdropFilter: "blur(12px)",
+      }}
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">
             Business Workspace
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+          <h1 className="mt-3 text-3xl tracking-tight text-white md:text-4xl" style={{ fontFamily: "var(--font-serif)" }}>
             Create your first mocked Eden business
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
@@ -2929,7 +2939,7 @@ export function BusinessWorkspaceStarterPanel({
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href="/business/create?source=business_dashboard"
-              className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
+              className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
             >
               Start business creation
             </Link>
@@ -2940,7 +2950,7 @@ export function BusinessWorkspaceStarterPanel({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               What you will define
             </p>
@@ -2949,7 +2959,7 @@ export function BusinessWorkspaceStarterPanel({
               step before the workspace opens.
             </p>
           </div>
-          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               Result
             </p>

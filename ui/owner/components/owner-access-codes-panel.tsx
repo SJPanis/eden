@@ -89,8 +89,8 @@ export function OwnerAccessCodesPanel() {
   return (
     <div className="space-y-5">
       {/* Create new code */}
-      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
-        <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.15em] text-[#14989a]">Generate Code</p>
+      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
+        <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.15em] text-[#2dd4bf]">Generate Code</p>
         <form onSubmit={(e) => { void handleCreate(e); }} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
@@ -100,7 +100,7 @@ export function OwnerAccessCodesPanel() {
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
                 placeholder="e.g. Teacher batch, Friend invite"
-                className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                className="mt-1 w-full rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
               />
             </div>
             <div className="space-y-1">
@@ -111,17 +111,17 @@ export function OwnerAccessCodesPanel() {
                 max={1000}
                 value={maxUses}
                 onChange={(e) => setMaxUses(Math.max(1, parseInt(e.target.value) || 1))}
-                className="mt-1 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2.5 text-sm text-white outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                className="mt-1 w-full rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2.5 text-sm text-white outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
               />
             </div>
           </div>
 
           {/* Welcome gift note */}
-          <div className="flex items-center gap-2 rounded-xl border border-[#14989a]/20 bg-[#14989a]/[0.06] px-4 py-2.5">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-[#14989a]">
+          <div className="flex items-center gap-2 rounded-xl border border-[#2dd4bf]/20 bg-[#2dd4bf]/[0.06] px-4 py-2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-[#2dd4bf]">
               <path d="M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
             </svg>
-            <p className="text-xs text-[#14989a]/80">
+            <p className="text-xs text-[#2dd4bf]/80">
               Each code grants <span className="font-semibold">{BETA_WELCOME_LEAVES} free Leaf&apos;s</span> to the user on sign-up.
             </p>
           </div>
@@ -146,14 +146,14 @@ export function OwnerAccessCodesPanel() {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="flex items-center gap-3 rounded-xl border border-[#14989a]/30 bg-[#14989a]/10 px-4 py-3">
-                  <span className="flex-1 font-mono text-sm font-semibold tracking-widest text-[#14989a]">
+                <div className="flex items-center gap-3 rounded-xl border border-[#2dd4bf]/30 bg-[#2dd4bf]/10 px-4 py-3">
+                  <span className="flex-1 font-mono text-sm font-semibold tracking-widest text-[#2dd4bf]">
                     {newCode}
                   </span>
                   <button
                     type="button"
                     onClick={() => copyCode(newCode)}
-                    className="rounded-lg border border-[#14989a]/30 bg-[#14989a]/15 px-3 py-1.5 text-xs text-[#14989a] transition hover:bg-[#14989a]/25"
+                    className="rounded-lg border border-[#2dd4bf]/30 bg-[#2dd4bf]/15 px-3 py-1.5 text-xs text-[#2dd4bf] transition hover:bg-[#2dd4bf]/25"
                   >
                     {copied ? "Copied!" : "Copy"}
                   </button>
@@ -165,7 +165,7 @@ export function OwnerAccessCodesPanel() {
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#14989a]/30 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2dd4bf]/30 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "Generating…" : "Generate Invite Code"}
           </button>
@@ -173,8 +173,8 @@ export function OwnerAccessCodesPanel() {
       </div>
 
       {/* Code list */}
-      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
-        <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.15em] text-[#14989a]">
+      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
+        <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.15em] text-[#2dd4bf]">
           All Codes <span className="text-white/30">({codes.length})</span>
         </p>
 
@@ -229,7 +229,7 @@ export function OwnerAccessCodesPanel() {
                         <button
                           type="button"
                           onClick={() => void toggleActive(code.id, code.isActive)}
-                          className="rounded-lg border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] text-white/40 transition hover:text-white/70"
+                          className="rounded-lg border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2.5 py-1 text-[11px] text-white/40 transition hover:text-white/70"
                         >
                           {code.isActive ? "Disable" : "Enable"}
                         </button>
@@ -238,7 +238,7 @@ export function OwnerAccessCodesPanel() {
                       <button
                         type="button"
                         onClick={() => copyCode(code.code)}
-                        className="rounded-lg border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] text-white/40 transition hover:text-white/70"
+                        className="rounded-lg border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2.5 py-1 text-[11px] text-white/40 transition hover:text-white/70"
                       >
                         Copy
                       </button>
@@ -249,7 +249,7 @@ export function OwnerAccessCodesPanel() {
                   <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-white/[0.06]">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        exhausted ? "bg-rose-500/50" : "bg-[#14989a]/50"
+                        exhausted ? "bg-rose-500/50" : "bg-[#2dd4bf]/50"
                       }`}
                       style={{ width: `${usagePercent}%` }}
                     />

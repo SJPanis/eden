@@ -21,7 +21,7 @@ export function EdenLogoMark({ size = 40, className = "" }: EdenLogoMarkProps) {
         </filter>
         <radialGradient id="eden-node-top" cx="50%" cy="30%" r="60%">
           <stop offset="0%" stopColor="#5dd4d6" />
-          <stop offset="100%" stopColor="#14989a" />
+          <stop offset="100%" stopColor="#2dd4bf" />
         </radialGradient>
         <radialGradient id="eden-node-secondary" cx="50%" cy="30%" r="60%">
           <stop offset="0%" stopColor="#3ec8ca" />
@@ -30,17 +30,17 @@ export function EdenLogoMark({ size = 40, className = "" }: EdenLogoMarkProps) {
       </defs>
 
       {/* Outer triangle connections — faint */}
-      <line x1="20" y1="8" x2="8.5" y2="30" stroke="#14989a" strokeWidth="0.8" strokeOpacity="0.22" strokeLinecap="round" />
-      <line x1="20" y1="8" x2="31.5" y2="30" stroke="#14989a" strokeWidth="0.8" strokeOpacity="0.22" strokeLinecap="round" />
-      <line x1="8.5" y1="30" x2="31.5" y2="30" stroke="#14989a" strokeWidth="0.8" strokeOpacity="0.16" strokeLinecap="round" />
+      <line x1="20" y1="8" x2="8.5" y2="30" stroke="#2dd4bf" strokeWidth="0.8" strokeOpacity="0.22" strokeLinecap="round" />
+      <line x1="20" y1="8" x2="31.5" y2="30" stroke="#2dd4bf" strokeWidth="0.8" strokeOpacity="0.22" strokeLinecap="round" />
+      <line x1="8.5" y1="30" x2="31.5" y2="30" stroke="#2dd4bf" strokeWidth="0.8" strokeOpacity="0.16" strokeLinecap="round" />
 
       {/* Inner hub connections — medium */}
-      <line x1="20" y1="8" x2="20" y2="22" stroke="#14989a" strokeWidth="1.2" strokeOpacity="0.55" strokeLinecap="round" />
-      <line x1="20" y1="22" x2="8.5" y2="30" stroke="#14989a" strokeWidth="1.2" strokeOpacity="0.45" strokeLinecap="round" />
-      <line x1="20" y1="22" x2="31.5" y2="30" stroke="#14989a" strokeWidth="1.2" strokeOpacity="0.45" strokeLinecap="round" />
+      <line x1="20" y1="8" x2="20" y2="22" stroke="#2dd4bf" strokeWidth="1.2" strokeOpacity="0.55" strokeLinecap="round" />
+      <line x1="20" y1="22" x2="8.5" y2="30" stroke="#2dd4bf" strokeWidth="1.2" strokeOpacity="0.45" strokeLinecap="round" />
+      <line x1="20" y1="22" x2="31.5" y2="30" stroke="#2dd4bf" strokeWidth="1.2" strokeOpacity="0.45" strokeLinecap="round" />
 
       {/* Hub center dot */}
-      <circle cx="20" cy="22" r="2" fill="#14989a" fillOpacity="0.65" />
+      <circle cx="20" cy="22" r="2" fill="#2dd4bf" fillOpacity="0.65" />
 
       {/* Bottom-left node (consumer) */}
       <circle cx="8.5" cy="30" r="2.8" fill="url(#eden-node-secondary)" fillOpacity="0.85" />

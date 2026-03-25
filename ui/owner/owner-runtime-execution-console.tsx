@@ -30,7 +30,7 @@ export function OwnerRuntimeExecutionConsole({
   runtime,
 }: OwnerRuntimeExecutionConsoleProps) {
   return (
-    <section className="mt-5 rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+    <section className="mt-5 rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -48,17 +48,17 @@ export function OwnerRuntimeExecutionConsole({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
+          <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
             {runtime.dispatchHistory.length} dispatch records
           </span>
-          <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
+          <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
             {runtime.executionSessions.length} sessions
           </span>
         </div>
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Dispatch boundary
@@ -72,7 +72,7 @@ export function OwnerRuntimeExecutionConsole({
               runtime.dispatchHistory.map((record) => (
                 <article
                   key={record.id}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                  className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="max-w-2xl">
@@ -95,7 +95,7 @@ export function OwnerRuntimeExecutionConsole({
                   </div>
 
                   <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Session / task
                       </p>
@@ -106,7 +106,7 @@ export function OwnerRuntimeExecutionConsole({
                         {record.taskTitle ?? "Runtime-level dispatch record"}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Reason / blocker
                       </p>
@@ -138,7 +138,7 @@ export function OwnerRuntimeExecutionConsole({
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50">
                 No governed dispatch records exist yet. Sandbox tasks will start
                 leaving explicit async-boundary metadata here when they are
                 created with an execution adapter.
@@ -148,7 +148,7 @@ export function OwnerRuntimeExecutionConsole({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Execution sessions
             </p>
@@ -157,7 +157,7 @@ export function OwnerRuntimeExecutionConsole({
                 runtime.executionSessions.map((session) => (
                   <article
                     key={session.id}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
@@ -181,7 +181,7 @@ export function OwnerRuntimeExecutionConsole({
                       {session.allowedCapabilities.map((capability) => (
                         <span
                           key={capability}
-                          className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[11px] text-white/50"
+                          className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2.5 py-1 text-[11px] text-white/50"
                         >
                           {capability}
                         </span>
@@ -195,14 +195,14 @@ export function OwnerRuntimeExecutionConsole({
                   </article>
                 ))
               ) : (
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50">
                   No execution sessions are stored yet for this runtime.
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Recent governed runs
             </p>
@@ -211,7 +211,7 @@ export function OwnerRuntimeExecutionConsole({
                 runtime.agentRuns.map((run) => (
                   <article
                     key={run.id}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
@@ -237,7 +237,7 @@ export function OwnerRuntimeExecutionConsole({
                   </article>
                 ))
               ) : (
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50">
                   No governed agent-run history exists yet for this runtime.
                 </div>
               )}

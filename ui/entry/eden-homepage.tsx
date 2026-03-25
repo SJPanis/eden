@@ -656,7 +656,7 @@ function WaitlistForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name (optional)"
-                className="flex-1 rounded-xl border border-white/8 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#2dd4bf]/40 focus:ring-1 focus:ring-[#2dd4bf]/20"
+                className="flex-1 rounded-xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#2dd4bf]/40 focus:ring-1 focus:ring-[#2dd4bf]/20"
               />
               <input
                 type="email"
@@ -664,7 +664,7 @@ function WaitlistForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email"
                 required
-                className="flex-1 rounded-xl border border-white/8 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#2dd4bf]/40 focus:ring-1 focus:ring-[#2dd4bf]/20"
+                className="flex-1 rounded-xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-[#2dd4bf]/40 focus:ring-1 focus:ring-[#2dd4bf]/20"
               />
             </div>
             {state === "error" ? <p className="text-xs text-rose-400">{msg}</p> : null}

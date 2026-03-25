@@ -33,8 +33,8 @@ export function WalletActivityFilters({
           onClick={() => onChange(option.id)}
           className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors ${
             value === option.id
-              ? "border-[#14989a]/50 bg-[#14989a]/15 text-white"
-              : "border-white/8 bg-white/[0.06] text-white/50 hover:border-[#14989a]/50 hover:text-white"
+              ? "border-[#2dd4bf]/50 bg-[#2dd4bf]/15 text-white"
+              : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50 hover:border-[#2dd4bf]/50 hover:text-white"
           }`}
         >
           {option.label}

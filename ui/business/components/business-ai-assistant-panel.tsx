@@ -265,7 +265,7 @@ export function BusinessAiAssistantPanel({
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.1fr)]">
       <div className="space-y-3">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -273,17 +273,17 @@ export function BusinessAiAssistantPanel({
               </p>
               <p className="mt-2 text-lg font-semibold text-white">{context.serviceName}</p>
             </div>
-            <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+            <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
               {getPipelineStatusLabel(context.pipelineStatus)}
             </span>
           </div>
           <p className="mt-2 text-sm leading-6 text-white/50">{context.description}</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">Category</p>
               <p className="mt-2 text-sm font-semibold text-white">{context.category}</p>
             </div>
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-white/50">Pricing</p>
               <p className="mt-2 text-sm font-semibold text-white">{context.pricingModel}</p>
             </div>
@@ -292,13 +292,13 @@ export function BusinessAiAssistantPanel({
             {context.tags.map((tag) => (
               <span
                 key={`assistant-context-${tag}`}
-                className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] text-white/50"
+                className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] text-white/50"
               >
                 {tag}
               </span>
             ))}
           </div>
-          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+          <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Automation summary
             </p>
@@ -333,8 +333,8 @@ export function BusinessAiAssistantPanel({
                 }}
                 className={`rounded-2xl border p-4 text-left transition-colors ${
                   isActive
-                    ? "border-[#14989a]/50 bg-white/[0.05]"
-                    : "border-white/8 bg-white/[0.06] hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+                    ? "border-[#2dd4bf]/50 bg-white/[0.05]"
+                    : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]"
                 } disabled:cursor-not-allowed disabled:opacity-70`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -352,7 +352,7 @@ export function BusinessAiAssistantPanel({
           })}
         </motion.div>
 
-        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -363,14 +363,14 @@ export function BusinessAiAssistantPanel({
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                 {historyEntries.length} runs
               </span>
               <button
                 type="button"
                 disabled={isRunning || historyEntries.length === 0}
                 onClick={handleClearHistory}
-                className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50 transition-colors hover:border-rose-300 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50 transition-colors hover:border-rose-300 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Clear Assistant History
               </button>
@@ -393,8 +393,8 @@ export function BusinessAiAssistantPanel({
                     transition={{ duration: 0.18, ease: "easeOut" }}
                     className={`w-full rounded-2xl border p-3 text-left transition-colors ${
                       isSelected
-                        ? "border-[#14989a]/50 bg-white/[0.05]"
-                        : "border-white/8 bg-white/[0.04]/45 hover:border-[#14989a]/50 hover:bg-white"
+                        ? "border-[#2dd4bf]/50 bg-white/[0.05]"
+                        : "border-[rgba(45,212,191,0.07)] bg-white/[0.025]/45 hover:border-[#2dd4bf]/50 hover:bg-white"
                     }`}
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -425,7 +425,7 @@ export function BusinessAiAssistantPanel({
                 );
               })
             ) : (
-              <div className="rounded-2xl border border-dashed border-white/8 bg-white/[0.04]/40 p-4 text-sm leading-6 text-white/50">
+              <div className="rounded-2xl border border-dashed border-[rgba(45,212,191,0.07)] bg-white/[0.025]/40 p-4 text-sm leading-6 text-white/50">
                 Assistant history will appear here after the first mocked AI run.
               </div>
             )}
@@ -442,7 +442,7 @@ export function BusinessAiAssistantPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.35)]"
+              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 shadow-[0_18px_40px_-30px_rgba(19,33,68,0.35)]"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -454,10 +454,10 @@ export function BusinessAiAssistantPanel({
                   </h3>
                 </div>
                 <div className="flex flex-wrap gap-2 md:justify-end">
-                  <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                  <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {formatActionLabel(selectedHistoryEntry.action)}
                   </span>
-                  <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+                  <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
                     {formatPipelineTimestamp(selectedHistoryEntry.generatedAt)}
                   </span>
                 </div>
@@ -467,7 +467,7 @@ export function BusinessAiAssistantPanel({
                 {selectedHistoryEntry.summary}
               </p>
 
-              <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04]/55 p-4">
+              <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025]/55 p-4">
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Recommended next moves
                 </p>
@@ -482,7 +482,7 @@ export function BusinessAiAssistantPanel({
               </div>
 
               {publishChecklistSuggestions.length ? (
-                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                     Publish checklist guidance
                   </p>
@@ -490,7 +490,7 @@ export function BusinessAiAssistantPanel({
                     {publishChecklistSuggestions.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
+                        className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
                       >
                         <div className="flex flex-wrap items-center gap-2">
                           <span
@@ -511,7 +511,7 @@ export function BusinessAiAssistantPanel({
               ) : null}
 
               {patchPreviewItems.length ? (
-                <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -532,7 +532,7 @@ export function BusinessAiAssistantPanel({
                     {patchPreviewItems.map((item) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-white/8 bg-white/[0.04]/55 p-3"
+                        className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025]/55 p-3"
                       >
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           {item.label}
@@ -546,11 +546,11 @@ export function BusinessAiAssistantPanel({
                     <button
                       type="button"
                       onClick={handleApply}
-                      className="rounded-xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20"
+                      className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
                     >
                       {selectedHistoryEntry.applyLabel ?? "Apply to Draft"}
                     </button>
-                    <span className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm text-white/50">
+                    <span className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm text-white/50">
                       Local mock output only
                     </span>
                   </div>
@@ -564,7 +564,7 @@ export function BusinessAiAssistantPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
-              className="rounded-2xl border border-dashed border-white/8 bg-white/[0.05] p-6"
+              className="rounded-2xl border border-dashed border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-6"
             >
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Assistant output

@@ -171,7 +171,7 @@ export function InternalSandboxTaskRunner({
   }
 
   return (
-    <section className="mt-5 rounded-[28px] border border-white/8 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+    <section className="mt-5 rounded-[28px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -189,7 +189,7 @@ export function InternalSandboxTaskRunner({
             or publish a live runtime.
           </p>
         </div>
-        <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
+        <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs uppercase tracking-[0.12em] text-white/50">
           {initialTasks.length} stored
         </span>
       </div>
@@ -220,7 +220,7 @@ export function InternalSandboxTaskRunner({
       ) : null}
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">
             Create sandbox task
           </p>
@@ -238,13 +238,13 @@ export function InternalSandboxTaskRunner({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Optional task title"
-              className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+              className="w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
             />
             <div className="grid gap-3 sm:grid-cols-2">
               <select
                 value={requestedActionType}
                 onChange={(event) => setRequestedActionType(event.target.value)}
-                className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
               >
                 {ownerRuntimeTaskRequestedActionOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -255,7 +255,7 @@ export function InternalSandboxTaskRunner({
               <select
                 value={executionRole}
                 onChange={(event) => setExecutionRole(event.target.value)}
-                className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
               >
                 {ownerRuntimeExecutionRoleOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -268,7 +268,7 @@ export function InternalSandboxTaskRunner({
               <select
                 value={providerKey}
                 onChange={(event) => setProviderKey(event.target.value)}
-                className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
               >
                 <option value="">No provider preflight</option>
                 {ownerRuntimeProviderOptions.map((option) => (
@@ -280,7 +280,7 @@ export function InternalSandboxTaskRunner({
               <select
                 value={adapterKey}
                 onChange={(event) => setAdapterKey(event.target.value)}
-                className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+                className="w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
               >
                 {ownerRuntimeExecutionAdapterOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -294,32 +294,32 @@ export function InternalSandboxTaskRunner({
               value={modelLabel}
               onChange={(event) => setModelLabel(event.target.value)}
               placeholder="Optional model label for a governed preflight"
-              className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+              className="w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
             />
             <textarea
               value={inputText}
               onChange={(event) => setInputText(event.target.value)}
               placeholder="Describe the internal sandbox task, desired output, and constraints"
               rows={7}
-              className="w-full rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#14989a]/50"
+              className="w-full rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-[#2dd4bf]/50"
             />
             <button
               type="button"
               disabled={isPending || Boolean(initialUnavailableReason)}
               onClick={handleCreateTask}
-              className="rounded-full border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending ? "Running sandbox task..." : "Create sandbox task"}
             </button>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Stored task runs
             </p>
-            <span className="rounded-full border border-white/8 bg-white/[0.06] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
+            <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.12em] text-white/50">
               Owner only
             </span>
           </div>
@@ -328,7 +328,7 @@ export function InternalSandboxTaskRunner({
               initialTasks.map((task) => (
                 <article
                   key={task.id}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                  className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="max-w-2xl">
@@ -360,7 +360,7 @@ export function InternalSandboxTaskRunner({
                   </p>
 
                   <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Lead/Planner
                       </p>
@@ -372,7 +372,7 @@ export function InternalSandboxTaskRunner({
                           {task.plannerWorkItems.map((item) => (
                             <div
                               key={item}
-                              className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2"
+                              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2"
                             >
                               {item}
                             </div>
@@ -381,7 +381,7 @@ export function InternalSandboxTaskRunner({
                       ) : null}
                     </div>
 
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Worker result
                       </p>
@@ -395,7 +395,7 @@ export function InternalSandboxTaskRunner({
                           {task.outputLines.map((line) => (
                             <div
                               key={line}
-                              className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2"
+                              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2"
                             >
                               {line}
                             </div>
@@ -411,7 +411,7 @@ export function InternalSandboxTaskRunner({
                     task.agentRuns.length ||
                     task.dispatchRecords.length) && (
                     <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Action plan
                         </p>
@@ -419,7 +419,7 @@ export function InternalSandboxTaskRunner({
                           {task.workerActionPlan.map((step) => (
                             <div
                               key={step}
-                              className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2"
+                              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2"
                             >
                               {step}
                             </div>
@@ -427,7 +427,7 @@ export function InternalSandboxTaskRunner({
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Notes
                         </p>
@@ -435,7 +435,7 @@ export function InternalSandboxTaskRunner({
                           {task.workerImplementationNotes.map((note) => (
                             <div
                               key={note}
-                              className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2"
+                              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2"
                             >
                               {note}
                             </div>
@@ -443,7 +443,7 @@ export function InternalSandboxTaskRunner({
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Stored artifacts
                         </p>
@@ -451,7 +451,7 @@ export function InternalSandboxTaskRunner({
                           {task.workerArtifacts.map((artifact) => (
                             <div
                               key={`${artifact.label}-${artifact.detail}`}
-                              className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2"
+                              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2"
                             >
                               <p className="font-semibold text-white">
                                 {artifact.label}
@@ -462,7 +462,7 @@ export function InternalSandboxTaskRunner({
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Governed runs
                         </p>
@@ -471,7 +471,7 @@ export function InternalSandboxTaskRunner({
                             task.agentRuns.map((run) => (
                               <div
                                 key={run.id}
-                                className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2"
+                                className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2"
                               >
                                 <p className="font-semibold text-white">
                                   {run.runStatusLabel}
@@ -480,14 +480,14 @@ export function InternalSandboxTaskRunner({
                               </div>
                             ))
                           ) : (
-                            <div className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2">
+                            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2">
                               No governed run record stored.
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                         <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                           Dispatch boundary
                         </p>
@@ -496,7 +496,7 @@ export function InternalSandboxTaskRunner({
                             task.dispatchRecords.map((record) => (
                               <div
                                 key={record.id}
-                                className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2"
+                                className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2"
                               >
                                 <p className="font-semibold text-white">
                                   {record.dispatchStatusLabel}
@@ -513,7 +513,7 @@ export function InternalSandboxTaskRunner({
                               </div>
                             ))
                           ) : (
-                            <div className="rounded-2xl border border-white/8 bg-white/[0.06] px-3 py-2">
+                            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2">
                               No dispatch metadata stored.
                             </div>
                           )}
@@ -523,7 +523,7 @@ export function InternalSandboxTaskRunner({
                   )}
 
                   {(task.resultSummary || task.resultStatusLabel) && (
-                    <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Result capture
                       </p>
@@ -574,7 +574,7 @@ export function InternalSandboxTaskRunner({
                   ) : null}
 
                   {task.taskAuditEntries.length > 0 && (
-                    <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                    <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                       <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                         Task lifecycle audit
                       </p>
@@ -582,7 +582,7 @@ export function InternalSandboxTaskRunner({
                         {task.taskAuditEntries.map((entry) => (
                           <div
                             key={entry.id}
-                            className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-xs"
+                            className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-xs"
                           >
                             <div className="min-w-0">
                               <span className="font-semibold text-white">
@@ -611,7 +611,7 @@ export function InternalSandboxTaskRunner({
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50">
                 No sandbox task runs are stored yet. Create the first internal task
                 to record a planner and worker result for the owner-only sandbox.
               </div>

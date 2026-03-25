@@ -72,7 +72,7 @@ function formatPaymentEventStatus(status: "info" | "success" | "skipped" | "fail
 }
 
 function getOwnerActionLinkClasses() {
-  return "inline-flex rounded-full border border-white/8 bg-white/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]";
+  return "inline-flex rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]";
 }
 
 function formatMoneyAmount(amountCents: number, currency: string) {
@@ -193,7 +193,7 @@ export function OwnerPaymentDetailPanel({
           transition={{ duration: 0.28, ease: "easeOut" }}
           className="space-y-4"
         >
-          <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -215,7 +215,7 @@ export function OwnerPaymentDetailPanel({
               {paymentSummaryCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-white/8 bg-white/[0.06] p-3"
+                  className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-xs uppercase tracking-[0.12em] text-white/50">
@@ -253,7 +253,7 @@ export function OwnerPaymentDetailPanel({
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -273,7 +273,7 @@ export function OwnerPaymentDetailPanel({
                 </span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Leaf’s added
                   </p>
@@ -281,7 +281,7 @@ export function OwnerPaymentDetailPanel({
                     {formatCredits(payment.creditsAmount)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Charged amount
                   </p>
@@ -289,7 +289,7 @@ export function OwnerPaymentDetailPanel({
                     {formatMoneyAmount(payment.amountCents, payment.currency)}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Package or offer
                   </p>
@@ -300,7 +300,7 @@ export function OwnerPaymentDetailPanel({
                     {packageInfo?.chargeLabel ?? "No package charge label available."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Settlement result
                   </p>
@@ -314,7 +314,7 @@ export function OwnerPaymentDetailPanel({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+            <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -333,7 +333,7 @@ export function OwnerPaymentDetailPanel({
                 </Link>
               </div>
               <div className="mt-4 space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Provider
                   </p>
@@ -341,7 +341,7 @@ export function OwnerPaymentDetailPanel({
                     {payment.providerLabel}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Checkout session
                   </p>
@@ -349,7 +349,7 @@ export function OwnerPaymentDetailPanel({
                     {payment.providerSessionId}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Payment intent
                   </p>
@@ -357,7 +357,7 @@ export function OwnerPaymentDetailPanel({
                     {payment.providerPaymentIntentId ?? "Not recorded"}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     Related user
                   </p>
@@ -383,7 +383,7 @@ export function OwnerPaymentDetailPanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -394,7 +394,7 @@ export function OwnerPaymentDetailPanel({
                   webhook receipt, settlement, skipped duplicate settlement, and failure signals.
                 </p>
               </div>
-              <span className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs text-white/50">
                 {recentEventLogs.length} events
               </span>
             </div>
@@ -403,7 +403,7 @@ export function OwnerPaymentDetailPanel({
                 recentEventLogs.map((eventLog) => (
                   <div
                     key={eventLog.id}
-                    className="rounded-2xl border border-white/8 bg-white/[0.04] p-3"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3"
                   >
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0">
@@ -467,7 +467,7 @@ export function OwnerPaymentDetailPanel({
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-sm leading-6 text-white/50">
+                <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm leading-6 text-white/50">
                   No persistent payment event logs are available for this payment yet.
                 </div>
               )}

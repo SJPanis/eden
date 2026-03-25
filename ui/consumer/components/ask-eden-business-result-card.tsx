@@ -27,8 +27,8 @@ export function AskEdenBusinessResultCard({
       }}
       className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-white/[0.06] p-3 text-left shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eden-ring/40 ${
         isSelected
-          ? "border-[#14989a]/50 bg-[#14989a]/15/45 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.45)]"
-          : "border-white/8 hover:-translate-y-0.5 hover:border-[#14989a]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
+          ? "border-[#2dd4bf]/50 bg-[#2dd4bf]/15/45 shadow-[0_18px_40px_-24px_rgba(26,115,232,0.45)]"
+          : "border-white/8 hover:-translate-y-0.5 hover:border-[#2dd4bf]/50 hover:shadow-[0_18px_40px_-24px_rgba(19,33,68,0.35)]"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -59,7 +59,7 @@ export function AskEdenBusinessResultCard({
           onSelect();
           onAction();
         }}
-        className="mt-4 inline-flex items-center rounded-xl border border-white/8 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#14989a]/50 hover:bg-white/[0.04]"
+        className="mt-4 inline-flex items-center rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-white/[0.04]"
       >
         {business.actionLabel}
       </button>

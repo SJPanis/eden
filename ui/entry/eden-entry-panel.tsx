@@ -299,7 +299,7 @@ export function EdenEntryPanel({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28, ease: "easeOut" }}
-            className="rounded-[32px] border border-white/8 bg-white/[0.06] p-6"
+            className="rounded-[32px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-6"
           >
             <EdenBrandLockup
               size="md"
@@ -321,13 +321,13 @@ export function EdenEntryPanel({
               <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-400">
                 Published and priced
               </span>
-              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.visiblePricing}
               </span>
-              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.creditsOnlyBilling}
               </span>
-              <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                 {edenLaunchLabels.noHiddenCheckout}
               </span>
             </div>
@@ -336,7 +336,7 @@ export function EdenEntryPanel({
               {publicLaunchClarityCards.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-white/8 bg-white/[0.04] p-4"
+                  className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4"
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                     {item.label}
@@ -347,7 +347,7 @@ export function EdenEntryPanel({
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.06] p-5">
+            <div className="mt-6 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -373,7 +373,7 @@ export function EdenEntryPanel({
             </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -384,13 +384,13 @@ export function EdenEntryPanel({
                       to service usage.
                     </p>
                   </div>
-                  <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50">
+                  <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                     One visible loop
                   </span>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   {publicHowEdenWorksSteps.map((step) => (
-                    <div key={step.id} className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+                    <div key={step.id} className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                       <p className="text-sm font-semibold text-white">{step.label}</p>
                       <p className="mt-2 text-sm leading-6 text-white/50">{step.detail}</p>
                     </div>
@@ -398,7 +398,7 @@ export function EdenEntryPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(13,31,48,0.5))] p-5">
+              <div className="rounded-2xl border border-eden-ring bg-[linear-gradient(135deg,rgba(45,212,191,0.08),rgba(13,31,48,0.5))] p-5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Public next step
                 </p>
@@ -419,7 +419,7 @@ export function EdenEntryPanel({
                   <button
                     type="button"
                     onClick={() => setActiveStep("mode")}
-                    className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
+                    className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
                   >
                     Continue onboarding
                   </button>
@@ -448,7 +448,7 @@ export function EdenEntryPanel({
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+            <div className="mt-6 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-5">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                 Public roles
               </p>
@@ -456,7 +456,7 @@ export function EdenEntryPanel({
                 {publicRoleOptions.map((role) => (
                   <div
                     key={role.id}
-                    className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                   >
                     <p className="text-sm font-semibold text-white">{role.label}</p>
                     <p className="mt-2 text-sm leading-6 text-white/50">{role.description}</p>
@@ -489,14 +489,14 @@ export function EdenEntryPanel({
                   </Link>
                   <Link
                     href="/consumer"
-                    className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
+                    className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
                   >
                     Explore consumer layer
                   </Link>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                   Last onboarding
                 </p>
@@ -513,7 +513,7 @@ export function EdenEntryPanel({
             transition={{ duration: 0.3, ease: "easeOut", delay: 0.04 }}
             className="space-y-4"
           >
-            <div className="rounded-[32px] border border-white/8 bg-white/[0.06] p-5">
+            <div className="rounded-[32px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
@@ -548,7 +548,7 @@ export function EdenEntryPanel({
                           ? "border-eden-ring bg-eden-accent-soft text-white"
                           : isComplete
                             ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                            : "border-white/8 bg-white/[0.06] text-white/50"
+                            : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50"
                       }`}
                     >
                       {step.label}
@@ -633,7 +633,7 @@ export function EdenEntryPanel({
                           <select
                             value={selectedUserId}
                             onChange={(event) => setSelectedSignInUserId(event.target.value)}
-                            className="rounded-2xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
+                            className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-3 text-sm text-white outline-none transition focus:border-eden-ring focus:ring-2 focus:ring-eden-ring/40"
                           >
                             {accountOptions.map((option) => (
                               <option key={option.userId} value={option.userId}>
@@ -643,7 +643,7 @@ export function EdenEntryPanel({
                           </select>
                         </label>
                       ) : (
-                        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 text-sm leading-6 text-white/50">
+                        <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm leading-6 text-white/50">
                           {entryMode === "guest"
                             ? "Guest access will continue into the consumer layer using the shared public mock consumer profile."
                             : "Create Account stays mocked. Completing this flow will bind the selected public role to the shared default mock user for that layer."}
@@ -705,7 +705,7 @@ export function EdenEntryPanel({
                                 className={`rounded-2xl border p-4 text-left transition-colors ${
                                   isSelected
                                     ? "border-eden-ring bg-eden-accent-soft text-white"
-                                    : "border-white/8 bg-white/[0.06] text-white/50 hover:border-eden-ring hover:text-white"
+                                    : "border-[rgba(45,212,191,0.09)] bg-white/[0.035] text-white/50 hover:border-eden-ring hover:text-white"
                                 }`}
                               >
                                 <p className="text-sm font-semibold">{option.label}</p>
@@ -795,7 +795,7 @@ export function EdenEntryPanel({
                       transition={{ duration: 0.22, ease: "easeOut" }}
                       className="space-y-4"
                     >
-                      <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(20,152,154,0.08),rgba(13,31,48,0.5))] p-4">
+                      <div className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(45,212,191,0.08),rgba(13,31,48,0.5))] p-4">
                         <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
                           Destination
                         </p>
@@ -811,7 +811,7 @@ export function EdenEntryPanel({
                         {reviewItems.map((item) => (
                           <div
                             key={item.label}
-                            className="rounded-2xl border border-white/8 bg-white/[0.06] p-4"
+                            className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
                           >
                             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                               {item.label}
@@ -841,7 +841,7 @@ export function EdenEntryPanel({
                     <button
                       type="button"
                       onClick={goToPreviousStep}
-                      className="rounded-xl border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
+                      className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-eden-ring hover:text-white"
                     >
                       Back
                     </button>

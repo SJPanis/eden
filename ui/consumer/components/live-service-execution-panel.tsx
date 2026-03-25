@@ -178,17 +178,17 @@ export function LiveServiceExecutionPanel({
   }
 
   return (
-    <div className="rounded-[24px] border border-white/8 bg-white/[0.05] p-4 shadow-[0_18px_38px_-28px_rgba(19,33,68,0.26)] md:p-5">
+    <div className="rounded-[24px] border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4 shadow-[0_18px_38px_-28px_rgba(19,33,68,0.26)] md:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-400">
               {definition.badgeLabel}
             </span>
-            <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-white/50">
+            <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-white/50">
               {edenLaunchLabels.visiblePricing}
             </span>
-            <span className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-white/50">
+            <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-white/50">
               {edenLaunchLabels.creditsOnlyBilling}
             </span>
           </div>
@@ -200,7 +200,7 @@ export function LiveServiceExecutionPanel({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4 lg:min-w-[280px]">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 lg:min-w-[280px]">
           <p className="text-xs uppercase tracking-[0.12em] text-white/50">
             Live run summary
           </p>
@@ -239,7 +239,7 @@ export function LiveServiceExecutionPanel({
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+        <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
           <label className="block">
             <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               {definition.inputLabel}
@@ -250,7 +250,7 @@ export function LiveServiceExecutionPanel({
               placeholder={definition.inputPlaceholder}
               disabled={disabled || isPending}
               rows={7}
-              className="mt-3 w-full rounded-2xl border border-white/8 bg-white/[0.04]/50 px-4 py-3 text-sm leading-6 text-white outline-none transition-colors placeholder:text-white/50/80 focus:border-[#14989a]/50 disabled:cursor-not-allowed disabled:bg-white"
+              className="mt-3 w-full rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025]/50 px-4 py-3 text-sm leading-6 text-white outline-none transition-colors placeholder:text-white/50/80 focus:border-[#2dd4bf]/50 disabled:cursor-not-allowed disabled:bg-white"
             />
           </label>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -266,7 +266,7 @@ export function LiveServiceExecutionPanel({
                 input.trim().length < definition.minimumInputLength ||
                 !hasSufficientBalance
               }
-              className="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-[#14989a]/50 bg-[#14989a]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/20 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white disabled:text-white/50"
+              className="inline-flex min-w-[220px] items-center justify-center rounded-2xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white disabled:text-white/50"
             >
               {isPending
                 ? "Running service..."
@@ -296,12 +296,12 @@ export function LiveServiceExecutionPanel({
         </div>
 
         <div className="space-y-3">
-          <div className="rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
               What this run records
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Spendable Leaves
                 </p>
@@ -309,7 +309,7 @@ export function LiveServiceExecutionPanel({
                   {formatLeaves(requiredCredits)} debited on success
                 </p>
               </div>
-              <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+              <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   Accounting trail
                 </p>
@@ -357,7 +357,7 @@ export function LiveServiceExecutionPanel({
       </div>
 
       {result ? (
-        <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.06] p-4">
+        <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
             Live service output
           </p>
@@ -367,7 +367,7 @@ export function LiveServiceExecutionPanel({
             {result.sections.map((section) => (
               <div
                 key={section.label}
-                className="rounded-2xl border border-white/8 bg-white/[0.04] p-4"
+                className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4"
               >
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">
                   {section.label}
@@ -376,7 +376,7 @@ export function LiveServiceExecutionPanel({
               </div>
             ))}
           </div>
-          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+          <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">
               Tonight&apos;s checklist
             </p>

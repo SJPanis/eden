@@ -144,7 +144,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
         {/* Nav */}
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border border-[rgba(20,152,154,0.35)] bg-[radial-gradient(circle_at_35%_25%,rgba(20,152,154,0.18),rgba(13,31,48,0.97))]">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border border-[rgba(45,212,191,0.35)] bg-[radial-gradient(circle_at_35%_25%,rgba(45,212,191,0.18),rgba(13,31,48,0.97))]">
               <EdenLogoMark size={24} />
             </div>
             <div>
@@ -155,7 +155,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
           <button
             type="button"
             onClick={() => handleModeSwitch("signin")}
-            className="rounded-full border border-white/8 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:border-[#14989a]/40 hover:text-white"
+            className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:border-[#2dd4bf]/40 hover:text-white"
           >
             Sign in
           </button>
@@ -172,12 +172,12 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="relative overflow-hidden rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(20,152,154,0.10),rgba(13,31,48,0.6)_60%,rgba(20,152,154,0.04))] p-7"
+              className="relative overflow-hidden rounded-[28px] border border-white/8 bg-[linear-gradient(135deg,rgba(45,212,191,0.10),rgba(13,31,48,0.6)_60%,rgba(45,212,191,0.04))] p-7"
             >
               {/* Dot-grid overlay */}
               <div
                 className="pointer-events-none absolute inset-0 opacity-[0.035]"
-                style={{ backgroundImage: "radial-gradient(circle, #14989a 1px, transparent 1px)", backgroundSize: "28px 28px" }}
+                style={{ backgroundImage: "radial-gradient(circle, #2dd4bf 1px, transparent 1px)", backgroundSize: "28px 28px" }}
               />
               <div className="relative">
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">Eden Platform</p>
@@ -192,7 +192,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                   {["Publish AI services", "Visible pricing before every run", "Contribution economy", "No hidden charges"].map((chip) => (
                     <span
                       key={chip}
-                      className="rounded-full border border-white/8 bg-white/[0.06] px-3 py-1 text-xs text-white/50"
+                      className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50"
                     >
                       {chip}
                     </span>
@@ -206,14 +206,14 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.06 }}
-              className="rounded-[28px] border border-white/8 bg-white/[0.04] p-6"
+              className="rounded-[28px] border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-6"
             >
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">How Eden works</p>
                   <p className="mt-1.5 text-sm text-white/50">One closed loop: innovators publish, consumers run, economy distributes, contributors improve.</p>
                 </div>
-                <span className="shrink-0 rounded-full border border-[rgba(20,152,154,0.25)] bg-[rgba(20,152,154,0.06)] px-3 py-1 text-xs text-eden-accent">The Eden loop</span>
+                <span className="shrink-0 rounded-full border border-[rgba(45,212,191,0.25)] bg-[rgba(45,212,191,0.06)] px-3 py-1 text-xs text-eden-accent">The Eden loop</span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {edenLoopSteps.map((item, i) => (
@@ -222,7 +222,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 + i * 0.05 }}
-                    className="rounded-2xl border border-white/8 bg-white/[0.04] p-4"
+                    className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4"
                   >
                     <p className="font-mono text-[10px] tracking-[0.18em] text-eden-accent/60">{item.step}</p>
                     <p className="mt-1.5 text-sm font-semibold text-white">{item.label}</p>
@@ -237,19 +237,19 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
-              className="rounded-[28px] border border-white/8 bg-white/[0.04] p-6"
+              className="rounded-[28px] border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-6"
             >
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-eden-accent">Who Eden is for</p>
               <p className="mt-1.5 text-sm text-white/50">Three ways to participate in the Eden economy.</p>
               <div className="mt-4 grid gap-3 md:grid-cols-3">
                 {audienceCards.map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+                  <div key={item.id} className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="text-base text-eden-accent/70">{item.icon}</span>
                         <p className="text-sm font-semibold text-white">{item.label}</p>
                       </div>
-                      <span className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">{item.tag}</span>
+                      <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-2 py-0.5 text-[10px] text-white/40">{item.tag}</span>
                     </div>
                     <p className="mt-2.5 text-xs leading-5 text-white/40">{item.detail}</p>
                   </div>
@@ -266,10 +266,10 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.04 }}
             className="self-start xl:sticky xl:top-6"
           >
-            <div className="rounded-[28px] border border-white/8 bg-white/[0.05] p-6 backdrop-blur-xl">
+            <div className="rounded-[28px] border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-6 backdrop-blur-xl">
 
               {/* Mode toggle */}
-              <div className="flex rounded-2xl border border-white/8 bg-white/[0.04] p-1">
+              <div className="flex rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-1">
                 {(["signup", "signin"] as const).map((m) => (
                   <button
                     key={m}
@@ -277,7 +277,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     onClick={() => handleModeSwitch(m)}
                     className={`flex-1 rounded-xl py-2 text-sm font-medium transition-all duration-150 ${
                       mode === m
-                        ? "border border-[#14989a]/40 bg-[#14989a]/15 text-white"
+                        ? "border border-[#2dd4bf]/40 bg-[#2dd4bf]/15 text-white"
                         : "text-white/40 hover:text-white/70"
                     }`}
                   >
@@ -317,7 +317,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     onChange={(e) => setUsername(e.target.value)}
                     autoComplete="username"
                     placeholder="your.username"
-                    className="mt-2 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                    className="mt-2 w-full rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                   />
                 </div>
 
@@ -337,7 +337,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                         onChange={(e) => setDisplayName(e.target.value)}
                         autoComplete="nickname"
                         placeholder="Your name in Eden"
-                        className="mt-2 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                        className="mt-2 w-full rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                       />
                     </motion.div>
                   ) : null}
@@ -351,7 +351,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete={mode === "signup" ? "new-password" : "current-password"}
                     placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
-                    className="mt-2 w-full rounded-xl border border-white/8 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#14989a]/50 focus:ring-2 focus:ring-[#14989a]/20"
+                    className="mt-2 w-full rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-[#2dd4bf]/20"
                   />
                 </div>
 
@@ -387,7 +387,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full rounded-xl border border-[#14989a]/50 bg-[#14989a]/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#14989a]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isPending
                     ? mode === "signup" ? "Creating account…" : "Signing in…"
@@ -396,7 +396,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
               </form>
 
               {/* Access info */}
-              <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+              <div className="mt-5 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4">
                 <p className="text-xs font-semibold text-white/60">How access works</p>
                 <ul className="mt-2 space-y-1 text-xs leading-5 text-white/40">
                   {mode === "signup" ? (
