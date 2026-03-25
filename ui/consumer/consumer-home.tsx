@@ -31,6 +31,7 @@ import { AskEdenServiceResultCard } from "@/ui/consumer/components/ask-eden-serv
 import { BusinessCard } from "@/ui/consumer/components/business-card";
 import { CategoryCard } from "@/ui/consumer/components/category-card";
 import { ConsumerWalletPanel } from "@/ui/consumer/components/consumer-wallet-panel";
+import { EarningsPayoutsPanel } from "@/ui/consumer/components/earnings-payouts-panel";
 import { DiscoveryRail } from "@/ui/consumer/components/discovery-rail";
 import {
   edenLaunchLabels,
@@ -1045,6 +1046,18 @@ export function ConsumerHomePanel({
         <ConsumerWalletPanel
           currentBalanceCredits={currentBalanceCredits}
           recentTransactions={recentWalletTransactions}
+        />
+      </motion.section>
+
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={sectionVariants}
+        transition={{ duration: 0.3, ease: "easeOut", delay: 0.03 }}
+      >
+        <EarningsPayoutsPanel
+          leafsBalance={currentBalanceCredits}
+          payoutEnabled={session.user.status === "ACTIVE"}
         />
       </motion.section>
 
