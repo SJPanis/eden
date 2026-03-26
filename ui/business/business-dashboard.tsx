@@ -64,6 +64,7 @@ import {
 } from "@/ui/business/components/service-draft-shared";
 import { WorkspaceSection } from "@/ui/business/components/workspace-section";
 import type { EdenProjectBlueprintRecord } from "@/modules/core/projects/project-blueprint-shared";
+import { OrbitalDiagram } from "@/modules/core/components/orbital-diagram";
 
 type WorkspaceMetric = {
   label: string;
@@ -1108,10 +1109,10 @@ export function BusinessDashboardPanel({
                 <a
                   key={item.href ?? item.id}
                   href={item.href ?? `#${item.id}`}
-                  className={`rounded-full border px-3 py-2 text-xs font-medium transition-colors hover:border-[#2dd4bf]/50 hover:text-white ${
+                  className={`rounded-full border px-4 py-2 text-xs font-medium transition-all ${
                     item.href
-                      ? "border-[#2dd4bf]/25 bg-[#2dd4bf]/8 text-[#2dd4bf]/70"
-                      : "border-[rgba(45,212,191,0.08)] bg-white/[0.03] text-white/50"
+                      ? "border-[#2dd4bf]/40 bg-[#2dd4bf]/15 text-[#2dd4bf] shadow-[0_0_10px_-2px_rgba(45,212,191,0.2)]"
+                      : "border-white/6 bg-white/[0.03] text-white/50 hover:border-[#2dd4bf]/30 hover:bg-[#2dd4bf]/8 hover:text-[#2dd4bf]/80"
                   }`}
                 >
                   {item.label}
@@ -1121,27 +1122,45 @@ export function BusinessDashboardPanel({
             </div>
           </div>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-2 gap-3 lg:grid-cols-4"
-          >
-            {workspaceMetrics.map((metric) => (
-              <motion.article
-                key={metric.label}
-                variants={childVariants}
-                className="rounded-2xl backdrop-blur-md p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
-                style={{ border: "1px solid rgba(45,212,191,0.15)", background: "rgba(13,30,46,0.5)", backdropFilter: "blur(12px)", boxShadow: "0 8px 32px -8px rgba(0,0,0,0.3)" }}
-              >
-                <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: "#2dd4bf" }}>
-                  {metric.value}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
-              </motion.article>
-            ))}
-          </motion.div>
+          <div className="flex flex-col items-center gap-4">
+            <OrbitalDiagram
+              size={300}
+              interactive
+              centerLabel={businessProfile.name.charAt(0)}
+              centerSublabel="HQ"
+              innerNodes={discoverySnapshot.marketplaceServices.slice(0, 3).map((svc, i) => ({
+                label: svc.title.length > 12 ? svc.title.slice(0, 10) + "..." : svc.title,
+                angle: -90 + i * 120,
+                color: svc.status === "published" ? "#2dd4bf" : svc.status === "testing" ? "#f59e0b" : undefined,
+              }))}
+              middleNodes={projects.slice(0, 2).map((proj, i) => ({
+                label: proj.title.length > 12 ? proj.title.slice(0, 10) + "..." : proj.title,
+                angle: 60 + i * 160,
+              }))}
+              glowIntensity={0.7}
+            />
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid w-full grid-cols-2 gap-3 lg:grid-cols-4"
+            >
+              {workspaceMetrics.map((metric) => (
+                <motion.article
+                  key={metric.label}
+                  variants={childVariants}
+                  className="rounded-2xl p-4"
+                  style={{ border: "1px solid rgba(45,212,191,0.15)", background: "rgba(13,30,46,0.5)", backdropFilter: "blur(12px)", boxShadow: "0 8px 32px -8px rgba(0,0,0,0.3)" }}
+                >
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: "#2dd4bf" }}>
+                    {metric.value}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
+                </motion.article>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </motion.section>
 
