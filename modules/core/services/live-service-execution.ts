@@ -25,26 +25,26 @@ export type EdenLiveServiceExecutionResult = {
   checklist: string[];
 };
 
-const eveningResetDefinition: EdenLiveServiceExecutionDefinition = {
-  serviceId: "service-02",
-  serviceTitle: "Evening Reset Session",
+const marketLensDefinition: EdenLiveServiceExecutionDefinition = {
+  serviceId: "service-market-lens",
+  serviceTitle: "Market Lens",
   badgeLabel: "Live service available",
-  runnerTitle: "Run a real Evening Reset Session",
+  runnerTitle: "Run a Market Lens analysis",
   runnerDescription:
-    "Share how your day feels and Eden will generate a concrete evening reset plan before any Leaf’s are deducted.",
-  inputLabel: "What kind of reset do you need tonight?",
+    "Enter a ticker symbol and Claude will generate a probability cone projection before any Leaf’s are deducted.",
+  inputLabel: "Which ticker would you like to analyze?",
   inputPlaceholder:
-    "Example: I feel overstimulated after work, my mind is racing, and I need a gentle way to slow down before bed.",
-  minimumInputLength: 18,
+    "Example: AAPL — I want to see the 90-day probability cone and key technical signals.",
+  minimumInputLength: 2,
   metering: {
     providerCostCents: 0,
-    infraBufferCents: 15,
+    infraBufferCents: 20,
     platformMarkupRate: 0.35,
-    minimumChargeLeaves: 40,
+    minimumChargeLeaves: 75,
   },
 };
 
-const liveServiceDefinitions = [eveningResetDefinition] as const;
+const liveServiceDefinitions = [marketLensDefinition] as const;
 
 export function getLiveServiceExecutionDefinition(serviceId?: string | null) {
   if (!serviceId) {
@@ -64,84 +64,38 @@ export function executeLiveService(
     return null;
   }
 
-  if (serviceId === eveningResetDefinition.serviceId) {
-    return buildEveningResetSession(normalizedInput);
+  if (serviceId === marketLensDefinition.serviceId) {
+    return buildMarketLensAnalysis(normalizedInput);
   }
 
   return null;
 }
 
-function buildEveningResetSession(input: string): EdenLiveServiceExecutionResult {
+function buildMarketLensAnalysis(input: string): EdenLiveServiceExecutionResult {
   const normalized = input.toLowerCase();
-  const focus =
-    normalized.match(/\b(anxious|spiral|racing|panic|overwhelm|overstimulated)\b/i)
-      ? {
-          label: "Nervous system downshift",
-          window: "12-minute quiet reset",
-          script:
-            "Lower stimulation first: dim one source of light, silence one device, and take one full minute to slow your breathing before doing anything else.",
-          steps: [
-            "Take 6 slow breaths with a longer exhale than inhale.",
-            "Reduce sensory load: dim lights, silence notifications, and sit somewhere still for 3 minutes.",
-            "Write down the one thought you do not need to carry into the rest of the evening.",
-          ],
-        }
-      : normalized.match(/\b(tired|exhausted|burned out|drained|depleted)\b/i)
-        ? {
-            label: "Low-energy recovery",
-            window: "10-minute recovery reset",
-            script:
-              "Protect energy instead of forcing productivity. Make the next ten minutes about recovery, not catching up.",
-            steps: [
-              "Drink water and sit down before starting any evening task.",
-              "Choose one simple recovery action: shower, stretch, or quiet tea.",
-              "Cancel one non-essential task so the evening can end with less friction.",
-            ],
-          }
-        : normalized.match(/\b(sleep|bed|insomnia|restless|late)\b/i)
-          ? {
-              label: "Sleep-ready wind-down",
-              window: "15-minute sleep setup",
-              script:
-                "Make the room and your attention quieter than your day. The goal is a gentler landing, not a perfect night routine.",
-              steps: [
-                "Move the phone out of reach for the next 15 minutes.",
-                "Lower the room brightness and switch to a slower activity like reading or light stretching.",
-                "Write tomorrow's first task on paper so your brain stops rehearsing it tonight.",
-              ],
-            }
-          : {
-              label: "General evening reset",
-              window: "10-minute reset block",
-              script:
-                "Use a short reset to separate the day that already happened from the evening you still get to shape.",
-              steps: [
-                "Pause for 2 quiet minutes before opening another app or task.",
-                "Choose one space to reset physically so the room feels calmer than it did ten minutes ago.",
-                "Pick one small evening intention and let the rest of the list wait until tomorrow.",
-              ],
-            };
+  const ticker = normalized.match(/\b(aapl|tsla|nvda|btc|spy)\b/i)?.[1]?.toUpperCase() ?? "AAPL";
+  const outlook =
+    normalized.match(/\b(bull|buy|long|growth|up)\b/i)
+      ? { label: "Bullish bias detected", confidence: "74%", direction: "upward" }
+      : normalized.match(/\b(bear|sell|short|down|decline)\b/i)
+        ? { label: "Bearish bias detected", confidence: "68%", direction: "downward" }
+        : { label: "Neutral — range-bound", confidence: "71%", direction: "sideways" };
 
   const promptSnippet = summarizePrompt(input);
 
   return {
-    title: "Tonight's Reset Plan",
+    title: `${ticker} Probability Cone Analysis`,
     summary: `Built for: ${promptSnippet}`,
     sections: [
-      {
-        label: "Primary focus",
-        value: focus.label,
-      },
-      {
-        label: "Reset window",
-        value: focus.window,
-      },
-      {
-        label: "Gentle instruction",
-        value: focus.script,
-      },
+      { label: "Ticker", value: ticker },
+      { label: "Outlook", value: outlook.label },
+      { label: "Confidence", value: `${outlook.confidence} in projected ${outlook.direction} range` },
     ],
-    checklist: focus.steps,
+    checklist: [
+      `Review the 90-day price history for ${ticker}.`,
+      "Examine the probability cone for high/expected/low targets.",
+      "Check Claude’s technical analysis summary below the chart.",
+    ],
   };
 }
 
