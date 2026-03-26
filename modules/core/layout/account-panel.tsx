@@ -142,7 +142,13 @@ export function AccountPanel({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-white">{user.displayName}</p>
-                      <p className="truncate text-xs text-white/40">@{user.username}</p>
+                      <Link
+                        href={`/profile/${user.username}`}
+                        onClick={onClose}
+                        className="inline-flex items-center gap-1 text-xs text-white/40 transition-colors hover:text-[#2dd4bf]"
+                      >
+                        @{user.username} <span className="text-[10px]">&#8594;</span>
+                      </Link>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
