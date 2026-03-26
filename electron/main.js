@@ -12,7 +12,6 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
     },
-    icon: path.join(__dirname, 'assets/icon.png'),
     title: 'Eden',
     backgroundColor: '#0b1622',
   })
