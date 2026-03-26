@@ -349,6 +349,12 @@ function buildServiceDetailHref(
   const summary = linkedService?.summary ?? service.description;
   const tags = linkedService?.tags ?? [category];
 
+  // Custom service pages override the generic detail route
+  const customRoutes: Record<string, string> = {
+    "service-06": "/services/imagine-auto",
+  };
+  if (customRoutes[routeId]) return customRoutes[routeId];
+
   return `/services/${routeId}${buildSearchParams({
     title: service.title,
     category,

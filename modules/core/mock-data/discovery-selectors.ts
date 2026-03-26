@@ -69,6 +69,7 @@ const categoryKeywords: Record<string, string[]> = {
   Wellness: ["calm", "fitness", "recovery", "reset", "stress", "wellness", "ritual"],
   Learning: ["cohort", "creator", "education", "learn", "learning", "skill", "workshop"],
   Home: ["home", "household", "living", "operations", "setup", "smart"],
+  Automotive: ["auto", "automotive", "car", "diagnostic", "engine", "mechanic", "part", "parts", "vehicle", "vin"],
 };
 
 export function buildDiscoverySnapshot(

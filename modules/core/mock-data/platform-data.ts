@@ -29,6 +29,7 @@ export const categories: EdenMockCategory[] = [
   { id: "category-wellness", label: "Wellness", description: "Mind and body services with guided care." },
   { id: "category-learning", label: "Learning", description: "Practical workshops and growth tracks." },
   { id: "category-home", label: "Home", description: "Services to improve everyday living." },
+  { id: "category-automotive", label: "Automotive", description: "AI-powered vehicle parts, visualization, and diagnostics." },
 ];
 
 export const users: EdenMockUser[] = [
@@ -195,6 +196,25 @@ export const businesses: EdenMockBusiness[] = [
     nextMilestone: "Spring cohort refresh",
     featuredServiceId: "service-03",
   },
+  {
+    id: "business-05",
+    name: "Imagine Auto",
+    ownerUserId: "user-07",
+    status: "published",
+    category: "Automotive",
+    tags: ["Automotive", "Parts", "AI Visualization", "Diagnostics"],
+    description:
+      "AI-powered automotive service for parts discovery, custom visualization, and vehicle diagnostics.",
+    summary:
+      "An automotive AI business offering parts search, 3D visualization, and diagnostic intelligence.",
+    tagline: "Find it. Visualize it. Own it.",
+    visibility: "Published",
+    teamLabel: "Sonny + AI agents",
+    creditBalanceCredits: 5000,
+    publishReadinessPercent: 100,
+    nextMilestone: "Real API integration",
+    featuredServiceId: "service-06",
+  },
 ];
 
 export const services: EdenMockService[] = [
@@ -270,6 +290,21 @@ export const services: EdenMockService[] = [
     tags: ["Wellness", "Bundle", "Recovery"],
     pricingModel: "Eden Leaf’s",
     pricePerUse: 110,
+    pricingType: "per_use",
+    pricingUnit: "credits",
+  },
+  {
+    id: "service-06",
+    title: "Imagine Auto",
+    businessId: "business-05",
+    category: "Automotive",
+    description: "AI-powered parts discovery, visualization, and diagnostics for any vehicle.",
+    summary:
+      "Find OEM and aftermarket parts, generate custom part visualizations, and run AI-powered vehicle diagnostics.",
+    status: "Published",
+    tags: ["Automotive", "Parts", "AI", "Diagnostics"],
+    pricingModel: "Eden Leaf's",
+    pricePerUse: 50,
     pricingType: "per_use",
     pricingUnit: "credits",
   },
