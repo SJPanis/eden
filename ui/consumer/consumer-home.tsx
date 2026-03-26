@@ -1057,7 +1057,7 @@ export function ConsumerHomePanel({
       </motion.section>
 
       {/* MAIN CONTENT: Grid with services + sidebar */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(240px,280px)]">
         {/* LEFT: Service grid */}
         <div className="space-y-6">
           {/* Service cards in 3 columns */}
@@ -1109,9 +1109,12 @@ export function ConsumerHomePanel({
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <OrbitalDiagram size={160} showOuterRing={false} centerLabel="..." glowIntensity={0.3} innerNodes={[]} middleNodes={[]} />
               <p className="text-lg text-white/40 italic" style={{ fontFamily: "var(--font-serif)" }}>
-                No services found.
+                That service doesn&apos;t exist yet.
               </p>
-              <p className="mt-1 text-sm text-white/30">Try a different search or browse all categories.</p>
+              <p className="mt-1 text-sm text-white/30">This is your sign to build it.</p>
+              <a href="/business" className="mt-3 text-xs font-medium text-[#2dd4bf] transition-colors hover:text-white">
+                Start building &rarr;
+              </a>
             </div>
           )}
 
@@ -1628,8 +1631,8 @@ export function ConsumerHomePanel({
           </motion.section>
         </div>
 
-        {/* RIGHT SIDEBAR: 280px */}
-        <div className="space-y-4">
+        {/* RIGHT SIDEBAR */}
+        <div className="min-w-0 space-y-4">
           {/* Leaf balance card */}
           <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#2dd4bf]">Leaf Balance</p>
@@ -1642,7 +1645,7 @@ export function ConsumerHomePanel({
                 <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#2dd4bf]">&#x1F33F;</span>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{formatCredits(currentBalanceCredits)}</p>
+                <p className="text-2xl font-bold text-white whitespace-nowrap">{formatCredits(currentBalanceCredits)}</p>
                 <p className="text-[10px] text-white/30">Eden Leaves</p>
               </div>
             </div>

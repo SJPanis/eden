@@ -18,7 +18,7 @@ import { roleMeta, topNavItems, type EdenRole } from "@/modules/core/config/role
 import { getCreditsDisplaySummary } from "@/modules/core/credits/mock-credits";
 import { edenSpendableLeavesLabel } from "@/modules/core/credits/eden-currency";
 import { getBusinessById, type EdenMockTransaction } from "@/modules/core/mock-data";
-import { canAccessRoles, type EdenMockSession } from "@/modules/core/session/mock-session";
+import type { EdenMockSession } from "@/modules/core/session/mock-session";
 import { MockSessionSwitcher } from "@/modules/core/session/mock-session-switcher";
 import { AccountPanel } from "@/modules/core/layout/account-panel";
 
@@ -174,8 +174,6 @@ export function RoleShell({
                     (item.href !== "/consumer" &&
                       item.href !== "/consumer/projects" &&
                       pathname.startsWith(item.href));
-                  const isAllowed = canAccessRoles(session.role, item.allowedRoles);
-
                   return (
                     <Link
                       key={item.href}
@@ -183,28 +181,21 @@ export function RoleShell({
                       className={`relative flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
                         isActive
                           ? "text-white"
-                          : isAllowed
-                            ? "text-white/50 hover:text-white/80"
-                            : "cursor-default text-white/20"
+                          : "text-white/50 hover:text-white/80"
                       }`}
                       style={{ borderRadius: "4px 4px 0 0" }}
                       onMouseEnter={(e) => {
-                        if (isAllowed && !isActive) {
+                        if (!isActive) {
                           e.currentTarget.style.background = "rgba(255,255,255,0.05)";
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (isAllowed && !isActive) {
+                        if (!isActive) {
                           e.currentTarget.style.background = "";
                         }
                       }}
                     >
                       {item.label}
-                      {isAllowed ? null : (
-                        <span className="text-[9px] uppercase tracking-widest text-white/15">
-                          locked
-                        </span>
-                      )}
                       {isActive ? (
                         <motion.span
                           layoutId="nav-dot"

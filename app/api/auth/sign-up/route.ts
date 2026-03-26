@@ -10,7 +10,7 @@ import {
 } from "@/modules/core/session/password-auth";
 
 const earlyAccessEnabled = process.env.EDEN_EARLY_ACCESS_ENABLED === "true";
-const BETA_WELCOME_LEAVES = 100;
+const BETA_WELCOME_LEAVES = 200;
 
 export async function POST(request: NextRequest) {
   // Rate limit: 5 sign-up attempts per IP per 15 minutes

@@ -423,8 +423,8 @@ function getFallbackReleaseStatus(status: string) {
 function StatCell({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div
-      className="rounded-xl p-3"
-      style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.5)", backdropFilter: "blur(12px)" }}
+      className="py-3"
+      style={{ borderLeft: "2px solid rgba(45,212,191,0.4)", paddingLeft: 12 }}
     >
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">{label}</p>
       <p className="mt-1.5 text-lg font-semibold tracking-tight text-[#2dd4bf]">{value}</p>
@@ -1033,7 +1033,7 @@ export function OwnerDashboardPanel({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.6)", backdropFilter: "blur(12px)" }}>
+      <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-4">
@@ -1046,7 +1046,7 @@ export function OwnerDashboardPanel({
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {adminSummaryStrip.map((item) => (
-                <div key={item.id} className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ border: "1px solid rgba(45,212,191,0.1)", background: "rgba(13,30,46,0.5)" }}>
+                <div key={item.id} className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(45,212,191,0.04)" }}>
                   <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${item.tone}`}>{item.value}</span>
                   <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{item.label}</span>
                 </div>
@@ -1125,7 +1125,7 @@ export function OwnerDashboardPanel({
 
             {/* Signals + health */}
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.72fr)]">
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Owner Signals" title="Live signal feed" />
                 <div className="grid gap-2 sm:grid-cols-3">
                   {ownerSignalsDisplay.map((signal) => (
@@ -1137,7 +1137,7 @@ export function OwnerDashboardPanel({
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Health Monitors" title="System status" badge={`${systemHealthChecks.length} checks`} />
                 <div className="space-y-2">
                   {systemHealthChecks.map((check) => (
@@ -1155,7 +1155,7 @@ export function OwnerDashboardPanel({
 
             {/* Admin controls */}
             <div className="grid gap-3 lg:grid-cols-3">
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Admin State" title="Maintenance toggle" />
                 <div className="mb-3 flex items-center gap-2">
                   <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${getAdminStateClasses(maintenanceMode ? "maintenance" : "active")}`}>
@@ -1201,7 +1201,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Mock transaction controls */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Ledger Simulation" title="Mock transaction controls" />
               <MockTransactionControls
                 businessId={simulationBusinessId}
@@ -1233,7 +1233,7 @@ export function OwnerDashboardPanel({
                 const userFrozen = isUserFrozen(user.id, adminState);
                 const userStatus = userFrozen ? "frozen" : user.status;
                 return (
-                  <div key={user.id} className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+                  <div key={user.id} className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <Link
@@ -1295,7 +1295,7 @@ export function OwnerDashboardPanel({
             exit="exit"
             className="space-y-4"
           >
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Early Access</p>
               <p className="mt-0.5 text-sm font-semibold text-white">Waitlist Requests</p>
               <p className="mt-1 text-xs text-white/40">
@@ -1332,7 +1332,7 @@ export function OwnerDashboardPanel({
                   <div
                     key={entry.id}
                     className="flex items-center justify-between gap-4 rounded-2xl p-4"
-                    style={{ border: "1px solid rgba(45,212,191,0.1)", background: "rgba(13,30,46,0.6)", backdropFilter: "blur(12px)" }}
+                    style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -1396,7 +1396,7 @@ export function OwnerDashboardPanel({
             className="space-y-4"
           >
             {/* Credit summary */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Credit Flow" title="Leaf's movement summary" badge="Dev ledger overlay" />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {creditSummary.map((item) => (
@@ -1406,7 +1406,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Credit activity */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Recent Activity" title="Leaf's transaction feed" badge={`${creditActivity.length} entries`} />
               <div className="space-y-2">
                 {creditActivity.map((activity) => (
@@ -1430,7 +1430,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Payment summary */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader
                 eyebrow="Payment Ledger"
                 title="Top-up payment summary"
@@ -1444,7 +1444,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Recent payments */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Top-up Payments" title="Recent payment records" badge={`${filteredPayments.length} of ${paymentMetrics.recentPayments.length}`} />
               <OwnerReconciliationFilters
                 ariaLabel="Filter owner payment inspection rows"
@@ -1502,7 +1502,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Payment lifecycle events */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader
                 eyebrow="Payment Lifecycle"
                 title="Webhook event log"
@@ -1562,7 +1562,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Payout accounting */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Innovator Payouts" title="Payout accounting summary" badge={payoutAccounting.payoutStatusLabel} />
               <p className="mb-3 text-[11px] text-white/40">{payoutAccounting.accountingRuleLabel}</p>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
@@ -1574,7 +1574,7 @@ export function OwnerDashboardPanel({
 
             {/* Payout history + status overview */}
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader
                   eyebrow="Payout History"
                   title="Settlement records"
@@ -1616,7 +1616,7 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Payout Status" title="Settlement overview" />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <StatCell label="Settled payouts" value={`${payoutAccounting.statusOverview.settledCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.settledSettlementCredits)} recorded as paid`} />
@@ -1631,7 +1631,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Internal earned use */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader
                 eyebrow="Internal Earned Use"
                 title="Innovator Leaf's reused internally"
@@ -1670,7 +1670,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Top earning businesses with payout actions */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Earning Leaders" title="Top earning businesses" />
               <div className="space-y-3">
                 {payoutAccounting.topEarningBusinesses.length ? (
@@ -1732,7 +1732,7 @@ export function OwnerDashboardPanel({
 
             {/* Usage analytics: top services, users */}
             <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Usage Analytics" title="Top services by usage" />
                 <div className="space-y-2">
                   {usageMetrics.topServices.length ? (
@@ -1762,7 +1762,7 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="User Analytics" title="Top users by platform usage" />
                 <div className="space-y-2">
                   {usageMetrics.topUsers.length ? (
@@ -1799,7 +1799,7 @@ export function OwnerDashboardPanel({
 
             {/* User concentration + recent activity */}
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Usage Pulse" title="Recent user activity" />
                 <div className="space-y-2">
                   {usageMetrics.recentUserActivity.length ? (
@@ -1832,7 +1832,7 @@ export function OwnerDashboardPanel({
                 </div>
               </div>
 
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Concentration" title="Usage distribution" />
                 <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
                   <StatCell label="Top user share" value={`${usageMetrics.userConcentration.topUserSharePercent}%`} />
@@ -1862,7 +1862,7 @@ export function OwnerDashboardPanel({
 
             {/* Release events + queue */}
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Release Events" title="Recent transition history" badge={`${releaseEvents.length} events`} />
                 <div className="space-y-2">
                   {releaseEvents.map((event) => {
@@ -1897,7 +1897,7 @@ export function OwnerDashboardPanel({
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+                <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                   <PanelHeader eyebrow="Latest Publish" title="Most recent publish event" />
                   <p className="text-base font-semibold text-white">
                     {publishSummary.latestPublishEvent
@@ -1913,7 +1913,7 @@ export function OwnerDashboardPanel({
                       : "Waiting for mock activity"}
                   </p>
                 </div>
-                <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+                <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                   <PanelHeader eyebrow="Release Queue" title="Current business queue" />
                   <div className="space-y-2">
                     {businessCards.map((entry) => {
@@ -1939,7 +1939,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Business cards */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Businesses" title="Business workspace monitoring" badge={`${businessCards.length} watched`} />
               <div className="grid gap-3 lg:grid-cols-2">
                 {businessCards.map((entry) => {
@@ -2015,7 +2015,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Services table */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Services" title="Service release visibility" badge={`${services.length} monitored`} />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {services.map((entry) => (
@@ -2058,14 +2058,14 @@ export function OwnerDashboardPanel({
           >
             {/* Security controls */}
             <div className="grid gap-3 lg:grid-cols-3">
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Freeze State" title="Frozen accounts" />
                 <div className="grid grid-cols-2 gap-2">
                   <StatCell label="Frozen users" value={`${frozenUsersCount}`} sub="Local freeze overlay" />
                   <StatCell label="Frozen businesses" value={`${frozenBusinessesCount}`} sub="Owner flagged" />
                 </div>
               </div>
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Maintenance" title="Platform overlay toggle" />
                 <div className="mb-3 flex items-center gap-2">
                   <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${getAdminStateClasses(maintenanceMode ? "maintenance" : "active")}`}>
@@ -2088,7 +2088,7 @@ export function OwnerDashboardPanel({
                   }
                 />
               </div>
-              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
                 <PanelHeader eyebrow="Audit Logs" title={auditLogsControl.title} />
                 <div className="mb-2 flex items-center gap-2">
                   <span className="rounded-full bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{auditLogsControl.stateLabel}</span>
@@ -2103,7 +2103,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Reset controls */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Dev Resets" title="Owner reset actions" />
               <MockResetControls
                 showAll
@@ -2115,7 +2115,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Agent nodes */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Agent System" title="Node health and activity" badge={`${agentNodes.length} nodes`} />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {agentNodes.map((node) => (
@@ -2136,7 +2136,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Health checks */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="Health Monitors" title="System health checks" badge={`${systemHealthChecks.length} checks`} />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {systemHealthChecks.map((check) => (
@@ -2155,7 +2155,7 @@ export function OwnerDashboardPanel({
             </div>
 
             {/* Platform logs */}
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader eyebrow="System Logs" title="Recent control-room events" badge="Seeded overlay feed" />
               <div className="space-y-2">
                 {platformLogs.slice(0, 5).map((event) => (
@@ -2187,7 +2187,7 @@ export function OwnerDashboardPanel({
             exit="exit"
             className="space-y-4"
           >
-            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Early Access</p>
               <p className="mt-0.5 text-sm font-semibold text-white">Invite Code Manager</p>
               <p className="mt-1 text-xs text-white/40">

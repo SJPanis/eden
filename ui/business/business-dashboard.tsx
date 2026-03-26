@@ -1,3 +1,10 @@
+// ROADMAP: The Innovator workspace will become a sandbox environment
+// where users describe changes in natural language → Eden agents
+// implement them in an isolated container → user reviews checkpoints
+// → approved changes are integrated into the live service.
+// CON = Contributor, CIB = Contributor Integrated Build
+// No code is ever shown to the CON — only the result.
+
 "use client";
 
 import { useState } from "react";
@@ -1059,11 +1066,9 @@ export function BusinessDashboardPanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="overflow-hidden rounded-[32px] p-5 md:p-6"
+        className="overflow-hidden p-5 md:p-6"
         style={{
-          border: "1px solid rgba(45,212,191,0.12)",
-          background: "rgba(13,30,46,0.6)",
-          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(45,212,191,0.06)",
         }}
       >
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(300px,0.82fr)]">
@@ -1150,7 +1155,7 @@ export function BusinessDashboardPanel({
                   key={metric.label}
                   variants={childVariants}
                   className="rounded-2xl p-4"
-                  style={{ border: "1px solid rgba(45,212,191,0.15)", background: "rgba(13,30,46,0.5)", backdropFilter: "blur(12px)", boxShadow: "0 8px 32px -8px rgba(0,0,0,0.3)" }}
+                  style={{ borderLeft: "2px solid rgba(45,212,191,0.4)", paddingLeft: 12 }}
                 >
                   <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
                   <p className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: "#2dd4bf" }}>
@@ -2938,11 +2943,9 @@ export function BusinessWorkspaceStarterPanel({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="overflow-hidden rounded-[32px] p-5 md:p-6"
+      className="overflow-hidden p-5 md:p-6"
       style={{
-        border: "1px solid rgba(45,212,191,0.12)",
-        background: "rgba(13,30,46,0.6)",
-        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(45,212,191,0.06)",
       }}
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)]">
