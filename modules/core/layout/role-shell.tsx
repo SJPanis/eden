@@ -107,7 +107,7 @@ export function RoleShell({
 
           {/* ── Compact topbar ── */}
           <header
-            className="overflow-hidden rounded-[20px] backdrop-blur-xl"
+            className="relative z-[100] rounded-[20px] backdrop-blur-xl"
             style={{
               background: "rgba(13,30,46,0.85)",
               border: "1px solid rgba(45,212,191,0.13)",
