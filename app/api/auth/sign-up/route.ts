@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
         password?: string;
         displayName?: string;
         accessCode?: string;
+        referralCode?: string;
       }
     | null;
 
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
   const password = requestBody?.password ?? "";
   const displayName = requestBody?.displayName?.trim() || username || "Eden User";
   const accessCode = requestBody?.accessCode?.trim().toUpperCase() || null;
+  const referralCode = requestBody?.referralCode?.trim() || null;
 
   if (!username || !isValidCredentialUsername(username) || !isValidCredentialPassword(password)) {
     return NextResponse.json(
@@ -102,12 +104,18 @@ export async function POST(request: NextRequest) {
   try {
     const passwordHash = await hashCredentialPassword(password);
 
+    // Generate a unique referral code: first 4 chars of username + 4 random chars
+    const prefix = (username ?? "eden").slice(0, 4).toUpperCase();
+    const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
+    const userReferralCode = `${prefix}${suffix}`;
+
     const createdUser = await getPrismaClient().user.create({
       data: {
         username,
         displayName,
         passwordHash,
         role: "CONSUMER",
+        referralCode: userReferralCode,
         // Beta welcome gift: 100 Leaf's granted when signing up with an access code
         edenBalanceCredits: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
         ...(resolvedCodeId ? { accessCodeId: resolvedCodeId } : {}),
@@ -164,6 +172,34 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         // Non-fatal: user was created successfully, just log the audit/code-increment failure
         console.error("[sign-up] failed to update access code / create grant record:", error);
+      }
+    }
+
+    // Create referral record if a valid referral code was provided
+    if (referralCode) {
+      try {
+        const referrer = await getPrismaClient().user.findFirst({
+          where: {
+            OR: [
+              { referralCode: referralCode },
+              { username: referralCode.toLowerCase() },
+            ],
+          },
+          select: { id: true },
+        });
+        if (referrer && referrer.id !== createdUser.id) {
+          await getPrismaClient().referral.create({
+            data: {
+              referrerId: referrer.id,
+              referredId: createdUser.id,
+              depth: 1,
+              commissionRate: 0.01,
+            },
+          });
+        }
+      } catch (error) {
+        // Non-fatal: user was created, just log the referral tracking failure
+        console.error("[sign-up] failed to create referral record:", error);
       }
     }
 
