@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -68,6 +68,15 @@ export function RoleShell({
     activeUserFrozen ||
     !!activeBusinessFrozen;
 
+  const [avatarOpen, setAvatarOpen] = useState(false);
+
+  const roleBadgeColors = {
+    consumer: { border: "rgba(45,212,191,0.35)", text: "rgba(45,212,191,0.85)", glow: "rgba(45,212,191,0.3)" },
+    business: { border: "rgba(168,85,247,0.35)", text: "rgba(168,85,247,0.85)", glow: "rgba(168,85,247,0.3)" },
+    owner: { border: "rgba(245,158,11,0.35)", text: "rgba(245,158,11,0.85)", glow: "rgba(245,158,11,0.3)" },
+  };
+  const badgeColor = roleBadgeColors[role] ?? roleBadgeColors.consumer;
+
   function handleSignOut() {
     startSignOutTransition(() => {
       void signOut({ callbackUrl: "/" });
@@ -126,15 +135,15 @@ export function RoleShell({
                 >
                   <EdenLogoMark size={20} />
                 </div>
-                <span className="hidden font-semibold text-white sm:block">Eden</span>
+                <span className="hidden font-semibold text-white sm:block" style={{ fontFamily: "var(--font-serif)" }}>Eden</span>
                 <span
                   className="hidden text-[9px] font-bold uppercase tracking-[0.16em] sm:inline-block"
                   style={{
-                    color: "rgba(45,212,191,0.85)",
-                    border: "1px solid rgba(45,212,191,0.35)",
+                    color: badgeColor.text,
+                    border: `1px solid ${badgeColor.border}`,
                     borderRadius: "6px",
                     padding: "2px 6px",
-                    boxShadow: "0 0 8px -2px rgba(45,212,191,0.3)",
+                    boxShadow: `0 0 8px -2px ${badgeColor.glow}`,
                     marginLeft: "4px",
                   }}
                 >
@@ -177,18 +186,7 @@ export function RoleShell({
                             ? "text-white/50 hover:text-white/80"
                             : "cursor-default text-white/20"
                       }`}
-                      style={
-                        isActive
-                          ? {
-                              borderBottom: "2px solid rgba(45,212,191,0.85)",
-                              boxShadow: "0 2px 8px -2px rgba(45,212,191,0.3)",
-                              borderRadius: "4px 4px 0 0",
-                            }
-                          : {
-                              borderBottom: "2px solid transparent",
-                              borderRadius: "4px 4px 0 0",
-                            }
-                      }
+                      style={{ borderRadius: "4px 4px 0 0" }}
                       onMouseEnter={(e) => {
                         if (isAllowed && !isActive) {
                           e.currentTarget.style.background = "rgba(255,255,255,0.05)";
@@ -206,6 +204,14 @@ export function RoleShell({
                           locked
                         </span>
                       )}
+                      {isActive ? (
+                        <motion.span
+                          layoutId="nav-dot"
+                          className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full"
+                          style={{ background: "#2dd4bf", boxShadow: "0 0 6px rgba(45,212,191,0.5)" }}
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      ) : null}
                     </Link>
                   );
                 })}
@@ -237,40 +243,53 @@ export function RoleShell({
                   ) : null}
                 </div>
 
-                {/* Sign out — persistent sessions only */}
-                {session.auth.source === "persistent" ? (
+                {/* Avatar dropdown */}
+                <div className="relative">
                   <button
                     type="button"
-                    onClick={handleSignOut}
-                    disabled={isSigningOut}
-                    className="hidden rounded-full px-3 py-1.5 text-[11px] text-white/40 transition-colors hover:text-white/70 disabled:opacity-50 md:block"
+                    onClick={() => setAvatarOpen(v => !v)}
+                    className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white transition-opacity hover:opacity-80"
                     style={{
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(45,212,191,0.38)",
+                      background: "rgba(45,212,191,0.12)",
                     }}
+                    title="Account menu"
                   >
-                    {isSigningOut ? "Leaving…" : "Sign out"}
+                    {session.user.initials}
+                    {(activeUserFrozen || activeBusinessFrozen) ? (
+                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full" style={{ background: "#f43f5e", border: "2px solid #0d1f30" }} />
+                    ) : null}
                   </button>
-                ) : null}
-
-                {/* Avatar — links to settings */}
-                <Link
-                  href="/settings"
-                  className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white transition-opacity hover:opacity-80"
-                  style={{
-                    border: "1px solid rgba(45,212,191,0.38)",
-                    background: "rgba(45,212,191,0.12)",
-                  }}
-                  title="Account settings"
-                >
-                  {session.user.initials}
-                  {(activeUserFrozen || activeBusinessFrozen) ? (
-                    <span
-                      className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full"
-                      style={{ background: "#f43f5e", border: "2px solid #0d1f30" }}
-                    />
-                  ) : null}
-                </Link>
+                  <AnimatePresence>
+                    {avatarOpen ? (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-2xl"
+                        style={{
+                          background: "rgba(13,30,46,0.95)",
+                          border: "1px solid rgba(45,212,191,0.15)",
+                          backdropFilter: "blur(16px)",
+                          boxShadow: "0 12px 40px -8px rgba(0,0,0,0.6)",
+                        }}
+                      >
+                        <div className="p-2 space-y-0.5">
+                          <Link href="/settings" onClick={() => setAvatarOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-white/60 transition-colors hover:bg-white/5 hover:text-white">
+                            Settings
+                          </Link>
+                          <div className="mx-2 my-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+                          {session.auth.source === "persistent" ? (
+                            <button type="button" onClick={() => { setAvatarOpen(false); handleSignOut(); }} disabled={isSigningOut} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-white/40 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50">
+                              {isSigningOut ? "Leaving..." : "Sign out"}
+                            </button>
+                          ) : null}
+                        </div>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
 
@@ -396,43 +415,20 @@ export function RoleShell({
                 boxShadow: "0 2px 16px -4px rgba(0,0,0,0.35)",
               }}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p
-                    className="font-mono text-[10px] uppercase tracking-[0.22em]"
-                    style={{ color: "#2dd4bf" }}
-                  >
-                    {roleDetails.label}
-                  </p>
-                  <h1
-                    className="mt-1.5 text-2xl tracking-tight text-white md:text-3xl"
-                    style={{ fontFamily: "var(--font-serif)" }}
-                  >
-                    {roleDetails.heading}
-                  </h1>
-                  <p className="mt-1 text-sm text-white/45">{roleDetails.subheading}</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className="rounded-full px-3 py-1 text-[11px] text-white/30"
-                    style={{
-                      border: "1px solid rgba(255,255,255,0.07)",
-                      background: "rgba(255,255,255,0.04)",
-                    }}
-                  >
-                    {roleDetails.label.toLowerCase()} layer
-                  </span>
-                  <span
-                    className="rounded-full px-3 py-1 text-[11px]"
-                    style={{
-                      border: "1px solid rgba(45,212,191,0.25)",
-                      background: "rgba(45,212,191,0.08)",
-                      color: "rgba(45,212,191,0.8)",
-                    }}
-                  >
-                    as {activeRoleDetails.label.toLowerCase()}
-                  </span>
-                </div>
+              <div>
+                <p
+                  className="font-mono text-[10px] uppercase tracking-[0.22em]"
+                  style={{ color: "#2dd4bf" }}
+                >
+                  {roleDetails.label}
+                </p>
+                <h1
+                  className="mt-1.5 text-2xl tracking-tight text-white md:text-3xl"
+                  style={{ fontFamily: "var(--font-serif)" }}
+                >
+                  {roleDetails.heading}
+                </h1>
+                <p className="mt-1 text-sm text-white/45">{roleDetails.subheading}</p>
               </div>
             </motion.section>
           ) : null}
