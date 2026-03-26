@@ -481,7 +481,9 @@ export function OwnerDashboardPanel({
   paymentMetrics,
   payoutAccounting,
 }: OwnerDashboardPanelProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "users" | "economy" | "pipeline" | "security" | "codes">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "waitlist" | "economy" | "pipeline" | "security" | "codes">("overview");
+  const [waitlistEntries, setWaitlistEntries] = useState<Array<{ id: string; email: string; name: string | null; note: string | null; createdAt: string; status: "pending" | "approved" | "denied" }>>([]);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
   const [paymentFilter, setPaymentFilter] = useState<OwnerPaymentFilter>("all");
   const [payoutFilter, setPayoutFilter] = useState<OwnerPayoutFilter>("all");
 
@@ -1023,6 +1025,7 @@ export function OwnerDashboardPanel({
   const tabs = [
     { id: "overview" as const, label: "Overview" },
     { id: "users" as const, label: "Users" },
+    { id: "waitlist" as const, label: "Early Access Requests" },
     { id: "economy" as const, label: "Economy" },
     { id: "pipeline" as const, label: "Pipeline" },
     { id: "security" as const, label: "Security" },
@@ -1264,6 +1267,106 @@ export function OwnerDashboardPanel({
                 );
               })}
             </div>
+          </motion.div>
+        )}
+
+        {activeTab === "waitlist" && (
+          <motion.div
+            key="waitlist"
+            variants={tabVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="space-y-4"
+          >
+            <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(13,30,46,0.5)" }}>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Early Access</p>
+              <p className="mt-0.5 text-sm font-semibold text-white">Waitlist Requests</p>
+              <p className="mt-1 text-xs text-white/40">
+                Review early access requests. Approve to generate an invite code, or deny to remove from the queue.
+              </p>
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-2xl p-3 text-center" style={{ border: "1px solid rgba(245,158,11,0.2)", background: "rgba(245,158,11,0.06)" }}>
+                <p className="text-lg font-bold text-amber-400">{waitlistEntries.filter((e) => e.status === "pending").length}</p>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-amber-400/60">Pending</p>
+              </div>
+              <div className="rounded-2xl p-3 text-center" style={{ border: "1px solid rgba(45,212,191,0.2)", background: "rgba(45,212,191,0.06)" }}>
+                <p className="text-lg font-bold text-[#2dd4bf]">{waitlistEntries.filter((e) => e.status === "approved").length}</p>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-[#2dd4bf]/60">Approved</p>
+              </div>
+              <div className="rounded-2xl p-3 text-center" style={{ border: "1px solid rgba(244,63,94,0.15)", background: "rgba(244,63,94,0.04)" }}>
+                <p className="text-lg font-bold text-rose-400/60">{waitlistEntries.filter((e) => e.status === "denied").length}</p>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-rose-400/40">Denied</p>
+              </div>
+            </div>
+
+            {/* Waitlist entries */}
+            {waitlistLoading ? (
+              <div className="py-8 text-center text-sm text-white/40">Loading waitlist entries...</div>
+            ) : waitlistEntries.length === 0 ? (
+              <div className="py-8 text-center text-sm text-white/30 italic" style={{ fontFamily: "var(--font-serif)" }}>
+                No waitlist entries yet.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {waitlistEntries.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="flex items-center justify-between gap-4 rounded-2xl p-4"
+                    style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.025)" }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-white truncate">{entry.email}</p>
+                        <span
+                          className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] ${
+                            entry.status === "pending"
+                              ? "border-amber-500/25 bg-amber-500/10 text-amber-300"
+                              : entry.status === "approved"
+                                ? "border-[#2dd4bf]/25 bg-[#2dd4bf]/10 text-[#2dd4bf]"
+                                : "border-rose-500/20 bg-rose-500/8 text-rose-400/60"
+                          }`}
+                        >
+                          {entry.status}
+                        </span>
+                      </div>
+                      {entry.name ? <p className="mt-0.5 text-xs text-white/40">{entry.name}</p> : null}
+                      {entry.note ? <p className="mt-1 text-xs text-white/30 italic">{entry.note}</p> : null}
+                      <p className="mt-1 text-[10px] text-white/20">{new Date(entry.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    {entry.status === "pending" ? (
+                      <div className="flex shrink-0 items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setWaitlistEntries((prev) =>
+                              prev.map((e) => (e.id === entry.id ? { ...e, status: "approved" as const } : e))
+                            )
+                          }
+                          className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setWaitlistEntries((prev) =>
+                              prev.map((e) => (e.id === entry.id ? { ...e, status: "denied" as const } : e))
+                            )
+                          }
+                          className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
+                        >
+                          Deny
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 

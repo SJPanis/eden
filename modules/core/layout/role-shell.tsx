@@ -99,14 +99,17 @@ export function RoleShell({
           <header
             className="overflow-hidden rounded-[20px] backdrop-blur-xl"
             style={{
-              background: "rgba(13,30,46,0.82)",
+              background: "rgba(13,30,46,0.85)",
               border: "1px solid rgba(45,212,191,0.13)",
               boxShadow: "0 4px 24px -4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
             }}
           >
 
             {/* Primary bar: logo | nav | wallet + avatar */}
-            <div className="flex items-center gap-2 px-3 py-2.5 md:px-4 md:py-3">
+            <div
+              className="flex items-center gap-2 px-3 py-2.5 md:px-4 md:py-3"
+              style={{ borderBottom: "1px solid rgba(45,212,191,0.15)" }}
+            >
 
               {/* Logo */}
               <Link
@@ -124,6 +127,19 @@ export function RoleShell({
                   <EdenLogoMark size={20} />
                 </div>
                 <span className="hidden font-semibold text-white sm:block">Eden</span>
+                <span
+                  className="hidden text-[9px] font-bold uppercase tracking-[0.16em] sm:inline-block"
+                  style={{
+                    color: "rgba(45,212,191,0.85)",
+                    border: "1px solid rgba(45,212,191,0.35)",
+                    borderRadius: "6px",
+                    padding: "2px 6px",
+                    boxShadow: "0 0 8px -2px rgba(45,212,191,0.3)",
+                    marginLeft: "4px",
+                  }}
+                >
+                  {roleDetails.label}
+                </span>
               </Link>
 
               {/* Separator */}
@@ -154,7 +170,7 @@ export function RoleShell({
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                      className={`relative flex shrink-0 items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
                         isActive
                           ? "text-white"
                           : isAllowed
@@ -164,13 +180,14 @@ export function RoleShell({
                       style={
                         isActive
                           ? {
-                              background: "rgba(45,212,191,0.14)",
-                              border: "1px solid rgba(45,212,191,0.42)",
-                              boxShadow: "0 0 10px -2px rgba(45,212,191,0.2)",
+                              borderBottom: "2px solid rgba(45,212,191,0.85)",
+                              boxShadow: "0 2px 8px -2px rgba(45,212,191,0.3)",
+                              borderRadius: "4px 4px 0 0",
                             }
-                          : isAllowed
-                            ? { border: "1px solid transparent" }
-                            : { border: "1px solid transparent" }
+                          : {
+                              borderBottom: "2px solid transparent",
+                              borderRadius: "4px 4px 0 0",
+                            }
                       }
                       onMouseEnter={(e) => {
                         if (isAllowed && !isActive) {
@@ -205,7 +222,7 @@ export function RoleShell({
                   }}
                 >
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">
-                    {edenSpendableLeavesLabel}
+                    🍃 {edenSpendableLeavesLabel}
                   </span>
                   <span className="text-xs font-semibold text-white">
                     {creditsSummary.userBalanceLabel}

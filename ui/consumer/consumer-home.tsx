@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
 import type {
@@ -573,6 +574,7 @@ export function ConsumerHomePanel({
   const router = useRouter();
   const activeUser = getUserById(session.user.id);
   const [promptInput, setPromptInput] = useState("");
+  const [modalService, setModalService] = useState<ConsumerServiceRailItem | null>(null);
   const [activeQuery, setActiveQuery] = useState("");
   const [savedOnly, setSavedOnly] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -962,747 +964,533 @@ export function ConsumerHomePanel({
   }
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
+      {/* TOP: Search bar */}
       <motion.section
         initial="hidden"
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.3, ease: "easeOut", delay: 0.01 }}
-        className="rounded-[28px] p-5"
-        style={{
-          border: "1px solid rgba(45,212,191,0.12)",
-          background: "rgba(13,30,46,0.6)",
-          backdropFilter: "blur(12px)",
-        }}
       >
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <EdenBrandLockup
-              size="sm"
-              label="Eden"
-              subtitle="Consumer marketplace"
-            />
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
-              Public marketplace
-            </p>
-            <h1 className="mt-4 text-2xl tracking-tight text-white md:text-3xl" style={{ fontFamily: "var(--font-serif)" }}>
-              Explore published services with visible pricing.
-            </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-white/50">
-              Eden connects innovators who publish services with consumers who explore them, top up
-              Eden Leaf's only if needed, and run with no hidden charges during service use.
-            </p>
-          </div>
-          <div className="flex flex-col items-start gap-3 lg:items-end">
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-400">
-                Published and priced
-              </span>
-              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
-                {edenLaunchLabels.visiblePricing}
-              </span>
-              <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
-                {edenLaunchLabels.creditsOnlyBilling}
-              </span>
-            </div>
-            <ConsumerTopBarActions
-              savedOnly={savedOnly}
-              savedBusinessCount={savedBusinessCount}
-              onToggleSaved={() => setSavedOnly((value) => !value)}
-            />
-          </div>
-        </div>
-
-        <motion.div
-          className="mt-4 grid gap-3 md:grid-cols-3"
-          initial="hidden"
-          animate="visible"
-          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+        <form
+          onSubmit={(event) => {
+            void handleAskEden(event);
+          }}
         >
-          {consumerHeaderSummaryCards.map((item) => (
+          <div className="relative">
+            <input
+              type="text"
+              value={promptInput}
+              onChange={(event) => setPromptInput(event.target.value)}
+              placeholder="Search services..."
+              className="w-full rounded-2xl border border-white/8 bg-eden-bg/60 px-5 py-4 pl-12 text-base text-white outline-none transition placeholder:text-white/30 focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-eden-ring/40"
+            />
+            <svg className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </form>
+      </motion.section>
+
+      {/* MAIN CONTENT: Grid with services + sidebar */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+        {/* LEFT: Service grid */}
+        <div className="space-y-6">
+          {/* Service cards in 3 columns */}
+          {recommendedServices.length > 0 ? (
             <motion.div
-              key={item.id}
-              variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
-              transition={{ duration: 0.35 }}
-              className="rounded-2xl p-4"
-              style={{
-                border: "1px solid rgba(45,212,191,0.1)",
-                background: "rgba(255,255,255,0.035)",
-              }}
+              variants={railVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
             >
-              <p className="text-xs uppercase tracking-[0.12em] text-white/50">{item.label}</p>
-              <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.section>
-
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={sectionVariants}
-        transition={{ duration: 0.3, ease: "easeOut", delay: 0.02 }}
-      >
-        <ConsumerWalletPanel
-          currentBalanceCredits={currentBalanceCredits}
-          recentTransactions={recentWalletTransactions}
-        />
-      </motion.section>
-
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={sectionVariants}
-        transition={{ duration: 0.3, ease: "easeOut", delay: 0.03 }}
-      >
-        <EarningsPayoutsPanel
-          leafsBalance={currentBalanceCredits}
-          payoutEnabled={session.user.status === "ACTIVE"}
-        />
-      </motion.section>
-
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={sectionVariants}
-        transition={{ duration: 0.3, ease: "easeOut", delay: 0.04 }}
-        className="rounded-[28px] p-5" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.55)", backdropFilter: "blur(10px)" }}
-      >
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-eden-accent">
-              How Eden Works
-            </p>
-            <h2 className="mt-2 text-lg font-semibold text-white">
-              Discover, top up, and use services with visible credit pricing
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-white/50">
-              Eden&apos;s consumer loop is simple: discover a published service, check the visible Eden Leaf's price, top up only if needed, and run the service through the wallet flow.
-            </p>
-          </div>
-          <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
-            First-time clarity
-          </span>
-        </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {consumerLaunchClarityCards.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
-            >
-              <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                {item.label}
-              </p>
-              <p className="mt-2 text-sm font-semibold text-white">{item.value}</p>
-              <p className="mt-2 text-sm leading-6 text-white/50">{item.detail}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-          <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  First-time sequence
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/50">
-                  Follow the same loop everywhere in Eden: open a service, compare visible price to wallet balance, top up only if needed, then run.
-                </p>
-              </div>
-              <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
-                Same flow in cards, detail, and wallet
-              </span>
-            </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {consumerJourneySteps.map((step) => (
-                <div key={step.id} className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3">
-                  <p className="text-sm font-semibold text-white">{step.label}</p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{step.detail}</p>
-                </div>
+              {recommendedServices.map((service) => (
+                <motion.div
+                  key={service.id}
+                  variants={railCardVariants}
+                  className="group cursor-pointer rounded-2xl border border-white/8 bg-white/[0.035] p-4 transition-all hover:border-[#2dd4bf]/40 hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)]"
+                  onClick={() => setModalService(service)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
+                  {/* Teal gradient placeholder thumbnail */}
+                  <div className="aspect-square w-full rounded-xl mb-3" style={{ background: "linear-gradient(135deg, rgba(45,212,191,0.15), rgba(13,30,46,0.8))" }} />
+                  {/* Service name */}
+                  <h3 className="text-base font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>{service.title}</h3>
+                  {/* Business name + category */}
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-sm text-white/50">{service.provider}</span>
+                    <span className="rounded-full border border-white/8 bg-eden-bg px-2 py-0.5 text-[10px] text-white/40">{service.category}</span>
+                  </div>
+                  {/* Price badge */}
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-sm font-medium text-[#2dd4bf]">{service.pricingLabel}</span>
+                    <span className="text-xs text-white/0 transition-all group-hover:text-white/60">Use Service &rarr;</span>
+                  </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-[#2dd4bf]/50 bg-white/[0.05] p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-              Next step right now
-            </p>
-            <p className="mt-3 text-base font-semibold text-white">
-              {consumerNextStepSummary.title}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-white/50">
-              {consumerNextStepSummary.detail}
-            </p>
-            <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-white/50">Recommended action</p>
-              <p className="mt-2 text-sm font-semibold text-white">
-                {consumerNextStepSummary.cue}
+            </motion.div>
+          ) : (
+            /* Empty state */
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <svg className="h-12 w-12 text-[#2dd4bf]/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <p className="text-lg text-white/40 italic" style={{ fontFamily: "var(--font-serif)" }}>
+                No services yet. Innovators are building.
               </p>
             </div>
-          </div>
-        </div>
-      </motion.section>
+          )}
 
-      <motion.section
-          initial="hidden"
-          animate="visible"
-          variants={sectionVariants}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="mx-auto max-w-3xl text-center"
-        >
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-eden-accent">Ask Eden</p>
-          <form
-            onSubmit={(event) => {
-              void handleAskEden(event);
-            }}
-            className="mt-5 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3 md:p-4"
-          >
-            <div className="flex flex-col gap-2 md:flex-row">
-              <input
-                type="text"
-                value={promptInput}
-                onChange={(event) => setPromptInput(event.target.value)}
-                placeholder="What's on your mind?"
-                className="w-full rounded-xl border border-white/8 bg-eden-bg px-4 py-3 text-sm text-white outline-none transition focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-eden-ring/40 md:text-base"
-              />
-              <button
-                type="submit"
-                disabled={isThinking}
-                className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:cursor-not-allowed disabled:opacity-70"
+          {/* Ask Eden response section */}
+          <AnimatePresence initial={false}>
+            {isThinking || latestTurn ? (
+              <motion.section
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.32, ease: "easeOut" }}
+                className="overflow-hidden rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 md:p-5"
               >
-                {isThinking ? "Routing..." : "Ask Eden"}
-              </button>
-            </div>
-          </form>
-          <p className="mt-3 text-sm text-white/50">
-            Ask Eden helps you discover published services, visible pricing, and the same Leaf's-only run flow shown across the marketplace.
-          </p>
-        </motion.section>
-
-        <AnimatePresence initial={false}>
-          {isThinking || latestTurn ? (
-            <motion.section
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.32, ease: "easeOut" }}
-              className="overflow-hidden rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 md:p-5"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-accent">
-                  Ask Eden Response
-                </p>
-                {latestTurn ? (
-                  <p className="text-xs text-white/50">
-                    Route confidence: {latestTurn.response.confidence}
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-accent">
+                    Ask Eden Response
                   </p>
-                ) : null}
-              </div>
-
-              <div className="mt-4 space-y-3">
-                {pendingPrompt || latestTurn ? (
-                  <div className="ml-auto max-w-3xl rounded-xl border border-white/8 bg-[#2dd4bf]/15/55 p-3 text-left">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">You</p>
-                    <p className="mt-1 text-sm text-white">{pendingPrompt || latestTurn?.prompt}</p>
-                  </div>
-                ) : null}
-
-                <div className="mr-auto max-w-4xl rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3 text-left">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
-                    Ask Eden
-                  </p>
-                  <p className="mt-1 text-sm text-white">
-                    {isThinking
-                      ? "Routing your prompt across service search, business discovery, and idea generation..."
-                      : latestTurn?.response.summary}
-                  </p>
+                  {latestTurn ? (
+                    <p className="text-xs text-white/50">
+                      Route confidence: {latestTurn.response.confidence}
+                    </p>
+                  ) : null}
                 </div>
-              </div>
 
-              {!isThinking && latestTurn ? (
-                <>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {latestTurn.response.lanes.map((route) => (
-                      <span
-                        key={route}
-                        className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-xs text-white/50"
-                      >
-                        {route.replace("_", " ")}
-                      </span>
-                    ))}
-                    <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-xs text-white/50">
-                      Grounding: {latestTurn.response.groundingMode}
-                    </span>
+                <div className="mt-4 space-y-3">
+                  {pendingPrompt || latestTurn ? (
+                    <div className="ml-auto max-w-3xl rounded-xl border border-white/8 bg-[#2dd4bf]/15/55 p-3 text-left">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">You</p>
+                      <p className="mt-1 text-sm text-white">{pendingPrompt || latestTurn?.prompt}</p>
+                    </div>
+                  ) : null}
+
+                  <div className="mr-auto max-w-4xl rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3 text-left">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
+                      Ask Eden
+                    </p>
+                    <p className="mt-1 text-sm text-white">
+                      {isThinking
+                        ? "Routing your prompt across service search, business discovery, and idea generation..."
+                        : latestTurn?.response.summary}
+                    </p>
                   </div>
+                </div>
 
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.p
-                      key={assistantStateText}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="mt-4 rounded-lg border border-white/8 bg-[#2dd4bf]/10 px-3 py-2 text-sm text-white"
-                    >
-                      {assistantStateText}
-                    </motion.p>
-                  </AnimatePresence>
-
-                  {latestTurn.response.nextActions.length > 0 ? (
+                {!isThinking && latestTurn ? (
+                  <>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {latestTurn.response.nextActions.map((action) => (
-                        <button
-                          key={`${latestTurn.id}-${action.type}-${action.label}`}
-                          type="button"
-                          disabled={!action.enabled || isThinking}
-                          onClick={() => {
-                            void handleAskEdenAction(action);
-                          }}
-                          className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
+                      {latestTurn.response.lanes.map((route) => (
+                        <span
+                          key={route}
+                          className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-xs text-white/50"
                         >
-                          {action.label}
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-
-                  {latestTurn.response.warnings.length > 0 ? (
-                    <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10/70 p-3">
-                      <p className="text-[10px] uppercase tracking-[0.14em] text-amber-300">
-                        Grounding notes
-                      </p>
-                      <ul className="mt-2 space-y-1 text-sm text-amber-900/80">
-                        {latestTurn.response.warnings.map((warning) => (
-                          <li key={`${latestTurn.id}-${warning}`}>{warning}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-
-                  <div className="mt-5 grid gap-3 xl:grid-cols-3">
-                    <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-sm font-semibold text-white">
-                            Recommended services
-                          </h3>
-                          <p className="mt-1 text-xs text-white/50">
-                            Open Service to inspect published state, visible pricing, and the Leaf's-only run flow.
-                          </p>
-                        </div>
-                        <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
-                          {latestTurn.response.results.services.length} ready
+                          {route.replace("_", " ")}
                         </span>
-                      </div>
-                      <motion.div
-                        key={`services-${latestTurn.id}`}
-                        variants={responseLaneVariants}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ staggerChildren: 0.08, delayChildren: 0.04 }}
-                        className="mt-3 space-y-2"
-                      >
-                        {latestTurn.response.results.services.map((service) => {
-                          const serviceDiscoveryState = getConsumerServiceDiscoveryState(
-                            service,
-                            discoverySnapshot,
-                            currentBalanceCredits,
-                          );
+                      ))}
+                      <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-xs text-white/50">
+                        Grounding: {latestTurn.response.groundingMode}
+                      </span>
+                    </div>
 
-                          return (
-                            <motion.div key={service.id} variants={responseCardVariants}>
-                              <AskEdenServiceResultCard
-                                service={service}
-                                availabilityLabel={
-                                  serviceDiscoveryState.launchDetails.availabilityLabel
-                                }
-                                pricingLabel={serviceDiscoveryState.launchDetails.pricingLabel}
-                                launchBadgeLabel={
-                                  serviceDiscoveryState.launchDetails.launchBadgeLabel
-                                }
-                                trustLabel={serviceDiscoveryState.launchDetails.trustLabel}
-                                affordabilityLabel={serviceDiscoveryState.affordability.label}
-                                affordabilityHint={serviceDiscoveryState.affordability.hint}
-                                affordabilityTone={serviceDiscoveryState.affordability.tone}
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.p
+                        key={assistantStateText}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="mt-4 rounded-lg border border-white/8 bg-[#2dd4bf]/10 px-3 py-2 text-sm text-white"
+                      >
+                        {assistantStateText}
+                      </motion.p>
+                    </AnimatePresence>
+
+                    {latestTurn.response.nextActions.length > 0 ? (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {latestTurn.response.nextActions.map((action) => (
+                          <button
+                            key={`${latestTurn.id}-${action.type}-${action.label}`}
+                            type="button"
+                            disabled={!action.enabled || isThinking}
+                            onClick={() => {
+                              void handleAskEdenAction(action);
+                            }}
+                            className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {action.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {latestTurn.response.warnings.length > 0 ? (
+                      <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10/70 p-3">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-amber-300">
+                          Grounding notes
+                        </p>
+                        <ul className="mt-2 space-y-1 text-sm text-amber-900/80">
+                          {latestTurn.response.warnings.map((warning) => (
+                            <li key={`${latestTurn.id}-${warning}`}>{warning}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
+                    <div className="mt-5 grid gap-3 xl:grid-cols-3">
+                      <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h3 className="text-sm font-semibold text-white">
+                              Recommended services
+                            </h3>
+                            <p className="mt-1 text-xs text-white/50">
+                              Open Service to inspect published state, visible pricing, and the Leaf's-only run flow.
+                            </p>
+                          </div>
+                          <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
+                            {latestTurn.response.results.services.length} ready
+                          </span>
+                        </div>
+                        <motion.div
+                          key={`services-${latestTurn.id}`}
+                          variants={responseLaneVariants}
+                          initial="hidden"
+                          animate="visible"
+                          transition={{ staggerChildren: 0.08, delayChildren: 0.04 }}
+                          className="mt-3 space-y-2"
+                        >
+                          {latestTurn.response.results.services.map((service) => {
+                            const serviceDiscoveryState = getConsumerServiceDiscoveryState(
+                              service,
+                              discoverySnapshot,
+                              currentBalanceCredits,
+                            );
+
+                            return (
+                              <motion.div key={service.id} variants={responseCardVariants}>
+                                <AskEdenServiceResultCard
+                                  service={service}
+                                  availabilityLabel={
+                                    serviceDiscoveryState.launchDetails.availabilityLabel
+                                  }
+                                  pricingLabel={serviceDiscoveryState.launchDetails.pricingLabel}
+                                  launchBadgeLabel={
+                                    serviceDiscoveryState.launchDetails.launchBadgeLabel
+                                  }
+                                  trustLabel={serviceDiscoveryState.launchDetails.trustLabel}
+                                  affordabilityLabel={serviceDiscoveryState.affordability.label}
+                                  affordabilityHint={serviceDiscoveryState.affordability.hint}
+                                  affordabilityTone={serviceDiscoveryState.affordability.tone}
+                                  isSelected={
+                                    selectedResult?.lane === "service" &&
+                                    selectedResult.id === service.id
+                                  }
+                                  onSelect={() =>
+                                    handleSelectResult("service", service.id, service.title)
+                                  }
+                                  onAction={() =>
+                                    handleResultAction(
+                                      "Open Service",
+                                      service.title,
+                                      serviceDiscoveryState.href,
+                                    )
+                                  }
+                                />
+                              </motion.div>
+                            );
+                          })}
+                        </motion.div>
+                      </section>
+
+                      <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h3 className="text-sm font-semibold text-white">Business matches</h3>
+                            <p className="mt-1 text-xs text-white/50">
+                              Open a business card to inspect the matched business surface and current publish state.
+                            </p>
+                          </div>
+                          <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
+                            {latestTurn.response.results.businesses.length} ready
+                          </span>
+                        </div>
+                        <motion.div
+                          key={`business-${latestTurn.id}`}
+                          variants={responseLaneVariants}
+                          initial="hidden"
+                          animate="visible"
+                          transition={{ staggerChildren: 0.08, delayChildren: 0.08 }}
+                          className="mt-3 space-y-2"
+                        >
+                          {latestTurn.response.results.businesses.map((business) => (
+                            <motion.div key={business.id} variants={responseCardVariants}>
+                              <AskEdenBusinessResultCard
+                                business={business}
                                 isSelected={
-                                  selectedResult?.lane === "service" &&
-                                  selectedResult.id === service.id
+                                  selectedResult?.lane === "business" &&
+                                  selectedResult.id === business.id
                                 }
-                                onSelect={() =>
-                                  handleSelectResult("service", service.id, service.title)
-                                }
+                                onSelect={() => handleSelectResult("business", business.id, business.name)}
                                 onAction={() =>
                                   handleResultAction(
-                                    "Open Service",
-                                    service.title,
-                                    serviceDiscoveryState.href,
+                                    "Open Business",
+                                    business.name,
+                                    buildBusinessDetailHref(business, discoverySnapshot),
                                   )
                                 }
                               />
                             </motion.div>
-                          );
-                        })}
-                      </motion.div>
-                    </section>
+                          ))}
+                        </motion.div>
+                      </section>
 
-                    <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-sm font-semibold text-white">Business matches</h3>
-                          <p className="mt-1 text-xs text-white/50">
-                            Open a business card to inspect the matched business surface and current publish state.
-                          </p>
-                        </div>
-                        <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
-                          {latestTurn.response.results.businesses.length} ready
-                        </span>
-                      </div>
-                      <motion.div
-                        key={`business-${latestTurn.id}`}
-                        variants={responseLaneVariants}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ staggerChildren: 0.08, delayChildren: 0.08 }}
-                        className="mt-3 space-y-2"
-                      >
-                        {latestTurn.response.results.businesses.map((business) => (
-                          <motion.div key={business.id} variants={responseCardVariants}>
-                            <AskEdenBusinessResultCard
-                              business={business}
-                              isSelected={
-                                selectedResult?.lane === "business" &&
-                                selectedResult.id === business.id
-                              }
-                              onSelect={() => handleSelectResult("business", business.id, business.name)}
-                              onAction={() =>
-                                handleResultAction(
-                                  "Open Business",
-                                  business.name,
-                                  buildBusinessDetailHref(business, discoverySnapshot),
-                                )
-                              }
-                            />
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </section>
-
-                    <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-sm font-semibold text-white">
-                            Ideas you could build
-                          </h3>
-                          <p className="mt-1 text-xs text-white/50">
-                            Choose an idea card to stage or inspect the project-build path Eden mapped from your prompt.
-                          </p>
-                        </div>
-                        <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
-                          {latestTurn.response.results.ideas.length} ready
-                        </span>
-                      </div>
-                      <motion.div
-                        key={`ideas-${latestTurn.id}`}
-                        variants={responseLaneVariants}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ staggerChildren: 0.08, delayChildren: 0.12 }}
-                        className="mt-3 space-y-2"
-                      >
-                        {latestTurn.response.results.ideas.map((idea) => (
-                          <motion.div key={idea.id} variants={responseCardVariants}>
-                            <AskEdenIdeaResultCard
-                              idea={idea}
-                              isSelected={selectedResult?.lane === "idea" && selectedResult.id === idea.id}
-                              onSelect={() => handleSelectResult("idea", idea.id, idea.title)}
-                              onAction={() =>
-                                handleResultAction(
-                                  "Start Building",
-                                  idea.title,
-                                  buildBusinessCreationHref(idea),
-                                )
-                              }
-                            />
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </section>
-
-                    <section className="xl:col-span-3">
-                      <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
-                        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
+                        <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                              Interactive selection
-                            </p>
-                            <h3 className="mt-1 text-base font-semibold text-white">
-                              Turn the response into a discovery flow
+                            <h3 className="text-sm font-semibold text-white">
+                              Ideas you could build
                             </h3>
-                            <p className="mt-1 text-sm text-white/50">
-                              Ask Eden now keeps service discovery, wallet context, and project
-                              actions inside one grounded operator surface.
+                            <p className="mt-1 text-xs text-white/50">
+                              Choose an idea card to stage or inspect the project-build path Eden mapped from your prompt.
                             </p>
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            {latestTurn.response.lanes.map((route) => (
-                              <span
-                                key={`preview-${route}`}
-                                className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
-                              >
-                                {route.replace("_", " ")}
-                              </span>
-                            ))}
-                          </div>
+                          <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
+                            {latestTurn.response.results.ideas.length} ready
+                          </span>
                         </div>
+                        <motion.div
+                          key={`ideas-${latestTurn.id}`}
+                          variants={responseLaneVariants}
+                          initial="hidden"
+                          animate="visible"
+                          transition={{ staggerChildren: 0.08, delayChildren: 0.12 }}
+                          className="mt-3 space-y-2"
+                        >
+                          {latestTurn.response.results.ideas.map((idea) => (
+                            <motion.div key={idea.id} variants={responseCardVariants}>
+                              <AskEdenIdeaResultCard
+                                idea={idea}
+                                isSelected={selectedResult?.lane === "idea" && selectedResult.id === idea.id}
+                                onSelect={() => handleSelectResult("idea", idea.id, idea.title)}
+                                onAction={() =>
+                                  handleResultAction(
+                                    "Start Building",
+                                    idea.title,
+                                    buildBusinessCreationHref(idea),
+                                  )
+                                }
+                              />
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      </section>
 
-                        <AnimatePresence mode="wait" initial={false}>
-                          {selectedResultDetails ? (
-                            <motion.div
-                              key={`${selectedResultDetails.lane}-${selectedResultDetails.id}`}
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -12 }}
-                              transition={{ duration: 0.22, ease: "easeOut" }}
-                              className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.95fr)]"
-                            >
-                              <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                <div className="flex flex-wrap items-start justify-between gap-3">
-                                  <div>
-                                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                      {selectedResultDetails.eyebrow}
-                                    </p>
-                                    <h4 className="mt-1 text-lg font-semibold text-white">
-                                      {selectedResultDetails.title}
-                                    </h4>
-                                  </div>
-                                  <span className="rounded-full bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50">
-                                    {selectedResultDetails.laneLabel}
-                                  </span>
-                                </div>
-                                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
-                                  {selectedResultDetails.description}
-                                </p>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                  {selectedResultDetails.chips.map((chip) => (
-                                    <span
-                                      key={`${selectedResultDetails.id}-${chip}`}
-                                      className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
-                                    >
-                                      {chip}
+                      <section className="xl:col-span-3">
+                        <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
+                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                            <div>
+                              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                                Interactive selection
+                              </p>
+                              <h3 className="mt-1 text-base font-semibold text-white">
+                                Turn the response into a discovery flow
+                              </h3>
+                              <p className="mt-1 text-sm text-white/50">
+                                Ask Eden now keeps service discovery, wallet context, and project
+                                actions inside one grounded operator surface.
+                              </p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {latestTurn.response.lanes.map((route) => (
+                                <span
+                                  key={`preview-${route}`}
+                                  className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
+                                >
+                                  {route.replace("_", " ")}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <AnimatePresence mode="wait" initial={false}>
+                            {selectedResultDetails ? (
+                              <motion.div
+                                key={`${selectedResultDetails.lane}-${selectedResultDetails.id}`}
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -12 }}
+                                transition={{ duration: 0.22, ease: "easeOut" }}
+                                className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.95fr)]"
+                              >
+                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
+                                  <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div>
+                                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                                        {selectedResultDetails.eyebrow}
+                                      </p>
+                                      <h4 className="mt-1 text-lg font-semibold text-white">
+                                        {selectedResultDetails.title}
+                                      </h4>
+                                    </div>
+                                    <span className="rounded-full bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50">
+                                      {selectedResultDetails.laneLabel}
                                     </span>
-                                  ))}
+                                  </div>
+                                  <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
+                                    {selectedResultDetails.description}
+                                  </p>
+                                  <div className="mt-4 flex flex-wrap gap-2">
+                                    {selectedResultDetails.chips.map((chip) => (
+                                      <span
+                                        key={`${selectedResultDetails.id}-${chip}`}
+                                        className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
+                                      >
+                                        {chip}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  <div className="mt-5 flex flex-wrap gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleResultAction(
+                                          selectedResultDetails.actionLabel,
+                                          selectedResultDetails.title,
+                                          selectedResultDetails.href,
+                                        )
+                                      }
+                                      className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
+                                    >
+                                      {selectedResultDetails.actionLabel}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedResult(null)}
+                                      className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#2dd4bf]/50 hover:text-white"
+                                    >
+                                      Clear selection
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="mt-5 flex flex-wrap gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleResultAction(
-                                        selectedResultDetails.actionLabel,
-                                        selectedResultDetails.title,
-                                        selectedResultDetails.href,
-                                      )
-                                    }
-                                    className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
-                                  >
-                                    {selectedResultDetails.actionLabel}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setSelectedResult(null)}
-                                    className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#2dd4bf]/50 hover:text-white"
-                                  >
-                                    Clear selection
-                                  </button>
-                                </div>
-                              </div>
 
-                              <div className="grid gap-3">
-                                {selectedResultDetails.guidanceTitle ? (
-                                  <div
-                                    className={`rounded-2xl border p-4 ${
-                                      selectedResultDetails.guidanceTone === "ready"
-                                        ? "border-emerald-500/30 bg-emerald-500/10/70"
-                                        : selectedResultDetails.guidanceTone === "warning"
-                                          ? "border-amber-500/25 bg-amber-500/10/70"
-                                          : "border-[rgba(45,212,191,0.09)] bg-white/[0.035]"
-                                    }`}
-                                  >
+                                <div className="grid gap-3">
+                                  {selectedResultDetails.guidanceTitle ? (
+                                    <div
+                                      className={`rounded-2xl border p-4 ${
+                                        selectedResultDetails.guidanceTone === "ready"
+                                          ? "border-emerald-500/30 bg-emerald-500/10/70"
+                                          : selectedResultDetails.guidanceTone === "warning"
+                                            ? "border-amber-500/25 bg-amber-500/10/70"
+                                            : "border-[rgba(45,212,191,0.09)] bg-white/[0.035]"
+                                      }`}
+                                    >
+                                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                                        Next step
+                                      </p>
+                                      <p className="mt-2 text-sm font-semibold text-white">
+                                        {selectedResultDetails.guidanceTitle}
+                                      </p>
+                                      <p className="mt-2 text-sm leading-6 text-white/50">
+                                        {selectedResultDetails.guidanceDetail}
+                                      </p>
+                                      {selectedResultDetails.guidanceCards?.length ? (
+                                        <div className="mt-4 grid gap-3">
+                                          {selectedResultDetails.guidanceCards.map((card) => (
+                                            <div
+                                              key={`${selectedResultDetails.id}-${card.label}`}
+                                              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
+                                            >
+                                              <p className="text-xs uppercase tracking-[0.12em] text-white/50">
+                                                {card.label}
+                                              </p>
+                                              <p className="mt-2 text-sm font-semibold text-white">
+                                                {card.value}
+                                              </p>
+                                              <p className="mt-2 text-sm leading-6 text-white/50">
+                                                {card.detail}
+                                              </p>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
+                                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
                                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                      Next step
-                                    </p>
-                                    <p className="mt-2 text-sm font-semibold text-white">
-                                      {selectedResultDetails.guidanceTitle}
+                                      What this unlocks
                                     </p>
                                     <p className="mt-2 text-sm leading-6 text-white/50">
-                                      {selectedResultDetails.guidanceDetail}
+                                      {selectedResultDetails.supportingText}
                                     </p>
-                                    {selectedResultDetails.guidanceCards?.length ? (
-                                      <div className="mt-4 grid gap-3">
-                                        {selectedResultDetails.guidanceCards.map((card) => (
-                                          <div
-                                            key={`${selectedResultDetails.id}-${card.label}`}
-                                            className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
+                                  </div>
+                                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
+                                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                                      Routing signals
+                                    </p>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                      {(
+                                        latestTurn.response.trace?.signals?.length
+                                          ? latestTurn.response.trace?.signals
+                                          : ["No explicit signals captured"]
+                                      )
+                                        .slice(0, 4)
+                                        .map((signal) => (
+                                          <span
+                                            key={`signal-${signal}`}
+                                            className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
                                           >
-                                            <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                                              {card.label}
-                                            </p>
-                                            <p className="mt-2 text-sm font-semibold text-white">
-                                              {card.value}
-                                            </p>
-                                            <p className="mt-2 text-sm leading-6 text-white/50">
-                                              {card.detail}
-                                            </p>
-                                          </div>
+                                            {signal}
+                                          </span>
                                         ))}
-                                      </div>
-                                    ) : null}
+                                    </div>
                                   </div>
-                                ) : null}
-                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                    What this unlocks
-                                  </p>
-                                  <p className="mt-2 text-sm leading-6 text-white/50">
-                                    {selectedResultDetails.supportingText}
-                                  </p>
-                                </div>
-                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                    Routing signals
-                                  </p>
-                                  <div className="mt-2 flex flex-wrap gap-2">
-                                    {(
-                                      latestTurn.response.trace?.signals?.length
-                                        ? latestTurn.response.trace?.signals
-                                        : ["No explicit signals captured"]
-                                    )
-                                      .slice(0, 4)
-                                      .map((signal) => (
-                                        <span
-                                          key={`signal-${signal}`}
-                                          className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
-                                        >
-                                          {signal}
-                                        </span>
-                                      ))}
+                                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
+                                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                                      Grounding mode
+                                    </p>
+                                    <p className="mt-2 text-sm leading-6 text-white/50">
+                                      This response is currently marked as{" "}
+                                      <span className="font-semibold text-white">
+                                        {latestTurn.response.groundingMode}
+                                      </span>
+                                      , so Eden is distinguishing live platform state from proposed
+                                      or simulated output instead of pretending everything is confirmed.
+                                    </p>
                                   </div>
                                 </div>
-                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                    Grounding mode
-                                  </p>
-                                  <p className="mt-2 text-sm leading-6 text-white/50">
-                                    This response is currently marked as{" "}
-                                    <span className="font-semibold text-white">
-                                      {latestTurn.response.groundingMode}
-                                    </span>
-                                    , so Eden is distinguishing live platform state from proposed
-                                    or simulated output instead of pretending everything is confirmed.
-                                  </p>
-                                </div>
-                              </div>
-                            </motion.div>
-                          ) : (
-                            <motion.div
-                              key="empty-selection"
-                              initial={{ opacity: 0, y: 12 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -12 }}
-                              transition={{ duration: 0.2, ease: "easeOut" }}
-                              className="mt-4 rounded-2xl border border-dashed border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm text-white/50"
-                            >
-                              Select a service, business, or idea card to inspect the grounded
-                              details and next step here.
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </section>
-                  </div>
-                </>
-              ) : null}
-            </motion.section>
-          ) : null}
-        </AnimatePresence>
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                key="empty-selection"
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -12 }}
+                                transition={{ duration: 0.2, ease: "easeOut" }}
+                                className="mt-4 rounded-2xl border border-dashed border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm text-white/50"
+                              >
+                                Select a service, business, or idea card to inspect the grounded
+                                details and next step here.
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </section>
+                    </div>
+                  </>
+                ) : null}
+              </motion.section>
+            ) : null}
+          </AnimatePresence>
 
-      <div className="space-y-6">
-          <motion.section
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
-            transition={{ duration: 0.3, ease: "easeOut", delay: 0.045 }}
-            className="rounded-[24px] border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4"
-          >
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Marketplace clarity
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/50">
-                  These rails show the public Eden loop in one place: published services,{" "}
-                  {edenLaunchLabels.visiblePricing.toLowerCase()}, {edenLaunchLabels.creditsOnlyBilling.toLowerCase()},
-                  {" "}and wallet-aware next steps before any run begins.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-400">
-                  Published and priced
-                </span>
-                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
-                  {edenLaunchLabels.visiblePricing}
-                </span>
-                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
-                  {edenLaunchLabels.creditsOnlyBilling}
-                </span>
-              </div>
-            </div>
-          </motion.section>
-
-          <motion.section
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
-            transition={{ duration: 0.3, ease: "easeOut", delay: 0.05 }}
-          >
-            <DiscoveryRail
-              title="Recommended Services"
-              subtitle="Published services with visible Eden Leaf's pricing and no hidden checkout during runs. Services your wallet likely covers appear first."
-              badgeLabel={
-                recommendedServicesReadyCount
-                  ? `${recommendedServicesReadyCount} ready now`
-                  : "Top-up likely first"
-              }
-              hasItems={recommendedServices.length > 0}
-              emptyMessage="No services match the current filters yet."
-            >
-              <motion.div
-                variants={railVariants}
-                initial="hidden"
-                animate="visible"
-                className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2"
-              >
-                {recommendedServices.map((service) => (
-                  <motion.div key={service.id} variants={railCardVariants}>
-                    <ServiceCard
-                      title={service.title}
-                      provider={service.provider}
-                      category={service.category}
-                      saved={service.saved}
-                      availabilityLabel={service.availabilityLabel}
-                      pricingLabel={service.pricingLabel}
-                      trustLabel={service.trustLabel}
-                      launchBadgeLabel={service.launchBadgeLabel}
-                      affordabilityLabel={service.affordabilityLabel}
-                      affordabilityHint={service.affordabilityHint}
-                      affordabilityTone={service.affordabilityTone}
-                      href={service.href}
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </DiscoveryRail>
-          </motion.section>
-
+          {/* Trending Businesses discovery rail */}
           <motion.section
             initial="hidden"
             animate="visible"
@@ -1739,6 +1527,7 @@ export function ConsumerHomePanel({
             </DiscoveryRail>
           </motion.section>
 
+          {/* Categories discovery rail */}
           <motion.section
             initial="hidden"
             animate="visible"
@@ -1765,12 +1554,136 @@ export function ConsumerHomePanel({
               </motion.div>
             </DiscoveryRail>
           </motion.section>
+        </div>
+
+        {/* RIGHT SIDEBAR: 280px */}
+        <div className="space-y-4">
+          {/* Leaf balance card */}
+          <div className="rounded-2xl border border-[rgba(45,212,191,0.12)] bg-white/[0.035] p-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Leaf Balance</p>
+            <p className="mt-2 text-2xl font-bold text-white">{formatCredits(currentBalanceCredits)} &#x1F343;</p>
+            <button type="button" className="mt-3 w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20">
+              Top Up
+            </button>
+          </div>
+
+          {/* Recent activity */}
+          <div className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">Recent Activity</p>
+            <div className="mt-3 space-y-2">
+              {recentWalletTransactions.slice(0, 5).map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between py-1.5 text-xs">
+                  <span className="text-white/60 truncate max-w-[180px]">{tx.title}</span>
+                  <span className={tx.direction === "inflow" ? "text-emerald-400" : "text-white/40"}>
+                    {tx.direction === "inflow" ? "+" : "-"}{tx.amountLabel}
+                  </span>
+                </div>
+              ))}
+              {recentWalletTransactions.length === 0 ? (
+                <p className="text-xs text-white/30 italic">No recent activity</p>
+              ) : null}
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Service detail modal with zoom transition */}
+      <AnimatePresence>
+        {modalService ? (
+          <>
+            {/* Dark overlay */}
+            <motion.div
+              key="modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+              onClick={() => setModalService(null)}
+            />
+            {/* Modal card */}
+            <motion.div
+              key="modal-card"
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              className="fixed inset-x-4 top-[10%] z-50 mx-auto max-w-lg overflow-hidden rounded-3xl"
+              style={{
+                border: "1px solid rgba(45,212,191,0.2)",
+                background: "rgba(13,30,46,0.95)",
+                boxShadow: "0 24px 80px -12px rgba(0,0,0,0.7), 0 0 40px -8px rgba(45,212,191,0.1)",
+              }}
+            >
+              {/* Full-width thumbnail */}
+              <div
+                className="h-48 w-full"
+                style={{ background: "linear-gradient(135deg, rgba(45,212,191,0.2), rgba(13,30,46,0.9))" }}
+              />
+              <div className="p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>
+                      {modalService.title}
+                    </h2>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <span className="text-sm text-white/50">{modalService.provider}</span>
+                      <span className="rounded-full border border-white/8 bg-eden-bg px-2 py-0.5 text-[10px] text-white/40">
+                        {modalService.category}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setModalService(null)}
+                    className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2 text-white/50 transition-colors hover:text-white"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-[#2dd4bf]/30 bg-[#2dd4bf]/10 px-3 py-1 text-xs font-semibold text-[#2dd4bf]">
+                    {modalService.pricingLabel}
+                  </span>
+                  <span className="rounded-full border border-white/8 bg-white/[0.035] px-3 py-1 text-xs text-white/50">
+                    {modalService.availabilityLabel}
+                  </span>
+                  <span className="rounded-full border border-white/8 bg-white/[0.035] px-3 py-1 text-xs text-white/50">
+                    {modalService.launchBadgeLabel}
+                  </span>
+                </div>
+
+                <p className="mt-4 text-sm leading-6 text-white/45">
+                  {modalService.affordabilityHint}
+                </p>
+
+                <div className="mt-6 flex gap-3">
+                  <Link
+                    href={modalService.href}
+                    className="flex-1 rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25"
+                    style={{ boxShadow: "0 0 16px -4px rgba(45,212,191,0.25)" }}
+                  >
+                    Run Service
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setModalService(null)}
+                    className="rounded-xl border border-white/10 bg-white/[0.035] px-5 py-3 text-sm font-medium text-white/50 transition-colors hover:text-white"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
-
-
 
 
 
