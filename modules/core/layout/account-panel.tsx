@@ -111,7 +111,7 @@ export function AccountPanel({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: -8 }}
           transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute right-0 top-full z-50 mt-2 w-[280px] overflow-hidden rounded-[20px]"
+          className="absolute right-0 top-full z-[200] mt-2 w-[280px] overflow-hidden rounded-[20px]"
           style={{
             background: "rgba(13,30,46,0.95)",
             border: "1px solid rgba(45,212,191,0.15)",
