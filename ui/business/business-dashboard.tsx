@@ -1125,16 +1125,17 @@ export function BusinessDashboardPanel({
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid gap-3 sm:grid-cols-2"
+            className="grid grid-cols-2 gap-3 lg:grid-cols-4"
           >
             {workspaceMetrics.map((metric) => (
               <motion.article
                 key={metric.label}
                 variants={childVariants}
-                className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
+                className="rounded-2xl backdrop-blur-md p-4 shadow-[0_18px_36px_-30px_rgba(19,33,68,0.35)]"
+                style={{ border: "1px solid rgba(45,212,191,0.15)", background: "rgba(13,30,46,0.5)", backdropFilter: "blur(12px)", boxShadow: "0 8px 32px -8px rgba(0,0,0,0.3)" }}
               >
                 <p className="text-xs uppercase tracking-[0.12em] text-white/50">{metric.label}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
+                <p className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: "#2dd4bf" }}>
                   {metric.value}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/50">{metric.detail}</p>
@@ -1185,66 +1186,63 @@ export function BusinessDashboardPanel({
               </span>
             }
           >
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Business name
-                  </p>
-                  <p className="mt-2 text-base font-semibold text-white">
-                    {businessProfile.name}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Status
-                  </p>
-                  <p className="mt-2 text-base font-semibold capitalize text-white">
-                    {getPipelineStatusLabel(releaseStatus)}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4 sm:col-span-2">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Short description
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/50">
-                    {businessProfile.description}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-eden-bg/65 p-4 sm:col-span-2">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                    Tags and category
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {businessProfile.tags.map((tag) => (
-                      <span
-                        key={`overview-${tag}`}
-                        className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-1 text-xs text-white/50"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
+            <div className="grid gap-4 lg:grid-cols-2">
+              {/* Recent Activity feed */}
               <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                  Recent activity
+                  Recent Activity
                 </p>
                 <div className="mt-4 space-y-3">
                   {recentActivity.map((activity) => (
                     <div
                       key={activity.id}
-                      className="rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
+                      className="flex items-start gap-3 rounded-2xl border border-white/8 bg-eden-bg/60 p-3"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-semibold text-white">{activity.title}</p>
-                        <span className="whitespace-nowrap text-xs text-white/50">
-                          {activity.timestamp}
-                        </span>
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: "#2dd4bf" }} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-sm font-semibold text-white">{activity.title}</p>
+                          <span className="whitespace-nowrap text-xs text-white/50">
+                            {activity.timestamp}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-sm leading-6 text-white/50">{activity.message}</p>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-white/50">{activity.message}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Next Actions checklist */}
+              <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.09)", background: "rgba(255,255,255,0.035)" }}>
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
+                  Next Actions
+                </p>
+                <div className="mt-4 space-y-2">
+                  {[
+                    ...(!businessProfile.description || businessProfile.description.length < 30
+                      ? [{ text: "Complete service description" }]
+                      : []),
+                    ...(releaseStatus === "draft"
+                      ? [{ text: "Run first test" }]
+                      : []),
+                    ...(releaseStatus === "testing" || releaseStatus === "ready"
+                      ? [{ text: "Publish to marketplace" }]
+                      : []),
+                    ...(projects.length === 0
+                      ? [{ text: "Create your first project" }]
+                      : []),
+                    ...(!activeService
+                      ? [{ text: "Set up an active service" }]
+                      : []),
+                  ].map((action) => (
+                    <div
+                      key={action.text}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-eden-bg/60 p-3"
+                      style={{ borderLeft: "3px solid #2dd4bf" }}
+                    >
+                      <p className="text-sm text-white">{action.text}</p>
+                      <span className="shrink-0 text-white/30">&rarr;</span>
                     </div>
                   ))}
                 </div>
@@ -1375,9 +1373,14 @@ export function BusinessDashboardPanel({
             title="Create the next active service"
             description="Stage a new local service draft, attach it to the active workspace, and send it through the mocked release pipeline."
             actions={
-              <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
-                {workspaceService ? "Local service active" : "Using current service"}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full border border-white/8 bg-eden-bg px-3 py-1 text-xs text-white/50">
+                  {workspaceService ? "Local service active" : "Using current service"}
+                </span>
+                <button type="button" className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20" style={{ boxShadow: "0 0 12px -2px rgba(45,212,191,0.2)" }}>
+                  New Service +
+                </button>
+              </div>
             }
           >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
