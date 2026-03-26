@@ -8,7 +8,6 @@
   "build": {
     "appId": "app.edencloud.eden",
     "productName": "Eden",
-    "publish": "never",
     "directories": { "output": "dist" },
     "mac": {
       "category": "public.app-category.productivity",
