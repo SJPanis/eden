@@ -245,7 +245,7 @@ export function RoleShell({
                 </div>
 
                 {/* Avatar dropdown */}
-                <div className="relative">
+                <div className="relative z-[200]">
                   <button
                     type="button"
                     onClick={() => setAvatarOpen(v => !v)}
