@@ -1,6 +1,33 @@
-const { app, BrowserWindow, shell } = require('electron')
+const { app, BrowserWindow, dialog, shell } = require('electron')
 const path = require('path')
+const { autoUpdater } = require('electron-updater')
 
+// ── Auto-updater configuration ─────────────────────────────────────────────────
+autoUpdater.autoDownload = true
+autoUpdater.autoInstallOnAppQuit = true
+
+autoUpdater.on('update-available', () => {
+  console.log('[eden-updater] Update available — downloading in background')
+})
+
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Eden Updated',
+    message: 'A new version of Eden has been downloaded.',
+    detail: 'Restart Eden now to apply the update, or it will apply automatically on next launch.',
+    buttons: ['Restart Now', 'Later'],
+    defaultId: 0,
+  }).then(({ response }) => {
+    if (response === 0) autoUpdater.quitAndInstall()
+  })
+})
+
+autoUpdater.on('error', (err) => {
+  console.error('[eden-updater] Update error:', err.message)
+})
+
+// ── Window creation ────────────────────────────────────────────────────────────
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -43,6 +70,11 @@ function createWindow() {
         // Restore title bar on macOS, show frame elements
         win.setTitleBarStyle && win.setTitleBarStyle('hiddenInset')
       })
+
+      // Check for updates after app loads (non-blocking)
+      setTimeout(() => {
+        autoUpdater.checkForUpdatesAndNotify().catch(() => {})
+      }, 3000)
     }, 3500)
   })
 

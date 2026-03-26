@@ -8,19 +8,52 @@
   "build": {
     "appId": "app.edencloud.eden",
     "productName": "Eden",
-    "directories": { "output": "dist" },
+    "directories": {
+      "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "SJPanis",
+      "repo": "eden",
+      "releaseType": "release"
+    },
     "mac": {
       "category": "public.app-category.productivity",
-      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }]
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
     },
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }]
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "linux": {
-      "target": [{ "target": "AppImage", "arch": ["x64"] }]
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "extraResources": [
-      { "from": "boot.html", "to": "boot.html" }
+      {
+        "from": "boot.html",
+        "to": "boot.html"
+      }
     ],
     "files": [
       "main.js",
@@ -34,6 +67,9 @@
     "build:win": "electron-builder --win",
     "build:linux": "electron-builder --linux",
     "build:all": "electron-builder --mac --win --linux"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3"
   },
   "devDependencies": {
     "electron": "^28.0.0",
