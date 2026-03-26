@@ -22,10 +22,12 @@ jobs:
       - name: Build
         working-directory: electron
         run: npm run build:${{ matrix.os == 'macos-latest' && 'mac' || 'win' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: eden-${{ matrix.os }}
-          path: electron/dist/
+          path: |
+            electron/dist/*.exe
+            electron/dist/*.dmg
+            electron/dist/*.AppImage
+          if-no-files-found: warn
