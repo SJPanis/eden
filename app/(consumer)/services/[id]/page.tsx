@@ -173,7 +173,7 @@ export default async function ServiceDetailPage({
       : getFirstValue(resolvedSearchParams.status) ?? service?.status ?? "Available in Preview";
   const businessName =
     getFirstValue(resolvedSearchParams.business) ?? business?.name ?? "Connected Business";
-  const businessId = getFirstValue(resolvedSearchParams.businessId) ?? business?.id ?? "business-01";
+  const businessId = getFirstValue(resolvedSearchParams.businessId) ?? business?.id ?? "business-05";
   const tags = parseTags(resolvedSearchParams.tags, service?.tags[0] ?? category);
   const displayStatus = businessFrozen ? "Business Frozen" : status;
   const displayTags =

@@ -23,59 +23,158 @@ const tabConfig: { key: Tab; label: string; cost: number }[] = [
   { key: "diagnose", label: "Diagnose", cost: 75 },
 ];
 
-// ── Mock results ───────────────────────────────────────────────────────────────
-const mockParts = [
-  { name: "OEM Front Brake Rotor", compatibility: "Direct fit — 2019+ Toyota Camry", priceRange: "$85–$120" },
-  { name: "Performance Ceramic Brake Pad Set", compatibility: "Compatible — all 2018+ Camry trims", priceRange: "$45–$70" },
-  { name: "Brake Caliper Assembly (Front Left)", compatibility: "Remanufactured — fits 2019 Camry LE/SE", priceRange: "$140–$195" },
-];
+type PartResult = {
+  name: string;
+  compatibility: string;
+  priceRange: string;
+  condition?: string;
+};
 
-const mockDiagnostic: { severity: "critical" | "warning" | "info"; issue: string; recommendation: string; costRange: string } = {
-  severity: "warning",
-  issue: "Intermittent Misfire — Cylinder 3",
-  recommendation: "Replace ignition coil pack on cylinder 3. Inspect spark plug for carbon fouling. Clear codes and retest after 50 miles.",
-  costRange: "$120–$280 (parts + labor)",
+type DiagResult = {
+  severity: "critical" | "warning" | "info";
+  issue: string;
+  recommendation: string;
+  costRange: string;
 };
 
 // ── Component ──────────────────────────────────────────────────────────────────
 export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPanelProps) {
   const [tab, setTab] = useState<Tab>("parts");
+  const [balance, setBalance] = useState(balanceCredits);
+  const [spendError, setSpendError] = useState<string | null>(null);
 
   // Find Parts state
   const [year, setYear] = useState("");
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
   const [partNeeded, setPartNeeded] = useState("");
-  const [partsResults, setPartsResults] = useState<typeof mockParts | null>(null);
+  const [partsResults, setPartsResults] = useState<PartResult[] | null>(null);
   const [partsLoading, setPartsLoading] = useState(false);
 
   // Visualize state
   const [vizDescription, setVizDescription] = useState("");
-  const [vizResult, setVizResult] = useState(false);
+  const [vizResult, setVizResult] = useState<string | null>(null);
   const [vizLoading, setVizLoading] = useState(false);
 
   // Diagnose state
   const [vinOrIssue, setVinOrIssue] = useState("");
   const [symptoms, setSymptoms] = useState("");
-  const [diagResult, setDiagResult] = useState<typeof mockDiagnostic | null>(null);
+  const [diagResult, setDiagResult] = useState<DiagResult | null>(null);
   const [diagLoading, setDiagLoading] = useState(false);
 
-  function handleSearchParts() {
+  async function spendAndRun(amount: number, description: string): Promise<boolean> {
+    setSpendError(null);
+    const res = await fetch("/api/wallet/spend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, description }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      setSpendError(
+        data.error === "Insufficient Leaf balance"
+          ? `Not enough Leaf's. You need ${data.required} but have ${data.balance}.`
+          : "Something went wrong. Try again.",
+      );
+      return false;
+    }
+    setBalance(data.newBalance);
+    return true;
+  }
+
+  async function callClaude(prompt: string): Promise<string> {
+    const res = await fetch("/api/claude/imagine-auto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    const data = await res.json();
+    return data.result ?? "";
+  }
+
+  async function handleSearchParts() {
     if (!year || !make || !model || !partNeeded) return;
     setPartsLoading(true);
-    setTimeout(() => { setPartsResults(mockParts); setPartsLoading(false); }, 1200);
+    setSpendError(null);
+
+    const ok = await spendAndRun(50, "Imagine Auto — Find Parts");
+    if (!ok) {
+      setPartsLoading(false);
+      return;
+    }
+
+    try {
+      const raw = await callClaude(
+        `You are an automotive parts expert. A user has a ${year} ${make} ${model} and needs: ${partNeeded}. Return ONLY a JSON array of exactly 3 parts: [{"name":"...","compatibility":"...","priceRange":"$X\u2013$Y","condition":"OEM|Aftermarket|Remanufactured"}]. No other text.`,
+      );
+      const jsonMatch = raw.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as PartResult[];
+        setPartsResults(parsed);
+      } else {
+        setPartsResults([
+          { name: "AI result", compatibility: raw.slice(0, 120), priceRange: "N/A" },
+        ]);
+      }
+    } catch {
+      setSpendError("Claude returned an unexpected response. Leaf's were deducted.");
+    }
+    setPartsLoading(false);
   }
 
-  function handleVisualize() {
+  async function handleVisualize() {
     if (!vizDescription) return;
     setVizLoading(true);
-    setTimeout(() => { setVizResult(true); setVizLoading(false); }, 1500);
+    setSpendError(null);
+
+    const ok = await spendAndRun(100, "Imagine Auto — Visualize");
+    if (!ok) {
+      setVizLoading(false);
+      return;
+    }
+
+    try {
+      const result = await callClaude(
+        `You are a custom automotive parts designer. User wants: ${vizDescription}. Describe the visual render in 2 sentences. Be specific about materials, finish, and fitment. Return ONLY the description.`,
+      );
+      setVizResult(result);
+    } catch {
+      setSpendError("Claude returned an unexpected response. Leaf's were deducted.");
+    }
+    setVizLoading(false);
   }
 
-  function handleDiagnose() {
+  async function handleDiagnose() {
     if (!vinOrIssue || !symptoms) return;
     setDiagLoading(true);
-    setTimeout(() => { setDiagResult(mockDiagnostic); setDiagLoading(false); }, 1300);
+    setSpendError(null);
+
+    const ok = await spendAndRun(75, "Imagine Auto — Diagnose");
+    if (!ok) {
+      setDiagLoading(false);
+      return;
+    }
+
+    try {
+      const raw = await callClaude(
+        `Vehicle/issue: ${vinOrIssue}. Symptoms: ${symptoms}. Return ONLY JSON: {"severity":"warning"|"info"|"critical","issue":"...","recommendation":"...","costRange":"$X\u2013$Y"}`,
+      );
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as DiagResult;
+        setDiagResult(parsed);
+      } else {
+        setDiagResult({
+          severity: "info",
+          issue: "AI Analysis",
+          recommendation: raw.slice(0, 300),
+          costRange: "See recommendation",
+        });
+      }
+    } catch {
+      setSpendError("Claude returned an unexpected response. Leaf's were deducted.");
+    }
+    setDiagLoading(false);
   }
 
   const severityColors = {
@@ -103,7 +202,7 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
             className="rounded-full px-3 py-1 font-mono text-xs font-semibold text-white"
             style={{ border: `1px solid ${IA_CARD_BORDER}`, background: IA_GOLD_DIM }}
           >
-            &#127809; {balanceCredits.toLocaleString()}
+            &#127809; {balance.toLocaleString()}
           </span>
         </div>
       </div>
@@ -122,7 +221,7 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
               background: "radial-gradient(circle at 35% 25%, rgba(245,158,11,0.2), rgba(11,22,34,0.97))",
               border: `2px solid ${IA_GOLD}`,
               color: IA_GOLD,
-              boxShadow: `0 0 24px -4px rgba(245,158,11,0.35)`,
+              boxShadow: "0 0 24px -4px rgba(245,158,11,0.35)",
             }}
           >
             IA
@@ -137,6 +236,21 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
             <p className="mt-1 text-sm text-white/50">Find it. Visualize it. Own it.</p>
           </div>
         </motion.div>
+
+        {/* Spend error banner */}
+        <AnimatePresence>
+          {spendError ? (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mt-4 rounded-xl px-4 py-3 text-sm text-red-300"
+              style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}
+            >
+              {spendError}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
 
         {/* Tabs */}
         <motion.div
@@ -192,7 +306,7 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
                   className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                   style={{ background: IA_GOLD, color: "#0b1622" }}
                 >
-                  {partsLoading ? "Searching..." : "Search Parts — 50 \u{1F343}"}
+                  {partsLoading ? "Searching..." : "Search Parts \u2014 50 \u{1F343}"}
                 </button>
               </div>
 
@@ -205,7 +319,7 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
                   >
                     {partsResults.map((part, i) => (
                       <motion.div
-                        key={part.name}
+                        key={`${part.name}-${i}`}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.1 }}
@@ -274,7 +388,7 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
                   className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                   style={{ background: IA_GOLD, color: "#0b1622" }}
                 >
-                  {vizLoading ? "Generating..." : "Generate Render — 100 \u{1F343}"}
+                  {vizLoading ? "Generating..." : "Generate Render \u2014 100 \u{1F343}"}
                 </button>
               </div>
 
@@ -314,7 +428,7 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
                       <div className="p-4" style={{ background: IA_CARD_BG }}>
                         <p className="text-xs uppercase tracking-[0.12em]" style={{ color: IA_GOLD }}>AI-Generated Render</p>
                         <p className="mt-2 text-sm text-white/60">
-                          Based on your description: &ldquo;{vizDescription.slice(0, 60)}{vizDescription.length > 60 ? "..." : ""}&rdquo;
+                          {vizResult}
                         </p>
                         <p className="mt-2 text-[10px] text-white/25">
                           Disclaimer: This is an AI visualization for reference only. Actual parts may differ.
@@ -366,7 +480,7 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
                   className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                   style={{ background: IA_GOLD, color: "#0b1622" }}
                 >
-                  {diagLoading ? "Analyzing..." : "Run Diagnostic — 75 \u{1F343}"}
+                  {diagLoading ? "Analyzing..." : "Run Diagnostic \u2014 75 \u{1F343}"}
                 </button>
               </div>
 

@@ -66,10 +66,9 @@ const discoveryStopWords = new Set([
 
 const categoryKeywords: Record<string, string[]> = {
   Productivity: ["focus", "habit", "momentum", "planning", "planner", "productivity", "workflow"],
-  Wellness: ["calm", "fitness", "recovery", "reset", "stress", "wellness", "ritual"],
-  Learning: ["cohort", "creator", "education", "learn", "learning", "skill", "workshop"],
-  Home: ["home", "household", "living", "operations", "setup", "smart"],
   Automotive: ["auto", "automotive", "car", "diagnostic", "engine", "mechanic", "part", "parts", "vehicle", "vin"],
+  Finance: ["chart", "finance", "invest", "market", "portfolio", "predict", "stock", "ticker", "trade"],
+  Music: ["artist", "discover", "genre", "listen", "music", "playlist", "sound", "spotify", "track"],
 };
 
 export function buildDiscoverySnapshot(

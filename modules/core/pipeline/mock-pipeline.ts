@@ -89,36 +89,36 @@ export const mockPipelineEventsCookieName = "eden_v1_mock_pipeline_events";
 const defaultPipelineEvents: EdenMockPipelineEvent[] = [
   {
     id: "pipeline-event-01",
-    businessId: "business-02",
-    serviceId: "service-02",
-    projectId: "project-04",
+    businessId: "business-05",
+    serviceId: "service-06",
+    projectId: "project-01",
     previousStatus: "ready",
     newStatus: "published",
     timestamp: "2026-03-05T16:10:00.000Z",
-    actor: "Mina Fields",
-    detail: "Evening Reset Session cleared the mocked publish gate and went live.",
+    actor: "Pilot Tester",
+    detail: "Imagine Auto cleared the publish gate and went live.",
   },
   {
     id: "pipeline-event-02",
-    businessId: "business-04",
-    serviceId: "service-03",
-    projectId: "project-05",
+    businessId: "business-market-lens",
+    serviceId: "service-market-lens",
+    projectId: "project-02",
     previousStatus: "ready",
     newStatus: "published",
     timestamp: "2026-03-04T20:35:00.000Z",
-    actor: "Ari Cole",
-    detail: "Creator Skill Sprint was published after final checklist review.",
+    actor: "Pilot Tester",
+    detail: "Market Lens was published after final checklist review.",
   },
   {
     id: "pipeline-event-03",
-    businessId: "business-01",
-    serviceId: "service-01",
-    projectId: "project-01",
+    businessId: "business-spot-splore",
+    serviceId: "service-spot-splore",
+    projectId: "project-03",
     previousStatus: "draft",
-    newStatus: "testing",
+    newStatus: "published",
     timestamp: "2026-03-06T15:20:00.000Z",
-    actor: "Paige Brooks",
-    detail: "Focus Sprint Planner moved into mocked testing for final QA and pricing review.",
+    actor: "Pilot Tester",
+    detail: "Spot Splore published with Spotify OAuth integration pending.",
   },
 ];
 
@@ -490,7 +490,7 @@ function buildDefaultPipelineRecord(
   workspaceServices: EdenMockWorkspaceServiceState[] = [],
 ): EdenMockPipelineRecord {
   const business = getBusinessById(businessId, createdBusiness);
-  const serviceId = business?.featuredServiceId ?? "service-01";
+  const serviceId = business?.featuredServiceId ?? "service-06";
   const project = getPrimaryProjectForBusiness(
     businessId,
     serviceId,

@@ -174,9 +174,30 @@ export function AccountPanel({
 
                 {/* Menu items */}
                 <div className="p-2 space-y-0.5">
-                  <Link
-                    href={currentRole === "business" ? "/business?tab=earnings" : "/consumer?tab=payouts"}
-                    onClick={onClose}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!isPersistentAuth) {
+                        window.location.href = currentRole === "business" ? "/business?tab=earnings" : "/consumer?tab=payouts";
+                        onClose();
+                        return;
+                      }
+                      try {
+                        const res = await fetch("/api/payouts/connect/onboard", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                        });
+                        const data = await res.json();
+                        if (data.ok && data.onboardingUrl) {
+                          window.location.href = data.onboardingUrl;
+                        } else {
+                          window.location.href = currentRole === "business" ? "/business?tab=earnings" : "/consumer?tab=payouts";
+                        }
+                      } catch {
+                        window.location.href = currentRole === "business" ? "/business?tab=earnings" : "/consumer?tab=payouts";
+                      }
+                      onClose();
+                    }}
                     className={menuItemStyle}
                     style={{ borderLeft: "2px solid transparent" }}
                     onMouseEnter={(e) => {
@@ -190,7 +211,7 @@ export function AccountPanel({
                   >
                     <span className="w-5 text-center text-sm">&#127974;</span>
                     Bank &amp; Payouts
-                  </Link>
+                  </button>
 
                   <button
                     type="button"

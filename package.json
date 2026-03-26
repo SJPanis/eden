@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
-    
     "start": "next start",
     "lint": "eslint",
     "owner:bootstrap": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/bootstrap-owner.ts",
@@ -21,6 +20,7 @@
     "prisma:validate": "prisma validate"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@node-rs/argon2": "^2.0.2",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",

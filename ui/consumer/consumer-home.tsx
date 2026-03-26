@@ -352,6 +352,8 @@ function buildServiceDetailHref(
   // Custom service pages override the generic detail route
   const customRoutes: Record<string, string> = {
     "service-06": "/services/imagine-auto",
+    "service-market-lens": "/services/market-lens",
+    "service-spot-splore": "/services/spot-splore",
   };
   if (customRoutes[routeId]) return customRoutes[routeId];
 

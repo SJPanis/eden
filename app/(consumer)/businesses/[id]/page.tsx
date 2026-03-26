@@ -105,7 +105,7 @@ export default async function BusinessDetailPage({
   const owner =
     getFirstValue(resolvedSearchParams.owner) ?? ownerRecord?.displayName ?? "Platform Owner";
   const featuredServiceId =
-    getFirstValue(resolvedSearchParams.serviceId) ?? business?.featuredServiceId ?? "service-01";
+    getFirstValue(resolvedSearchParams.serviceId) ?? business?.featuredServiceId ?? "service-06";
   const displayStatus = businessFrozen ? "Frozen" : toTitleCase(status);
   const displayTags =
     businessFrozen && !tags.includes("Owner Hold") ? [...tags, "Owner Hold"] : tags;
