@@ -18,7 +18,15 @@
     },
     "linux": {
       "target": [{ "target": "AppImage", "arch": ["x64"] }]
-    }
+    },
+    "extraResources": [
+      { "from": "boot.html", "to": "boot.html" }
+    ],
+    "files": [
+      "main.js",
+      "preload.js",
+      "boot.html"
+    ]
   },
   "scripts": {
     "start": "electron .",

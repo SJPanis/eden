@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #0b1622;
+    cursor: none;
+    user-select: none;
+    -webkit-app-region: drag;
+  }
+  body { display: flex; align-items: center; justify-content: center; }
+
+  canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    transition: opacity 0.7s ease-in;
+  }
+  canvas.visible { opacity: 1; }
+
+  .center {
+    position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 2;
+  }
+
+  /* ── Orbital rings ── */
+  .rings {
+    position: absolute;
+    width: 260px; height: 260px;
+  }
+  .rings svg { width: 100%; height: 100%; overflow: visible; }
+  .ring {
+    fill: none;
+    stroke: rgba(45,212,191,0.15);
+    stroke-width: 1;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  .ring.draw { animation: drawRing 0.6s ease-out forwards; }
+  @keyframes drawRing {
+    to { stroke-dashoffset: 0; }
+  }
+  .center-dot {
+    fill: #2dd4bf;
+    opacity: 0;
+  }
+  .center-dot.pulse {
+    animation: dotPulse 0.6s ease-in-out forwards;
+  }
+  @keyframes dotPulse {
+    0%   { opacity: 0; r: 2; }
+    50%  { opacity: 0.9; r: 4; }
+    100% { opacity: 0.5; r: 3; }
+  }
+
+  /* ── Wordmark ── */
+  .wordmark {
+    margin-top: 150px;
+    text-align: center;
+    opacity: 0;
+  }
+  .wordmark.show {
+    animation: wordFadeIn 0.5s ease-out forwards;
+  }
+  @keyframes wordFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .wordmark h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 48px;
+    color: #fff;
+    letter-spacing: 0.15em;
+    line-height: 1;
+  }
+  .wordmark .os {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #2dd4bf;
+    letter-spacing: 0.3em;
+    margin-top: 6px;
+    opacity: 0;
+  }
+  .wordmark .os.show {
+    animation: wordFadeIn 0.4s ease-out forwards;
+  }
+
+  /* ── Loading line ── */
+  .load-line {
+    width: 120px; height: 1px;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+  }
+  .load-line.show { opacity: 1; }
+  .load-line::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 0%; height: 100%;
+    background: #2dd4bf;
+    box-shadow: 0 0 8px rgba(45,212,191,0.6);
+  }
+  .load-line.sweep::after {
+    animation: sweep 0.5s ease-out forwards;
+  }
+  @keyframes sweep {
+    to { width: 100%; }
+  }
+
+  /* ── Global fade out ── */
+  .boot-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease-in;
+  }
+  .boot-container.fade-out { opacity: 0; }
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="boot-container" id="boot">
+  <div class="center">
+    <div class="rings">
+      <svg viewBox="-130 -130 260 260">
+        <circle class="ring" id="ring1" cx="0" cy="0" r="40"/>
+        <circle class="ring" id="ring2" cx="0" cy="0" r="70"/>
+        <circle class="ring" id="ring3" cx="0" cy="0" r="100"/>
+        <circle class="center-dot" id="cdot" cx="0" cy="0" r="3"/>
+      </svg>
+    </div>
+    <div class="wordmark" id="wordmark">
+      <h1>Eden</h1>
+      <div class="os" id="os">OS</div>
+    </div>
+    <div class="load-line" id="loadLine"></div>
+  </div>
+</div>
+
+<script>
+// ── Particle canvas ──
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+const COUNT = 80;
+const CONNECT_DIST = 120;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+for (let i = 0; i < COUNT; i++) {
+  particles.push({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+  // lines
+  for (let i = 0; i < COUNT; i++) {
+    for (let j = i + 1; j < COUNT; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < CONNECT_DIST) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(45,212,191,${0.08 * (1 - d / CONNECT_DIST)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  // dots
+  for (const p of particles) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(45,212,191,0.4)';
+    ctx.fill();
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0 || p.x > W) p.vx *= -1;
+    if (p.y < 0 || p.y > H) p.vy *= -1;
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ── Sequence timeline ──
+const $ = id => document.getElementById(id);
+
+// 0.5s — particles fade in
+setTimeout(() => canvas.classList.add('visible'), 500);
+
+// 1.2s — rings draw (0.25s stagger)
+setTimeout(() => $('ring1').classList.add('draw'), 1200);
+setTimeout(() => $('ring2').classList.add('draw'), 1450);
+setTimeout(() => $('ring3').classList.add('draw'), 1700);
+// center dot pulses with last ring
+setTimeout(() => $('cdot').classList.add('pulse'), 1700);
+
+// Set proper dasharray for each ring
+(function setDash() {
+  [['ring1', 40], ['ring2', 70], ['ring3', 100]].forEach(([id, r]) => {
+    const c = 2 * Math.PI * r;
+    const el = $(id);
+    el.style.strokeDasharray = c;
+    el.style.strokeDashoffset = c;
+  });
+})();
+// Redefine draw animation per ring
+const style = document.createElement('style');
+[['ring1', 40], ['ring2', 70], ['ring3', 100]].forEach(([id, r]) => {
+  const c = Math.round(2 * Math.PI * r);
+  style.textContent += `
+    #${id}.draw { animation: draw-${id} 0.6s ease-out forwards; }
+    @keyframes draw-${id} { to { stroke-dashoffset: 0; } }
+  `;
+  $(id).style.strokeDasharray = c;
+  $(id).style.strokeDashoffset = c;
+});
+document.head.appendChild(style);
+
+// 2.0s — wordmark
+setTimeout(() => $('wordmark').classList.add('show'), 2000);
+setTimeout(() => $('os').classList.add('show'), 2200);
+
+// 2.6s — loading line
+setTimeout(() => {
+  $('loadLine').classList.add('show');
+  $('loadLine').classList.add('sweep');
+}, 2600);
+
+// 3.2s — fade everything out
+setTimeout(() => $('boot').classList.add('fade-out'), 3200);
+setTimeout(() => canvas.style.transition = 'opacity 0.3s', 3200);
+setTimeout(() => canvas.style.opacity = '0', 3210);
+
+// 3.5s — signal Electron to navigate
+setTimeout(() => {
+  if (window.__EDEN_BOOT_DONE) {
+    window.__EDEN_BOOT_DONE();
+  }
+}, 3500);
+</script>
+</body>
+</html>
