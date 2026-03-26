@@ -11,11 +11,9 @@
     "directories": { "output": "dist" },
     "mac": {
       "category": "public.app-category.productivity",
-      "icon": "assets/icon.icns",
       "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }]
     },
     "win": {
-      "icon": "assets/icon.ico",
       "target": [{ "target": "nsis", "arch": ["x64"] }]
     },
     "linux": {
