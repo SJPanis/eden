@@ -42,6 +42,7 @@ import {
   getServiceAffordabilityDetails,
 } from "@/ui/consumer/components/service-affordability-shared";
 import { ServiceCard } from "@/ui/consumer/components/service-card";
+import { OrbitalDiagram } from "@/modules/core/components/orbital-diagram";
 
 type ConsumerServiceRailItem = {
   id: string;
@@ -584,6 +585,7 @@ export function ConsumerHomePanel({
     "Ask Eden is ready for discovery.",
   );
   const [selectedResult, setSelectedResult] = useState<SelectedResult | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const normalizedQuery = activeQuery.trim().toLowerCase();
   const savedBusinessIds = useMemo(() => new Set(activeUser?.savedBusinessIds ?? []), [activeUser]);
   const savedServiceIds = useMemo(() => new Set(activeUser?.savedServiceIds ?? []), [activeUser]);
@@ -965,6 +967,59 @@ export function ConsumerHomePanel({
 
   return (
     <div className="space-y-6">
+      {/* Orbital service browser */}
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={sectionVariants}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="flex justify-center py-2"
+      >
+        <OrbitalDiagram
+          size={320}
+          interactive
+          centerLabel="Eden"
+          centerSublabel="Discover"
+          innerNodes={visibleCategories.slice(0, 3).map((cat, i) => ({
+            label: cat.label,
+            angle: -90 + i * 120,
+          }))}
+          middleNodes={recommendedServices.slice(0, 2).map((svc, i) => ({
+            label: svc.title.length > 14 ? svc.title.slice(0, 12) + "..." : svc.title,
+            angle: 60 + i * 160,
+          }))}
+          onNodeClick={(label) => {
+            const matchedCat = visibleCategories.find((c) => c.label === label);
+            if (matchedCat) {
+              setActiveCategory((prev) => prev === matchedCat.label ? null : matchedCat.label);
+            } else {
+              const matchedSvc = recommendedServices.find((s) => s.title.startsWith(label.replace("...", "")));
+              if (matchedSvc) setModalService(matchedSvc);
+            }
+          }}
+        />
+      </motion.section>
+
+      {/* Active category filter pills */}
+      {activeCategory ? (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2"
+        >
+          <span className="rounded-full border border-[#2dd4bf]/40 bg-[#2dd4bf]/10 px-3 py-1 text-xs text-[#2dd4bf]">
+            {activeCategory}
+          </span>
+          <button
+            type="button"
+            onClick={() => setActiveCategory(null)}
+            className="text-xs text-white/40 hover:text-white/60"
+          >
+            Clear filter
+          </button>
+        </motion.div>
+      ) : null}
+
       {/* TOP: Search bar */}
       <motion.section
         initial="hidden"
@@ -982,8 +1037,9 @@ export function ConsumerHomePanel({
               type="text"
               value={promptInput}
               onChange={(event) => setPromptInput(event.target.value)}
-              placeholder="Search services..."
-              className="w-full rounded-2xl border border-white/8 bg-eden-bg/60 px-5 py-4 pl-12 text-base text-white outline-none transition placeholder:text-white/30 focus:border-[#2dd4bf]/50 focus:ring-2 focus:ring-eden-ring/40"
+              placeholder="Search services, businesses, or ask Eden..."
+              className="w-full rounded-2xl border border-white/8 px-5 py-4 pl-12 text-base text-white outline-none transition placeholder:text-white/30 focus:border-[#2dd4bf]/50"
+              style={{ background: "rgba(13,30,46,0.8)", backdropFilter: "blur(12px)" }}
             />
             <svg className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -1004,7 +1060,7 @@ export function ConsumerHomePanel({
               animate="visible"
               className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
             >
-              {recommendedServices.map((service) => (
+              {(activeCategory ? recommendedServices.filter(s => s.category === activeCategory) : recommendedServices).map((service) => (
                 <motion.div
                   key={service.id}
                   variants={railCardVariants}
@@ -1014,8 +1070,17 @@ export function ConsumerHomePanel({
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
-                  {/* Teal gradient placeholder thumbnail */}
-                  <div className="aspect-square w-full rounded-xl mb-3" style={{ background: "linear-gradient(135deg, rgba(45,212,191,0.15), rgba(13,30,46,0.8))" }} />
+                  {/* Generative gradient thumbnail */}
+                  <div
+                    className="h-40 w-full rounded-xl mb-3 overflow-hidden relative"
+                    style={{
+                      background: `linear-gradient(${135 + (service.title.charCodeAt(0) % 6) * 30}deg, ${
+                        ["rgba(45,212,191,0.2)", "rgba(168,85,247,0.2)", "rgba(245,158,11,0.2)", "rgba(59,130,246,0.2)", "rgba(236,72,153,0.2)", "rgba(34,197,94,0.2)"][service.title.charCodeAt(0) % 6]
+                      }, rgba(13,30,46,0.85))`,
+                    }}
+                  >
+                    <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)", backgroundSize: "200% 100%", animation: "shimmer 1.5s ease-in-out infinite" }} />
+                  </div>
                   {/* Service name */}
                   <h3 className="text-base font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>{service.title}</h3>
                   {/* Business name + category */}
@@ -1034,12 +1099,11 @@ export function ConsumerHomePanel({
           ) : (
             /* Empty state */
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <svg className="h-12 w-12 text-[#2dd4bf]/30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+              <OrbitalDiagram size={160} showOuterRing={false} centerLabel="..." glowIntensity={0.3} innerNodes={[]} middleNodes={[]} />
               <p className="text-lg text-white/40 italic" style={{ fontFamily: "var(--font-serif)" }}>
-                No services yet. Innovators are building.
+                No services found.
               </p>
+              <p className="mt-1 text-sm text-white/30">Try a different search or browse all categories.</p>
             </div>
           )}
 
@@ -1559,17 +1623,29 @@ export function ConsumerHomePanel({
         {/* RIGHT SIDEBAR: 280px */}
         <div className="space-y-4">
           {/* Leaf balance card */}
-          <div className="rounded-2xl border border-[rgba(45,212,191,0.12)] bg-white/[0.035] p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">Leaf Balance</p>
-            <p className="mt-2 text-2xl font-bold text-white">{formatCredits(currentBalanceCredits)} &#x1F343;</p>
-            <button type="button" className="mt-3 w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20">
+          <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#2dd4bf]">Leaf Balance</p>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="relative h-14 w-14 shrink-0">
+                <svg viewBox="0 0 44 44" className="h-14 w-14 -rotate-90">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(45,212,191,0.1)" strokeWidth="3" />
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#2dd4bf" strokeWidth="3" strokeDasharray={`${Math.min(113, (currentBalanceCredits / 500) * 113)} 113`} strokeLinecap="round" />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#2dd4bf]">&#x1F33F;</span>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{formatCredits(currentBalanceCredits)}</p>
+                <p className="text-[10px] text-white/30">Eden Leaves</p>
+              </div>
+            </div>
+            <button type="button" className="mt-3 w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25" style={{ boxShadow: "0 0 12px -4px rgba(45,212,191,0.2)" }}>
               Top Up
             </button>
           </div>
 
           {/* Recent activity */}
-          <div className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">Recent Activity</p>
+          <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
+            <p className="text-sm font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>Recent Activity</p>
             <div className="mt-3 space-y-2">
               {recentWalletTransactions.slice(0, 5).map((tx) => (
                 <div key={tx.id} className="flex items-center justify-between py-1.5 text-xs">

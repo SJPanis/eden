@@ -59,6 +59,7 @@ import { formatServicePricingLabel } from "@/modules/core/services/service-prici
 import { OwnerReconciliationFilters } from "@/ui/owner/components/owner-reconciliation-filters";
 import { ControlRoomSection } from "@/ui/owner/components/control-room-section";
 import { OwnerAccessCodesPanel } from "@/ui/owner/components/owner-access-codes-panel";
+import { OrbitalDiagram } from "@/modules/core/components/orbital-diagram";
 
 type OwnerDashboardPanelProps = {
   session: EdenMockSession;
@@ -423,13 +424,10 @@ function StatCell({ label, value, sub }: { label: string; value: string; sub?: s
   return (
     <div
       className="rounded-xl p-3"
-      style={{
-        border: "1px solid rgba(45,212,191,0.1)",
-        background: "rgba(255,255,255,0.035)",
-      }}
+      style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.5)", backdropFilter: "blur(12px)" }}
     >
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">{label}</p>
-      <p className="mt-1.5 text-lg font-semibold tracking-tight text-white">{value}</p>
+      <p className="mt-1.5 text-lg font-semibold tracking-tight text-[#2dd4bf]">{value}</p>
       {sub ? <p className="mt-1 text-[11px] leading-4 text-white/40">{sub}</p> : null}
     </div>
   );
@@ -1036,22 +1034,40 @@ export function OwnerDashboardPanel({
     <div className="space-y-4">
       {/* Header */}
       <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.6)", backdropFilter: "blur(12px)" }}>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <EdenBrandLockup size="sm" label="Eden" subtitle="Owner control room" />
-            <div className="hidden h-6 w-px bg-white/10 sm:block" />
-            <div className="hidden sm:block">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Owner Layer</p>
-              <p className="mt-0.5 text-sm font-semibold text-white">Mission Control</p>
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-4">
+              <EdenBrandLockup size="sm" label="Eden" subtitle="Owner control room" />
+              <div className="hidden h-6 w-px bg-white/10 sm:block" />
+              <div className="hidden sm:block">
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Owner Layer</p>
+                <p className="mt-0.5 text-lg font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>Mission Control</p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {adminSummaryStrip.map((item) => (
+                <div key={item.id} className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ border: "1px solid rgba(45,212,191,0.1)", background: "rgba(13,30,46,0.5)" }}>
+                  <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${item.tone}`}>{item.value}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{item.label}</span>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {adminSummaryStrip.map((item) => (
-              <div key={item.id} className="flex items-center gap-1.5 rounded-full border border-[rgba(45,212,191,0.08)] bg-white/[0.03] px-3 py-1.5">
-                <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${item.tone}`}>{item.value}</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">{item.label}</span>
-              </div>
-            ))}
+          <div className="hidden xl:block">
+            <OrbitalDiagram
+              size={280}
+              centerLabel="Eden"
+              glowIntensity={0.5}
+              innerNodes={userCatalog.slice(0, 3).map((u, i) => ({
+                label: u.displayName.length > 10 ? u.displayName.slice(0, 8) + "..." : u.displayName,
+                angle: -90 + i * 120,
+              }))}
+              middleNodes={businessCatalog.slice(0, 3).map((b, i) => ({
+                label: b.name.length > 10 ? b.name.slice(0, 8) + "..." : b.name,
+                angle: 40 + i * 120,
+                color: "#a855f7",
+              }))}
+            />
           </div>
         </div>
       </div>
@@ -1068,13 +1084,13 @@ export function OwnerDashboardPanel({
             className={`flex-1 rounded-xl px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-all ${
               activeTab === tab.id
                 ? "text-[#2dd4bf]"
-                : "text-white/40 hover:text-white/70"
+                : "text-white/40 hover:bg-white/[0.03] hover:text-white/60"
             }`}
             style={
               activeTab === tab.id
                 ? {
                     background: "rgba(45,212,191,0.15)",
-                    boxShadow: "0 0 0 1px rgba(45,212,191,0.35)",
+                    boxShadow: "0 0 12px -2px rgba(45,212,191,0.2), 0 0 0 1px rgba(45,212,191,0.35)",
                   }
                 : undefined
             }
@@ -1096,7 +1112,7 @@ export function OwnerDashboardPanel({
             className="space-y-4"
           >
             {/* Overview metrics grid */}
-            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {overviewMetrics.slice(0, 5).map((metric) => (
                 <StatCell key={metric.id} label={metric.label} value={metric.value} sub={metric.detail} />
               ))}
@@ -1316,7 +1332,7 @@ export function OwnerDashboardPanel({
                   <div
                     key={entry.id}
                     className="flex items-center justify-between gap-4 rounded-2xl p-4"
-                    style={{ border: "1px solid rgba(45,212,191,0.08)", background: "rgba(255,255,255,0.025)" }}
+                    style={{ border: "1px solid rgba(45,212,191,0.1)", background: "rgba(13,30,46,0.6)", backdropFilter: "blur(12px)" }}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
