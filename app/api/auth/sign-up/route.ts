@@ -99,60 +99,85 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const passwordHash = await hashCredentialPassword(password);
+  try {
+    const passwordHash = await hashCredentialPassword(password);
 
-  const createdUser = await getPrismaClient().user.create({
-    data: {
-      username,
-      displayName,
-      passwordHash,
-      role: "CONSUMER",
-      // Beta welcome gift: 100 Leaf's granted when signing up with an access code
-      edenBalanceCredits: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
-      ...(resolvedCodeId ? { accessCodeId: resolvedCodeId } : {}),
-    },
-    select: { id: true, username: true, displayName: true },
-  });
+    const createdUser = await getPrismaClient().user.create({
+      data: {
+        username,
+        displayName,
+        passwordHash,
+        role: "CONSUMER",
+        // Beta welcome gift: 100 Leaf's granted when signing up with an access code
+        edenBalanceCredits: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
+        ...(resolvedCodeId ? { accessCodeId: resolvedCodeId } : {}),
+      },
+      select: { id: true, username: true, displayName: true },
+    });
 
-  await getPrismaClient().authProviderAccount.create({
-    data: {
-      provider: "credentials",
-      providerSubject: username,
-      userId: createdUser.id,
-    },
-  });
-
-  // Increment code use count and record the welcome grant audit trail
-  if (resolvedCodeId) {
-    const ownerUsername = resolveConfiguredOwnerUsername();
-    const ownerUser = ownerUsername
-      ? await getPrismaClient().user.findUnique({
-          where: { username: ownerUsername },
-          select: { id: true },
-        })
-      : null;
-
-    await Promise.all([
-      // Increment use count on the code
-      getPrismaClient().earlyAccessCode.update({
-        where: { id: resolvedCodeId },
-        data: { useCount: { increment: 1 } },
-      }),
-      // Create audit grant record (uses owner's ID if found, otherwise self-grant)
-      getPrismaClient().ownerLeavesGrant.create({
+    try {
+      await getPrismaClient().authProviderAccount.create({
         data: {
+          provider: "credentials",
+          providerSubject: username,
           userId: createdUser.id,
-          grantedByUserId: ownerUser?.id ?? createdUser.id,
-          amountCredits: BETA_WELCOME_LEAVES,
-          note: `Beta welcome gift — ${BETA_WELCOME_LEAVES} Leaf's granted on account creation with access code.`,
         },
-      }),
-    ]);
-  }
+      });
+    } catch (error) {
+      console.error("[sign-up] failed to create auth provider account:", error);
+      // Roll back: delete the user we just created since auth linking failed
+      await getPrismaClient().user.delete({ where: { id: createdUser.id } }).catch(() => {});
+      const message = error instanceof Error ? error.message : "Unknown error";
+      return NextResponse.json(
+        { ok: false, error: "Unable to create your Eden account.", detail: message },
+        { status: 500 },
+      );
+    }
 
-  return NextResponse.json({
-    ok: true,
-    user: createdUser,
-    welcomeLeaves: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
-  });
+    // Increment code use count and record the welcome grant audit trail
+    if (resolvedCodeId) {
+      try {
+        const ownerUsername = resolveConfiguredOwnerUsername();
+        const ownerUser = ownerUsername
+          ? await getPrismaClient().user.findUnique({
+              where: { username: ownerUsername },
+              select: { id: true },
+            })
+          : null;
+
+        await Promise.all([
+          // Increment use count on the code
+          getPrismaClient().earlyAccessCode.update({
+            where: { id: resolvedCodeId },
+            data: { useCount: { increment: 1 } },
+          }),
+          // Create audit grant record (uses owner's ID if found, otherwise self-grant)
+          getPrismaClient().ownerLeavesGrant.create({
+            data: {
+              userId: createdUser.id,
+              grantedByUserId: ownerUser?.id ?? createdUser.id,
+              amountCredits: BETA_WELCOME_LEAVES,
+              note: `Beta welcome gift — ${BETA_WELCOME_LEAVES} Leaf's granted on account creation with access code.`,
+            },
+          }),
+        ]);
+      } catch (error) {
+        // Non-fatal: user was created successfully, just log the audit/code-increment failure
+        console.error("[sign-up] failed to update access code / create grant record:", error);
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      user: createdUser,
+      welcomeLeaves: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
+    });
+  } catch (error) {
+    console.error("[sign-up] failed to create user:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { ok: false, error: "Unable to create your Eden account.", detail: message },
+      { status: 500 },
+    );
+  }
 }
