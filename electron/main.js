@@ -7,16 +7,44 @@ function createWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: 'hidden',
+    frame: false,
+    show: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
     title: 'Eden',
     backgroundColor: '#0b1622',
   })
 
-  win.loadURL('https://edencloud.app')
+  // Load boot sequence
+  const bootPath = path.join(__dirname, 'boot.html')
+  win.loadFile(bootPath)
+
+  win.once('ready-to-show', () => {
+    win.show()
+  })
+
+  // After boot completes, navigate to the real app
+  win.webContents.on('did-finish-load', function onBootLoad() {
+    win.webContents.removeListener('did-finish-load', onBootLoad)
+
+    // Wait for boot sequence to finish (3.5s)
+    setTimeout(() => {
+      // Set background to match app before navigating to prevent flash
+      win.setBackgroundColor('#0b1622')
+      win.loadURL('https://edencloud.app')
+
+      // Once the real app loads, restore normal window chrome
+      win.webContents.on('did-finish-load', function onAppLoad() {
+        win.webContents.removeListener('did-finish-load', onAppLoad)
+        // Restore title bar on macOS, show frame elements
+        win.setTitleBarStyle && win.setTitleBarStyle('hiddenInset')
+      })
+    }, 3500)
+  })
 
   // Open external links in browser not app
   win.webContents.setWindowOpenHandler(({ url }) => {
