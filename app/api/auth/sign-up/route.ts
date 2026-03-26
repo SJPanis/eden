@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { rateLimit } from "@/modules/core/lib/rate-limit";
 import { resolveConfiguredOwnerUsername } from "@/modules/core/session/access-control";
 import {
   hashCredentialPassword,
@@ -11,7 +12,15 @@ import {
 const earlyAccessEnabled = process.env.EDEN_EARLY_ACCESS_ENABLED === "true";
 const BETA_WELCOME_LEAVES = 100;
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limit: 5 sign-up attempts per IP per 15 minutes
+  const limit = rateLimit(request, "signup", 5, 15 * 60 * 1000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Too many attempts. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
+  }
   const requestBody = (await request.json().catch(() => null)) as
     | {
         username?: string;
@@ -60,6 +69,14 @@ export async function POST(request: Request) {
     });
 
     if (!codeRecord || !codeRecord.isActive || codeRecord.useCount >= codeRecord.maxUses) {
+      // Rate limit invalid invite code attempts: 10 per IP per hour
+      const codeLimit = rateLimit(request, "invite", 10, 60 * 60 * 1000);
+      if (!codeLimit.allowed) {
+        return NextResponse.json(
+          { ok: false, error: "Too many invalid code attempts. Try again later." },
+          { status: 429, headers: { "Retry-After": String(codeLimit.retryAfter) } },
+        );
+      }
       return NextResponse.json(
         { ok: false, error: "Invalid or expired early access code.", requiresCode: true },
         { status: 403 },

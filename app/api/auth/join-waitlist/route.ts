@@ -1,7 +1,16 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { rateLimit } from "@/modules/core/lib/rate-limit";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Rate limit: 3 waitlist submissions per IP per hour
+  const limit = rateLimit(request, "waitlist", 3, 60 * 60 * 1000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Too many submissions. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
+  }
   const body = (await request.json().catch(() => null)) as
     | { email?: string; name?: string; note?: string }
     | null;
