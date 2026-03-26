@@ -20,6 +20,7 @@ import { edenSpendableLeavesLabel } from "@/modules/core/credits/eden-currency";
 import { getBusinessById, type EdenMockTransaction } from "@/modules/core/mock-data";
 import { canAccessRoles, type EdenMockSession } from "@/modules/core/session/mock-session";
 import { MockSessionSwitcher } from "@/modules/core/session/mock-session-switcher";
+import { AccountPanel } from "@/modules/core/layout/account-panel";
 
 type RoleShellProps = {
   role: EdenRole;
@@ -260,35 +261,21 @@ export function RoleShell({
                       <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full" style={{ background: "#f43f5e", border: "2px solid #0d1f30" }} />
                     ) : null}
                   </button>
-                  <AnimatePresence>
-                    {avatarOpen ? (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.92, y: -4 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.92, y: -4 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-2xl"
-                        style={{
-                          background: "rgba(13,30,46,0.95)",
-                          border: "1px solid rgba(45,212,191,0.15)",
-                          backdropFilter: "blur(16px)",
-                          boxShadow: "0 12px 40px -8px rgba(0,0,0,0.6)",
-                        }}
-                      >
-                        <div className="p-2 space-y-0.5">
-                          <Link href="/settings" onClick={() => setAvatarOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-white/60 transition-colors hover:bg-white/5 hover:text-white">
-                            Settings
-                          </Link>
-                          <div className="mx-2 my-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
-                          {session.auth.source === "persistent" ? (
-                            <button type="button" onClick={() => { setAvatarOpen(false); handleSignOut(); }} disabled={isSigningOut} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-white/40 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50">
-                              {isSigningOut ? "Leaving..." : "Sign out"}
-                            </button>
-                          ) : null}
-                        </div>
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
+                  <AccountPanel
+                    open={avatarOpen}
+                    onClose={() => setAvatarOpen(false)}
+                    onSignOut={handleSignOut}
+                    isSigningOut={isSigningOut}
+                    isPersistentAuth={session.auth.source === "persistent"}
+                    user={{
+                      initials: session.user.initials,
+                      username: session.user.username,
+                      displayName: session.user.displayName,
+                      role: session.user.role,
+                      edenBalanceCredits: session.user.edenBalanceCredits,
+                    }}
+                    currentRole={session.role}
+                  />
                 </div>
               </div>
             </div>

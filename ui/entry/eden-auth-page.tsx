@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { EdenLogoMark } from "@/modules/core/components/eden-logo-mark";
 import { ParticleCanvas } from "@/modules/core/components/particle-canvas";
@@ -37,7 +38,22 @@ export function EdenAuthPage({
   const [waitlistName, setWaitlistName] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successNote, setSuccessNote] = useState<string | null>(null);
+  const [pendingReferralCode, setPendingReferralCode] = useState<string | null>(null);
   const resolvedCallbackUrl = useMemo(() => callbackUrl || "/consumer", [callbackUrl]);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setPendingReferralCode(ref);
+      try { sessionStorage.setItem("eden_pending_referral", ref); } catch {}
+    } else {
+      try {
+        const stored = sessionStorage.getItem("eden_pending_referral");
+        if (stored) setPendingReferralCode(stored);
+      } catch {}
+    }
+  }, [searchParams]);
 
   function handleModeSwitch(next: AuthMode) {
     setMode(next);
@@ -118,6 +134,7 @@ export function EdenAuthPage({
         displayName,
         password,
         accessCode: accessCode || undefined,
+        referralCode: pendingReferralCode || undefined,
       }),
     });
     const body = (await response.json().catch(() => null)) as {
@@ -130,6 +147,7 @@ export function EdenAuthPage({
       setSubmitError(body?.error ?? "Unable to create your Eden account.");
       return;
     }
+    try { sessionStorage.removeItem("eden_pending_referral"); } catch {}
     const leaves = body?.welcomeLeaves ?? 0;
     setSuccessNote(
       leaves > 0
