@@ -353,6 +353,9 @@ model User {
   referralCode                    String?                          @unique
   referralsMade                   Referral[]                       @relation("ReferrerReferrals")
   referredBy                      Referral?                        @relation("ReferredReferral")
+  totpSecret                      String?
+  totpEnabled                     Boolean                          @default(false)
+  totpVerifiedAt                  DateTime?
 }
 
 model AuthProviderAccount {

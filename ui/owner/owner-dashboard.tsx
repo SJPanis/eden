@@ -1105,6 +1105,26 @@ export function OwnerDashboardPanel({
         </div>
       </div>
 
+      {/* Eden Command card */}
+      <div
+        className="rounded-2xl p-4"
+        style={{ border: "1px solid rgba(45,212,191,0.1)", background: "rgba(45,212,191,0.03)" }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#2dd4bf]">Eden Command</p>
+            <p className="mt-1 text-sm text-white/50">Control Eden from your phone with Google Authenticator</p>
+          </div>
+          <Link
+            href="/command"
+            className="rounded-xl px-4 py-2 text-xs font-semibold transition-all"
+            style={{ background: "rgba(45,212,191,0.12)", color: "#2dd4bf", border: "1px solid rgba(45,212,191,0.2)" }}
+          >
+            Open Command Center &rarr;
+          </Link>
+        </div>
+      </div>
+
       {/* Tab bar */}
       <div
         className="flex gap-1 rounded-2xl p-1"
