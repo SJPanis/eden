@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -37,8 +37,22 @@ type DiagResult = {
   costRange: string;
 };
 
+function hashString(str: string): number {
+  return str.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
 // ── Component ──────────────────────────────────────────────────────────────────
-export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPanelProps) {
+export function ImagineAutoPanel({ username, displayName, balanceCredits }: ImagineAutoPanelProps) {
   const [tab, setTab] = useState<Tab>("parts");
   const [balance, setBalance] = useState(balanceCredits);
   const [spendError, setSpendError] = useState<string | null>(null);
@@ -55,12 +69,26 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
   const [vizDescription, setVizDescription] = useState("");
   const [vizResult, setVizResult] = useState<string | null>(null);
   const [vizLoading, setVizLoading] = useState(false);
+  const [savedVizTime, setSavedVizTime] = useState<string | null>(null);
 
   // Diagnose state
   const [vinOrIssue, setVinOrIssue] = useState("");
   const [symptoms, setSymptoms] = useState("");
   const [diagResult, setDiagResult] = useState<DiagResult | null>(null);
   const [diagLoading, setDiagLoading] = useState(false);
+
+  // Load saved visualization on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`imagine-auto-viz-${username}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setVizResult(parsed.result);
+        setVizDescription(parsed.description);
+        setSavedVizTime(parsed.generatedAt);
+      }
+    } catch { /* ignore */ }
+  }, [username]);
 
   async function spendAndRun(amount: number, description: string): Promise<boolean> {
     setSpendError(null);
@@ -138,10 +166,70 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
         `You are a custom automotive parts designer. User wants: ${vizDescription}. Describe the visual render in 2 sentences. Be specific about materials, finish, and fitment. Return ONLY the description.`,
       );
       setVizResult(result);
+      const now = new Date().toISOString();
+      setSavedVizTime(now);
+      try {
+        localStorage.setItem(`imagine-auto-viz-${username}`, JSON.stringify({
+          result,
+          description: vizDescription,
+          generatedAt: now,
+          username,
+        }));
+      } catch { /* ignore */ }
     } catch {
       setSpendError("Claude returned an unexpected response. Leaf's were deducted.");
     }
     setVizLoading(false);
+  }
+
+  function downloadRender() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 800;
+    canvas.height = 600;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const hash = hashString(vizDescription);
+    const angle = ((hash % 180) * Math.PI) / 180;
+    const grd = ctx.createLinearGradient(0, 0, Math.cos(angle) * 800, Math.sin(angle) * 600);
+    grd.addColorStop(0, "#0b1622");
+    grd.addColorStop(0.5, `hsla(${(hash % 60) + 20}, 80%, 25%, 1)`);
+    grd.addColorStop(1, "#1a0f00");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, 800, 600);
+
+    ctx.font = "bold 200px serif";
+    ctx.fillStyle = "rgba(245, 158, 11, 0.08)";
+    ctx.textAlign = "center";
+    ctx.fillText("IA", 400, 380);
+
+    ctx.font = "18px monospace";
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.textAlign = "center";
+    const words = (vizResult ?? "").split(" ");
+    let line = "";
+    let y = 200;
+    for (const word of words) {
+      const test = `${line}${word} `;
+      if (ctx.measureText(test).width > 700 && line) {
+        ctx.fillText(line, 400, y);
+        line = `${word} `;
+        y += 28;
+      } else {
+        line = test;
+      }
+    }
+    ctx.fillText(line, 400, y);
+
+    ctx.font = "14px monospace";
+    ctx.fillStyle = "rgba(245,158,11,0.6)";
+    ctx.textAlign = "right";
+    ctx.fillText("IMAGINE AUTO \u2014 AI RENDER", 780, 570);
+
+    const link = document.createElement("a");
+    link.download = `imagine-auto-render-${Date.now()}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   }
 
   async function handleDiagnose() {
@@ -403,43 +491,73 @@ export function ImagineAutoPanel({ displayName, balanceCredits }: ImagineAutoPan
                       className="overflow-hidden rounded-[20px]"
                       style={{ border: `1px solid ${IA_CARD_BORDER}` }}
                     >
-                      {/* CSS art render */}
+                      {/* CSS art render — unique gradient based on description hash */}
                       <div
-                        className="flex h-64 items-center justify-center"
+                        className="relative flex h-64 items-center justify-center overflow-hidden"
                         style={{
-                          background: "linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(20,15,5,0.95) 50%, rgba(245,158,11,0.1) 100%)",
+                          background: `linear-gradient(${hashString(vizDescription) % 180}deg, rgba(245,158,11,0.3) 0%, rgba(20,15,5,0.97) 45%, hsla(${(hashString(vizDescription) % 60) + 20}, 70%, 15%, 0.6) 100%)`,
                         }}
                       >
-                        <div className="relative">
+                        {/* IA watermark */}
+                        <span
+                          className="absolute text-[140px] font-bold select-none"
+                          style={{ color: "rgba(245,158,11,0.06)", fontFamily: "serif" }}
+                        >
+                          IA
+                        </span>
+                        {/* Corner badge */}
+                        <span
+                          className="absolute right-4 top-4 font-mono text-[10px] uppercase tracking-[0.2em]"
+                          style={{ color: "rgba(245,158,11,0.5)" }}
+                        >
+                          AI Render
+                        </span>
+                        {/* Center shape */}
+                        <div className="relative z-10">
                           <div
-                            className="h-24 w-40 rounded-2xl"
+                            className="h-28 w-44 rounded-2xl"
                             style={{
-                              background: "linear-gradient(160deg, rgba(245,158,11,0.5) 0%, rgba(30,20,5,0.9) 60%)",
+                              background: `linear-gradient(${(hashString(vizDescription) % 90) + 130}deg, rgba(245,158,11,0.45) 0%, rgba(30,20,5,0.92) 60%)`,
                               boxShadow: "0 8px 32px rgba(245,158,11,0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
                               border: "1px solid rgba(245,158,11,0.3)",
                             }}
                           />
                           <div
-                            className="absolute -bottom-3 left-4 h-8 w-32 rounded-full opacity-40"
-                            style={{ background: "radial-gradient(ellipse, rgba(245,158,11,0.3), transparent)" }}
+                            className="absolute -bottom-3 left-3 h-8 w-38 rounded-full opacity-40"
+                            style={{ background: "radial-gradient(ellipse, rgba(245,158,11,0.3), transparent)", width: "152px" }}
                           />
                         </div>
                       </div>
                       <div className="p-4" style={{ background: IA_CARD_BG }}>
-                        <p className="text-xs uppercase tracking-[0.12em]" style={{ color: IA_GOLD }}>AI-Generated Render</p>
-                        <p className="mt-2 text-sm text-white/60">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs uppercase tracking-[0.12em]" style={{ color: IA_GOLD }}>AI-Generated Render</p>
+                          {savedVizTime ? (
+                            <p className="font-mono text-[10px] text-white/25">Generated {timeAgo(savedVizTime)}</p>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 text-sm italic leading-relaxed text-white/60">
                           {vizResult}
                         </p>
                         <p className="mt-2 text-[10px] text-white/25">
                           Disclaimer: This is an AI visualization for reference only. Actual parts may differ.
                         </p>
-                        <button
-                          type="button"
-                          className="mt-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
-                          style={{ border: `1px solid ${IA_CARD_BORDER}`, color: IA_GOLD, background: "transparent" }}
-                        >
-                          Save to Profile
-                        </button>
+                        <div className="mt-3 flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
+                            style={{ border: `1px solid ${IA_CARD_BORDER}`, color: IA_GOLD, background: "transparent" }}
+                          >
+                            Save to Profile
+                          </button>
+                          <button
+                            type="button"
+                            onClick={downloadRender}
+                            className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
+                            style={{ border: "1px solid rgba(245,158,11,0.4)", color: IA_GOLD, background: "transparent", fontFamily: "monospace" }}
+                          >
+                            Download Render &#8595;
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
