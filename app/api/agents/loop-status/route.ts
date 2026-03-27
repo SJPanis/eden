@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLoopStatus } from "@/lib/adam-eve-loop";
+import { getLoopStatus } from "@/lib/artist-architect-loop";
 
 export const runtime = "nodejs";
 

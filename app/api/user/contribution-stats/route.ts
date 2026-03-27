@@ -50,12 +50,12 @@ export async function GET() {
 
   return NextResponse.json({
     ok: true,
-    adam: {
+    artist: {
       userLeafs,
       totalLeafs,
       percentage: totalLeafs > 0 ? Math.round((userLeafs / totalLeafs) * 10000) / 100 : 0,
     },
-    eve: {
+    architect: {
       userActions,
       totalActions,
       percentage: totalActions > 0 ? Math.round((userActions / totalActions) * 10000) / 100 : 0,

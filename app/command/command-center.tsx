@@ -42,8 +42,8 @@ export function CommandCenter({ username }: { username: string }) {
   const [submissions, setSubmissions] = useState<Layer2Submission[]>([]);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [economyData, setEconomyData] = useState<{ totalRevenue: number; unswept: number } | null>(null);
-  const [eveScanResult, setEveScanResult] = useState<string | null>(null);
-  const [adamInput, setAdamInput] = useState("");
+  const [architectScanResult, setEveScanResult] = useState<string | null>(null);
+  const [artistInput, setAdamInput] = useState("");
 
   // Check TOTP status on mount
   useEffect(() => {
@@ -230,10 +230,10 @@ export function CommandCenter({ username }: { username: string }) {
     setActionLoading(null);
   }, [commandToken]);
 
-  async function handleEveScan() {
+  async function handleArchitectScan() {
     setEveScanResult("Scanning...");
     try {
-      const res = await fetch("/api/agents/eve");
+      const res = await fetch("/api/agents/architect");
       const data = await res.json();
       setEveScanResult(data.ok
         ? `Found ${data.maintenanceTasks?.length ?? 0} maintenance tasks`
@@ -243,13 +243,13 @@ export function CommandCenter({ username }: { username: string }) {
     }
   }
 
-  async function handleAdamBuild() {
-    if (!adamInput.trim()) return;
+  async function handleArtistBuild() {
+    if (!artistInput.trim()) return;
     try {
-      await fetch("/api/agents/adam", {
+      await fetch("/api/agents/artist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ request: adamInput }),
+        body: JSON.stringify({ request: artistInput }),
       });
       setAdamInput("");
     } catch { /* silent */ }
@@ -510,31 +510,31 @@ export function CommandCenter({ username }: { username: string }) {
           <div className="space-y-3">
             <button
               type="button"
-              onClick={handleEveScan}
+              onClick={handleArchitectScan}
               className="w-full rounded-xl py-3 text-xs font-semibold transition-all"
               style={{ background: "rgba(59,130,246,0.08)", color: "rgba(96,165,250,0.8)", border: "1px solid rgba(59,130,246,0.12)", minHeight: 44 }}
             >
-              Run Eve Maintenance Scan
+              Run Architect Maintenance Scan
             </button>
-            {eveScanResult && <p className="text-xs text-white/20 text-center">{eveScanResult}</p>}
+            {architectScanResult && <p className="text-xs text-white/20 text-center">{architectScanResult}</p>}
             <div className="space-y-2">
               <input
                 type="text"
-                value={adamInput}
+                value={artistInput}
                 onChange={(e) => setAdamInput(e.target.value)}
-                placeholder="Describe what Adam should build..."
+                placeholder="Describe what the Artist should build..."
                 className="w-full rounded-xl px-4 py-3 text-sm text-white placeholder-white/15 outline-none"
                 style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.1)" }}
-                onKeyDown={(e) => { if (e.key === "Enter") handleAdamBuild(); }}
+                onKeyDown={(e) => { if (e.key === "Enter") handleArtistBuild(); }}
               />
               <button
                 type="button"
-                onClick={handleAdamBuild}
-                disabled={!adamInput.trim()}
+                onClick={handleArtistBuild}
+                disabled={!artistInput.trim()}
                 className="w-full rounded-xl py-3 text-xs font-semibold transition-all disabled:opacity-20"
                 style={{ background: "rgba(245,158,11,0.08)", color: "rgba(251,191,36,0.8)", border: "1px solid rgba(245,158,11,0.12)", minHeight: 44 }}
               >
-                Trigger Adam Build
+                Trigger Artist Build
               </button>
             </div>
           </div>

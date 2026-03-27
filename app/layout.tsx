@@ -6,9 +6,9 @@ import "./globals.css";
 if (typeof globalThis !== "undefined" && !(globalThis as Record<string, unknown>).__edenSchedulerInit) {
   (globalThis as Record<string, unknown>).__edenSchedulerInit = true;
   const baseUrl = process.env.NEXTAUTH_URL || "https://edencloud.app";
-  import("@/lib/adam-eve-loop").then((m) => {
-    m.startAdamScheduler(baseUrl);
-    m.startEveScheduler(baseUrl);
+  import("@/lib/artist-architect-loop").then((m) => {
+    m.startArtistScheduler(baseUrl);
+    m.startArchitectScheduler(baseUrl);
   }).catch(() => {});
 }
 

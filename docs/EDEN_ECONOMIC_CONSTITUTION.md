@@ -2,25 +2,25 @@
 
 ## Core Identity
 
-Eden is a closed-loop AI service economy governed by two pools: **Adam** and **Eve**.
+Eden is a closed-loop AI service economy governed by two pools: **Artist** and **Architect**.
 
 ```
 a + v = E  (total pool)
 ```
 
-## Adam Pool — Innovation (Revenue-Based)
+## Artist Pool — Innovation (Revenue-Based)
 
 - **Measures:** Service revenue generated for Eden
 - **Earns:** % proportional to `your_service_revenue / total_eden_revenue`
 - **Volatile:** rises and falls with service performance
 - **Anti-spam:** Only REAL service runs count (user spent Leafs on actual result)
 
-## Eve Pool — Time/Usage (Commitment-Based)
+## Architect Pool — Time/Usage (Commitment-Based)
 
 - **Measures:** Meaningful lifetime usage of Eden
 - **Earns:** % of `weighted_usage / total_eden_weighted_usage`
 - **Sticky:** once earned, hard to dilute — early birds protected
-- **Anti-spam:** Only QUALIFYING actions count toward Eve:
+- **Anti-spam:** Only QUALIFYING actions count toward Architect:
 
 | Action | Yield |
 |--------|-------|
@@ -33,16 +33,16 @@ a + v = E  (total pool)
 | Rejected contributions | 0.0 |
 
 ```
-Eve stake = sum(yield * tokens_used) across all qualifying actions
+Architect stake = sum(yield * tokens_used) across all qualifying actions
 ```
 
 ## Equilibrium Rule (The 10% Drift Cap)
 
-- **Natural equilibrium:** Adam = 50%, Eve = 50% of E
+- **Natural equilibrium:** Artist = 50%, Architect = 50% of E
 - **Max allowed drift:** +/-10% from midpoint
-- **Valid range:** Adam 40-60%, Eve 40-60%
-- If Adam exceeds 60%: excess new inflow redirects to Eve
-- If Eve exceeds 60%: excess new inflow redirects to Adam
+- **Valid range:** Artist 40-60%, Architect 40-60%
+- If Artist exceeds 60%: excess new inflow redirects to Architect
+- If Architect exceeds 60%: excess new inflow redirects to Artist
 
 ```
 a_final = clamp(Ra / (Ra + Rv), 0.40, 0.60)
@@ -57,15 +57,15 @@ a_final = clamp(Ra / (Ra + Rv), 0.40, 0.60)
 
 ## Contribution Tiers
 
-- **New PIBB:** joins Innovation (Adam) pool
-- **CIB on existing PIBB:** earns Usage (Eve) pool
+- **New PIBB:** joins Innovation (Artist) pool
+- **CIB on existing PIBB:** earns Usage (Architect) pool
 - **Inner ring PIBBs** (high revenue): harder to contribute, bigger reward
 - **Outer ring PIBBs** (new/low revenue): easier to contribute, lower reward
 
 ## Digital Garden Visualization
 
-- **Adam buildings:** tall, gold, pulse with service activity
-- **Eve foundations:** wide, blue, permanent — never shrink
+- **Artist buildings:** tall, gold, pulse with service activity
+- **Architect foundations:** wide, blue, permanent — never shrink
 - **Town hall:** founder stake — always at center, never moves
 - **Overflow particles:** visible rebalancing when drift cap is hit
 - **Agent sprites:** workers gathering resources (encrypted task context)
