@@ -121,6 +121,45 @@ No explanation. Just the path.`,
       const code = sanitizeCode(task.result);
       if (!code || code.length < 20) continue;
 
+      // Security check before committing
+      const secCheck = await client.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 200,
+        messages: [
+          {
+            role: "user",
+            content: `Security check. Does this code contain:
+- Hardcoded secrets or API keys?
+- SQL injection vulnerabilities?
+- Eval() or Function() calls?
+- Raw user input without sanitization?
+- Calls to external URLs not in the approved list?
+
+Code: ${code.slice(0, 400)}
+
+Return ONLY: {"safe": true} or {"safe": false, "reason": "..."}`,
+          },
+        ],
+      });
+
+      let secSafe = true;
+      try {
+        const secText =
+          secCheck.content[0].type === "text" ? secCheck.content[0].text : '{"safe":true}';
+        const secMatch = secText.match(/\{[\s\S]*\}/);
+        const secResult = secMatch ? JSON.parse(secMatch[0]) : { safe: true };
+        if (!secResult.safe) {
+          console.log(
+            `[eden-commit] Security check failed for ${filePath}: ${secResult.reason}`,
+          );
+          secSafe = false;
+        }
+      } catch {
+        // If parsing fails, allow the commit (conservative toward not blocking)
+      }
+
+      if (!secSafe) continue;
+
       // Commit the sanitized code
       await github.commitFile(
         branchName,

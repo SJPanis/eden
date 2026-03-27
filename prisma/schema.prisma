@@ -1287,6 +1287,7 @@ model AgentBuild {
   request    String
   status     String      @default("pending")
   totalLeafs Int         @default(0)
+  context    String      @default("{}")
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   tasks      AgentTask[]
