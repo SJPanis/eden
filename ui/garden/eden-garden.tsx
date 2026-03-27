@@ -293,68 +293,58 @@ export function EdenGarden({ username }: EdenGardenProps) {
         });
       }
 
-      // 3. Execute tasks sequentially
-      for (const task of agentTasks) {
-        updateLog(`${buildId}-${task.index}`, { status: "active" });
+      // 3. Call Architect — it handles execute, absorb, security, and commit
+      fetch("/api/agents/architect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buildId }),
+      }).catch(() => {
+        updateLog(pendingId, { status: "failed", text: `\u2717 ${userRequest}` });
+        setBuildRunning(false);
+      });
 
-        const execRes = await fetch("/api/agents/execute", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ buildId, taskId: task.id }),
-        });
-        const execData = await execRes.json();
+      // 4. Poll for live status updates
+      const pollInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/agents/status?buildId=${buildId}`);
+          const data = await res.json();
+          if (!data.ok) return;
 
-        updateLog(`${buildId}-${task.index}`, {
-          status: execData.ok ? "complete" : "failed",
-          result: execData.result?.slice(0, 100),
-        });
-
-        incrementBuildingProgress(task.type);
-
-        // Small delay so animations are visible
-        await new Promise((r) => setTimeout(r, 800));
-      }
-
-      updateLog(pendingId, { status: "complete", text: `\u2713 ${userRequest}` });
-
-      // Auto-commit to GitHub
-      try {
-        addToLog({
-          id: `${buildId}-commit`,
-          text: "Opening PR on GitHub...",
-          status: "active",
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        });
-
-        const commitRes = await fetch("/api/agents/commit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ buildId }),
-        });
-        const commitData = await commitRes.json();
-
-        if (commitData.ok) {
-          updateLog(`${buildId}-commit`, {
-            status: "complete",
-            text: `PR opened \u2014 ${commitData.filesCommitted} files committed`,
+          data.tasks.forEach((task: { index: number; status: string; type?: string }) => {
+            const logId = `${buildId}-${task.index}`;
+            const mappedStatus =
+              task.status === "complete"
+                ? "complete"
+                : task.status === "running"
+                  ? "active"
+                  : task.status === "failed"
+                    ? "failed"
+                    : "queued";
+            updateLog(logId, { status: mappedStatus as TaskEntry["status"] });
+            if (task.status === "complete" && task.type) {
+              incrementBuildingProgress(task.type);
+            }
           });
-          window.open(commitData.prUrl, "_blank");
-        } else {
-          updateLog(`${buildId}-commit`, {
-            status: "failed",
-            text: `GitHub commit failed: ${commitData.error}`,
-          });
+
+          if (data.build.status === "complete" || data.build.status === "failed") {
+            clearInterval(pollInterval);
+            setBuildRunning(false);
+            updateLog(pendingId, {
+              status: data.build.status === "complete" ? "complete" : "failed",
+              text:
+                data.build.status === "complete"
+                  ? `\u2713 ${userRequest}`
+                  : `\u2717 ${userRequest}`,
+            });
+          }
+        } catch {
+          // Polling error — will retry on next interval
         }
-      } catch {
-        updateLog(`${buildId}-commit`, {
-          status: "failed",
-          text: "GitHub commit failed",
-        });
-      }
+      }, 2000);
     } catch {
       updateLog(pendingId, { status: "failed", text: `\u2717 ${userRequest}` });
+      setBuildRunning(false);
     }
-    setBuildRunning(false);
   }, [chatInput, buildRunning]);
 
   // ── Main animation loop ────────────────────────────────────────────────
