@@ -2,6 +2,16 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Outfit, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
+// Start Adam/Eve feedback loop scheduler (server-side only, once per deployment)
+if (typeof globalThis !== "undefined" && !(globalThis as Record<string, unknown>).__edenSchedulerInit) {
+  (globalThis as Record<string, unknown>).__edenSchedulerInit = true;
+  const baseUrl = process.env.NEXTAUTH_URL || "https://edencloud.app";
+  import("@/lib/adam-eve-loop").then((m) => {
+    m.startAdamScheduler(baseUrl);
+    m.startEveScheduler(baseUrl);
+  }).catch(() => {});
+}
+
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],

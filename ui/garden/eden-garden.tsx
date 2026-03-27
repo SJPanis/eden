@@ -810,6 +810,11 @@ export function EdenGarden({ username }: EdenGardenProps) {
   } | null>(null);
   const [adamExpanded, setAdamExpanded] = useState(false);
   const [eveExpanded, setEveExpanded] = useState(false);
+  const [loopStatus, setLoopStatus] = useState<{
+    adam: { runsThisCycle: number; nextRunIn: string; lastRunAt: string | null };
+    eve: { lastEvaluatedAt: string | null; nextEvalIn: string; lastPattern: string | null; lastEncouragement: string | null; promotedCount: number };
+    loopHealth: "active" | "starting" | "idle";
+  } | null>(null);
 
   // ── Fetch history + economy stats on mount ───────────────────────────────
   useEffect(() => {
@@ -838,6 +843,12 @@ export function EdenGarden({ username }: EdenGardenProps) {
       .then((r) => r.json())
       .then((data) => {
         if (!cancelled && data.ok) setEconStats(data);
+      })
+      .catch(() => {});
+    fetch("/api/agents/loop-status")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled && data.ok) setLoopStatus(data);
       })
       .catch(() => {});
     return () => { cancelled = true; };
@@ -1449,7 +1460,9 @@ export function EdenGarden({ username }: EdenGardenProps) {
               style={{ width: `${Math.min(100, econStats?.adam.percentage ?? 0)}%`, background: "#f59e0b" }}
             />
           </div>
-          <p className="mt-1.5 text-xs text-amber-400/50">Revenue based \u2014 your stake</p>
+          <p className="mt-1.5 text-xs text-amber-400/50">
+            {loopStatus ? `${loopStatus.adam.runsThisCycle} runs this cycle \u00b7 next in ${loopStatus.adam.nextRunIn}` : "Revenue based \u2014 your stake"}
+          </p>
           {adamExpanded && (
             <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(245,158,11,0.1)" }}>
               <p className="text-[11px] leading-relaxed text-amber-400/40">
@@ -1497,7 +1510,9 @@ export function EdenGarden({ username }: EdenGardenProps) {
               style={{ width: `${Math.min(100, econStats?.eve.percentage ?? 0)}%`, background: "#3b82f6" }}
             />
           </div>
-          <p className="mt-1.5 text-xs text-blue-400/50">Usage based \u2014 your stake</p>
+          <p className="mt-1.5 text-xs text-blue-400/50">
+            {loopStatus ? `evaluates in ${loopStatus.eve.nextEvalIn} \u00b7 ${loopStatus.eve.promotedCount} promoted` : "Usage based \u2014 your stake"}
+          </p>
           {eveExpanded && (
             <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(59,130,246,0.1)" }}>
               <p className="text-[11px] leading-relaxed text-blue-400/40">
