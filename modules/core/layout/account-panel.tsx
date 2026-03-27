@@ -375,13 +375,19 @@ export function AccountPanel({
                       <div className="flex items-start gap-2">
                         <span className="mt-0.5 text-[10px]" style={{ color: "#2dd4bf" }}>&#10022;</span>
                         <p className="text-xs text-white/50">
-                          You earn <span className="text-white/80 font-medium">1%</span> of every Leaf your friends spend
+                          Share your link. Friends who sign up get <span className="text-white/80 font-medium">500 Leafs</span>.
                         </p>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="mt-0.5 text-[10px]" style={{ color: "#2dd4bf" }}>&#10022;</span>
                         <p className="text-xs text-white/50">
-                          If they refer others, you earn a smaller % too
+                          You earn <span className="text-white/80 font-medium">1%</span> of every Leaf they spend, forever.
+                        </p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 text-[10px]" style={{ color: "#2dd4bf" }}>&#10022;</span>
+                        <p className="text-xs text-white/50">
+                          Their referrals earn you a tiny % too — it compounds.
                         </p>
                       </div>
                     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -70,6 +70,16 @@ export function RoleShell({
     !!activeBusinessFrozen;
 
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [liveBalance, setLiveBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    function onBalanceUpdated(e: Event) {
+      const detail = (e as CustomEvent<{ newBalance: number }>).detail;
+      if (typeof detail?.newBalance === "number") setLiveBalance(detail.newBalance);
+    }
+    window.addEventListener("eden:balance-updated", onBalanceUpdated);
+    return () => window.removeEventListener("eden:balance-updated", onBalanceUpdated);
+  }, []);
 
   const roleBadgeColors = {
     consumer: { border: "rgba(45,212,191,0.35)", text: "rgba(45,212,191,0.85)", glow: "rgba(45,212,191,0.3)" },
@@ -223,7 +233,7 @@ export function RoleShell({
                     🍃 {edenSpendableLeavesLabel}
                   </span>
                   <span className="text-xs font-semibold text-white">
-                    {creditsSummary.userBalanceLabel}
+                    {liveBalance !== null ? `${liveBalance.toLocaleString()} Leaf's` : creditsSummary.userBalanceLabel}
                   </span>
                   {creditsSummary.businessBalanceLabel ? (
                     <>

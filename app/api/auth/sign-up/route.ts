@@ -57,7 +57,8 @@ export async function POST(request: NextRequest) {
   // ── Early access gate ──────────────────────────────────────────────────────
   let resolvedCodeId: string | null = null;
 
-  if (earlyAccessEnabled) {
+  if (earlyAccessEnabled && !referralCode) {
+    // Referral codes bypass the invite gate entirely
     if (!accessCode) {
       return NextResponse.json(
         { ok: false, error: "An early access code is required to create an account.", requiresCode: true },
@@ -116,8 +117,8 @@ export async function POST(request: NextRequest) {
         passwordHash,
         role: "CONSUMER",
         referralCode: userReferralCode,
-        // Beta welcome gift: 100 Leaf's granted when signing up with an access code
-        edenBalanceCredits: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
+        // Welcome gift: 500 for referral signups, 200 for invite code signups
+        edenBalanceCredits: referralCode ? 500 : resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
         ...(resolvedCodeId ? { accessCodeId: resolvedCodeId } : {}),
       },
       select: { id: true, username: true, displayName: true },
@@ -203,10 +204,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const welcomeLeaves = referralCode ? 500 : resolvedCodeId ? BETA_WELCOME_LEAVES : 0;
+
     return NextResponse.json({
       ok: true,
       user: createdUser,
-      welcomeLeaves: resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
+      welcomeLeaves,
     });
   } catch (error) {
     console.error("[sign-up] failed to create user:", error);
