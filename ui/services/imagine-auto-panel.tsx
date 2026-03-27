@@ -94,8 +94,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     } catch { /* ignore */ }
   }, [username]);
 
-  async function spendAndRun(amount: number, description: string): Promise<boolean> {
-    setSpendError(null);
+  async function spendLeafs(amount: number, description: string): Promise<boolean> {
     const res = await fetch("/api/wallet/spend", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -105,8 +104,8 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     if (!data.ok) {
       setSpendError(
         data.error === "Insufficient Leaf balance"
-          ? `Not enough Leaf's. You need ${data.required} but have ${data.balance}.`
-          : "Something went wrong. Try again.",
+          ? `Not enough Leaf's. You need ${data.required}, you have ${data.balance}.`
+          : "Payment failed. Try again.",
       );
       return false;
     }
@@ -129,51 +128,29 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     setPartsLoading(true);
     setSpendError(null);
 
-    const ok = await spendAndRun(10, "Imagine Auto — Find Parts");
-    if (!ok) {
-      setPartsLoading(false);
-      return;
-    }
-
     try {
-      const prompt = `You are an automotive parts expert with knowledge of real parts suppliers.
-A user has a ${year} ${make} ${model} and needs: ${partNeeded}.
+      // 1. Call Claude FIRST — no Leafs spent yet
+      const raw = await callClaude(
+        `You are an automotive parts expert. A user has a ${year} ${make} ${model} and needs: ${partNeeded}. Return ONLY a JSON array of exactly 3 parts: [{"name":"...","compatibility":"...","priceRange":"$X\u2013$Y","condition":"OEM|Aftermarket|Remanufactured"}]. No other text.`,
+      );
 
-Return ONLY a JSON array of exactly 3 real parts with this structure:
-[
-  {
-    "name": "Exact part name",
-    "partNumber": "OEM or aftermarket part number if known",
-    "compatibility": "Fits [year range] [make] [model]",
-    "priceRange": "$X–$Y",
-    "condition": "OEM|Aftermarket|Remanufactured",
-    "supplier": "RockAuto|AutoZone|Amazon|eBay Motors|Advance Auto",
-    "searchUrl": "https://www.rockauto.com/en/catalog/[make]/[year]/[model] OR https://www.amazon.com/s?k=[partname]+[year]+[make]+[model] OR https://www.autozone.com/searchresult?searchtext=[partname]+[year]+[make]+[model]",
-    "description": "One sentence about this part and why it fits"
-  }
-]
-
-For searchUrl:
-- Use RockAuto for OEM and remanufactured parts
-- Use Amazon for aftermarket and performance parts
-- Use AutoZone for common wear items
-- Build real URLs with the actual year/make/model/part encoded properly
-
-Return ONLY the JSON array. No other text.`;
-      const raw = await callClaude(prompt);
+      // 2. Validate Claude returned useful data
       const jsonMatch = raw.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]) as PartResult[];
-        setPartsResults(parsed);
-      } else {
-        setPartsResults([
-          { name: "AI result", compatibility: raw.slice(0, 120), priceRange: "N/A" },
-        ]);
-      }
+      if (!jsonMatch) throw new Error("Unexpected format");
+      const parsed = JSON.parse(jsonMatch[0]) as PartResult[];
+      if (!parsed || parsed.length === 0) throw new Error("No parts found");
+
+      // 3. Only NOW deduct Leafs — task succeeded
+      const spent = await spendLeafs(10, "Imagine Auto \u2014 Find Parts");
+      if (!spent) return;
+
+      // 4. Show results
+      setPartsResults(parsed);
     } catch {
-      setSpendError("Claude returned an unexpected response. Leaf's were deducted.");
+      setSpendError("Search failed. No Leaf's were charged. Try again.");
+    } finally {
+      setPartsLoading(false);
     }
-    setPartsLoading(false);
   }
 
   async function handleVisualize() {
@@ -181,16 +158,18 @@ Return ONLY the JSON array. No other text.`;
     setVizLoading(true);
     setSpendError(null);
 
-    const ok = await spendAndRun(100, "Imagine Auto — Visualize");
-    if (!ok) {
-      setVizLoading(false);
-      return;
-    }
-
     try {
+      // 1. Call Claude FIRST
       const result = await callClaude(
         `You are a custom automotive parts designer. User wants: ${vizDescription}. Describe the visual render in 2 sentences. Be specific about materials, finish, and fitment. Return ONLY the description.`,
       );
+      if (!result || result.length < 10) throw new Error("Empty response");
+
+      // 2. Deduct Leafs on success
+      const spent = await spendLeafs(100, "Imagine Auto \u2014 Visualize");
+      if (!spent) return;
+
+      // 3. Show result and persist
       setVizResult(result);
       const now = new Date().toISOString();
       setSavedVizTime(now);
@@ -203,9 +182,10 @@ Return ONLY the JSON array. No other text.`;
         }));
       } catch { /* ignore */ }
     } catch {
-      setSpendError("Claude returned an unexpected response. Leaf's were deducted.");
+      setSpendError("Generation failed. No Leaf's were charged. Try again.");
+    } finally {
+      setVizLoading(false);
     }
-    setVizLoading(false);
   }
 
   function downloadRender() {
@@ -263,32 +243,30 @@ Return ONLY the JSON array. No other text.`;
     setDiagLoading(true);
     setSpendError(null);
 
-    const ok = await spendAndRun(75, "Imagine Auto — Diagnose");
-    if (!ok) {
-      setDiagLoading(false);
-      return;
-    }
-
     try {
+      // 1. Call Claude FIRST
       const raw = await callClaude(
         `Vehicle/issue: ${vinOrIssue}. Symptoms: ${symptoms}. Return ONLY JSON: {"severity":"warning"|"info"|"critical","issue":"...","recommendation":"...","costRange":"$X\u2013$Y"}`,
       );
+      if (!raw || raw.length < 5) throw new Error("Empty response");
+
+      // 2. Parse result
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]) as DiagResult;
-        setDiagResult(parsed);
-      } else {
-        setDiagResult({
-          severity: "info",
-          issue: "AI Analysis",
-          recommendation: raw.slice(0, 300),
-          costRange: "See recommendation",
-        });
-      }
+      const parsed: DiagResult = jsonMatch
+        ? (JSON.parse(jsonMatch[0]) as DiagResult)
+        : { severity: "info", issue: "AI Analysis", recommendation: raw.slice(0, 300), costRange: "See recommendation" };
+
+      // 3. Deduct Leafs on success
+      const spent = await spendLeafs(75, "Imagine Auto \u2014 Diagnose");
+      if (!spent) return;
+
+      // 4. Show result
+      setDiagResult(parsed);
     } catch {
-      setSpendError("Claude returned an unexpected response. Leaf's were deducted.");
+      setSpendError("Diagnosis failed. No Leaf's were charged. Try again.");
+    } finally {
+      setDiagLoading(false);
     }
-    setDiagLoading(false);
   }
 
   const severityColors = {

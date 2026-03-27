@@ -1078,15 +1078,40 @@ export function ConsumerHomePanel({
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
-                  {/* Generative gradient thumbnail */}
+                  {/* Generative gradient thumbnail with service monogram */}
                   <div
                     className="h-40 w-full rounded-xl mb-3 overflow-hidden relative"
                     style={{
-                      background: `linear-gradient(${135 + (service.title.charCodeAt(0) % 6) * 30}deg, ${
-                        ["rgba(45,212,191,0.2)", "rgba(168,85,247,0.2)", "rgba(245,158,11,0.2)", "rgba(59,130,246,0.2)", "rgba(236,72,153,0.2)", "rgba(34,197,94,0.2)"][service.title.charCodeAt(0) % 6]
-                      }, rgba(13,30,46,0.85))`,
+                      background: service.category === "Automotive"
+                        ? "linear-gradient(135deg, rgba(245,158,11,0.35) 0%, rgba(180,100,5,0.2) 40%, rgba(11,22,34,0.95) 100%)"
+                        : service.category === "Finance"
+                          ? "linear-gradient(135deg, rgba(16,185,129,0.35) 0%, rgba(5,80,50,0.2) 40%, rgba(11,22,34,0.95) 100%)"
+                          : service.category === "Music"
+                            ? "linear-gradient(135deg, rgba(168,85,247,0.35) 0%, rgba(100,20,200,0.2) 40%, rgba(11,22,34,0.95) 100%)"
+                            : `linear-gradient(${135 + (service.title.charCodeAt(0) % 6) * 30}deg, ${
+                                ["rgba(45,212,191,0.2)", "rgba(168,85,247,0.2)", "rgba(245,158,11,0.2)", "rgba(59,130,246,0.2)", "rgba(236,72,153,0.2)", "rgba(34,197,94,0.2)"][service.title.charCodeAt(0) % 6]
+                              }, rgba(13,30,46,0.85))`,
                     }}
                   >
+                    <span
+                      className="absolute inset-0 flex items-center justify-center text-[40px] font-bold select-none"
+                      style={{
+                        fontFamily: "var(--font-serif)",
+                        letterSpacing: "0.05em",
+                        color: service.category === "Automotive"
+                          ? "rgba(245,158,11,0.4)"
+                          : service.category === "Finance"
+                            ? "rgba(16,185,129,0.4)"
+                            : service.category === "Music"
+                              ? "rgba(168,85,247,0.4)"
+                              : "rgba(45,212,191,0.3)",
+                      }}
+                    >
+                      {service.category === "Automotive" ? "IA"
+                        : service.category === "Finance" ? "ML"
+                        : service.category === "Music" ? "SS"
+                        : service.title.charAt(0)}
+                    </span>
                     <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)", backgroundSize: "200% 100%", animation: "shimmer 1.5s ease-in-out infinite" }} />
                   </div>
                   {/* Service name */}
