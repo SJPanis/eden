@@ -147,6 +147,7 @@
     <div class="wordmark" id="wordmark">
       <h1>Eden</h1>
       <div class="os" id="os">OS</div>
+      <div class="os" id="boot-version" style="margin-top:4px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.15em;opacity:0">v0.1.0</div>
     </div>
     <div class="load-line" id="loadLine"></div>
   </div>
@@ -247,6 +248,13 @@ document.head.appendChild(style);
 // 2.0s — wordmark
 setTimeout(() => $('wordmark').classList.add('show'), 2000);
 setTimeout(() => $('os').classList.add('show'), 2200);
+setTimeout(() => { const v = $('boot-version'); v.style.opacity = '1'; v.style.transition = 'opacity 0.4s'; }, 2400);
+// Fetch version from Electron if available
+if (window.electronAPI && window.electronAPI.getVersion) {
+  window.electronAPI.getVersion().then(function(ver) {
+    if (ver) $('boot-version').textContent = 'v' + ver;
+  });
+}
 
 // 2.6s — loading line
 setTimeout(() => {

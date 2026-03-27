@@ -6,11 +6,32 @@ const { autoUpdater } = require('electron-updater')
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
 
+let mainWindow = null
+
+function sendUpdateStatus(status) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('update-status', status)
+  }
+}
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('[eden-updater] Checking for update...')
+  sendUpdateStatus('checking')
+})
+
 autoUpdater.on('update-available', () => {
   console.log('[eden-updater] Update available — downloading in background')
+  sendUpdateStatus('available')
+})
+
+autoUpdater.on('update-not-available', () => {
+  console.log('[eden-updater] Up to date')
+  sendUpdateStatus('current')
 })
 
 autoUpdater.on('update-downloaded', () => {
+  console.log('[eden-updater] Update downloaded')
+  sendUpdateStatus('downloaded')
   dialog.showMessageBox({
     type: 'info',
     title: 'Eden Updated',
@@ -25,17 +46,22 @@ autoUpdater.on('update-downloaded', () => {
 
 autoUpdater.on('error', (err) => {
   console.error('[eden-updater] Update error:', err.message)
+  sendUpdateStatus('error')
 })
 
 // ── Window creation ────────────────────────────────────────────────────────────
 function createWindow() {
-  const win = new BrowserWindow({
+  const isMac = process.platform === 'darwin'
+
+  const winOptions = {
     width: 1280,
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    titleBarStyle: 'hidden',
     frame: false,
+    titleBarStyle: 'hidden',
+    hasShadow: true,
+    transparent: false,
     show: false,
     webPreferences: {
       nodeIntegration: false,
@@ -44,7 +70,14 @@ function createWindow() {
     },
     title: 'Eden',
     backgroundColor: '#0b1622',
-  })
+  }
+
+  if (isMac) {
+    winOptions.trafficLightPosition = { x: 12, y: 14 }
+  }
+
+  const win = new BrowserWindow(winOptions)
+  mainWindow = win
 
   // Load boot sequence
   const bootPath = path.join(__dirname, 'boot.html')
@@ -67,8 +100,6 @@ function createWindow() {
       // Once the real app loads, restore normal window chrome
       win.webContents.on('did-finish-load', function onAppLoad() {
         win.webContents.removeListener('did-finish-load', onAppLoad)
-        // Restore title bar on macOS, show frame elements
-        win.setTitleBarStyle && win.setTitleBarStyle('hiddenInset')
       })
 
       // Check for updates after app loads (non-blocking)
@@ -82,6 +113,10 @@ function createWindow() {
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url)
     return { action: 'deny' }
+  })
+
+  win.on('closed', () => {
+    mainWindow = null
   })
 }
 
@@ -105,6 +140,14 @@ app.whenReady().then(() => {
   ipcMain.on('window-close', () => {
     const win = BrowserWindow.getFocusedWindow()
     if (win) win.close()
+  })
+
+  ipcMain.handle('get-version', () => {
+    try {
+      return require('./package.json').version
+    } catch {
+      return '0.1.0'
+    }
   })
 
   app.on('activate', () => {
