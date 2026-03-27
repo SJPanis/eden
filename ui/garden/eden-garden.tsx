@@ -803,8 +803,15 @@ export function EdenGarden({ username }: EdenGardenProps) {
   const [chatInput, setChatInput] = useState("");
   const [buildRunning, setBuildRunning] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [econStats, setEconStats] = useState<{
+    adam: { userLeafs: number; totalLeafs: number; percentage: number };
+    eve: { userActions: number; totalActions: number; percentage: number };
+    leafFlow: { earned: number; spent: number; net: number };
+  } | null>(null);
+  const [adamExpanded, setAdamExpanded] = useState(false);
+  const [eveExpanded, setEveExpanded] = useState(false);
 
-  // ── Fetch history on mount ──────────────────────────────────────────────
+  // ── Fetch history + economy stats on mount ───────────────────────────────
   useEffect(() => {
     let cancelled = false;
     fetch("/api/agents/history")
@@ -827,6 +834,12 @@ export function EdenGarden({ username }: EdenGardenProps) {
       .catch(() => {
         if (!cancelled) setHistoryLoaded(true);
       });
+    fetch("/api/user/contribution-stats")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled && data.ok) setEconStats(data);
+      })
+      .catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
@@ -1417,25 +1430,101 @@ export function EdenGarden({ username }: EdenGardenProps) {
           Eden Economy
         </h3>
 
-        {/* Adam Pool */}
-        <div className="rounded-xl p-3" style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}>
-          <p className="text-[10px] uppercase tracking-wider text-amber-400/70">Adam \u2014 Innovation</p>
+        {/* Adam Pool — clickable expandable */}
+        <button
+          type="button"
+          onClick={() => setAdamExpanded(!adamExpanded)}
+          className="w-full rounded-xl p-3 text-left transition-all"
+          style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] uppercase tracking-wider text-amber-400/70">Adam \u2014 Innovation</p>
+            <span className="text-[10px] font-mono text-amber-400/80">
+              {econStats ? `${econStats.adam.percentage.toFixed(2)}%` : "\u2014"}
+            </span>
+          </div>
           <div className="mt-2 h-2 w-full rounded-full" style={{ background: "rgba(245,158,11,0.1)" }}>
-            <div className="h-full rounded-full" style={{ width: "55%", background: "#f59e0b" }} />
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, econStats?.adam.percentage ?? 0)}%`, background: "#f59e0b" }}
+            />
           </div>
-          <p className="mt-1.5 text-xs text-amber-400/50">55% of E \u2014 Revenue based</p>
-          <p className="mt-1 text-[10px] text-amber-400/35">Imagine Auto: +12% this week</p>
-        </div>
+          <p className="mt-1.5 text-xs text-amber-400/50">Revenue based \u2014 your stake</p>
+          {adamExpanded && (
+            <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(245,158,11,0.1)" }}>
+              <p className="text-[11px] leading-relaxed text-amber-400/40">
+                Adam is Eden&apos;s Innovation Pool. Every Leaf spent on services flows into Adam.
+                Your % grows as your services earn revenue relative to total Eden revenue.
+              </p>
+              <div className="space-y-1 text-[10px] font-mono">
+                <div className="flex justify-between text-amber-400/50">
+                  <span>Your services earned</span>
+                  <span className="text-amber-400/70">{econStats?.adam.userLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
+                </div>
+                <div className="flex justify-between text-amber-400/50">
+                  <span>Total Eden revenue</span>
+                  <span className="text-amber-400/70">{econStats?.adam.totalLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
+                </div>
+                <div className="flex justify-between text-amber-400/50">
+                  <span>Your Adam stake</span>
+                  <span className="text-amber-400/70">{econStats?.adam.percentage.toFixed(2) ?? "0.00"}%</span>
+                </div>
+              </div>
+              <p className="text-[9px] text-amber-400/25 italic">
+                Formula: your_revenue / total_revenue x 100
+              </p>
+              <p className="text-center text-[10px] text-amber-400/30">close \u2191</p>
+            </div>
+          )}
+        </button>
 
-        {/* Eve Pool */}
-        <div className="rounded-xl p-3" style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)" }}>
-          <p className="text-[10px] uppercase tracking-wider text-blue-400/70">Eve \u2014 Commitment</p>
-          <div className="mt-2 h-2 w-full rounded-full" style={{ background: "rgba(59,130,246,0.1)" }}>
-            <div className="h-full rounded-full" style={{ width: "45%", background: "#3b82f6" }} />
+        {/* Eve Pool — clickable expandable */}
+        <button
+          type="button"
+          onClick={() => setEveExpanded(!eveExpanded)}
+          className="w-full rounded-xl p-3 text-left transition-all"
+          style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)" }}
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] uppercase tracking-wider text-blue-400/70">Eve \u2014 Commitment</p>
+            <span className="text-[10px] font-mono text-blue-400/80">
+              {econStats ? `${econStats.eve.percentage.toFixed(2)}%` : "\u2014"}
+            </span>
           </div>
-          <p className="mt-1.5 text-xs text-blue-400/50">45% of E \u2014 Usage based</p>
-          <p className="mt-1 text-[10px] text-blue-400/35">Your stake: 100% (early)</p>
-        </div>
+          <div className="mt-2 h-2 w-full rounded-full" style={{ background: "rgba(59,130,246,0.1)" }}>
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, econStats?.eve.percentage ?? 0)}%`, background: "#3b82f6" }}
+            />
+          </div>
+          <p className="mt-1.5 text-xs text-blue-400/50">Usage based \u2014 your stake</p>
+          {eveExpanded && (
+            <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(59,130,246,0.1)" }}>
+              <p className="text-[11px] leading-relaxed text-blue-400/40">
+                Eve is Eden&apos;s Commitment Pool. Your % grows with consistent qualified usage over time.
+                Early contributors earn more \u2014 the denominator grows slowly, protecting early stakes.
+              </p>
+              <div className="space-y-1 text-[10px] font-mono">
+                <div className="flex justify-between text-blue-400/50">
+                  <span>Your qualified actions</span>
+                  <span className="text-blue-400/70">{econStats?.eve.userActions.toLocaleString() ?? 0}</span>
+                </div>
+                <div className="flex justify-between text-blue-400/50">
+                  <span>Total Eden actions</span>
+                  <span className="text-blue-400/70">{econStats?.eve.totalActions.toLocaleString() ?? 0}</span>
+                </div>
+                <div className="flex justify-between text-blue-400/50">
+                  <span>Your Eve stake</span>
+                  <span className="text-blue-400/70">{econStats?.eve.percentage.toFixed(2) ?? "0.00"}%</span>
+                </div>
+              </div>
+              <p className="text-[9px] text-blue-400/25 italic">
+                Formula: your_actions / total_actions x 100
+              </p>
+              <p className="text-center text-[10px] text-blue-400/30">close \u2191</p>
+            </div>
+          )}
+        </button>
 
         {/* Equilibrium */}
         <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
@@ -1457,22 +1546,28 @@ export function EdenGarden({ username }: EdenGardenProps) {
           <p className="mt-1 text-[10px] text-emerald-400/50">Within range</p>
         </div>
 
-        {/* Leaf Flow */}
+        {/* Leaf Flow — real data */}
         <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
           <p className="text-[10px] uppercase tracking-wider text-white/30">Leaf Flow</p>
           <div className="mt-2 space-y-1">
             <div className="flex justify-between text-xs">
               <span className="text-emerald-400/60">Earned</span>
-              <span className="font-mono text-emerald-400">+1,340</span>
+              <span className="font-mono text-emerald-400">
+                +{(econStats?.leafFlow.earned ?? 0).toLocaleString()} \ud83c\udf43
+              </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-red-400/60">Spent</span>
-              <span className="font-mono text-red-400">-920</span>
+              <span className="font-mono text-red-400">
+                -{(econStats?.leafFlow.spent ?? 0).toLocaleString()} \ud83c\udf43
+              </span>
             </div>
             <div className="border-t pt-1" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
               <div className="flex justify-between text-xs">
                 <span className="text-white/40">Net</span>
-                <span className="font-mono text-[#2dd4bf]">+420 &#127809;</span>
+                <span className="font-mono text-[#2dd4bf]">
+                  {(econStats?.leafFlow.net ?? 0) >= 0 ? "+" : ""}{(econStats?.leafFlow.net ?? 0).toLocaleString()} &#127809;
+                </span>
               </div>
             </div>
           </div>

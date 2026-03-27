@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
+import { PayWithEden } from "@/components/pay-with-eden";
 
 type ImagineAutoPanelProps = {
   username: string;
@@ -60,6 +61,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
   const [tab, setTab] = useState<Tab>("parts");
   const [balance, setBalance] = useState(balanceCredits);
   const [spendError, setSpendError] = useState<string | null>(null);
+  const [showTopUp, setShowTopUp] = useState(false);
 
   // Find Parts state
   const [year, setYear] = useState("");
@@ -106,15 +108,16 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     const res = await fetch("/api/wallet/spend", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount, description }),
+      body: JSON.stringify({ amount, description, serviceId: "imagine-auto" }),
     });
     const data = await res.json();
     if (!data.ok) {
-      setSpendError(
-        data.error === "Insufficient Leaf balance"
-          ? `Not enough Leaf's. You need ${data.required}, you have ${data.balance}.`
-          : "Payment failed. Try again.",
-      );
+      if (data.error === "Insufficient Leaf balance") {
+        setSpendError(`Not enough Leaf's. You need ${data.required}, you have ${data.balance}.`);
+        setShowTopUp(true);
+      } else {
+        setSpendError("Payment failed. Try again.");
+      }
       return false;
     }
     setBalance(data.newBalance);
@@ -338,7 +341,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
           </div>
         </motion.div>
 
-        {/* Spend error banner */}
+        {/* Spend error banner + top-up option */}
         <AnimatePresence>
           {spendError ? (
             <motion.div
@@ -349,6 +352,27 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
               style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}
             >
               {spendError}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+        <AnimatePresence>
+          {showTopUp ? (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-3 overflow-hidden"
+            >
+              <PayWithEden
+                serviceId="imagine-auto"
+                serviceName="Imagine Auto"
+                leafCost={tabConfig.find((t) => t.key === tab)?.cost ?? 10}
+                onSuccess={(result) => {
+                  setBalance(result.newBalance);
+                  setShowTopUp(false);
+                  setSpendError(null);
+                }}
+              />
             </motion.div>
           ) : null}
         </AnimatePresence>
