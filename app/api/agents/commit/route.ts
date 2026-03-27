@@ -6,6 +6,45 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
 
+const PROTECTED_FILES = [
+  "app/api/agents/execute/route.ts",
+  "app/api/agents/orchestrate/route.ts",
+  "app/api/agents/commit/route.ts",
+  "app/api/agents/status/route.ts",
+  "app/api/wallet/spend/route.ts",
+  "app/api/wallet/balance/route.ts",
+  "app/api/admin/sweep-revenue/route.ts",
+  "app/api/auth/sign-up/route.ts",
+  "lib/github-service.ts",
+  "prisma/schema.prisma",
+  "package.json",
+  "package-lock.json",
+  "tsconfig.json",
+  "next.config.ts",
+];
+
+function sanitizeCode(raw: string): string {
+  // Strip markdown code fences (typed)
+  const fenceMatch = raw.match(
+    /```(?:typescript|tsx|ts|javascript|js|jsx|prisma|json|css)?\n?([\s\S]*?)```/,
+  );
+  if (fenceMatch) return fenceMatch[1].trim();
+
+  // Strip plain ``` fences
+  const plainFence = raw.match(/```\n?([\s\S]*?)```/);
+  if (plainFence) return plainFence[1].trim();
+
+  // If it looks like JSON (starts with { or [), skip it — not code
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) return "";
+
+  // If it starts with import/export/const/function/class or a comment, it's probably real code
+  if (/^(import|export|const|function|class|\/\/|\/\*)/.test(trimmed)) return trimmed;
+
+  // Otherwise skip — not real code
+  return "";
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession();
   if (session.auth.source !== "persistent") {
@@ -72,11 +111,21 @@ No explanation. Just the path.`,
       const filePath = rawPath.replace(/^\/+/, "").replace(/[^a-zA-Z0-9/_.\-]/g, "");
       if (!filePath || filePath.length > 200) continue;
 
-      // Commit the file
+      // Never overwrite critical files
+      if (PROTECTED_FILES.some((f) => filePath.endsWith(f))) {
+        console.log(`[eden-commit] Skipping protected file: ${filePath}`);
+        continue;
+      }
+
+      // Sanitize: strip markdown fences, skip non-code output
+      const code = sanitizeCode(task.result);
+      if (!code || code.length < 20) continue;
+
+      // Commit the sanitized code
       await github.commitFile(
         branchName,
         filePath,
-        task.result,
+        code,
         `feat: ${task.description.slice(0, 72)} [eden-build-${buildId.slice(-6)}]`,
       );
       committedFiles.push(filePath);
@@ -99,8 +148,9 @@ ${committedFiles.map((f) => `- \`${f}\``).join("\n")}
 ${build.tasks.map((t) => `- [${t.status === "complete" ? "x" : " "}] ${t.description}`).join("\n")}
 
 ---
-*This PR was opened automatically by Eden's agentic build system.*
-*Review changes before merging to main.*`;
+> **Warning**: These files were generated autonomously by Eden's agentic build system.
+> Please review carefully before merging. Code has been sanitized (markdown fences stripped,
+> non-code output filtered) but may still contain issues.`;
 
     const prUrl = await github.openPR(
       branchName,
