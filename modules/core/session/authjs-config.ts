@@ -322,6 +322,16 @@ async function resolveOrProvisionPersistedUser(input: {
     return null;
   }
 
+  // Look up existing user by email — links Google to existing accounts (e.g. Sonny's)
+  const existingUserByEmail = await prisma.user.findUnique({
+    where: { email: googleProfile.email },
+    select: { id: true, username: true, displayName: true },
+  });
+
+  if (existingUserByEmail) {
+    return existingUserByEmail;
+  }
+
   const nextUsername = await allocateUniqueUsername(
     deriveUsernameSeed(googleProfile.email, googleProfile.displayName),
   );
@@ -329,6 +339,7 @@ async function resolveOrProvisionPersistedUser(input: {
     data: {
       username: nextUsername,
       displayName: googleProfile.displayName,
+      email: googleProfile.email,
       role: "CONSUMER",
     },
     select: {

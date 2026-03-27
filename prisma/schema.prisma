@@ -311,6 +311,7 @@ enum ProjectRuntimeTaskAuditEventType {
 model User {
   id                              String                           @id @default(cuid())
   username                        String                           @unique
+  email                           String?                          @unique
   displayName                     String
   passwordHash                    String?
   role                            EdenRole                         @default(CONSUMER)
