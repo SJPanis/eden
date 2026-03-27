@@ -396,7 +396,49 @@ export function EdenAuthPage({
               </motion.div>
             </AnimatePresence>
 
-            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+            {/* Google OAuth button */}
+            {(mode === "signin" || mode === "signup") && (
+              <div className="mt-6">
+                <button
+                  type="button"
+                  onClick={() => signIn("google", { callbackUrl: resolvedCallbackUrl })}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    width: "100%",
+                    padding: "11px 0",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 8,
+                    color: "rgba(255,255,255,0.75)",
+                    fontSize: 13,
+                    fontFamily: "inherit",
+                    cursor: "pointer",
+                    transition: "background 0.2s",
+                    marginBottom: 16,
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 48 48">
+                    <path fill="#4285F4" d="M47.5 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h13.2c-.6 3-2.3 5.5-4.9 7.2v6h7.9c4.6-4.3 7.3-10.6 7.3-17.3z"/>
+                    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.1 1.4-4.8 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.7H2.7v6.2C6.7 42.8 14.8 48 24 48z"/>
+                    <path fill="#FBBC05" d="M10.8 28.8c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4v-6.2H2.7C1 16.9 0 20.3 0 24s1 7.1 2.7 10.2l8.1-5.4z"/>
+                    <path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.5l6.7-6.7C35.9 2.5 30.5 0 24 0 14.8 0 6.7 5.2 2.7 13.8l8.1 6.2C12.7 13.6 17.9 9.5 24 9.5z"/>
+                  </svg>
+                  Continue with Google
+                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, color: "rgba(255,255,255,0.2)", fontSize: 11 }}>
+                  <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+                  or continue with email
+                  <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+                </div>
+              </div>
+            )}
+
+            <form className={`${mode === "signin" || mode === "signup" ? "mt-0" : "mt-6"} space-y-4`} onSubmit={handleSubmit}>
               <AnimatePresence initial={false} mode="wait">
                 {mode === "invite" ? (
                   <motion.div
