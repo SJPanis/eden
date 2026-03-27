@@ -110,6 +110,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
       return false;
     }
     setBalance(data.newBalance);
+    window.dispatchEvent(new CustomEvent("eden:balance-updated", { detail: { newBalance: data.newBalance } }));
     return true;
   }
 

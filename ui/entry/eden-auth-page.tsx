@@ -150,9 +150,11 @@ export function EdenAuthPage({
     try { sessionStorage.removeItem("eden_pending_referral"); } catch {}
     const leaves = body?.welcomeLeaves ?? 0;
     setSuccessNote(
-      leaves > 0
-        ? `Account created! You've been gifted ${leaves} Leaf's. Signing you in now.`
-        : "Account created. Signing you in now.",
+      leaves >= 500
+        ? `Welcome to Eden. You've been granted ${leaves} Leafs to get started.`
+        : leaves > 0
+          ? `Account created! You've been gifted ${leaves} Leaf's. Signing you in now.`
+          : "Account created. Signing you in now.",
     );
     await handleSignIn();
   }
@@ -540,6 +542,14 @@ export function EdenAuthPage({
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden space-y-4"
                   >
+                    {mode === "signup" && pendingReferralCode ? (
+                      <div
+                        className="rounded-xl px-3 py-2 text-xs text-white/70"
+                        style={{ background: "rgba(45,212,191,0.08)", border: "1px solid rgba(45,212,191,0.2)" }}
+                      >
+                        🌿 You were invited by <span className="font-medium text-white/90">{pendingReferralCode}</span>. Sign up to get <span className="font-semibold" style={{ color: "#2dd4bf" }}>500 bonus Leafs</span>.
+                      </div>
+                    ) : null}
                     <div className="space-y-1">
                       <label className="text-xs uppercase tracking-[0.12em] text-white/40">
                         Username
