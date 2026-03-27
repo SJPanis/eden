@@ -81,6 +81,14 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
   const [diagResult, setDiagResult] = useState<DiagResult | null>(null);
   const [diagLoading, setDiagLoading] = useState(false);
 
+  // Fetch fresh balance on mount
+  useEffect(() => {
+    fetch("/api/wallet/balance")
+      .then((r) => r.json())
+      .then((d) => { if (d.balance !== undefined) setBalance(d.balance); })
+      .catch(() => {});
+  }, []);
+
   // Load saved visualization on mount
   useEffect(() => {
     try {
