@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   isBusinessFrozen,
@@ -484,6 +484,39 @@ export function OwnerDashboardPanel({
   const [waitlistLoading, setWaitlistLoading] = useState(false);
   const [paymentFilter, setPaymentFilter] = useState<OwnerPaymentFilter>("all");
   const [payoutFilter, setPayoutFilter] = useState<OwnerPayoutFilter>("all");
+  const [revenueData, setRevenueData] = useState<{ totalLeafs: number; totalUSD: number; recordsCount: number } | null>(null);
+  const [sweepLoading, setSweepLoading] = useState(false);
+  const [sweepResult, setSweepResult] = useState<string | null>(null);
+
+  const fetchRevenue = useCallback(() => {
+    fetch("/api/admin/sweep-revenue")
+      .then((r) => r.json())
+      .then((d) => { if (d.ok) setRevenueData(d); })
+      .catch(() => {});
+  }, []);
+  useEffect(() => { fetchRevenue(); }, [fetchRevenue]);
+
+  async function handleSweep() {
+    setSweepLoading(true);
+    setSweepResult(null);
+    try {
+      const res = await fetch("/api/admin/sweep-revenue", { method: "POST" });
+      const data = await res.json();
+      if (data.ok) {
+        setSweepResult(
+          data.stripeTransferId
+            ? `Swept ${data.totalLeafs} Leafs ($${data.totalUSD}) → ${data.stripeTransferId}`
+            : data.message ?? `Swept ${data.totalLeafs} Leafs ($${data.totalUSD})`,
+        );
+        fetchRevenue();
+      } else {
+        setSweepResult(data.error ?? "Sweep failed");
+      }
+    } catch {
+      setSweepResult("Sweep request failed");
+    }
+    setSweepLoading(false);
+  }
 
   const users = userCatalog;
   const businesses = watchedBusinesses;
@@ -1198,6 +1231,37 @@ export function OwnerDashboardPanel({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Platform Revenue */}
+            <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
+              <PanelHeader eyebrow="Revenue Split" title="Platform revenue" badge="15% of spend" />
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-[rgba(45,212,191,0.08)] bg-white/[0.025] px-3 py-2">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">Unswept Leafs</p>
+                  <p className="mt-1.5 text-base font-semibold text-white">{revenueData ? revenueData.totalLeafs.toLocaleString() : "—"}</p>
+                </div>
+                <div className="rounded-xl border border-[rgba(45,212,191,0.08)] bg-white/[0.025] px-3 py-2">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">USD Equivalent</p>
+                  <p className="mt-1.5 text-base font-semibold" style={{ color: "rgb(45,212,191)" }}>${revenueData ? revenueData.totalUSD.toFixed(2) : "—"}</p>
+                </div>
+                <div className="rounded-xl border border-[rgba(45,212,191,0.08)] bg-white/[0.025] px-3 py-2">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">Records</p>
+                  <p className="mt-1.5 text-base font-semibold text-white">{revenueData ? revenueData.recordsCount : "—"}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleSweep}
+                disabled={sweepLoading || !revenueData || revenueData.totalLeafs === 0}
+                className="mt-3 w-full rounded-xl border px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] transition-all disabled:opacity-40"
+                style={{ borderColor: "rgba(45,212,191,0.3)", color: "rgb(45,212,191)", background: "rgba(45,212,191,0.08)" }}
+              >
+                {sweepLoading ? "Sweeping..." : "Sweep to EdenOS LLC →"}
+              </button>
+              {sweepResult ? (
+                <p className="mt-2 text-xs text-white/50">{sweepResult}</p>
+              ) : null}
             </div>
 
             {/* Mock transaction controls */}

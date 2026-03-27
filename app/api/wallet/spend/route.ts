@@ -57,6 +57,30 @@ export async function POST(req: NextRequest) {
     select: { edenBalanceCredits: true },
   });
 
+  // Revenue split: 15% platform + 15% contribution pool
+  const platformCut = Math.floor(amount * 0.15);
+  const contributionCut = Math.floor(amount * 0.15);
+  const serviceId =
+    typeof body?.serviceId === "string" ? body.serviceId : "unknown";
+
+  await Promise.all([
+    prisma.platformRevenue.create({
+      data: {
+        amountLeafs: platformCut,
+        usdValue: platformCut / 25,
+        sourceService: serviceId,
+        userId: session.user.id,
+      },
+    }),
+    prisma.contributionPool.create({
+      data: {
+        amountLeafs: contributionCut,
+        sourceService: serviceId,
+        userId: session.user.id,
+      },
+    }),
+  ]).catch((err) => console.error("[spend] revenue tracking failed:", err));
+
   return NextResponse.json({
     ok: true,
     spent: amount,
