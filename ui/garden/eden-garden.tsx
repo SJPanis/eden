@@ -316,6 +316,41 @@ export function EdenGarden({ username }: EdenGardenProps) {
       }
 
       updateLog(pendingId, { status: "complete", text: `\u2713 ${userRequest}` });
+
+      // Auto-commit to GitHub
+      try {
+        addToLog({
+          id: `${buildId}-commit`,
+          text: "Opening PR on GitHub...",
+          status: "active",
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        });
+
+        const commitRes = await fetch("/api/agents/commit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ buildId }),
+        });
+        const commitData = await commitRes.json();
+
+        if (commitData.ok) {
+          updateLog(`${buildId}-commit`, {
+            status: "complete",
+            text: `PR opened \u2014 ${commitData.filesCommitted} files committed`,
+          });
+          window.open(commitData.prUrl, "_blank");
+        } else {
+          updateLog(`${buildId}-commit`, {
+            status: "failed",
+            text: `GitHub commit failed: ${commitData.error}`,
+          });
+        }
+      } catch {
+        updateLog(`${buildId}-commit`, {
+          status: "failed",
+          text: "GitHub commit failed",
+        });
+      }
     } catch {
       updateLog(pendingId, { status: "failed", text: `\u2717 ${userRequest}` });
     }
