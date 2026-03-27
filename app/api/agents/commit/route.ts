@@ -49,8 +49,11 @@ function sanitizeCode(raw: string): string {
   }
   const cleaned = lines.slice(startIdx).join("\n").trim();
 
-  // If it looks like JSON (starts with { or [), skip it — not code
+  // Reject assemble summary JSON wrapped in "on\n{...}" or bare "on"
   const trimmed = cleaned || raw.trim();
+  if (trimmed === "on" || trimmed.startsWith("on\n") || trimmed.startsWith("on\r\n")) return "";
+
+  // If it looks like JSON (starts with { or [), skip it — not code
   if (trimmed.startsWith("{") || trimmed.startsWith("[")) return "";
 
   // Detect JSON blobs disguised with a preamble: if the content is mostly JSON, reject it
@@ -199,12 +202,27 @@ Return ONLY: {"safe": true} or {"safe": false, "reason": "..."}`,
       await new Promise((r) => setTimeout(r, 500));
     }
 
-    // Open PR with summary
+    // Validation: don't open PR if no files were committed
+    if (committedFiles.length === 0) {
+      console.log(`[eden-commit] No valid files to commit for build ${buildId}`);
+      await prisma.agentBuild.update({
+        where: { id: buildId },
+        data: { status: "failed" },
+      });
+      return NextResponse.json({
+        ok: false,
+        error: "No valid code files to commit — all output was filtered by sanitizer",
+        filesCommitted: 0,
+      });
+    }
+
+    // Open PR with summary + validation status
     const prBody = `## Eden Autonomous Build
 
 **Build ID:** ${buildId}
 **Request:** ${build.request}
 **Tasks completed:** ${completedTasks.length}
+**Validation:** ${committedFiles.length} files committed, all passed security check
 
 ### Files committed
 ${committedFiles.map((f) => `- \`${f}\``).join("\n")}
@@ -215,7 +233,7 @@ ${build.tasks.map((t) => `- [${t.status === "complete" ? "x" : " "}] ${t.descrip
 ---
 > **Warning**: These files were generated autonomously by Eden's agentic build system.
 > Please review carefully before merging. Code has been sanitized (markdown fences stripped,
-> non-code output filtered) but may still contain issues.`;
+> non-code output filtered, JSON blobs rejected) but may still contain issues.`;
 
     const prUrl = await github.openPR(
       branchName,
