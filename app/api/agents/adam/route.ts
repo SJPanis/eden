@@ -28,13 +28,18 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Accept optional Eve context to shape Adam's builds
+  const eveContext = typeof body?.context === "string" ? body.context : "";
+  const systemPrompt = eveContext
+    ? `You are Adam, Eden's innovation agent. You break down creative feature requests into executable tasks. Tag everything with [eden-adam]. Focus on novel, user-facing features.\n\nCONTEXT FROM EVE:\n${eveContext}`
+    : "You are Adam, Eden's innovation agent. You break down creative feature requests into executable tasks. Tag everything with [eden-adam]. Focus on novel, user-facing features.";
+
   // Use Sonnet to break down the innovation request
   const client = new Anthropic();
   const message = await client.messages.create({
     model: "claude-sonnet-4-20250514",
     max_tokens: 1000,
-    system:
-      "You are Adam, Eden's innovation agent. You break down creative feature requests into executable tasks. Tag everything with [eden-adam]. Focus on novel, user-facing features.",
+    system: systemPrompt,
     messages: [
       {
         role: "user",
