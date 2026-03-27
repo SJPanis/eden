@@ -1256,3 +1256,25 @@ model PayoutRecord {
   @@index([userId, createdAt])
   @@index([status])
 }
+
+// ── Revenue Split ────────────────────────────────────────────────────────────
+
+model PlatformRevenue {
+  id               String   @id @default(cuid())
+  amountLeafs      Int
+  usdValue         Float
+  sourceService    String   @default("unknown")
+  userId           String
+  swept            Boolean  @default(false)
+  stripeTransferId String?
+  createdAt        DateTime @default(now())
+}
+
+model ContributionPool {
+  id            String   @id @default(cuid())
+  amountLeafs   Int
+  sourceService String   @default("unknown")
+  userId        String
+  distributed   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
