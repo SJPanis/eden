@@ -11,6 +11,21 @@ import {
 } from "@/modules/core/session/access-control";
 
 export async function middleware(request: NextRequest) {
+  // Allow embed pages to be loaded in iframes on any domain
+  if (request.nextUrl.pathname.startsWith("/embed/")) {
+    const response = NextResponse.next();
+    response.headers.delete("X-Frame-Options");
+    response.headers.set("Content-Security-Policy", "frame-ancestors *");
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    return response;
+  }
+  if (request.nextUrl.pathname.startsWith("/api/embed/")) {
+    const response = NextResponse.next();
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+    return response;
+  }
+
   if (!shouldEnforceProtectedRouteAuth()) {
     return NextResponse.next();
   }
@@ -75,6 +90,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/embed/:path*",
+    "/api/embed/:path*",
     "/consumer/:path*",
     "/business/:path*",
     "/owner/:path*",

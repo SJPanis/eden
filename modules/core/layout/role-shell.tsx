@@ -222,12 +222,14 @@ export function RoleShell({
               {/* Right cluster */}
               <div className="ml-1 flex shrink-0 items-center gap-2">
                 {/* Wallet balance chip */}
-                <div
-                  className="hidden items-center gap-2 rounded-full px-3 py-1.5 sm:flex"
+                <a
+                  href="/consumer?modal=topup"
+                  className="hidden items-center gap-2 rounded-full px-3 py-1.5 sm:flex transition-all hover:bg-white/[0.06]"
                   style={{
                     border: "1px solid rgba(255,255,255,0.07)",
                     background: "rgba(255,255,255,0.04)",
                   }}
+                  title="Top up Leaf's"
                 >
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">
                     🍃 {edenSpendableLeavesLabel}
@@ -243,7 +245,7 @@ export function RoleShell({
                       </span>
                     </>
                   ) : null}
-                </div>
+                </a>
 
                 {/* Avatar dropdown */}
                 <div className="relative z-[200]">
