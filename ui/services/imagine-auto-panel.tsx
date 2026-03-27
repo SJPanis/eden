@@ -18,16 +18,20 @@ const IA_CARD_BG = "rgba(20,15,5,0.85)";
 const IA_CARD_BORDER = "rgba(245,158,11,0.15)";
 
 const tabConfig: { key: Tab; label: string; cost: number }[] = [
-  { key: "parts", label: "Find Parts", cost: 50 },
+  { key: "parts", label: "Find Parts", cost: 10 },
   { key: "visualize", label: "Visualize", cost: 100 },
   { key: "diagnose", label: "Diagnose", cost: 75 },
 ];
 
 type PartResult = {
   name: string;
+  partNumber?: string;
   compatibility: string;
   priceRange: string;
   condition?: string;
+  supplier?: string;
+  searchUrl?: string;
+  description?: string;
 };
 
 type DiagResult = {
@@ -125,16 +129,38 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     setPartsLoading(true);
     setSpendError(null);
 
-    const ok = await spendAndRun(50, "Imagine Auto — Find Parts");
+    const ok = await spendAndRun(10, "Imagine Auto — Find Parts");
     if (!ok) {
       setPartsLoading(false);
       return;
     }
 
     try {
-      const raw = await callClaude(
-        `You are an automotive parts expert. A user has a ${year} ${make} ${model} and needs: ${partNeeded}. Return ONLY a JSON array of exactly 3 parts: [{"name":"...","compatibility":"...","priceRange":"$X\u2013$Y","condition":"OEM|Aftermarket|Remanufactured"}]. No other text.`,
-      );
+      const prompt = `You are an automotive parts expert with knowledge of real parts suppliers.
+A user has a ${year} ${make} ${model} and needs: ${partNeeded}.
+
+Return ONLY a JSON array of exactly 3 real parts with this structure:
+[
+  {
+    "name": "Exact part name",
+    "partNumber": "OEM or aftermarket part number if known",
+    "compatibility": "Fits [year range] [make] [model]",
+    "priceRange": "$X–$Y",
+    "condition": "OEM|Aftermarket|Remanufactured",
+    "supplier": "RockAuto|AutoZone|Amazon|eBay Motors|Advance Auto",
+    "searchUrl": "https://www.rockauto.com/en/catalog/[make]/[year]/[model] OR https://www.amazon.com/s?k=[partname]+[year]+[make]+[model] OR https://www.autozone.com/searchresult?searchtext=[partname]+[year]+[make]+[model]",
+    "description": "One sentence about this part and why it fits"
+  }
+]
+
+For searchUrl:
+- Use RockAuto for OEM and remanufactured parts
+- Use Amazon for aftermarket and performance parts
+- Use AutoZone for common wear items
+- Build real URLs with the actual year/make/model/part encoded properly
+
+Return ONLY the JSON array. No other text.`;
+      const raw = await callClaude(prompt);
       const jsonMatch = raw.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]) as PartResult[];
@@ -394,7 +420,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                   className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                   style={{ background: IA_GOLD, color: "#0b1622" }}
                 >
-                  {partsLoading ? "Searching..." : "Search Parts \u2014 50 \u{1F343}"}
+                  {partsLoading ? "Searching..." : "Search Parts \u2014 10 \u{1F343}"}
                 </button>
               </div>
 
@@ -405,31 +431,77 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-4 space-y-3"
                   >
-                    {partsResults.map((part, i) => (
-                      <motion.div
-                        key={`${part.name}-${i}`}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="rounded-[16px] p-4"
-                        style={{ background: IA_CARD_BG, border: `1px solid ${IA_CARD_BORDER}` }}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">{part.name}</p>
-                            <p className="mt-1 text-xs text-white/45">{part.compatibility}</p>
-                          </div>
-                          <p className="shrink-0 text-sm font-semibold" style={{ color: IA_GOLD }}>{part.priceRange}</p>
-                        </div>
-                        <button
-                          type="button"
-                          className="mt-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
-                          style={{ border: `1px solid ${IA_CARD_BORDER}`, color: IA_GOLD, background: IA_GOLD_DIM }}
+                    {partsResults.map((part, i) => {
+                      const conditionColor =
+                        part.condition === "OEM" ? "#2dd4bf" :
+                        part.condition === "Aftermarket" ? "#fbbf24" :
+                        part.condition === "Remanufactured" ? "#a78bfa" : "#94a3b8";
+                      return (
+                        <motion.div
+                          key={`${part.name}-${i}`}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="rounded-[16px] p-4"
+                          style={{ background: IA_CARD_BG, border: `1px solid ${IA_CARD_BORDER}` }}
                         >
-                          View Details
-                        </button>
-                      </motion.div>
-                    ))}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold" style={{ color: IA_GOLD }}>{part.name}</p>
+                              {part.partNumber ? (
+                                <p className="mt-0.5 font-mono text-[11px] text-white/40">{part.partNumber}</p>
+                              ) : null}
+                              <p className="mt-1 text-xs text-white/60">{part.compatibility}</p>
+                            </div>
+                            <p className="shrink-0 text-base font-semibold" style={{ color: IA_GOLD }}>{part.priceRange}</p>
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            {part.condition ? (
+                              <span
+                                className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                style={{ background: `${conditionColor}20`, color: conditionColor, border: `1px solid ${conditionColor}40` }}
+                              >
+                                {part.condition}
+                              </span>
+                            ) : null}
+                            {part.supplier ? (
+                              <span
+                                className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
+                              >
+                                {part.supplier}
+                              </span>
+                            ) : null}
+                          </div>
+                          {part.description ? (
+                            <p className="mt-2 text-xs italic text-white/50">{part.description}</p>
+                          ) : null}
+                          {part.searchUrl ? (
+                            <a
+                              href={part.searchUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                padding: '6px 12px',
+                                border: '1px solid rgba(245,158,11,0.5)',
+                                borderRadius: 8,
+                                color: '#f59e0b',
+                                fontSize: 12,
+                                fontFamily: 'monospace',
+                                textDecoration: 'none',
+                                marginTop: 8,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              View on {part.supplier || 'Parts Store'} &rarr;
+                            </a>
+                          ) : null}
+                        </motion.div>
+                      );
+                    })}
                   </motion.div>
                 ) : !partsLoading ? (
                   <motion.p
