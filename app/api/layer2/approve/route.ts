@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/modules/core/session/server";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 import { Octokit } from "@octokit/rest";
+import { validateCommandToken } from "@/lib/command-tokens";
 
 export const runtime = "nodejs";
 
@@ -9,6 +10,15 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession();
   if (session.auth.source !== "persistent" || session.user.role !== "owner") {
     return NextResponse.json({ ok: false, error: "Owner access required" }, { status: 403 });
+  }
+
+  // Require command token from TOTP-gated command center
+  const cmdToken = req.headers.get("X-Command-Token") ?? "";
+  if (!cmdToken || !validateCommandToken(session.user.id, cmdToken)) {
+    return NextResponse.json(
+      { ok: false, error: "Command token required. Open Eden Command and verify TOTP." },
+      { status: 403 },
+    );
   }
 
   const body = await req.json().catch(() => null);
