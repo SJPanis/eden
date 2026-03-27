@@ -1,12 +1,27 @@
-```yaml
----
-- name: Create directory structure for app/api/ping/
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: Create app/api/ping/ directory structure
-      ansible.builtin.file:
-        path: app/api/ping/
-        state: directory
-        mode: '0755'
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+
+interface PingResponse {
+  ok: boolean;
+  timestamp: string;
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse<PingResponse>> {
+  const pingResponse: PingResponse = {
+    ok: true,
+    timestamp: new Date().toISOString(),
+  };
+
+  return NextResponse.json(pingResponse);
+}
+
+export async function POST(request: NextRequest): Promise<NextResponse<PingResponse>> {
+  const pingResponse: PingResponse = {
+    ok: true,
+    timestamp: new Date().toISOString(),
+  };
+
+  return NextResponse.json(pingResponse);
+}
 ```
