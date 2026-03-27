@@ -1,0 +1,61 @@
+```prisma
+model AgentBuild {
+  id            String      @id @default(cuid())
+  buildNumber   Int         @unique
+  status        BuildStatus @default(PENDING)
+  startedAt     DateTime    @default(now())
+  completedAt   DateTime?
+  duration      Int?        // in seconds
+  gitHubPRUrl   String?
+  gitHubPRNumber Int?
+  repositoryName String
+  branchName    String
+  commitSha     String
+  commitMessage String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  tasks         BuildTask[]
+  
+  @@index([status])
+  @@index([createdAt])
+  @@index([repositoryName])
+}
+
+model BuildTask {
+  id          String      @id @default(cuid())
+  buildId     String
+  build       AgentBuild  @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  status      TaskStatus  @default(PENDING)
+  order       Int
+  startedAt   DateTime?
+  completedAt DateTime?
+  duration    Int?        // in seconds
+  logs        String?     // task logs output
+  errorMessage String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@unique([buildId, order])
+  @@index([buildId])
+  @@index([status])
+}
+
+enum BuildStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+```
