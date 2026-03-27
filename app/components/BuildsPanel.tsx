@@ -2,7 +2,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, Calendar, GitBranch, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Calendar,
+  GitBranch,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertCircle,
+  Loader,
+} from 'lucide-react';
 
 interface BuildTask {
   id: string;
@@ -52,7 +63,7 @@ interface ApiResponse {
   count: number;
 }
 
-const CreateNewBuildsPanel = () => {
+const BuildsPanel = () => {
   const [builds, setBuilds] = useState<Build[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +91,9 @@ const CreateNewBuildsPanel = () => {
         throw new Error('API returned unsuccessful response');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load build history');
+      setError(
+        err instanceof Error ? err.message : 'Failed to load build history'
+      );
       console.error('Error loading build history:', err);
     } finally {
       setLoading(false);
@@ -92,5 +105,3 @@ const CreateNewBuildsPanel = () => {
       case 'SUCCESS':
         return 'bg-green-50 border-green-200 text-green-900';
       case 'FAILED':
-        return 'bg-red-50 border-red-200 text-red-900';
-      case 'IN
