@@ -52,10 +52,12 @@ type ResourceNode = {
 };
 
 type TaskEntry = {
-  id: number;
+  id: string;
   text: string;
-  status: "complete" | "active" | "pending" | "queued";
+  status: "complete" | "active" | "pending" | "queued" | "failed";
   time: string;
+  leafCost?: number;
+  result?: string;
 };
 
 type Star = {
@@ -145,11 +147,11 @@ const AGENT_PRESETS = [
 ];
 
 const DEFAULT_TASKS: TaskEntry[] = [
-  { id: 1, text: "Imagine Auto \u2014 Find Parts API wired", status: "complete", time: "09:42" },
-  { id: 2, text: "Leaf spending route created", status: "complete", time: "09:38" },
-  { id: 3, text: "Market Lens chart canvas building...", status: "active", time: "09:35" },
-  { id: 4, text: "Spot Splore constellation map building...", status: "active", time: "09:30" },
-  { id: 5, text: "Digital Garden agent AI pending...", status: "queued", time: "09:25" },
+  { id: "1", text: "Imagine Auto \u2014 Find Parts API wired", status: "complete", time: "09:42" },
+  { id: "2", text: "Leaf spending route created", status: "complete", time: "09:38" },
+  { id: "3", text: "Market Lens chart canvas building...", status: "active", time: "09:35" },
+  { id: "4", text: "Spot Splore constellation map building...", status: "active", time: "09:30" },
+  { id: "5", text: "Digital Garden agent AI pending...", status: "queued", time: "09:25" },
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -214,40 +216,111 @@ export function EdenGarden({ username }: EdenGardenProps) {
 
   const [tasks, setTasks] = useState<TaskEntry[]>(DEFAULT_TASKS);
   const [chatInput, setChatInput] = useState("");
-  const nextTaskId = useRef(DEFAULT_TASKS.length + 1);
+  const [buildRunning, setBuildRunning] = useState(false);
 
-  // ── Handle "Build" command ─────────────────────────────────────────────
-  const handleBuild = useCallback(() => {
-    const text = chatInput.trim();
-    if (!text) return;
-    const id = nextTaskId.current++;
-    setTasks((prev) => [{ id, text, status: "pending", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }, ...prev]);
+  // ── Helper functions ────────────────────────────────────────────────────
+  function addToLog(entry: TaskEntry) {
+    setTasks((prev) => [entry, ...prev]);
+  }
+
+  function updateLog(id: string, updates: Partial<TaskEntry>) {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
+  }
+
+  function incrementBuildingProgress(taskType: string) {
+    const typeToBuilding: Record<string, string> = {
+      schema: "imagine-auto",
+      api: "imagine-auto",
+      ui: "market-lens",
+      copy: "spot-splore",
+      config: "imagine-auto",
+      test: "market-lens",
+      assemble: "town-hall",
+    };
+    const targetId = typeToBuilding[taskType] ?? "spot-splore";
+    const bs = buildingsRef.current;
+    const target = bs.find((b) => b.id === targetId) ?? bs.find((b) => !b.isTownHall && b.completion < 1);
+    if (target) target.completion = Math.min(1, target.completion + 0.05);
+  }
+
+  // ── Handle "Build" command — real orchestrator ──────────────────────────
+  const handleBuild = useCallback(async () => {
+    const userRequest = chatInput.trim();
+    if (!userRequest || buildRunning) return;
     setChatInput("");
+    setBuildRunning(true);
 
-    // Spawn 2 new agents
+    const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const pendingId = Date.now().toString();
+    addToLog({ id: pendingId, text: userRequest, status: "pending", time: now });
+
+    // Spawn 2 new agents for the visual
     const canvas = canvasRef.current;
     if (canvas) {
       const groundY = canvas.height * GROUND_Y_RATIO;
       const newAgents = createAgents(2, canvas.width, groundY);
       const base = agentsRef.current.length;
-      for (let i = 0; i < newAgents.length; i++) {
-        newAgents[i].id = base + i;
-      }
+      for (let i = 0; i < newAgents.length; i++) newAgents[i].id = base + i;
       agentsRef.current.push(...newAgents);
     }
 
-    // Promote to active after 3s, complete after 8s
-    setTimeout(() => setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "active" } : t))), 3000);
-    setTimeout(() => {
-      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "complete" } : t)));
-      // Increase a random building completion
-      const bs = buildingsRef.current.filter((b) => !b.isTownHall && b.completion < 1);
-      if (bs.length > 0) {
-        const target = bs[Math.floor(Math.random() * bs.length)];
-        target.completion = Math.min(1, target.completion + 0.1);
+    try {
+      // 1. Orchestrate
+      const orchRes = await fetch("/api/agents/orchestrate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request: userRequest }),
+      });
+      const orchData = await orchRes.json();
+
+      if (!orchData.ok) throw new Error(orchData.error ?? "Orchestration failed");
+
+      const { buildId, tasks: agentTasks } = orchData as {
+        buildId: string;
+        tasks: Array<{ id: string; index: number; type: string; description: string; leafCost: number; status: string }>;
+      };
+
+      updateLog(pendingId, { status: "active", text: `Breaking into ${agentTasks.length} tasks...` });
+
+      // 2. Add each task to the log
+      for (const task of agentTasks) {
+        addToLog({
+          id: `${buildId}-${task.index}`,
+          text: task.description,
+          status: "queued",
+          time: now,
+          leafCost: task.leafCost,
+        });
       }
-    }, 8000);
-  }, [chatInput]);
+
+      // 3. Execute tasks sequentially
+      for (const task of agentTasks) {
+        updateLog(`${buildId}-${task.index}`, { status: "active" });
+
+        const execRes = await fetch("/api/agents/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ buildId, taskId: task.id }),
+        });
+        const execData = await execRes.json();
+
+        updateLog(`${buildId}-${task.index}`, {
+          status: execData.ok ? "complete" : "failed",
+          result: execData.result?.slice(0, 100),
+        });
+
+        incrementBuildingProgress(task.type);
+
+        // Small delay so animations are visible
+        await new Promise((r) => setTimeout(r, 800));
+      }
+
+      updateLog(pendingId, { status: "complete", text: `\u2713 ${userRequest}` });
+    } catch {
+      updateLog(pendingId, { status: "failed", text: `\u2717 ${userRequest}` });
+    }
+    setBuildRunning(false);
+  }, [chatInput, buildRunning]);
 
   // ── Main animation loop ────────────────────────────────────────────────
   const draw = useCallback(() => {
@@ -654,6 +727,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
       case "active": return "~";
       case "pending": return "\u25cb";
       case "queued": return "\u00b7";
+      case "failed": return "\u2717";
     }
   };
   const statusColor = (s: TaskEntry["status"]) => {
@@ -662,6 +736,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
       case "active": return "#f59e0b";
       case "pending": return "#2dd4bf";
       case "queued": return "rgba(255,255,255,0.2)";
+      case "failed": return "#ef4444";
     }
   };
 
@@ -699,10 +774,13 @@ export function EdenGarden({ username }: EdenGardenProps) {
                 {statusIcon(t.status)}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-white/70 leading-snug" style={{ color: t.status === "queued" ? "rgba(255,255,255,0.25)" : undefined }}>
+                <p className="text-white/70 leading-snug" style={{ color: t.status === "queued" ? "rgba(255,255,255,0.25)" : t.status === "failed" ? "rgba(239,68,68,0.7)" : undefined }}>
                   {t.text}
                 </p>
-                <span className="text-white/20">{t.time}</span>
+                <span className="text-white/20">
+                  {t.time}
+                  {t.leafCost ? ` · ${t.leafCost} 🍃` : ""}
+                </span>
               </div>
             </div>
           ))}
@@ -721,11 +799,11 @@ export function EdenGarden({ username }: EdenGardenProps) {
           <button
             type="button"
             onClick={handleBuild}
-            disabled={!chatInput.trim()}
+            disabled={!chatInput.trim() || buildRunning}
             className="mt-2 w-full rounded-xl py-2.5 text-sm font-semibold transition-all disabled:opacity-30"
             style={{ background: "#2dd4bf", color: "#060e1a" }}
           >
-            Build
+            {buildRunning ? "Building..." : "Build"}
           </button>
         </div>
       </div>

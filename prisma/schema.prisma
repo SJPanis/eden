@@ -1278,3 +1278,33 @@ model ContributionPool {
   distributed   Boolean  @default(false)
   createdAt     DateTime @default(now())
 }
+
+// ── Agentic Layer ────────────────────────────────────────────────────────────
+
+model AgentBuild {
+  id         String      @id @default(cuid())
+  userId     String
+  request    String
+  status     String      @default("pending")
+  totalLeafs Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  tasks      AgentTask[]
+}
+
+model AgentTask {
+  id          String     @id @default(cuid())
+  buildId     String
+  build       AgentBuild @relation(fields: [buildId], references: [id])
+  index       Int
+  type        String
+  description String
+  status      String     @default("pending")
+  result      String?
+  leafCost    Int        @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@index([buildId])
+}
