@@ -34,9 +34,35 @@ function sanitizeCode(raw: string): string {
   const plainFence = raw.match(/```\n?([\s\S]*?)```/);
   if (plainFence) return plainFence[1].trim();
 
+  // Strip leading non-code preamble lines (e.g. "on\n{...}" pattern from Claude)
+  // Collapse to the first line that looks like it matters
+  const lines = raw.split("\n");
+  let startIdx = 0;
+  for (let i = 0; i < Math.min(lines.length, 5); i++) {
+    const line = lines[i].trim();
+    // Skip short non-code preamble words (e.g. "on", "Here:", "Output:", etc.)
+    if (line.length > 0 && line.length < 20 && !/^(import|export|const|function|class|\/\/|\/\*|<)/.test(line)) {
+      startIdx = i + 1;
+      continue;
+    }
+    break;
+  }
+  const cleaned = lines.slice(startIdx).join("\n").trim();
+
   // If it looks like JSON (starts with { or [), skip it — not code
-  const trimmed = raw.trim();
+  const trimmed = cleaned || raw.trim();
   if (trimmed.startsWith("{") || trimmed.startsWith("[")) return "";
+
+  // Detect JSON blobs disguised with a preamble: if the content is mostly JSON, reject it
+  const jsonBlockMatch = trimmed.match(/\{[\s\S]*\}/);
+  if (jsonBlockMatch && jsonBlockMatch[0].length > trimmed.length * 0.8) {
+    try {
+      JSON.parse(jsonBlockMatch[0]);
+      return ""; // Valid JSON blob, not code
+    } catch {
+      // Not valid JSON, continue
+    }
+  }
 
   // If it starts with import/export/const/function/class or a comment, it's probably real code
   if (/^(import|export|const|function|class|\/\/|\/\*)/.test(trimmed)) return trimmed;
