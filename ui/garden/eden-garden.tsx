@@ -14,7 +14,7 @@ type EdenGardenProps = {
 type Building = {
   id: string;
   name: string;
-  type: "founder" | "adam" | "eve";
+  type: "founder" | "artist" | "architect";
   x: number;
   width: number;
   height: number;
@@ -25,7 +25,7 @@ type Building = {
   href: string;
 };
 
-type AgentRole = "worker" | "carrier" | "assembler" | "adam" | "eve";
+type AgentRole = "worker" | "carrier" | "assembler" | "artist" | "architect";
 type AgentState = "walking" | "gathering" | "trading" | "building";
 
 type Agent = {
@@ -103,8 +103,8 @@ const ROLE_COLORS: Record<AgentRole, string> = {
   worker: "#2dd4bf",
   carrier: "#f59e0b",
   assembler: "#a855f7",
-  adam: "#fbbf24",
-  eve: "#5eead4",
+  artist: "#fbbf24",
+  architect: "#5eead4",
 };
 
 const BUILDINGS: Building[] = [
@@ -124,7 +124,7 @@ const BUILDINGS: Building[] = [
   {
     id: "imagine-auto",
     name: "Imagine Auto",
-    type: "adam",
+    type: "artist",
     x: 0.32,
     width: 60,
     height: 85,
@@ -137,7 +137,7 @@ const BUILDINGS: Building[] = [
   {
     id: "market-lens",
     name: "Market Lens",
-    type: "adam",
+    type: "artist",
     x: 0.67,
     width: 55,
     height: 70,
@@ -150,7 +150,7 @@ const BUILDINGS: Building[] = [
   {
     id: "spot-splore",
     name: "Spot Splore",
-    type: "adam",
+    type: "artist",
     x: 0.2,
     width: 50,
     height: 60,
@@ -175,9 +175,9 @@ const AGENT_PRESETS: { role: AgentRole; speed: number }[] = [
   { role: "carrier", speed: 0.9 },
   { role: "assembler", speed: 0.7 },
   { role: "worker", speed: 1.1 },
-  { role: "adam", speed: 1.0 },
+  { role: "artist", speed: 1.0 },
   { role: "carrier", speed: 0.8 },
-  { role: "eve", speed: 1.3 },
+  { role: "architect", speed: 1.3 },
   { role: "worker", speed: 0.95 },
 ];
 
@@ -804,15 +804,15 @@ export function EdenGarden({ username }: EdenGardenProps) {
   const [buildRunning, setBuildRunning] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [econStats, setEconStats] = useState<{
-    adam: { userLeafs: number; totalLeafs: number; percentage: number };
-    eve: { userActions: number; totalActions: number; percentage: number };
+    artist: { userLeafs: number; totalLeafs: number; percentage: number };
+    architect: { userActions: number; totalActions: number; percentage: number };
     leafFlow: { earned: number; spent: number; net: number };
   } | null>(null);
-  const [adamExpanded, setAdamExpanded] = useState(false);
-  const [eveExpanded, setEveExpanded] = useState(false);
+  const [artistExpanded, setArtistExpanded] = useState(false);
+  const [architectExpanded, setArchitectExpanded] = useState(false);
   const [loopStatus, setLoopStatus] = useState<{
-    adam: { runsThisCycle: number; nextRunIn: string; lastRunAt: string | null };
-    eve: { lastEvaluatedAt: string | null; nextEvalIn: string; lastPattern: string | null; lastEncouragement: string | null; promotedCount: number };
+    artist: { runsThisCycle: number; nextRunIn: string; lastRunAt: string | null };
+    architect: { lastEvaluatedAt: string | null; nextEvalIn: string; lastPattern: string | null; lastEncouragement: string | null; promotedCount: number };
     loopHealth: "active" | "starting" | "idle";
   } | null>(null);
 
@@ -986,7 +986,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
       }
 
       // 3. Call Architect — it handles execute, absorb, security, and commit
-      fetch("/api/agents/architect", {
+      fetch("/api/agents/build-orchestrator", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ buildId }),
@@ -1108,7 +1108,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
       drawResourceNode(ctx, r, frame);
     }
 
-    // ── Eve foundations ───────────────────────────────────────────────────
+    // ── Architect foundations ───────────────────────────────────────────────────
     for (const b of buildings) {
       const bx2 = b.x * W;
       const fW = b.width * 2;
@@ -1441,46 +1441,46 @@ export function EdenGarden({ username }: EdenGardenProps) {
           Eden Economy
         </h3>
 
-        {/* Adam Pool — clickable expandable */}
+        {/* Artist Pool — clickable expandable */}
         <button
           type="button"
-          onClick={() => setAdamExpanded(!adamExpanded)}
+          onClick={() => setArtistExpanded(!artistExpanded)}
           className="w-full rounded-xl p-3 text-left transition-all"
           style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}
         >
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-wider text-amber-400/70">Adam \u2014 Innovation</p>
+            <p className="text-[10px] uppercase tracking-wider text-amber-400/70">Artist \u2014 Innovation</p>
             <span className="text-[10px] font-mono text-amber-400/80">
-              {econStats ? `${econStats.adam.percentage.toFixed(2)}%` : "\u2014"}
+              {econStats ? `${econStats.artist.percentage.toFixed(2)}%` : "\u2014"}
             </span>
           </div>
           <div className="mt-2 h-2 w-full rounded-full" style={{ background: "rgba(245,158,11,0.1)" }}>
             <div
               className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, econStats?.adam.percentage ?? 0)}%`, background: "#f59e0b" }}
+              style={{ width: `${Math.min(100, econStats?.artist.percentage ?? 0)}%`, background: "#f59e0b" }}
             />
           </div>
           <p className="mt-1.5 text-xs text-amber-400/50">
-            {loopStatus ? `${loopStatus.adam.runsThisCycle} runs this cycle \u00b7 next in ${loopStatus.adam.nextRunIn}` : "Revenue based \u2014 your stake"}
+            {loopStatus ? `${loopStatus.artist.runsThisCycle} runs this cycle \u00b7 next in ${loopStatus.artist.nextRunIn}` : "Revenue based \u2014 your stake"}
           </p>
-          {adamExpanded && (
+          {artistExpanded && (
             <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(245,158,11,0.1)" }}>
               <p className="text-[11px] leading-relaxed text-amber-400/40">
-                Adam is Eden&apos;s Innovation Pool. Every Leaf spent on services flows into Adam.
+                The Artist is Eden&apos;s Innovation Pool. Every Leaf spent on services flows into the Artist pool.
                 Your % grows as your services earn revenue relative to total Eden revenue.
               </p>
               <div className="space-y-1 text-[10px] font-mono">
                 <div className="flex justify-between text-amber-400/50">
                   <span>Your services earned</span>
-                  <span className="text-amber-400/70">{econStats?.adam.userLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
+                  <span className="text-amber-400/70">{econStats?.artist.userLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
                 </div>
                 <div className="flex justify-between text-amber-400/50">
                   <span>Total Eden revenue</span>
-                  <span className="text-amber-400/70">{econStats?.adam.totalLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
+                  <span className="text-amber-400/70">{econStats?.artist.totalLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
                 </div>
                 <div className="flex justify-between text-amber-400/50">
-                  <span>Your Adam stake</span>
-                  <span className="text-amber-400/70">{econStats?.adam.percentage.toFixed(2) ?? "0.00"}%</span>
+                  <span>Your Artist stake</span>
+                  <span className="text-amber-400/70">{econStats?.artist.percentage.toFixed(2) ?? "0.00"}%</span>
                 </div>
               </div>
               <p className="text-[9px] text-amber-400/25 italic">
@@ -1491,46 +1491,46 @@ export function EdenGarden({ username }: EdenGardenProps) {
           )}
         </button>
 
-        {/* Eve Pool — clickable expandable */}
+        {/* Architect Pool — clickable expandable */}
         <button
           type="button"
-          onClick={() => setEveExpanded(!eveExpanded)}
+          onClick={() => setArchitectExpanded(!architectExpanded)}
           className="w-full rounded-xl p-3 text-left transition-all"
           style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)" }}
         >
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-wider text-blue-400/70">Eve \u2014 Commitment</p>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400/70">Architect \u2014 Commitment</p>
             <span className="text-[10px] font-mono text-blue-400/80">
-              {econStats ? `${econStats.eve.percentage.toFixed(2)}%` : "\u2014"}
+              {econStats ? `${econStats.architect.percentage.toFixed(2)}%` : "\u2014"}
             </span>
           </div>
           <div className="mt-2 h-2 w-full rounded-full" style={{ background: "rgba(59,130,246,0.1)" }}>
             <div
               className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, econStats?.eve.percentage ?? 0)}%`, background: "#3b82f6" }}
+              style={{ width: `${Math.min(100, econStats?.architect.percentage ?? 0)}%`, background: "#3b82f6" }}
             />
           </div>
           <p className="mt-1.5 text-xs text-blue-400/50">
-            {loopStatus ? `evaluates in ${loopStatus.eve.nextEvalIn} \u00b7 ${loopStatus.eve.promotedCount} promoted` : "Usage based \u2014 your stake"}
+            {loopStatus ? `evaluates in ${loopStatus.architect.nextEvalIn} \u00b7 ${loopStatus.architect.promotedCount} promoted` : "Usage based \u2014 your stake"}
           </p>
-          {eveExpanded && (
+          {architectExpanded && (
             <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(59,130,246,0.1)" }}>
               <p className="text-[11px] leading-relaxed text-blue-400/40">
-                Eve is Eden&apos;s Commitment Pool. Your % grows with consistent qualified usage over time.
+                The Architect is Eden&apos;s Commitment Pool. Your % grows with consistent qualified usage over time.
                 Early contributors earn more \u2014 the denominator grows slowly, protecting early stakes.
               </p>
               <div className="space-y-1 text-[10px] font-mono">
                 <div className="flex justify-between text-blue-400/50">
                   <span>Your qualified actions</span>
-                  <span className="text-blue-400/70">{econStats?.eve.userActions.toLocaleString() ?? 0}</span>
+                  <span className="text-blue-400/70">{econStats?.architect.userActions.toLocaleString() ?? 0}</span>
                 </div>
                 <div className="flex justify-between text-blue-400/50">
                   <span>Total Eden actions</span>
-                  <span className="text-blue-400/70">{econStats?.eve.totalActions.toLocaleString() ?? 0}</span>
+                  <span className="text-blue-400/70">{econStats?.architect.totalActions.toLocaleString() ?? 0}</span>
                 </div>
                 <div className="flex justify-between text-blue-400/50">
-                  <span>Your Eve stake</span>
-                  <span className="text-blue-400/70">{econStats?.eve.percentage.toFixed(2) ?? "0.00"}%</span>
+                  <span>Your Architect stake</span>
+                  <span className="text-blue-400/70">{econStats?.architect.percentage.toFixed(2) ?? "0.00"}%</span>
                 </div>
               </div>
               <p className="text-[9px] text-blue-400/25 italic">
@@ -1604,12 +1604,12 @@ export function EdenGarden({ username }: EdenGardenProps) {
             Assembler
           </div>
           <div className="flex items-center gap-2 text-[10px] text-white/40">
-            <span className="h-2 w-2 rounded-full" style={{ background: ROLE_COLORS.adam }} />
-            Adam
+            <span className="h-2 w-2 rounded-full" style={{ background: ROLE_COLORS.artist }} />
+            Artist
           </div>
           <div className="flex items-center gap-2 text-[10px] text-white/40">
-            <span className="h-2 w-2 rounded-full" style={{ background: ROLE_COLORS.eve }} />
-            Eve
+            <span className="h-2 w-2 rounded-full" style={{ background: ROLE_COLORS.architect }} />
+            Architect
           </div>
         </div>
 

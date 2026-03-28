@@ -19,20 +19,20 @@ export async function POST(req: NextRequest) {
 
   const prisma = getPrismaClient();
 
-  // Create the build record tagged as Adam (innovation)
+  // Create the build record tagged as Artist (innovation)
   const build = await prisma.agentBuild.create({
     data: {
       userId: session.user.id,
-      request: `[eden-adam] ${request}`,
+      request: `[eden-artist] ${request}`,
       status: "running",
     },
   });
 
-  // Accept optional Eve context to shape Adam's builds
-  const eveContext = typeof body?.context === "string" ? body.context : "";
-  const systemPrompt = eveContext
-    ? `You are Adam, Eden's innovation agent. You break down creative feature requests into executable tasks. Tag everything with [eden-adam]. Focus on novel, user-facing features.\n\nCONTEXT FROM EVE:\n${eveContext}`
-    : "You are Adam, Eden's innovation agent. You break down creative feature requests into executable tasks. Tag everything with [eden-adam]. Focus on novel, user-facing features.";
+  // Accept optional Architect context to shape Artist's builds
+  const architectContext = typeof body?.context === "string" ? body.context : "";
+  const systemPrompt = architectContext
+    ? `You are the Artist, Eden's innovation agent. You break down creative feature requests into executable tasks. Tag everything with [eden-artist]. Focus on novel, user-facing features.\n\nCONTEXT FROM ARCHITECT:\n${architectContext}`
+    : "You are the Artist, Eden's innovation agent. You break down creative feature requests into executable tasks. Tag everything with [eden-artist]. Focus on novel, user-facing features.";
 
   // Use Sonnet to break down the innovation request
   const client = new Anthropic();
@@ -71,7 +71,7 @@ Return ONLY the JSON array.`,
 
   if (!jsonMatch) {
     await prisma.agentBuild.update({ where: { id: build.id }, data: { status: "failed" } });
-    return NextResponse.json({ ok: false, error: "Adam returned unexpected format" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Artist returned unexpected format" }, { status: 500 });
   }
 
   let taskList: Array<{ index: number; type: string; description: string; leafCost: number }>;
@@ -79,7 +79,7 @@ Return ONLY the JSON array.`,
     taskList = JSON.parse(jsonMatch[0]);
   } catch {
     await prisma.agentBuild.update({ where: { id: build.id }, data: { status: "failed" } });
-    return NextResponse.json({ ok: false, error: "Failed to parse Adam response" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Failed to parse Artist response" }, { status: 500 });
   }
 
   const totalLeafs = taskList.reduce((sum, t) => sum + (t.leafCost ?? 5), 0);
@@ -104,17 +104,17 @@ Return ONLY the JSON array.`,
     data: { totalLeafs },
   });
 
-  // Trigger architect to handle the full build
+  // Trigger build orchestrator to handle the full build
   try {
     const origin = req.nextUrl.origin;
-    fetch(`${origin}/api/agents/architect`, {
+    fetch(`${origin}/api/agents/build-orchestrator`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         cookie: req.headers.get("cookie") ?? "",
       },
       body: JSON.stringify({ buildId: build.id }),
-    }).catch((err) => console.error("[adam] Architect trigger failed:", err));
+    }).catch((err) => console.error("[artist] Build orchestrator trigger failed:", err));
   } catch {
     // Non-blocking — client can poll status
   }

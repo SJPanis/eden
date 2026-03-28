@@ -5,37 +5,64 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
 
-const SONNET = "claude-sonnet-4-20250514";
 const HAIKU = "claude-haiku-4-5-20251001";
 
-function callClaude(
-  client: Anthropic,
-  model: string,
-  maxTokens: number,
-  system: string,
-  user: string,
-) {
-  return client.messages.create({
-    model,
-    max_tokens: maxTokens,
-    ...(system ? { system } : {}),
-    messages: [{ role: "user", content: user }],
-  });
-}
-
-function extractText(msg: Anthropic.Message): string {
-  return msg.content[0]?.type === "text" ? msg.content[0].text : "";
-}
-
-function safeParse(raw: string, fallback: Record<string, unknown> = {}) {
-  try {
-    const match = raw.match(/\{[\s\S]*\}/);
-    return match ? JSON.parse(match[0]) : fallback;
-  } catch {
-    return fallback;
+// GET — scan for maintenance tasks
+export async function GET() {
+  const session = await getServerSession();
+  if (session.auth.source !== "persistent") {
+    return NextResponse.json({ ok: false, error: "Not authenticated" }, { status: 401 });
   }
+
+  const client = new Anthropic();
+
+  // Ask Haiku to identify maintenance priorities based on recent builds
+  const prisma = getPrismaClient();
+  const recentBuilds = await prisma.agentBuild.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+    include: { tasks: { where: { status: "failed" } } },
+  });
+
+  const failedSummary = recentBuilds
+    .filter((b) => b.tasks.length > 0)
+    .map((b) => `Build "${b.request}": ${b.tasks.map((t) => t.description).join(", ")}`)
+    .join("\n");
+
+  const scanMsg = await client.messages.create({
+    model: HAIKU,
+    max_tokens: 500,
+    messages: [
+      {
+        role: "user",
+        content: `You are the Architect, Eden's maintenance and evaluation agent. Scan these recent build failures and identify maintenance tasks.
+
+Recent failures:
+${failedSummary || "(no recent failures)"}
+
+Return a JSON array of maintenance tasks:
+[{ "priority": "high"|"medium"|"low", "description": "...", "type": "fix"|"cleanup"|"optimize" }]
+
+If no issues found, return an empty array: []
+Return ONLY the JSON array.`,
+      },
+    ],
+  });
+
+  const raw = scanMsg.content[0]?.type === "text" ? scanMsg.content[0].text : "[]";
+  let tasks: Array<{ priority: string; description: string; type: string }> = [];
+  try {
+    const match = raw.match(/\[[\s\S]*\]/);
+    if (match) tasks = JSON.parse(match[0]);
+  } catch {
+    tasks = [];
+  }
+
+  return NextResponse.json({ ok: true, maintenanceTasks: tasks });
 }
 
+// POST — create and execute a maintenance build
 export async function POST(req: NextRequest) {
   const session = await getServerSession();
   if (session.auth.source !== "persistent") {
@@ -43,199 +70,107 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => null);
-  const buildId = typeof body?.buildId === "string" ? body.buildId : "";
-  if (!buildId) {
-    return NextResponse.json({ ok: false, error: "No buildId" }, { status: 400 });
+  const description = typeof body?.description === "string" ? body.description.trim() : "";
+  if (!description) {
+    return NextResponse.json({ ok: false, error: "No description provided" }, { status: 400 });
   }
 
   const prisma = getPrismaClient();
-  const build = await prisma.agentBuild.findUnique({
-    where: { id: buildId },
-    include: { tasks: { orderBy: { index: "asc" } } },
-  });
-
-  if (!build || build.userId !== session.user.id) {
-    return NextResponse.json({ ok: false, error: "Build not found" }, { status: 404 });
-  }
-
   const client = new Anthropic();
-  let context: Record<string, unknown> = safeParse(build.context ?? "{}");
-  let tasksCompleted = 0;
 
-  const incompleteTasks = build.tasks.filter((t) => t.status !== "complete");
-
-  for (const task of incompleteTasks) {
-    try {
-      // ── a. DESIGN PHASE — Architect designs this task ──────────────────
-      const designMsg = await callClaude(
-        client,
-        SONNET,
-        600,
-        "You are an Architect agent. You maintain context across a build. Your job is to design ONE specific task with full context awareness. Return a JSON spec: { description, approach, dependencies, securityNotes }",
-        `Design task: ${task.description}\nBuild context: ${JSON.stringify(context)}\nOriginal request: ${build.request}`,
-      );
-      const architectDesign = safeParse(extractText(designMsg), {
-        description: task.description,
-        approach: "direct implementation",
-        dependencies: [],
-        securityNotes: "none",
-      });
-
-      // ── b. Inject design into context ──────────────────────────────────
-      context[`task_${task.index}_design`] = architectDesign;
-
-      // ── c. Update build context in DB ──────────────────────────────────
-      await prisma.agentBuild.update({
-        where: { id: buildId },
-        data: { context: JSON.stringify(context) },
-      });
-
-      // ── d. EXECUTE PHASE — Builder (Agent 2) ──────────────────────────
-      await prisma.agentTask.update({
-        where: { id: task.id },
-        data: { status: "running", startedAt: new Date() },
-      });
-
-      const contextStr = JSON.stringify(context, null, 2);
-      const builderPrompt = `You are a Builder agent with ONE job.
-
-TASK: ${task.description}
-TYPE: ${task.type}
-
-ARCHITECT CONTEXT (what has been built so far):
-${contextStr}
-
-ORIGINAL REQUEST: ${build.request}
-
-ARCHITECT DESIGN FOR THIS TASK:
-${JSON.stringify(architectDesign, null, 2)}
-
-Rules:
-- Return ONLY valid ${task.type === "ui" ? "TSX" : "TypeScript"} code
-- No markdown fences, no explanation, no preamble
-- Your output will be committed directly to GitHub
-- Make it production-ready and secure
-- If type is 'assemble', return a JSON summary:
-  {"summary":"...","filesBuilt":[],"nextStep":"..."}`;
-
-      const builderMsg = await callClaude(client, HAIKU, 800, "", builderPrompt);
-      const result = extractText(builderMsg);
-
-      // ── Store result, mark complete ────────────────────────────────────
-      await prisma.agentTask.update({
-        where: { id: task.id },
-        data: { status: "complete", result, completedAt: new Date() },
-      });
-
-      // ── e. ABSORB PHASE — Architect absorbs Builder output ────────────
-      const absorbMsg = await callClaude(
-        client,
-        SONNET,
-        600,
-        "",
-        `Given the original context and this new output, update the build context JSON.
-Add what was built, what decisions were made, what the next agent needs to know.
-Return ONLY the updated context JSON.
-
-Current context: ${JSON.stringify(context)}
-Task completed: ${task.description} (type: ${task.type})
-Builder output (first 500 chars): ${result.slice(0, 500)}`,
-      );
-
-      const updatedContext = safeParse(extractText(absorbMsg), context);
-      context = updatedContext as Record<string, unknown>;
-
-      await prisma.agentBuild.update({
-        where: { id: buildId },
-        data: { context: JSON.stringify(context) },
-      });
-
-      // ── f. SECURITY CHECK ─────────────────────────────────────────────
-      const secMsg = await callClaude(
-        client,
-        HAIKU,
-        200,
-        "",
-        `Review this code output for security issues.
-Return JSON: { "secure": true, "issues": [], "approved": true } or { "secure": false, "issues": ["..."], "approved": false }
-Code: ${result.slice(0, 500)}`,
-      );
-
-      const secResult = safeParse(extractText(secMsg), { secure: true, issues: [], approved: true });
-
-      if (!secResult.approved) {
-        await prisma.agentTask.update({
-          where: { id: task.id },
-          data: { status: "failed" },
-        });
-        context[`securityIssues_task_${task.index}`] = secResult.issues;
-        await prisma.agentBuild.update({
-          where: { id: buildId },
-          data: { context: JSON.stringify(context) },
-        });
-        continue;
-      }
-
-      tasksCompleted++;
-    } catch (error) {
-      console.error(`[architect] Task ${task.index} failed:`, error);
-      await prisma.agentTask.update({
-        where: { id: task.id },
-        data: { status: "failed" },
-      });
-    }
-  }
-
-  // ── After all tasks → trigger commit ────────────────────────────────────
-  const allTasks = await prisma.agentTask.findMany({
-    where: { buildId },
-    orderBy: { index: "asc" },
+  // Create build tagged as Architect (maintenance)
+  const build = await prisma.agentBuild.create({
+    data: {
+      userId: session.user.id,
+      request: `[eden-architect] ${description}`,
+      status: "running",
+    },
   });
-  const allComplete = allTasks.every((t) => t.status === "complete" || t.status === "failed");
-  const anyComplete = allTasks.some((t) => t.status === "complete");
 
-  if (allComplete && anyComplete) {
-    // Trigger commit internally
-    try {
-      const origin = req.nextUrl.origin;
-      const commitRes = await fetch(`${origin}/api/agents/commit`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          cookie: req.headers.get("cookie") ?? "",
-        },
-        body: JSON.stringify({ buildId }),
-      });
-      const commitData = await commitRes.json();
+  // Architect uses Haiku only — lightweight maintenance tasks
+  const message = await client.messages.create({
+    model: HAIKU,
+    max_tokens: 600,
+    messages: [
+      {
+        role: "user",
+        content: `You are the Architect, Eden's maintenance agent. Break this maintenance task into 2-4 small tasks: "${description}"
 
-      await prisma.agentBuild.update({
-        where: { id: buildId },
-        data: { status: "complete" },
-      });
+Return ONLY a JSON array:
+[{ "index": 0, "type": "api", "description": "...", "leafCost": 2, "agentType": "api" }]
 
-      return NextResponse.json({
-        ok: true,
-        buildId,
-        context,
-        tasksCompleted,
-        totalTasks: allTasks.length,
-        commit: commitData,
-      });
-    } catch (commitErr) {
-      console.error("[architect] Commit failed:", commitErr);
-    }
+Task types: api, config, test, assemble
+Keep tasks small and focused. leafCost: 2-5.
+Last task is always "assemble".
+Return ONLY the JSON array.`,
+      },
+    ],
+  });
+
+  const raw = message.content[0].type === "text" ? message.content[0].text : "";
+  const jsonMatch = raw.match(/\[[\s\S]*\]/);
+
+  if (!jsonMatch) {
+    await prisma.agentBuild.update({ where: { id: build.id }, data: { status: "failed" } });
+    return NextResponse.json({ ok: false, error: "Architect returned unexpected format" }, { status: 500 });
   }
+
+  let taskList: Array<{ index: number; type: string; description: string; leafCost: number }>;
+  try {
+    taskList = JSON.parse(jsonMatch[0]);
+  } catch {
+    await prisma.agentBuild.update({ where: { id: build.id }, data: { status: "failed" } });
+    return NextResponse.json({ ok: false, error: "Failed to parse Architect response" }, { status: 500 });
+  }
+
+  const totalLeafs = taskList.reduce((sum, t) => sum + (t.leafCost ?? 2), 0);
+
+  const tasks = await Promise.all(
+    taskList.map((t) =>
+      prisma.agentTask.create({
+        data: {
+          buildId: build.id,
+          index: t.index,
+          type: t.type,
+          description: t.description,
+          leafCost: t.leafCost ?? 2,
+          status: "pending",
+        },
+      }),
+    ),
+  );
 
   await prisma.agentBuild.update({
-    where: { id: buildId },
-    data: { status: allComplete ? "complete" : "running" },
+    where: { id: build.id },
+    data: { totalLeafs },
   });
+
+  // Trigger build orchestrator for the maintenance build
+  try {
+    const origin = req.nextUrl.origin;
+    fetch(`${origin}/api/agents/build-orchestrator`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: req.headers.get("cookie") ?? "",
+      },
+      body: JSON.stringify({ buildId: build.id }),
+    }).catch((err) => console.error("[architect] Build orchestrator trigger failed:", err));
+  } catch {
+    // Non-blocking
+  }
 
   return NextResponse.json({
     ok: true,
-    buildId,
-    context,
-    tasksCompleted,
-    totalTasks: allTasks.length,
+    buildId: build.id,
+    totalLeafs,
+    tasks: tasks.map((t) => ({
+      id: t.id,
+      index: t.index,
+      type: t.type,
+      description: t.description,
+      leafCost: t.leafCost,
+      status: t.status,
+    })),
   });
 }
