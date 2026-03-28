@@ -21,7 +21,64 @@ const PROTECTED_FILES = [
   "package-lock.json",
   "tsconfig.json",
   "next.config.ts",
+  ".env.local",
+  ".env",
+  "railway.json",
 ];
+
+// Allowed outbound domains — any fetch/http call to other domains is rejected
+const ALLOWED_DOMAINS = [
+  "edencloud.app",
+  "api.anthropic.com",
+  "api.stripe.com",
+  "github.com/SJPanis/eden",
+  "googleapis.com",
+];
+
+// Patterns that agents must never generate
+const FORBIDDEN_PATTERNS = [
+  { pattern: /process\.env/g, reason: "process.env access (agents cannot read secrets)" },
+  { pattern: /\beval\s*\(/g, reason: "eval() call" },
+  { pattern: /\bFunction\s*\(/g, reason: "Function() constructor" },
+  { pattern: /require\s*\(\s*['"]child_process['"]\s*\)/g, reason: "child_process access" },
+  { pattern: /\bexec\s*\(/g, reason: "exec() call" },
+  { pattern: /\bexecSync\s*\(/g, reason: "execSync() call" },
+  { pattern: /\bspawn\s*\(/g, reason: "spawn() call" },
+  { pattern: /require\s*\(\s*['"]fs['"]\s*\)/g, reason: "filesystem access via require('fs')" },
+  { pattern: /from\s+['"]fs['"]/g, reason: "filesystem access via import from 'fs'" },
+  { pattern: /from\s+['"]node:fs['"]/g, reason: "filesystem access via import from 'node:fs'" },
+  { pattern: /\breadFileSync\b/g, reason: "readFileSync access" },
+  { pattern: /\bwriteFileSync\b/g, reason: "writeFileSync access" },
+  { pattern: /\breadFile\b/g, reason: "readFile access" },
+  { pattern: /\bwriteFile\b/g, reason: "writeFile access" },
+];
+
+function enforceCodeSandbox(code: string): { safe: boolean; reason?: string } {
+  // Check forbidden patterns
+  for (const { pattern, reason } of FORBIDDEN_PATTERNS) {
+    pattern.lastIndex = 0;
+    if (pattern.test(code)) {
+      return { safe: false, reason: `Forbidden: ${reason}` };
+    }
+  }
+
+  // Check outbound URLs — find all fetch/axios/http calls with URLs
+  const urlMatches = code.matchAll(
+    /(?:fetch|axios\.(?:get|post|put|delete|patch)|http\.(?:get|request)|https\.(?:get|request))\s*\(\s*['"`]([^'"`]+)['"`]/g,
+  );
+  for (const match of urlMatches) {
+    const url = match[1];
+    // Relative URLs are fine (internal API calls)
+    if (url.startsWith("/") || url.startsWith("${")) continue;
+    // Check against allowlist
+    const isAllowed = ALLOWED_DOMAINS.some((domain) => url.includes(domain));
+    if (!isAllowed) {
+      return { safe: false, reason: `Unauthorized outbound URL: ${url}` };
+    }
+  }
+
+  return { safe: true };
+}
 
 function sanitizeCode(raw: string): string {
   // Strip markdown code fences (typed)
@@ -149,6 +206,13 @@ No explanation. Just the path.`,
       // Sanitize: strip markdown fences, skip non-code output
       const code = sanitizeCode(task.result);
       if (!code || code.length < 20) continue;
+
+      // Sandbox enforcement — reject forbidden patterns and unauthorized URLs
+      const sandboxResult = enforceCodeSandbox(code);
+      if (!sandboxResult.safe) {
+        console.log(`[eden-commit] Sandbox violation in ${filePath}: ${sandboxResult.reason}`);
+        continue;
+      }
 
       // Security check before committing
       const secCheck = await client.messages.create({
