@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Outfit, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-// Start Adam/Eve feedback loop scheduler (server-side only, once per deployment)
+// Start Artist/Architect feedback loop scheduler (server-side only, once per deployment)
+// Gated by EDEN_SCHEDULERS_ENABLED=true to allow pausing without redeploy
 if (typeof globalThis !== "undefined" && !(globalThis as Record<string, unknown>).__edenSchedulerInit) {
-  (globalThis as Record<string, unknown>).__edenSchedulerInit = true;
-  const baseUrl = process.env.NEXTAUTH_URL || "https://edencloud.app";
-  import("@/lib/adam-eve-loop").then((m) => {
-    m.startAdamScheduler(baseUrl);
-    m.startEveScheduler(baseUrl);
-  }).catch(() => {});
+  if (process.env.EDEN_SCHEDULERS_ENABLED === "true") {
+    (globalThis as Record<string, unknown>).__edenSchedulerInit = true;
+    const baseUrl = process.env.NEXTAUTH_URL || "https://edencloud.app";
+    import("@/lib/adam-eve-loop").then((m) => {
+      m.startAdamScheduler(baseUrl);
+      m.startEveScheduler(baseUrl);
+    }).catch(() => {});
+  }
 }
 
 const outfit = Outfit({
