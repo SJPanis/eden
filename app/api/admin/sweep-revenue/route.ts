@@ -62,16 +62,32 @@ export async function POST() {
     stripeTransferId = transfer.id;
   }
 
-  await prisma.platformRevenue.updateMany({
-    where: { swept: false },
-    data: { swept: true, stripeTransferId },
+  // Founder gets 30% of platform revenue as Leafs
+  const founderCut = Math.floor(totalLeafs * 0.30);
+
+  await prisma.$transaction(async (tx) => {
+    // Mark all as swept
+    await tx.platformRevenue.updateMany({
+      where: { swept: false },
+      data: { swept: true, stripeTransferId },
+    });
+
+    // Credit founder's 30% to owner's Leaf balance
+    if (founderCut > 0) {
+      await tx.user.update({
+        where: { id: session.user.id },
+        data: { edenBalanceCredits: { increment: founderCut } },
+      });
+    }
   });
 
   return NextResponse.json({
     ok: true,
     totalLeafs,
+    founderCut,
     totalUSD: Math.round(totalUSD * 100) / 100,
     stripeTransferId,
     recordsSwept: unswept.length,
+    sweptAt: new Date().toISOString(),
   });
 }
