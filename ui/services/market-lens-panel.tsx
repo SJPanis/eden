@@ -96,11 +96,70 @@ const mockTickers: Record<string, TickerData> = {
 const months = ["Jan", "Feb", "Mar"];
 const futureMonths = ["Apr", "May", "Jun"];
 
+type RealAnalysis = {
+  ticker: string;
+  companyName: string;
+  currentPrice: number;
+  change: number;
+  changePercent: number;
+  marketCap: string;
+  peRatio: number;
+  week52High: number;
+  week52Low: number;
+  analystTarget: number;
+  analystConsensus: string;
+  sentiment: string;
+  outlook: string;
+  risks: string[];
+  catalysts: string[];
+  dataAsOf: string;
+};
+
 export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanelProps) {
   const [query, setQuery] = useState("");
   const [activeTicker, setActiveTicker] = useState<TickerData | null>(null);
   const [loading, setLoading] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [realAnalysis, setRealAnalysis] = useState<RealAnalysis | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [balance, setBalance] = useState(balanceCredits);
+
+  async function handleRealAnalysis() {
+    const symbol = query.trim().toUpperCase() || activeTicker?.symbol;
+    if (!symbol) return;
+    setAnalysisLoading(true);
+    setAnalysisError(null);
+
+    try {
+      // 1. Call real analysis API with web search
+      const res = await fetch("/api/services/market-lens/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker: symbol, analysisType: "full" }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "Analysis failed");
+
+      // 2. Deduct Leafs
+      const spendRes = await fetch("/api/wallet/spend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: 8, description: `Market Lens \u2014 ${symbol}`, serviceId: "market-lens" }),
+      });
+      const spendData = await spendRes.json();
+      if (spendData.ok) {
+        setBalance(spendData.newBalance);
+        window.dispatchEvent(new CustomEvent("eden:balance-updated", { detail: { newBalance: spendData.newBalance } }));
+      }
+
+      setRealAnalysis(data.analysis);
+    } catch (err) {
+      setAnalysisError(err instanceof Error ? err.message : "Analysis failed");
+    } finally {
+      setAnalysisLoading(false);
+    }
+  }
 
   function handleSearch() {
     const symbol = query.trim().toUpperCase();
@@ -473,14 +532,114 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
                 </div>
               </div>
 
-              {/* Run button */}
+              {/* Deep Analysis button — real web data */}
               <button
                 type="button"
-                className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all"
+                onClick={handleRealAnalysis}
+                disabled={analysisLoading}
+                className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                 style={{ background: ML_GREEN, color: "#060f0b" }}
               >
-                Run Analysis — 75 &#127809;
+                {analysisLoading ? "Analyzing with live data..." : `Deep Analysis — 8 🍃`}
               </button>
+              {analysisError && (
+                <p className="mt-2 text-center text-xs text-red-400/70">{analysisError}</p>
+              )}
+
+              {/* Real analysis results */}
+              {realAnalysis && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 space-y-3"
+                >
+                  <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-lg font-bold text-white">{realAnalysis.companyName}</p>
+                        <p className="text-xs text-white/40">{realAnalysis.ticker}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-bold text-white">${realAnalysis.currentPrice?.toFixed(2)}</p>
+                        <p className={`text-sm font-semibold ${(realAnalysis.change ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                          {(realAnalysis.change ?? 0) >= 0 ? "+" : ""}{realAnalysis.change?.toFixed(2)} ({realAnalysis.changePercent?.toFixed(2)}%)
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
+                        <p className="text-[10px] text-white/30">Market Cap</p>
+                        <p className="text-xs font-semibold text-white/70">{realAnalysis.marketCap}</p>
+                      </div>
+                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
+                        <p className="text-[10px] text-white/30">P/E Ratio</p>
+                        <p className="text-xs font-semibold text-white/70">{realAnalysis.peRatio}</p>
+                      </div>
+                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
+                        <p className="text-[10px] text-white/30">52W Range</p>
+                        <p className="text-xs font-semibold text-white/70">${realAnalysis.week52Low} — ${realAnalysis.week52High}</p>
+                      </div>
+                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
+                        <p className="text-[10px] text-white/30">Analyst Target</p>
+                        <p className="text-xs font-semibold text-white/70">${realAnalysis.analystTarget}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex gap-2">
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                        style={{
+                          background: realAnalysis.analystConsensus === "Buy" ? "rgba(16,185,129,0.15)" : realAnalysis.analystConsensus === "Sell" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)",
+                          color: realAnalysis.analystConsensus === "Buy" ? ML_GREEN : realAnalysis.analystConsensus === "Sell" ? ML_RED : ML_AMBER,
+                          border: `1px solid ${realAnalysis.analystConsensus === "Buy" ? "rgba(16,185,129,0.3)" : realAnalysis.analystConsensus === "Sell" ? "rgba(239,68,68,0.3)" : "rgba(245,158,11,0.3)"}`,
+                        }}
+                      >
+                        {realAnalysis.analystConsensus}
+                      </span>
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                        style={{
+                          background: realAnalysis.sentiment === "Bullish" ? "rgba(16,185,129,0.15)" : realAnalysis.sentiment === "Bearish" ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.05)",
+                          color: realAnalysis.sentiment === "Bullish" ? ML_GREEN : realAnalysis.sentiment === "Bearish" ? ML_RED : "rgba(255,255,255,0.5)",
+                          border: `1px solid ${realAnalysis.sentiment === "Bullish" ? "rgba(16,185,129,0.3)" : realAnalysis.sentiment === "Bearish" ? "rgba(239,68,68,0.3)" : "rgba(255,255,255,0.1)"}`,
+                        }}
+                      >
+                        {realAnalysis.sentiment}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                    <p className="text-[10px] uppercase tracking-wider" style={{ color: ML_GREEN }}>Outlook</p>
+                    <p className="mt-2 text-sm leading-relaxed text-white/60">{realAnalysis.outlook}</p>
+                  </div>
+
+                  {realAnalysis.catalysts?.length > 0 && (
+                    <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                      <p className="text-[10px] uppercase tracking-wider text-emerald-400/70">Catalysts</p>
+                      <ul className="mt-2 space-y-1">
+                        {realAnalysis.catalysts.map((c, i) => (
+                          <li key={i} className="text-xs text-white/50">+ {c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {realAnalysis.risks?.length > 0 && (
+                    <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                      <p className="text-[10px] uppercase tracking-wider text-red-400/70">Risks</p>
+                      <ul className="mt-2 space-y-1">
+                        {realAnalysis.risks.map((r, i) => (
+                          <li key={i} className="text-xs text-white/50">- {r}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className="text-center text-[10px] text-white/15">
+                    Powered by Claude + Live Web Data
+                  </p>
+                </motion.div>
+              )}
             </motion.div>
           ) : !loading ? (
             <motion.div
