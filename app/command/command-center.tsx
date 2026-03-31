@@ -45,9 +45,9 @@ export function CommandCenter({ username }: { username: string }) {
   const [eveScanResult, setEveScanResult] = useState<string | null>(null);
   const [adamInput, setAdamInput] = useState("");
 
-  // Check TOTP status on mount
+  // Check TOTP status on mount (non-destructive — does NOT generate a new secret)
   useEffect(() => {
-    fetch("/api/auth/totp/setup")
+    fetch("/api/auth/totp/status")
       .then((r) => {
         if (r.status === 403) {
           setState("locked");
@@ -55,10 +55,15 @@ export function CommandCenter({ username }: { username: string }) {
         }
         return r.json();
       })
-      .then(() => {
-        // Check if user has TOTP enabled by trying a dummy — we need a status endpoint
-        // For now, start in locked state (user must enter code)
-        setState("locked");
+      .then((data) => {
+        if (!data) return;
+        if (data.totpEnabled) {
+          setState("locked"); // TOTP is set up, user needs to enter code
+        } else {
+          setState("setup"); // TOTP not yet configured, start setup flow
+          // Trigger setup to get QR code
+          handleStartSetup();
+        }
       })
       .catch(() => setState("locked"));
   }, []);
@@ -121,7 +126,12 @@ export function CommandCenter({ username }: { username: string }) {
 
     // Auto-submit when all 6 digits entered
     if (value && index === 5 && newDigits.every((d) => d)) {
-      handleVerify(newDigits.join(""));
+      const code = newDigits.join("");
+      if (state === "setup") {
+        handleConfirmSetup(code);
+      } else {
+        handleVerify(code);
+      }
     }
   }
 
@@ -138,13 +148,18 @@ export function CommandCenter({ username }: { username: string }) {
       const newDigits = pasted.split("");
       setDigits(newDigits);
       inputRefs.current[5]?.focus();
-      handleVerify(pasted);
+      if (state === "setup") {
+        handleConfirmSetup(pasted);
+      } else {
+        handleVerify(pasted);
+      }
     }
   }
 
   async function handleVerify(code: string) {
     setVerifying(true);
     setVerifyError(null);
+    console.log("[command] Verifying TOTP code...");
     try {
       const res = await fetch("/api/auth/totp/verify", {
         method: "POST",
@@ -169,9 +184,13 @@ export function CommandCenter({ username }: { username: string }) {
 
   // Setup flow
   async function handleStartSetup() {
+    setDigits(["", "", "", "", "", ""]);
+    setSetupError(null);
+    console.log("[command] Starting TOTP setup...");
     try {
       const res = await fetch("/api/auth/totp/setup");
       const data = await res.json();
+      console.log("[command] Setup GET response:", data.ok ? "ok" : data.error);
       if (data.ok) {
         setQrCode(data.qrCode);
         setSetupSecret(data.secret);
@@ -179,16 +198,18 @@ export function CommandCenter({ username }: { username: string }) {
       } else {
         setSetupError(data.error);
       }
-    } catch {
+    } catch (err) {
+      console.error("[command] Setup failed:", err);
       setSetupError("Setup failed");
     }
   }
 
-  async function handleConfirmSetup() {
-    const code = digits.join("");
+  async function handleConfirmSetup(autoCode?: string) {
+    const code = autoCode ?? digits.join("");
     if (code.length !== 6) return;
     setVerifying(true);
     setSetupError(null);
+    console.log("[command] Verifying setup code...");
     try {
       const res = await fetch("/api/auth/totp/setup", {
         method: "POST",
@@ -196,7 +217,9 @@ export function CommandCenter({ username }: { username: string }) {
         body: JSON.stringify({ code }),
       });
       const data = await res.json();
+      console.log("[command] Setup verify response:", data);
       if (data.ok) {
+        console.log("[command] TOTP enabled successfully");
         setState("locked");
         setDigits(["", "", "", "", "", ""]);
       } else {
@@ -332,7 +355,7 @@ export function CommandCenter({ username }: { username: string }) {
           {setupError && <p className="text-center text-xs text-red-400/80">{setupError}</p>}
           <button
             type="button"
-            onClick={handleConfirmSetup}
+            onClick={() => handleConfirmSetup()}
             disabled={verifying || digits.some((d) => !d)}
             className="w-full rounded-xl py-3 text-sm font-semibold transition-all disabled:opacity-30"
             style={{ background: "#2dd4bf", color: "#06080f" }}
