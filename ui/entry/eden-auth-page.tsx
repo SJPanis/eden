@@ -25,7 +25,7 @@ export function EdenAuthPage({
 }: EdenAuthPageProps) {
   const [isPending, startTransition] = useTransition();
   const startMode: AuthMode =
-    initialMode === "signup" ? "invite" : initialMode;
+    initialMode === "signup" ? "signup" : initialMode;
   const [mode, setMode] = useState<AuthMode>(startMode);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -133,8 +133,7 @@ export function EdenAuthPage({
         username,
         displayName,
         password,
-        accessCode: accessCode || undefined,
-        referralCode: pendingReferralCode || undefined,
+        referralCode: pendingReferralCode || accessCode || undefined,
       }),
     });
     const body = (await response.json().catch(() => null)) as {
@@ -289,7 +288,7 @@ export function EdenAuthPage({
                     type="button"
                     onClick={() =>
                       handleModeSwitch(
-                        m === "signup" ? "invite" : "signin",
+                        m === "signup" ? "signup" : "signin",
                       )
                     }
                     className="flex-1 rounded-xl py-2 text-sm font-medium transition-colors"
@@ -691,6 +690,33 @@ export function EdenAuthPage({
                         }}
                       />
                     </div>
+
+                    {mode === "signup" && !pendingReferralCode && (
+                      <div className="space-y-1">
+                        <label className="text-xs uppercase tracking-[0.12em] text-white/40">
+                          Referral code <span className="normal-case text-white/20">(optional)</span>
+                        </label>
+                        <input
+                          value={accessCode}
+                          onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                          autoComplete="off"
+                          placeholder="EDEN-XXXX"
+                          className="mt-1 w-full rounded-xl px-4 py-3 font-mono text-sm text-white placeholder-white/20 outline-none transition"
+                          style={{
+                            background: "rgba(255,255,255,0.03)",
+                            border: "1px solid rgba(255,255,255,0.06)",
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.border = "1px solid rgba(45,212,191,0.4)";
+                            e.currentTarget.style.boxShadow = "0 0 0 3px rgba(45,212,191,0.08)";
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.border = "1px solid rgba(255,255,255,0.06)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
+                        />
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -798,9 +824,7 @@ export function EdenAuthPage({
           </div>
 
           <p className="mt-5 text-center text-xs text-white/30">
-            {earlyAccessEnabled
-              ? "Eden is in early access. Invite codes are required to create an account."
-              : "Innovator and owner access are granted server-side after sign-in."}
+            Eden is open — create your account and start building.
           </p>
         </motion.div>
       </div>
