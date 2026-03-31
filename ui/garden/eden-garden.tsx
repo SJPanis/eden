@@ -1382,7 +1382,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
                 </p>
                 <span className="text-white/20">
                   {t.time}
-                  {t.leafCost ? ` \u00b7 ${t.leafCost} \ud83c\udf43` : ""}
+                  {t.leafCost ? ` \u00b7 ${t.leafCost} 🍃` : ""}
                 </span>
               </div>
             </div>
@@ -1566,22 +1566,22 @@ export function EdenGarden({ username }: EdenGardenProps) {
           <p className="text-[10px] uppercase tracking-wider text-white/30">Leaf Flow</p>
           <div className="mt-2 space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-emerald-400/60">Earned</span>
+              <span className="text-emerald-400/60">Service Earnings</span>
               <span className="font-mono text-emerald-400">
-                +{(econStats?.leafFlow.earned ?? 0).toLocaleString()} \ud83c\udf43
+                +{(econStats?.leafFlow.earned ?? 0).toLocaleString()} {"🍃"}
               </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-red-400/60">Spent</span>
               <span className="font-mono text-red-400">
-                -{(econStats?.leafFlow.spent ?? 0).toLocaleString()} \ud83c\udf43
+                -{(econStats?.leafFlow.spent ?? 0).toLocaleString()} {"🍃"}
               </span>
             </div>
             <div className="border-t pt-1" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
               <div className="flex justify-between text-xs">
                 <span className="text-white/40">Net</span>
                 <span className="font-mono text-[#2dd4bf]">
-                  {(econStats?.leafFlow.net ?? 0) >= 0 ? "+" : ""}{(econStats?.leafFlow.net ?? 0).toLocaleString()} &#127809;
+                  {(econStats?.leafFlow.net ?? 0) >= 0 ? "+" : ""}{(econStats?.leafFlow.net ?? 0).toLocaleString()} {"🍃"}
                 </span>
               </div>
             </div>
