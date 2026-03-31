@@ -33,13 +33,14 @@ const DEFAULT_TAB_COSTS: Record<Tab, number> = {
 
 type PartResult = {
   name: string;
+  brand?: string;
   partNumber?: string;
-  compatibility: string;
-  priceRange: string;
+  price?: string;
   condition?: string;
-  supplier?: string;
-  searchUrl?: string;
-  description?: string;
+  source?: string;
+  notes?: string;
+  compatibility?: string;
+  priceRange?: string;
 };
 
 type DiagResult = {
@@ -82,6 +83,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
   // Visualize state
   const [vizDescription, setVizDescription] = useState("");
   const [vizResult, setVizResult] = useState<string | null>(null);
+  const [vizPrompt, setVizPrompt] = useState<string | null>(null);
   const [vizLoading, setVizLoading] = useState(false);
   const [savedVizTime, setSavedVizTime] = useState<string | null>(null);
 
@@ -159,25 +161,26 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     setSpendError(null);
 
     try {
-      // 1. Call Claude FIRST — no Leafs spent yet
-      const raw = await callClaude(
-        `You are an automotive parts expert. A user has a ${year} ${make} ${model} and needs: ${partNeeded}. Return ONLY a JSON array of exactly 3 parts: [{"name":"...","compatibility":"...","priceRange":"$X\u2013$Y","condition":"OEM|Aftermarket|Remanufactured"}]. No other text.`,
-      );
+      // 1. Call real parts search API with web search
+      const res = await fetch("/api/services/imagine-auto/parts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, make, model, part: partNeeded }),
+      });
+      const data = await res.json();
 
-      // 2. Validate Claude returned useful data
-      const jsonMatch = raw.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) throw new Error("Unexpected format");
-      const parsed = JSON.parse(jsonMatch[0]) as PartResult[];
-      if (!parsed || parsed.length === 0) throw new Error("No parts found");
+      if (!data.ok || !data.parts?.length) {
+        throw new Error(data.error || "No parts found");
+      }
 
-      // 3. Only NOW deduct Leafs — task succeeded
+      // 2. Deduct Leafs — search succeeded
       const spent = await spendLeafs(tabCosts.parts, "Imagine Auto \u2014 Find Parts");
       if (!spent) return;
 
-      // 4. Show results
-      setPartsResults(parsed);
-    } catch {
-      setSpendError("Search failed. No Leaf's were charged. Try again.");
+      // 3. Show results
+      setPartsResults(data.parts as PartResult[]);
+    } catch (err) {
+      setSpendError(err instanceof Error ? err.message : "Search failed. No Leaf's were charged.");
     } finally {
       setPartsLoading(false);
     }
@@ -189,23 +192,29 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     setSpendError(null);
 
     try {
-      // 1. Call Claude FIRST
-      const result = await callClaude(
-        `You are a custom automotive parts designer. User wants: ${vizDescription}. Describe the visual render in 2 sentences. Be specific about materials, finish, and fitment. Return ONLY the description.`,
-      );
-      if (!result || result.length < 10) throw new Error("Empty response");
+      // 1. Call real visualization API — generates AI image
+      const res = await fetch("/api/services/imagine-auto/visualize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year, make, model, description: vizDescription }),
+      });
+      const data = await res.json();
+
+      if (!data.ok) throw new Error(data.error || "Visualization failed");
 
       // 2. Deduct Leafs on success
       const spent = await spendLeafs(tabCosts.visualize, "Imagine Auto \u2014 Visualize");
       if (!spent) return;
 
-      // 3. Show result and persist
-      setVizResult(result);
+      // 3. Show result — imageUrl from Pollinations.ai + prompt
+      setVizResult(data.imageUrl);
+      setVizPrompt(data.prompt);
       const now = new Date().toISOString();
       setSavedVizTime(now);
       try {
         localStorage.setItem(`imagine-auto-viz-${username}`, JSON.stringify({
-          result,
+          result: data.imageUrl,
+          prompt: data.prompt,
           description: vizDescription,
           generatedAt: now,
           username,
@@ -477,12 +486,24 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <p className="text-sm font-bold" style={{ color: IA_GOLD }}>{part.name}</p>
+                              {part.brand ? (
+                                <p className="mt-0.5 text-[11px] text-white/50">{part.brand}</p>
+                              ) : null}
                               {part.partNumber ? (
                                 <p className="mt-0.5 font-mono text-[11px] text-white/40">{part.partNumber}</p>
                               ) : null}
-                              <p className="mt-1 text-xs text-white/60">{part.compatibility}</p>
+                              {part.notes ? (
+                                <p className="mt-1 text-xs text-white/60">{part.notes}</p>
+                              ) : part.compatibility ? (
+                                <p className="mt-1 text-xs text-white/60">{part.compatibility}</p>
+                              ) : null}
                             </div>
-                            <p className="shrink-0 text-base font-semibold" style={{ color: IA_GOLD }}>{part.priceRange}</p>
+                            <div className="shrink-0 text-right">
+                              <p className="text-base font-semibold" style={{ color: IA_GOLD }}>{part.price ?? part.priceRange}</p>
+                              {part.source ? (
+                                <p className="text-[10px] text-white/30">{part.source}</p>
+                              ) : null}
+                            </div>
                           </div>
                           <div className="mt-2 flex flex-wrap items-center gap-2">
                             {part.condition ? (
@@ -493,40 +514,20 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                                 {part.condition}
                               </span>
                             ) : null}
-                            {part.supplier ? (
+                            {part.source ? (
                               <span
                                 className="rounded-full px-2 py-0.5 text-[10px] font-medium"
                                 style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }}
                               >
-                                {part.supplier}
+                                {part.source}
                               </span>
                             ) : null}
                           </div>
-                          {part.description ? (
-                            <p className="mt-2 text-xs italic text-white/50">{part.description}</p>
+                          {part.notes ? (
+                            <p className="mt-2 text-xs italic text-white/50">{part.notes}</p>
                           ) : null}
-                          {part.searchUrl ? (
-                            <a
-                              href={part.searchUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 4,
-                                padding: '6px 12px',
-                                border: '1px solid rgba(245,158,11,0.5)',
-                                borderRadius: 8,
-                                color: '#f59e0b',
-                                fontSize: 12,
-                                fontFamily: 'monospace',
-                                textDecoration: 'none',
-                                marginTop: 8,
-                                cursor: 'pointer',
-                              }}
-                            >
-                              View on {part.supplier || 'Parts Store'} &rarr;
-                            </a>
+                          {part.source ? (
+                            <p className="mt-2 text-[10px] text-white/25">Source: {part.source}</p>
                           ) : null}
                         </motion.div>
                       );
@@ -592,53 +593,31 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                       className="overflow-hidden rounded-[20px]"
                       style={{ border: `1px solid ${IA_CARD_BORDER}` }}
                     >
-                      {/* CSS art render — unique gradient based on description hash */}
-                      <div
-                        className="relative flex h-64 items-center justify-center overflow-hidden"
-                        style={{
-                          background: `linear-gradient(${hashString(vizDescription) % 180}deg, rgba(245,158,11,0.3) 0%, rgba(20,15,5,0.97) 45%, hsla(${(hashString(vizDescription) % 60) + 20}, 70%, 15%, 0.6) 100%)`,
-                        }}
-                      >
-                        {/* IA watermark */}
+                      {/* Real AI-generated image */}
+                      <div className="relative">
+                        <img
+                          src={vizResult ?? ""}
+                          alt="AI Generated Preview"
+                          className="w-full h-64 object-cover"
+                          style={{ background: "rgba(20,15,5,0.97)" }}
+                        />
                         <span
-                          className="absolute text-[140px] font-bold select-none"
-                          style={{ color: "rgba(245,158,11,0.06)", fontFamily: "serif" }}
+                          className="absolute right-3 top-3 rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em]"
+                          style={{ color: IA_GOLD, background: "rgba(0,0,0,0.6)", border: `1px solid ${IA_CARD_BORDER}` }}
                         >
-                          IA
+                          AI Generated Preview
                         </span>
-                        {/* Corner badge */}
-                        <span
-                          className="absolute right-4 top-4 font-mono text-[10px] uppercase tracking-[0.2em]"
-                          style={{ color: "rgba(245,158,11,0.5)" }}
-                        >
-                          AI Render
-                        </span>
-                        {/* Center shape */}
-                        <div className="relative z-10">
-                          <div
-                            className="h-28 w-44 rounded-2xl"
-                            style={{
-                              background: `linear-gradient(${(hashString(vizDescription) % 90) + 130}deg, rgba(245,158,11,0.45) 0%, rgba(30,20,5,0.92) 60%)`,
-                              boxShadow: "0 8px 32px rgba(245,158,11,0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
-                              border: "1px solid rgba(245,158,11,0.3)",
-                            }}
-                          />
-                          <div
-                            className="absolute -bottom-3 left-3 h-8 w-38 rounded-full opacity-40"
-                            style={{ background: "radial-gradient(ellipse, rgba(245,158,11,0.3), transparent)", width: "152px" }}
-                          />
-                        </div>
                       </div>
                       <div className="p-4" style={{ background: IA_CARD_BG }}>
                         <div className="flex items-center justify-between">
-                          <p className="text-xs uppercase tracking-[0.12em]" style={{ color: IA_GOLD }}>AI-Generated Render</p>
+                          <p className="text-xs uppercase tracking-[0.12em]" style={{ color: IA_GOLD }}>AI Visualization</p>
                           {savedVizTime ? (
                             <p className="font-mono text-[10px] text-white/25">Generated {timeAgo(savedVizTime)}</p>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm italic leading-relaxed text-white/60">
-                          {vizResult}
-                        </p>
+                        {vizPrompt ? (
+                          <p className="mt-2 text-[11px] italic leading-relaxed text-white/40">{vizPrompt}</p>
+                        ) : null}
                         <p className="mt-2 text-[10px] text-white/25">
                           Disclaimer: This is an AI visualization for reference only. Actual parts may differ.
                         </p>
