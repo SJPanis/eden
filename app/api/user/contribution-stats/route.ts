@@ -39,14 +39,25 @@ export async function GET() {
     select: { edenBalanceCredits: true },
   });
 
+  // Spent = sum of PlatformRevenue sourced from this user's service usage
   const userSpentAgg = await prisma.platformRevenue.aggregate({
     where: { userId },
     _sum: { amountLeafs: true },
   });
-
   const spent = userSpentAgg._sum.amountLeafs ?? 0;
-  const currentBalance = user?.edenBalanceCredits ?? 0;
-  const earned = currentBalance + spent;
+
+  // Earned = total earnings from services this user created
+  let earned = 0;
+  try {
+    const serviceEarnings = await prisma.edenService.aggregate({
+      where: { creatorId: userId },
+      _sum: { totalEarned: true },
+    });
+    earned = serviceEarnings._sum.totalEarned ?? 0;
+  } catch {
+    // EdenService table may not exist yet
+    earned = 0;
+  }
 
   return NextResponse.json({
     ok: true,
