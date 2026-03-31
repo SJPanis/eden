@@ -1449,7 +1449,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
           style={{ background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.12)" }}
         >
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-wider text-amber-400/70">Adam \u2014 Innovation</p>
+            <p className="text-[10px] uppercase tracking-wider text-amber-400/70">Adam — Innovation</p>
             <span className="text-[10px] font-mono text-amber-400/80">
               {econStats ? `${econStats.adam.percentage.toFixed(2)}%` : "\u2014"}
             </span>
@@ -1466,17 +1466,17 @@ export function EdenGarden({ username }: EdenGardenProps) {
           {adamExpanded && (
             <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(245,158,11,0.1)" }}>
               <p className="text-[11px] leading-relaxed text-amber-400/40">
-                Adam is Eden&apos;s Innovation Pool. Every Leaf spent on services flows into Adam.
-                Your % grows as your services earn revenue relative to total Eden revenue.
+                Adam is Eden&apos;s Innovation Pool. Revenue from services flows into Adam.
+                Your % grows as your services earn relative to total Eden revenue.
               </p>
               <div className="space-y-1 text-[10px] font-mono">
                 <div className="flex justify-between text-amber-400/50">
                   <span>Your services earned</span>
-                  <span className="text-amber-400/70">{econStats?.adam.userLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
+                  <span className="text-amber-400/70">{econStats?.adam.userLeafs.toLocaleString() ?? 0} {"🍃"}</span>
                 </div>
                 <div className="flex justify-between text-amber-400/50">
                   <span>Total Eden revenue</span>
-                  <span className="text-amber-400/70">{econStats?.adam.totalLeafs.toLocaleString() ?? 0} Leaf&apos;s</span>
+                  <span className="text-amber-400/70">{econStats?.adam.totalLeafs.toLocaleString() ?? 0} {"🍃"}</span>
                 </div>
                 <div className="flex justify-between text-amber-400/50">
                   <span>Your Adam stake</span>
@@ -1499,7 +1499,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
           style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)" }}
         >
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-wider text-blue-400/70">Eve \u2014 Commitment</p>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400/70">Architect — Commitment</p>
             <span className="text-[10px] font-mono text-blue-400/80">
               {econStats ? `${econStats.eve.percentage.toFixed(2)}%` : "\u2014"}
             </span>
@@ -1516,8 +1516,8 @@ export function EdenGarden({ username }: EdenGardenProps) {
           {eveExpanded && (
             <div className="mt-3 space-y-2 border-t pt-3" style={{ borderColor: "rgba(59,130,246,0.1)" }}>
               <p className="text-[11px] leading-relaxed text-blue-400/40">
-                Eve is Eden&apos;s Commitment Pool. Your % grows with consistent qualified usage over time.
-                Early contributors earn more \u2014 the denominator grows slowly, protecting early stakes.
+                Architect is Eden&apos;s Commitment Pool. Your % grows with consistent qualified usage over time.
+                Early contributors earn more — the denominator grows slowly, protecting early stakes.
               </p>
               <div className="space-y-1 text-[10px] font-mono">
                 <div className="flex justify-between text-blue-400/50">
@@ -1529,7 +1529,7 @@ export function EdenGarden({ username }: EdenGardenProps) {
                   <span className="text-blue-400/70">{econStats?.eve.totalActions.toLocaleString() ?? 0}</span>
                 </div>
                 <div className="flex justify-between text-blue-400/50">
-                  <span>Your Eve stake</span>
+                  <span>Your Architect stake</span>
                   <span className="text-blue-400/70">{econStats?.eve.percentage.toFixed(2) ?? "0.00"}%</span>
                 </div>
               </div>
