@@ -18,11 +18,18 @@ const IA_GOLD_DIM = "rgba(245,158,11,0.15)";
 const IA_CARD_BG = "rgba(20,15,5,0.85)";
 const IA_CARD_BORDER = "rgba(245,158,11,0.15)";
 
-const tabConfig: { key: Tab; label: string; cost: number }[] = [
-  { key: "parts", label: "Find Parts", cost: 10 },
-  { key: "visualize", label: "Visualize", cost: 100 },
-  { key: "diagnose", label: "Diagnose", cost: 75 },
+const TAB_LABELS: { key: Tab; label: string }[] = [
+  { key: "parts", label: "Find Parts" },
+  { key: "visualize", label: "Visualize" },
+  { key: "diagnose", label: "Diagnose" },
 ];
+
+// Default costs (overridden by DB values on mount)
+const DEFAULT_TAB_COSTS: Record<Tab, number> = {
+  parts: 10,
+  visualize: 100,
+  diagnose: 75,
+};
 
 type PartResult = {
   name: string;
@@ -62,6 +69,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
   const [balance, setBalance] = useState(balanceCredits);
   const [spendError, setSpendError] = useState<string | null>(null);
   const [showTopUp, setShowTopUp] = useState(false);
+  const [tabCosts, setTabCosts] = useState<Record<Tab, number>>(DEFAULT_TAB_COSTS);
 
   // Find Parts state
   const [year, setYear] = useState("");
@@ -83,11 +91,21 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
   const [diagResult, setDiagResult] = useState<DiagResult | null>(null);
   const [diagLoading, setDiagLoading] = useState(false);
 
-  // Fetch fresh balance on mount
+  // Fetch fresh balance and service costs on mount
   useEffect(() => {
     fetch("/api/wallet/balance")
       .then((r) => r.json())
       .then((d) => { if (d.balance !== undefined) setBalance(d.balance); })
+      .catch(() => {});
+    fetch("/api/services/imagine-auto")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.ok && d.leafCost) {
+          // Scale tab costs based on the DB base cost (parts = base, visualize = 10x, diagnose = 7.5x)
+          const base = d.leafCost;
+          setTabCosts({ parts: base, visualize: base * 10, diagnose: Math.round(base * 7.5) });
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -153,7 +171,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
       if (!parsed || parsed.length === 0) throw new Error("No parts found");
 
       // 3. Only NOW deduct Leafs — task succeeded
-      const spent = await spendLeafs(10, "Imagine Auto \u2014 Find Parts");
+      const spent = await spendLeafs(tabCosts.parts, "Imagine Auto \u2014 Find Parts");
       if (!spent) return;
 
       // 4. Show results
@@ -178,7 +196,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
       if (!result || result.length < 10) throw new Error("Empty response");
 
       // 2. Deduct Leafs on success
-      const spent = await spendLeafs(100, "Imagine Auto \u2014 Visualize");
+      const spent = await spendLeafs(tabCosts.visualize, "Imagine Auto \u2014 Visualize");
       if (!spent) return;
 
       // 3. Show result and persist
@@ -269,7 +287,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
         : { severity: "info", issue: "AI Analysis", recommendation: raw.slice(0, 300), costRange: "See recommendation" };
 
       // 3. Deduct Leafs on success
-      const spent = await spendLeafs(75, "Imagine Auto \u2014 Diagnose");
+      const spent = await spendLeafs(tabCosts.diagnose, "Imagine Auto \u2014 Diagnose");
       if (!spent) return;
 
       // 4. Show result
@@ -366,7 +384,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
               <PayWithEden
                 serviceId="imagine-auto"
                 serviceName="Imagine Auto"
-                leafCost={tabConfig.find((t) => t.key === tab)?.cost ?? 10}
+                leafCost={tabCosts[tab]}
                 onSuccess={(result) => {
                   setBalance(result.newBalance);
                   setShowTopUp(false);
@@ -385,7 +403,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
           className="mt-8 flex rounded-2xl p-1"
           style={{ border: `1px solid ${IA_CARD_BORDER}`, background: "rgba(245,158,11,0.03)" }}
         >
-          {tabConfig.map((t) => (
+          {TAB_LABELS.map((t) => (
             <button
               key={t.key}
               type="button"
@@ -431,7 +449,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                   className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                   style={{ background: IA_GOLD, color: "#0b1622" }}
                 >
-                  {partsLoading ? "Searching..." : "Search Parts \u2014 10 \u{1F343}"}
+                  {partsLoading ? "Searching..." : `Search Parts \u2014 ${tabCosts.parts} 🍃`}
                 </button>
               </div>
 
@@ -559,7 +577,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                   className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                   style={{ background: IA_GOLD, color: "#0b1622" }}
                 >
-                  {vizLoading ? "Generating..." : "Generate Render \u2014 100 \u{1F343}"}
+                  {vizLoading ? "Generating..." : `Generate Render \u2014 ${tabCosts.visualize} 🍃`}
                 </button>
               </div>
 
@@ -681,7 +699,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
                   className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
                   style={{ background: IA_GOLD, color: "#0b1622" }}
                 >
-                  {diagLoading ? "Analyzing..." : "Run Diagnostic \u2014 75 \u{1F343}"}
+                  {diagLoading ? "Analyzing..." : `Run Diagnostic \u2014 ${tabCosts.diagnose} 🍃`}
                 </button>
               </div>
 
