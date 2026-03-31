@@ -89,11 +89,62 @@ function buildConnections(artists: ArtistNode[]) {
   }
 }
 
+type DiscoveryResult = {
+  vibe: string;
+  moodScore: number;
+  tracks: { title: string; artist: string; year: number; why: string }[];
+  artists: string[];
+  places: { name: string; type: string; vibe: string; address?: string }[];
+  playlist_name: string;
+  spotify_search: string;
+};
+
 export function SpotSplorePanel({ displayName, balanceCredits }: SpotSplorePanelProps) {
   const [connected, setConnected] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredArtist, setHoveredArtist] = useState<ArtistNode | null>(null);
   const [selectedArtist, setSelectedArtist] = useState<ArtistNode | null>(null);
+
+  // Vibe discovery state
+  const [vibeInput, setVibeInput] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+  const [discovery, setDiscovery] = useState<DiscoveryResult | null>(null);
+  const [discoverLoading, setDiscoverLoading] = useState(false);
+  const [discoverError, setDiscoverError] = useState<string | null>(null);
+  const [balance, setBalance] = useState(balanceCredits);
+
+  async function handleDiscover() {
+    if (!vibeInput.trim()) return;
+    setDiscoverLoading(true);
+    setDiscoverError(null);
+    try {
+      const res = await fetch("/api/services/spot-splore/discover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vibe: vibeInput, location: locationInput }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "Discovery failed");
+
+      // Deduct Leafs
+      const spendRes = await fetch("/api/wallet/spend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: 5, description: `Spot Splore \u2014 ${vibeInput.slice(0, 30)}`, serviceId: "spot-splore" }),
+      });
+      const spendData = await spendRes.json();
+      if (spendData.ok) {
+        setBalance(spendData.newBalance);
+        window.dispatchEvent(new CustomEvent("eden:balance-updated", { detail: { newBalance: spendData.newBalance } }));
+      }
+
+      setDiscovery(data.discovery);
+    } catch (err) {
+      setDiscoverError(err instanceof Error ? err.message : "Discovery failed");
+    } finally {
+      setDiscoverLoading(false);
+    }
+  }
   const [artists] = useState<ArtistNode[]>(() => {
     const nodes = buildArtists();
     buildConnections(nodes);
@@ -428,6 +479,137 @@ export function SpotSplorePanel({ displayName, balanceCredits }: SpotSplorePanel
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Vibe Discovery — works without Spotify */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-8 space-y-4"
+        >
+          <div className="rounded-[20px] p-5" style={{ background: SS_CARD_BG, border: `1px solid ${SS_CARD_BORDER}` }}>
+            <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: SS_PURPLE }}>Vibe Discovery</p>
+            <p className="mt-1 text-xs text-white/40">Describe a vibe — get real music and places that match</p>
+
+            <textarea
+              value={vibeInput}
+              onChange={(e) => setVibeInput(e.target.value)}
+              placeholder="late night drive through the city..."
+              rows={2}
+              className="mt-3 w-full resize-none rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition"
+              style={{ background: "rgba(168,85,247,0.05)", border: `1px solid ${SS_CARD_BORDER}` }}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleDiscover(); } }}
+            />
+            <input
+              type="text"
+              value={locationInput}
+              onChange={(e) => setLocationInput(e.target.value)}
+              placeholder="Your city (optional)"
+              className="mt-2 w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none transition"
+              style={{ background: "rgba(168,85,247,0.03)", border: `1px solid rgba(168,85,247,0.08)` }}
+            />
+            <button
+              type="button"
+              onClick={handleDiscover}
+              disabled={!vibeInput.trim() || discoverLoading}
+              className="mt-3 w-full rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all disabled:opacity-30"
+              style={{ background: `linear-gradient(135deg, ${SS_PURPLE}, ${SS_PINK})` }}
+            >
+              {discoverLoading ? "Discovering..." : "Discover — 5 🍃"}
+            </button>
+            {discoverError && <p className="mt-2 text-center text-xs text-red-400/70">{discoverError}</p>}
+          </div>
+
+          {discovery && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              {/* Playlist header */}
+              <div className="rounded-[20px] p-5" style={{ background: SS_CARD_BG, border: `1px solid ${SS_CARD_BORDER}` }}>
+                <p className="text-lg font-bold text-white">{discovery.playlist_name}</p>
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="h-2 flex-1 rounded-full" style={{ background: "rgba(168,85,247,0.1)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${discovery.moodScore}%`, background: `linear-gradient(90deg, ${SS_PURPLE}, ${SS_PINK})` }}
+                    />
+                  </div>
+                  <span className="text-xs text-white/40">Mood: {discovery.moodScore}/100</span>
+                </div>
+                {discovery.spotify_search && (
+                  <a
+                    href={`https://open.spotify.com/search/${encodeURIComponent(discovery.spotify_search)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
+                    style={{ background: "#1DB954", color: "white" }}
+                  >
+                    Open in Spotify
+                  </a>
+                )}
+              </div>
+
+              {/* Tracks */}
+              <div className="space-y-2">
+                {discovery.tracks?.map((track, i) => (
+                  <div key={i} className="rounded-xl p-4" style={{ background: SS_CARD_BG, border: `1px solid ${SS_CARD_BORDER}` }}>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{track.title}</p>
+                        <p className="text-xs text-white/50">{track.artist} {track.year ? `(${track.year})` : ""}</p>
+                      </div>
+                      <span className="text-[10px] text-white/20">#{i + 1}</span>
+                    </div>
+                    <p className="mt-1 text-[11px] text-white/30 italic">{track.why}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Places */}
+              {discovery.places?.length > 0 && (
+                <div className="rounded-[20px] p-5" style={{ background: SS_CARD_BG, border: `1px solid ${SS_CARD_BORDER}` }}>
+                  <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: SS_PINK }}>Places that match</p>
+                  <div className="mt-3 space-y-3">
+                    {discovery.places.map((place, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <span
+                          className="mt-1 shrink-0 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase"
+                          style={{ background: "rgba(236,72,153,0.1)", color: SS_PINK, border: "1px solid rgba(236,72,153,0.2)" }}
+                        >
+                          {place.type}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-white">{place.name}</p>
+                          <p className="text-xs text-white/40">{place.vibe}</p>
+                          {place.address && <p className="text-[10px] text-white/20">{place.address}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Artists */}
+              {discovery.artists?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {discovery.artists.map((artist, i) => (
+                    <span key={i} className="rounded-full px-3 py-1 text-xs text-white/50"
+                      style={{ background: "rgba(168,85,247,0.08)", border: `1px solid ${SS_CARD_BORDER}` }}
+                    >
+                      {artist}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <p className="text-center text-[10px] text-white/15">
+                Powered by Claude + Live Web Data
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
     </div>
   );
