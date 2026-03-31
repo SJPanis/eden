@@ -69,10 +69,32 @@ export async function POST(req: NextRequest) {
         select: { edenBalanceCredits: true },
       });
 
-      // 2. Credit 70% to service creator (if serviceId maps to a known service owner)
-      // For now, service creator lookup is by build tag or static mapping
-      // Creator credit goes to platform pool if no creator found
-      // TODO: wire to actual service owner lookup when service registry exists
+      // 2. Credit 70% to service creator
+      const service = await tx.edenService.findUnique({
+        where: { slug: serviceId },
+        select: { creatorId: true, id: true },
+      });
+
+      if (service && service.creatorId !== session.user.id) {
+        await tx.user.update({
+          where: { id: service.creatorId },
+          data: { edenBalanceCredits: { increment: creatorCut } },
+        });
+        await tx.edenService.update({
+          where: { id: service.id },
+          data: { totalEarned: { increment: creatorCut } },
+        });
+      } else if (!service) {
+        // Unknown service — creator cut goes to platform pool
+        await tx.platformRevenue.create({
+          data: {
+            amountLeafs: creatorCut,
+            usdValue: creatorCut / 25,
+            sourceService: serviceId,
+            userId: session.user.id,
+          },
+        });
+      }
 
       // 3. Platform revenue record (15%)
       await tx.platformRevenue.create({
