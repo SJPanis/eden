@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { EdenStakeCard } from "@/components/eden-stake-card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
@@ -1678,6 +1679,9 @@ export function ConsumerHomePanel({
               Top Up
             </button>
           </div>
+
+          {/* Eden Stake card */}
+          <EdenStakeCard />
 
           {/* Recent activity */}
           <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
