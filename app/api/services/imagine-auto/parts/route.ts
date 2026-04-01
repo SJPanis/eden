@@ -4,6 +4,19 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
 
+function cleanClaudeText(content: Anthropic.ContentBlock[]): string {
+  const allText = content
+    .filter((block): block is Anthropic.TextBlock => block.type === "text")
+    .map((block) => block.text)
+    .join("\n");
+  return allText
+    .replace(/<cite[^>]*>([^<]*)<\/cite>/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/```json\n?/g, "")
+    .replace(/```\n?/g, "")
+    .trim();
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession();
   if (session.auth.source !== "persistent") {
@@ -26,7 +39,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1000,
-      system: "You are an automotive parts expert. Search the web for real, currently available parts. Return structured data only.",
+      system: "You are an automotive parts expert. Search the web for real, currently available parts. Return structured data only. No HTML tags in your response.",
       tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages: [
         {
@@ -34,7 +47,7 @@ export async function POST(req: NextRequest) {
           content: `Find real OEM and aftermarket parts for: ${year} ${make} ${model}
 Part needed: ${part}
 
-Search for actual available parts from RockAuto, AutoZone, Advance Auto, O'Reilly, or eBay Motors. Return ONLY this JSON array (no other text):
+Search for actual available parts from RockAuto, AutoZone, Advance Auto, O'Reilly, or eBay Motors. Return ONLY this JSON array (no other text, no markdown fences):
 [
   {
     "name": "part name",
@@ -51,16 +64,15 @@ Return 3-6 real parts. If you cannot find real data, return the text SEARCH_FAIL
       ],
     });
 
-    // Extract text from response (may contain tool use blocks)
-    const textBlocks = message.content.filter((b) => b.type === "text");
-    const raw = textBlocks.map((b) => b.text).join("\n");
+    const clean = cleanClaudeText(message.content);
 
-    if (raw.includes("SEARCH_FAILED")) {
+    if (clean.includes("SEARCH_FAILED")) {
       return NextResponse.json({ ok: false, error: "Could not find parts for this vehicle" });
     }
 
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    const jsonMatch = clean.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
+      console.error("[imagine-auto/parts] No JSON array found in response:", clean.slice(0, 500));
       return NextResponse.json({ ok: false, error: "Could not parse parts data" });
     }
 

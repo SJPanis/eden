@@ -6,6 +6,19 @@ export const runtime = "nodejs";
 
 const VALID_TYPES = new Set(["technical", "fundamental", "sentiment", "full"]);
 
+function cleanClaudeText(content: Anthropic.ContentBlock[]): string {
+  const allText = content
+    .filter((block): block is Anthropic.TextBlock => block.type === "text")
+    .map((block) => block.text)
+    .join("\n");
+  return allText
+    .replace(/<cite[^>]*>([^<]*)<\/cite>/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/```json\n?/g, "")
+    .replace(/```\n?/g, "")
+    .trim();
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession();
   if (session.auth.source !== "persistent") {
@@ -58,7 +71,7 @@ Return ONLY this JSON (no other text):
   "analystTarget": 0.00,
   "analystConsensus": "Buy/Hold/Sell",
   "sentiment": "Bullish/Bearish/Neutral",
-  "outlook": "Paragraph with real analysis and specific data points. 3-4 sentences.",
+  "outlook": "Paragraph with real analysis and specific data points. 3-4 sentences. No HTML tags.",
   "risks": ["risk 1", "risk 2", "risk 3"],
   "catalysts": ["catalyst 1", "catalyst 2"],
   "dataAsOf": "${new Date().toISOString()}"
@@ -67,15 +80,23 @@ Return ONLY this JSON (no other text):
       ],
     });
 
-    const textBlocks = message.content.filter((b) => b.type === "text");
-    const raw = textBlocks.map((b) => b.text).join("\n");
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const clean = cleanClaudeText(message.content);
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
 
     if (!jsonMatch) {
+      console.error("[market-lens/analyze] No JSON found in response:", clean.slice(0, 500));
       return NextResponse.json({ ok: false, error: "Could not analyze this ticker" });
     }
 
     const analysis = JSON.parse(jsonMatch[0]);
+
+    // Clean any cite tags from string fields
+    if (typeof analysis.outlook === "string") {
+      analysis.outlook = analysis.outlook
+        .replace(/<cite[^>]*>([^<]*)<\/cite>/g, "$1")
+        .replace(/<[^>]+>/g, "");
+    }
+
     return NextResponse.json({ ok: true, analysis });
   } catch (error) {
     console.error("[market-lens/analyze] Error:", error);
