@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
+import { ServiceLoadingBar } from "@/components/service-loading-bar";
 
 type MarketLensPanelProps = {
   username: string;
@@ -113,6 +114,11 @@ type RealAnalysis = {
   risks: string[];
   catalysts: string[];
   dataAsOf: string;
+  priceTargets?: {
+    thirtyDay?: { low: number; base: number; high: number };
+    ninetyDay?: { low: number; base: number; high: number };
+    oneYear?: { low: number; base: number; high: number };
+  };
 };
 
 export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanelProps) {
@@ -168,9 +174,138 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
     if (e.key === "Enter") handleAnalyze();
   }
 
-  // Chart removed — replaced by real API analysis
-  const _unused = () => { void activeTicker; void canvasRef; };
-  void _unused;
+  // Prediction cone chart — draws when realAnalysis changes
+  const drawCone = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !realAnalysis) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    const W = rect.width;
+    const H = rect.height;
+
+    // Background
+    ctx.fillStyle = "#060f0b";
+    ctx.fillRect(0, 0, W, H);
+
+    const padL = 50, padR = 60, padT = 40, padB = 30;
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+
+    const price = realAnalysis.currentPrice ?? 0;
+    const pt = realAnalysis.priceTargets as { thirtyDay?: { low: number; base: number; high: number }; ninetyDay?: { low: number; base: number; high: number }; oneYear?: { low: number; base: number; high: number } } | undefined;
+
+    // Derive targets from priceTargets or fallback
+    const d30 = pt?.thirtyDay ?? { low: price * 0.95, base: price * 1.02, high: price * 1.05 };
+    const d90 = pt?.ninetyDay ?? { low: price * 0.88, base: price * 1.05, high: price * 1.12 };
+    const d365 = pt?.oneYear ?? { low: price * 0.75, base: price * 1.10, high: price * 1.25 };
+
+    const allPrices = [price, d30.low, d30.high, d90.low, d90.high, d365.low, d365.high];
+    const minP = Math.min(...allPrices) * 0.95;
+    const maxP = Math.max(...allPrices) * 1.05;
+
+    const toX = (t: number) => padL + (t / 3) * chartW; // t: 0=today, 1=30d, 2=90d, 3=1yr
+    const toY = (p: number) => padT + chartH - ((p - minP) / (maxP - minP)) * chartH;
+
+    const points = [
+      { t: 0, low: price, base: price, high: price },
+      { t: 1, ...d30 },
+      { t: 2, ...d90 },
+      { t: 3, ...d365 },
+    ];
+
+    // Upper band fill (green)
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(price));
+    for (const p of points) ctx.lineTo(toX(p.t), toY(p.high));
+    for (const p of [...points].reverse()) ctx.lineTo(toX(p.t), toY(p.base));
+    ctx.closePath();
+    ctx.fillStyle = "rgba(16,185,129,0.12)";
+    ctx.fill();
+
+    // Lower band fill (red)
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(price));
+    for (const p of points) ctx.lineTo(toX(p.t), toY(p.base));
+    for (const p of [...points].reverse()) ctx.lineTo(toX(p.t), toY(p.low));
+    ctx.closePath();
+    ctx.fillStyle = "rgba(239,68,68,0.10)";
+    ctx.fill();
+
+    // Upper line
+    ctx.beginPath();
+    for (const p of points) { ctx.lineTo(toX(p.t), toY(p.high)); }
+    ctx.strokeStyle = "rgba(16,185,129,0.7)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Lower line
+    ctx.beginPath();
+    for (const p of points) { ctx.lineTo(toX(p.t), toY(p.low)); }
+    ctx.strokeStyle = "rgba(239,68,68,0.7)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Center dotted line
+    ctx.beginPath();
+    ctx.setLineDash([4, 4]);
+    for (const p of points) { ctx.lineTo(toX(p.t), toY(p.base)); }
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Current price dot
+    ctx.beginPath();
+    ctx.arc(toX(0), toY(price), 5, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+
+    // X axis labels
+    ctx.font = "10px monospace";
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.textAlign = "center";
+    ["TODAY", "30D", "90D", "1YR"].forEach((label, i) => {
+      ctx.fillText(label, toX(i), H - 8);
+    });
+
+    // Y axis labels (right side)
+    ctx.textAlign = "right";
+    ctx.fillStyle = "rgba(16,185,129,0.6)";
+    ctx.fillText(`$${Math.round(d365.high)}`, W - 8, toY(d365.high) + 4);
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.fillText(`$${Math.round(d365.base)}`, W - 8, toY(d365.base) + 4);
+    ctx.fillStyle = "rgba(239,68,68,0.6)";
+    ctx.fillText(`$${Math.round(d365.low)}`, W - 8, toY(d365.low) + 4);
+
+    // Current price label
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 11px monospace";
+    ctx.fillText(`$${price.toFixed(2)}`, toX(0) + 10, toY(price) - 8);
+
+    // Ticker label top left
+    ctx.textAlign = "left";
+    ctx.font = "10px monospace";
+    ctx.fillStyle = "rgba(16,185,129,0.5)";
+    ctx.fillText(`${realAnalysis.ticker} Prediction Cone`, padL, 20);
+
+    // Suppress unused vars
+    void activeTicker;
+  }, [realAnalysis, activeTicker]);
+
+  useEffect(() => {
+    drawCone();
+    const handleResize = () => drawCone();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [drawCone]);
+
   const __chartStub = () => {
     const canvas = canvasRef.current;
     if (!canvas || !activeTicker) return;
@@ -381,6 +516,7 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
 
   return (
     <div className="relative min-h-screen" style={{ backgroundColor: "#060f0b" }}>
+      <ServiceLoadingBar loading={analysisLoading} />
       {/* Top nav */}
       <div className="relative z-10 flex items-center justify-between px-6 py-5">
         <Link
@@ -396,7 +532,7 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
             className="rounded-full px-3 py-1 font-mono text-xs font-semibold text-white"
             style={{ border: `1px solid ${ML_CARD_BORDER}`, background: ML_GREEN_DIM }}
           >
-            &#127809; {balanceCredits.toLocaleString()}
+            🍃 {balanceCredits.toLocaleString()}
           </span>
         </div>
       </div>
@@ -503,6 +639,15 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
                     {realAnalysis.analystConsensus}
                   </span>
                 </div>
+              </div>
+
+              {/* Prediction cone chart */}
+              <div className="overflow-hidden rounded-xl" style={{ border: `1px solid ${ML_CARD_BORDER}` }}>
+                <canvas
+                  ref={canvasRef}
+                  className="h-[280px] w-full"
+                  style={{ display: "block" }}
+                />
               </div>
 
               {/* Metrics grid */}
