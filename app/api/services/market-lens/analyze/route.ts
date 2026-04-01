@@ -41,22 +41,13 @@ export async function POST(req: NextRequest) {
   try {
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 3000,
-      system: "You are a professional financial analyst with access to real-time market data. Search for current, accurate data. Never fabricate numbers. Always cite your sources.",
+      max_tokens: 1500,
+      system: "You are a financial analyst. Do ONE web search, then return JSON. No HTML tags in output.",
       tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages: [
         {
           role: "user",
-          content: `Perform a ${analysisType} analysis of ${ticker}.
-
-Search for:
-1. Current price and today's change
-2. 52-week high and low
-3. Volume vs average volume
-4. Recent news (last 7 days)
-5. Key financial metrics (P/E, market cap, revenue growth)
-6. Analyst consensus and price targets
-7. Technical indicators (RSI, moving averages if visible)
+          content: `Search for "${ticker} stock price today" and return a JSON analysis.
 
 Return ONLY this JSON (no other text):
 {
@@ -65,16 +56,21 @@ Return ONLY this JSON (no other text):
   "currentPrice": 0.00,
   "change": 0.00,
   "changePercent": 0.00,
-  "marketCap": "e.g. $2.1T",
-  "peRatio": 0.00,
+  "marketCap": "$X.XT",
+  "peRatio": 0.0,
   "week52High": 0.00,
   "week52Low": 0.00,
-  "analystTarget": 0.00,
   "analystConsensus": "Buy/Hold/Sell",
+  "analystTarget": 0.00,
   "sentiment": "Bullish/Bearish/Neutral",
-  "outlook": "Paragraph with real analysis and specific data points. 3-4 sentences. No HTML tags.",
-  "risks": ["risk 1", "risk 2", "risk 3"],
+  "outlook": "2-3 sentences of analysis based on what you found. No HTML.",
   "catalysts": ["catalyst 1", "catalyst 2"],
+  "risks": ["risk 1", "risk 2"],
+  "priceTargets": {
+    "thirtyDay": { "low": 0.00, "base": 0.00, "high": 0.00 },
+    "ninetyDay": { "low": 0.00, "base": 0.00, "high": 0.00 },
+    "oneYear": { "low": 0.00, "base": 0.00, "high": 0.00 }
+  },
   "dataAsOf": "${new Date().toISOString()}"
 }`,
         },
