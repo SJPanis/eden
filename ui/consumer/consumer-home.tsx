@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { EdenStakeCard } from "@/components/eden-stake-card";
 import Link from "next/link";
@@ -595,6 +595,16 @@ export function ConsumerHomePanel({
   );
   const [selectedResult, setSelectedResult] = useState<SelectedResult | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [liveStats, setLiveStats] = useState<{ leafsToday: number; transactionsToday: number; activeServices: number } | null>(null);
+
+  useEffect(() => {
+    const fetchStats = () => {
+      fetch("/api/stats/live").then((r) => r.json()).then((d) => { if (d.ok) setLiveStats(d); }).catch(() => {});
+    };
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
   const normalizedQuery = activeQuery.trim().toLowerCase();
   const savedBusinessIds = useMemo(() => new Set(activeUser?.savedBusinessIds ?? []), [activeUser]);
   const savedServiceIds = useMemo(() => new Set(activeUser?.savedServiceIds ?? []), [activeUser]);
@@ -982,7 +992,7 @@ export function ConsumerHomePanel({
         animate="visible"
         variants={sectionVariants}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="flex justify-center py-2"
+        className="flex justify-center py-2 overflow-hidden"
       >
         <OrbitalDiagram
           size={320}
@@ -1094,25 +1104,42 @@ export function ConsumerHomePanel({
                               }, rgba(13,30,46,0.85))`,
                     }}
                   >
-                    <span
-                      className="absolute inset-0 flex items-center justify-center text-[40px] font-bold select-none"
-                      style={{
-                        fontFamily: "var(--font-serif)",
-                        letterSpacing: "0.05em",
-                        color: service.category === "Automotive"
-                          ? "rgba(245,158,11,0.4)"
-                          : service.category === "Finance"
-                            ? "rgba(16,185,129,0.4)"
-                            : service.category === "Music"
-                              ? "rgba(168,85,247,0.4)"
-                              : "rgba(45,212,191,0.3)",
-                      }}
-                    >
-                      {service.category === "Automotive" ? "IA"
-                        : service.category === "Finance" ? "ML"
-                        : service.category === "Music" ? "SS"
-                        : service.title.charAt(0)}
-                    </span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {service.category === "Automotive" ? (
+                        <svg viewBox="0 0 200 200" width="120" height="120">
+                          <defs><radialGradient id={`ia-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/><stop offset="100%" stopColor="#92400e" stopOpacity="0"/></radialGradient></defs>
+                          <circle cx="100" cy="100" r="60" fill={`url(#ia-g-${service.id})`}><animate attributeName="r" values="55;65;55" dur="3s" repeatCount="indefinite"/></circle>
+                          <circle cx="100" cy="100" r="30" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.4"><animate attributeName="r" values="30;45;30" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/></circle>
+                          <circle cx="100" cy="100" r="8" fill="#fbbf24"/>
+                        </svg>
+                      ) : service.category === "Finance" ? (
+                        <svg viewBox="0 0 200 200" width="120" height="120">
+                          <defs><radialGradient id={`ml-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#2dd4bf" stopOpacity="0.7"/><stop offset="100%" stopColor="#064e3b" stopOpacity="0"/></radialGradient></defs>
+                          <circle cx="100" cy="100" r="55" fill={`url(#ml-g-${service.id})`}><animate attributeName="r" values="50;60;50" dur="4s" repeatCount="indefinite"/></circle>
+                          <circle cx="100" cy="100" r="35" fill="none" stroke="#2dd4bf" strokeWidth="0.8" opacity="0.3"><animate attributeName="r" values="35;48;35" dur="3s" repeatCount="indefinite"/></circle>
+                          <circle cx="100" cy="100" r="6" fill="#2dd4bf"/>
+                          <circle cx="100" cy="40" r="3" fill="#2dd4bf" opacity="0.7"><animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="6s" repeatCount="indefinite"/></circle>
+                          <circle cx="60" cy="100" r="2.5" fill="#5eead4" opacity="0.5"><animateTransform attributeName="transform" type="rotate" from="120 100 100" to="480 100 100" dur="8s" repeatCount="indefinite"/></circle>
+                          <circle cx="140" cy="100" r="2" fill="#99f6e4" opacity="0.4"><animateTransform attributeName="transform" type="rotate" from="240 100 100" to="600 100 100" dur="10s" repeatCount="indefinite"/></circle>
+                        </svg>
+                      ) : service.category === "Music" ? (
+                        <svg viewBox="0 0 200 200" width="120" height="120">
+                          <defs><radialGradient id={`ss-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#a855f7" stopOpacity="0.7"/><stop offset="100%" stopColor="#3b0764" stopOpacity="0"/></radialGradient></defs>
+                          <circle cx="100" cy="100" r="50" fill={`url(#ss-g-${service.id})`}><animate attributeName="r" values="45;55;45" dur="2s" repeatCount="indefinite"/></circle>
+                          <circle cx="100" cy="100" r="28" fill="none" stroke="#ec4899" strokeWidth="0.8" opacity="0.4"><animate attributeName="r" values="28;38;28" dur="2.5s" repeatCount="indefinite"/></circle>
+                          <circle cx="100" cy="100" r="5" fill="#a855f7"/>
+                          {[0, 72, 144, 216, 288].map((angle) => (
+                            <circle key={angle} cx="100" cy="45" r="2" fill="#c084fc" opacity="0.6">
+                              <animateTransform attributeName="transform" type="rotate" from={`${angle} 100 100`} to={`${angle + 360} 100 100`} dur={`${4 + (angle % 3)}s`} repeatCount="indefinite"/>
+                            </circle>
+                          ))}
+                        </svg>
+                      ) : (
+                        <span className="text-[40px] font-bold select-none" style={{ fontFamily: "var(--font-serif)", color: "rgba(45,212,191,0.3)" }}>
+                          {service.title.charAt(0)}
+                        </span>
+                      )}
+                    </div>
                     <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)", backgroundSize: "200% 100%", animation: "shimmer 1.5s ease-in-out infinite" }} />
                   </div>
                   {/* Service name */}
@@ -1658,7 +1685,28 @@ export function ConsumerHomePanel({
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <div className="min-w-0 space-y-4">
+        <div className="hidden min-w-0 space-y-4 lg:block">
+          {/* Live stats */}
+          {liveStats && (
+            <div style={{ borderBottom: "1px solid rgba(45,212,191,0.1)", paddingBottom: "12px" }}>
+              <p style={{ fontSize: "9px", letterSpacing: "0.15em", color: "rgba(45,212,191,0.4)", textTransform: "uppercase" }}>Eden Live</p>
+              <div style={{ display: "flex", gap: "16px", marginTop: "6px" }}>
+                <div>
+                  <p style={{ fontSize: "16px", fontWeight: "bold", color: "white" }}>{liveStats.leafsToday.toLocaleString()}</p>
+                  <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>Leafs today</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: "16px", fontWeight: "bold", color: "white" }}>{liveStats.transactionsToday}</p>
+                  <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>Transactions</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: "16px", fontWeight: "bold", color: "white" }}>{liveStats.activeServices}</p>
+                  <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>Services</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Leaf balance card */}
           <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#2dd4bf]">Leaf Balance</p>
