@@ -38,27 +38,23 @@ export function EdenStakeCard() {
         <span className="text-[10px] text-white/20">{expanded ? "close" : "details"}</span>
       </div>
 
-      <div className="mt-3 flex gap-4">
+      <div className="mt-3 space-y-2">
         {/* Adam / Innovation pool */}
-        <div className="flex-1">
-          <p className="text-[10px] text-amber-400/60">Adam Pool</p>
-          <p className="mt-1 text-sm font-semibold text-amber-400">
-            {data.adam.percentage.toFixed(2)}%
-          </p>
-          <p className="text-[10px] text-amber-400/30">
-            {data.adam.userLeafs.toLocaleString()} {"🍃"} earned
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-amber-400/60">Adam Pool</p>
+            <p className="text-[10px] text-amber-400/30">{data.adam.userLeafs.toLocaleString()} {"🍃"} earned</p>
+          </div>
+          <p className="text-sm font-semibold text-amber-400">{data.adam.percentage.toFixed(2)}%</p>
         </div>
 
         {/* Architect / Commitment pool */}
-        <div className="flex-1">
-          <p className="text-[10px] text-blue-400/60">Architect Pool</p>
-          <p className="mt-1 text-sm font-semibold text-blue-400">
-            {data.eve.percentage.toFixed(2)}%
-          </p>
-          <p className="text-[10px] text-blue-400/30">
-            {data.eve.userActions.toLocaleString()} actions
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-blue-400/60">Architect Pool</p>
+            <p className="text-[10px] text-blue-400/30">{data.eve.userActions.toLocaleString()} actions</p>
+          </div>
+          <p className="text-sm font-semibold text-blue-400">{data.eve.percentage.toFixed(2)}%</p>
         </div>
       </div>
 

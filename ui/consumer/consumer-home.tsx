@@ -1068,7 +1068,7 @@ export function ConsumerHomePanel({
       </motion.section>
 
       {/* MAIN CONTENT: Grid with services + sidebar */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(260px,300px)]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         {/* LEFT: Service grid */}
         <div className="space-y-6">
           {/* Service cards in 3 columns */}
@@ -1685,7 +1685,7 @@ export function ConsumerHomePanel({
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <div className="hidden min-w-0 space-y-4 lg:block">
+        <div className="hidden w-[280px] shrink-0 space-y-4 lg:block">
           {/* Live stats */}
           {liveStats && (
             <div style={{ borderBottom: "1px solid rgba(45,212,191,0.1)", paddingBottom: "12px" }}>
