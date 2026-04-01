@@ -1318,17 +1318,27 @@ model AgentTask {
 // ── Eden Service Registry (lightweight, slug-based) ─────────────────────────
 
 model EdenService {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  description String   @default("")
-  leafCost    Int      @default(5)
-  creatorId   String
-  creator     User     @relation("EdenServiceCreator", fields: [creatorId], references: [id])
-  isActive    Boolean  @default(true)
-  totalEarned Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  description   String   @default("")
+  category      String   @default("Other")
+  leafCost      Int      @default(5)
+  pricingModel  String   @default("per_use")
+  serviceType   String   @default("claude")
+  systemPrompt  String?
+  inputSchema   String?
+  outputFormat  String   @default("text")
+  externalUrl   String?
+  thumbnailColor String  @default("#2dd4bf")
+  status        String   @default("draft")
+  visibility    String   @default("public")
+  creatorId     String
+  creator       User     @relation("EdenServiceCreator", fields: [creatorId], references: [id])
+  isActive      Boolean  @default(true)
+  totalEarned   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([creatorId])
 }
