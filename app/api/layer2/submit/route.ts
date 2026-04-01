@@ -16,8 +16,8 @@ export async function POST(req: NextRequest) {
   const summary = typeof body?.summary === "string" ? body.summary : "";
   const confidence = typeof body?.confidence === "number" ? body.confidence : 0;
 
-  if (!buildId || !prUrl) {
-    return NextResponse.json({ ok: false, error: "buildId and prUrl required" }, { status: 400 });
+  if (!buildId) {
+    return NextResponse.json({ ok: false, error: "buildId required" }, { status: 400 });
   }
 
   const prisma = getPrismaClient();

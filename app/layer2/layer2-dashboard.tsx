@@ -29,14 +29,12 @@ export function Layer2Dashboard() {
   useEffect(() => {
     Promise.all([
       fetch("/api/layer2/status").then((r) => r.json()),
-      fetch("/api/agents/history").then((r) => r.json()),
+      fetch("/api/layer2/pending").then((r) => r.json()),
     ])
-      .then(([statusData, historyData]) => {
+      .then(([statusData, pendingData]) => {
         if (statusData.ok) setStatus(statusData);
-        // For now, show pending approval builds as submissions
-        // In production this would be a dedicated query
-        if (historyData.ok) {
-          setSubmissions([]); // Will populate from real data
+        if (pendingData.ok && pendingData.submissions) {
+          setSubmissions(pendingData.submissions);
         }
       })
       .catch(() => {})
