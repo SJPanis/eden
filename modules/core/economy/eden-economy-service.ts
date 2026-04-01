@@ -83,7 +83,7 @@ export async function loadWalletForUser(userId: string): Promise<EdenWalletRecor
 // ─── Transactions ─────────────────────────────────────────────────────────
 
 /**
- * Record a Leaf's top-up. Increments wallet balance and totalPurchasedLeafs.
+ * Record a Leafs top-up. Increments wallet balance and totalPurchasedLeafs.
  */
 export async function recordLeafsTopup(input: {
   userId: string;
@@ -126,7 +126,7 @@ export async function recordLeafsTopup(input: {
 }
 
 /**
- * Deduct Leaf's for a service or runtime action.
+ * Deduct Leafs for a service or runtime action.
  * Returns false if the wallet does not have sufficient balance.
  */
 export async function deductLeafs(input: {
@@ -142,14 +142,14 @@ export async function deductLeafs(input: {
   const wallet = await prisma.edenWallet.findUnique({ where: { userId: input.userId } });
 
   if (!wallet) {
-    return { ok: false, error: "No wallet found. The user must top up Leaf's first." };
+    return { ok: false, error: "No wallet found. The user must top up Leafs first." };
   }
 
   const available = wallet.leafsBalance - wallet.lockedLeafs;
   if (available < input.leafsAmount) {
     return {
       ok: false,
-      error: `Insufficient Leaf's balance. Required: ${input.leafsAmount}, available: ${available}.`,
+      error: `Insufficient Leafs balance. Required: ${input.leafsAmount}, available: ${available}.`,
     };
   }
 
@@ -227,7 +227,7 @@ export async function recordServicePurchase(input: {
 }
 
 /**
- * Grant Leaf's to a user (owner action).
+ * Grant Leafs to a user (owner action).
  */
 export async function grantLeafs(input: {
   recipientUserId: string;
@@ -346,7 +346,7 @@ export async function approveContribution(input: {
     data: { contributionScore: { increment: input.scoreAwarded } },
   });
 
-  // Issue Leaf's bonus if set
+  // Issue Leafs bonus if set
   if (input.leavesBonusAwarded && input.leavesBonusAwarded > 0) {
     await grantLeafs({
       recipientUserId: record.contributorUserId,
@@ -482,9 +482,9 @@ function mapContribution(r: {
 
 function formatTransactionTypeLabel(type: string): string {
   const map: Record<string, string> = {
-    LEAFS_TOPUP: "Leaf's top-up",
-    LEAFS_DEDUCTION: "Leaf's deduction",
-    LEAFS_GRANT: "Leaf's grant",
+    LEAFS_TOPUP: "Leafs top-up",
+    LEAFS_DEDUCTION: "Leafs deduction",
+    LEAFS_GRANT: "Leafs grant",
     SERVICE_PURCHASE: "Service purchase",
     BUILDER_PAYOUT: "Builder payout",
     CONTRIBUTION_BONUS: "Contribution bonus",

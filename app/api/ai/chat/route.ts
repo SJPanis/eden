@@ -81,11 +81,11 @@ function buildAiChatTransaction(input: {
     id: input.id,
     userId: input.userId,
     title: "Eden AI Chat",
-    amountLabel: `-${input.leavesCharged} Leaf's`,
+    amountLabel: `-${input.leavesCharged} Leafs`,
     creditsDelta: -input.leavesCharged,
     direction: "outflow",
     kind: "usage",
-    detail: `AI chat session with ${input.model}. ${input.leavesCharged} Leaf's charged (15% platform commission applied).`,
+    detail: `AI chat session with ${input.model}. ${input.leavesCharged} Leafs charged (15% platform commission applied).`,
     timestamp: "Just now",
     simulated: false,
   };
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Insufficient Leaf's. Top up your balance to use Eden AI.",
+        error: "Insufficient Leafs. Top up your balance to use Eden AI.",
         insufficientBalance: true,
         currentBalanceCredits: currentBalance,
       },

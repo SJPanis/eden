@@ -193,7 +193,7 @@ export function ServiceUsagePanel({
     availabilityDetail ??
     (disabled
       ? "This service is not currently available for a consumer run."
-      : "This service can be run immediately through the Eden Leaf's wallet flow.");
+      : "This service can be run immediately through the Eden Leafs wallet flow.");
   const runDecisionSummary = disabled
     ? {
         toneClass: "border-amber-500/25 bg-amber-500/10",
@@ -300,7 +300,7 @@ export function ServiceUsagePanel({
           detail:
             requestError instanceof Error
               ? requestError.message
-              : "Unable to confirm the payment-backed Leaf's top-up.",
+              : "Unable to confirm the payment-backed Leafs top-up.",
         });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
@@ -363,7 +363,7 @@ export function ServiceUsagePanel({
       if (!response.ok || !payload.ok) {
         if (payload.insufficientBalance) {
           throw new Error(
-            `Insufficient Eden Leaf's. This run requires ${formatCreditsValue(payload.requiredCredits ?? requiredCredits)}, and your current balance is ${formatCreditsValue(payload.currentBalanceCredits ?? displayBalanceCredits)}.`,
+            `Insufficient Eden Leafs. This run requires ${formatCreditsValue(payload.requiredCredits ?? requiredCredits)}, and your current balance is ${formatCreditsValue(payload.currentBalanceCredits ?? displayBalanceCredits)}.`,
           );
         }
         throw new Error(payload.error || "Unable to record service usage through the current wallet overlay.");
@@ -431,7 +431,7 @@ export function ServiceUsagePanel({
         detail:
           requestError instanceof Error
             ? requestError.message
-            : "Unable to start the payment-backed Leaf's top-up.",
+            : "Unable to start the payment-backed Leafs top-up.",
       });
       setActiveAction(null);
     }
@@ -449,7 +449,7 @@ export function ServiceUsagePanel({
           </h2>
           <p className="mt-2 text-sm leading-6 text-white/50">
             {summary ||
-              "Run this service through Eden's current wallet-overlay path. The visible Eden Leaf's price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
+              "Run this service through Eden's current wallet-overlay path. The visible Eden Leafs price is what gets deducted, ServiceUsage is recorded, and no hidden payment rail is charged during the run."}
           </p>
         </div>
 
@@ -508,7 +508,7 @@ export function ServiceUsagePanel({
                 First-time run flow
               </p>
               <p className="mt-2 text-sm leading-6 text-white/50">
-                The same decision sequence applies every time: check the visible price, compare it to your wallet, Add Leaf's only if needed, then run the service.
+                The same decision sequence applies every time: check the visible price, compare it to your wallet, Add Leafs only if needed, then run the service.
               </p>
             </div>
             <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs text-white/50">
@@ -519,7 +519,7 @@ export function ServiceUsagePanel({
             <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
               <p className="text-sm font-semibold text-white">1. Check price</p>
               <p className="mt-2 text-sm leading-6 text-white/50">
-                {pricingLabel} is the exact Eden Leaf's amount used for the run.
+                {pricingLabel} is the exact Eden Leafs amount used for the run.
               </p>
             </div>
             <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
@@ -529,9 +529,9 @@ export function ServiceUsagePanel({
               </p>
             </div>
             <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-              <p className="text-sm font-semibold text-white">3. Add Leaf's only if needed</p>
+              <p className="text-sm font-semibold text-white">3. Add Leafs only if needed</p>
               <p className="mt-2 text-sm leading-6 text-white/50">
-                Checkout appears only during Add Leaf's. Service runs never trigger a hidden payment.
+                Checkout appears only during Add Leafs. Service runs never trigger a hidden payment.
               </p>
             </div>
           </div>
@@ -585,7 +585,7 @@ export function ServiceUsagePanel({
             Explicit top-up, explicit run
           </p>
           <p className="mt-2 text-sm leading-6 text-white/50">
-            Service use deducts Leaves only. Checkout is only used when you choose to Add Leaf's to the wallet.
+            Service use deducts Leaves only. Checkout is only used when you choose to Add Leafs to the wallet.
           </p>
         </div>
       </div>
@@ -638,13 +638,13 @@ export function ServiceUsagePanel({
 
       <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025]/65 p-4 text-sm leading-6 text-white/50">
         {topUpConfig.paymentEnabled
-          ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Leaf's first, and Stripe top-ups only Add Leaf's after webhook settlement confirms the purchase.`
-          : "Stripe Checkout is not available in this environment, so Leaf's cannot be purchased from this service route."}
+          ? `Selected package: ${selectedPackage.title}. Service usage settles through Eden Leafs first, and Stripe top-ups only Add Leafs after webhook settlement confirms the purchase.`
+          : "Stripe Checkout is not available in this environment, so Leafs cannot be purchased from this service route."}
       </div>
 
       {!hasSufficientBalance ? (
         <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-6 text-amber-300">
-          Your Eden Leaf's balance is below the required service price. {edenLaunchLabels.addCredits} first, then return to the visible {edenLaunchLabels.runService} action to complete the Leaves-only flow.
+          Your Eden Leafs balance is below the required service price. {edenLaunchLabels.addCredits} first, then return to the visible {edenLaunchLabels.runService} action to complete the Leaves-only flow.
         </div>
       ) : null}
 

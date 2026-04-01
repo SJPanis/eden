@@ -20,7 +20,7 @@ const audienceCards = [
     label: "Innovators",
     tag: "Publish & earn",
     detail:
-      "Package your AI workflows as services. Set a visible price, publish to discovery, and earn Leaf's every time someone runs your service.",
+      "Package your AI workflows as services. Set a visible price, publish to discovery, and earn Leafs every time someone runs your service.",
   },
   {
     id: "consumers",
@@ -28,7 +28,7 @@ const audienceCards = [
     label: "Consumers",
     tag: "Discover & run",
     detail:
-      "Browse or Ask Eden to find the right service. Top up Leaf's once — then run services with visible pricing and no hidden charges.",
+      "Browse or Ask Eden to find the right service. Top up Leafs once — then run services with visible pricing and no hidden charges.",
   },
   {
     id: "contributors",
@@ -36,14 +36,14 @@ const audienceCards = [
     label: "Contributors",
     tag: "Improve & earn",
     detail:
-      "Submit code, design, or ideas to Eden itself. Approved contributions earn score and Leaf's from the contribution pool each period.",
+      "Submit code, design, or ideas to Eden itself. Approved contributions earn score and Leafs from the contribution pool each period.",
   },
 ];
 
 const edenLoopSteps = [
   { id: "publish",    step: "01", label: "Innovators publish",          detail: "Services appear in discovery only after visible pricing and publish state are set. Innovators earn 70% of every run." },
-  { id: "discover",  step: "02", label: "Consumers discover & run",   detail: "Ask Eden or browse the marketplace. Leaf's cover every run — no hidden checkout, no surprises during service use." },
-  { id: "earn",      step: "03", label: "Economy distributes",        detail: "Each purchase splits automatically: innovator earnings, platform fee, provider reserve, and contribution pool — all in Leaf's." },
+  { id: "discover",  step: "02", label: "Consumers discover & run",   detail: "Ask Eden or browse the marketplace. Leafs cover every run — no hidden checkout, no surprises during service use." },
+  { id: "earn",      step: "03", label: "Economy distributes",        detail: "Each purchase splits automatically: innovator earnings, platform fee, provider reserve, and contribution pool — all in Leafs." },
   { id: "contribute",step: "04", label: "Contributors improve Eden",  detail: "Submit contributions to the platform itself. The contribution pool is distributed based on approved contribution scores each period." },
 ];
 
@@ -186,7 +186,7 @@ export function EdenPublicAuthPanel({ maintenanceMode }: EdenPublicAuthPanelProp
                   <span className="text-eden-accent">Open to innovators.</span>
                 </h1>
                 <p className="mt-4 max-w-lg text-base leading-7 text-white/50">
-                  Eden connects innovators who publish AI services with consumers who discover and run them — with transparent Leaf's pricing, no hidden charges, and a contribution economy built in.
+                  Eden connects innovators who publish AI services with consumers who discover and run them — with transparent Leafs pricing, no hidden charges, and a contribution economy built in.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {["Publish AI services", "Visible pricing before every run", "Contribution economy", "No hidden charges"].map((chip) => (

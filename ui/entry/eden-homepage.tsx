@@ -47,7 +47,7 @@ const audienceCards = [
     label: "Consumers",
     tag: "Discover & run",
     detail:
-      "Browse or Ask Eden to find the right service. Top up Leaf's once, then run with no hidden charges — visible pricing before every use.",
+      "Browse or Ask Eden to find the right service. Top up Leafs once, then run with no hidden charges — visible pricing before every use.",
   },
   {
     id: "contributors",
@@ -55,7 +55,7 @@ const audienceCards = [
     label: "Contributors",
     tag: "Improve & earn",
     detail:
-      "Submit code, design, or ideas to Eden itself. Approved contributions earn Contribution Score and Leaf's from the pool each period.",
+      "Submit code, design, or ideas to Eden itself. Approved contributions earn Contribution Score and Leafs from the pool each period.",
   },
 ];
 
@@ -82,7 +82,7 @@ const loopCards = [
   {
     step: "03",
     label: "Economy distributes",
-    detail: "Every run triggers an automatic 4-bucket split in Leaf's.",
+    detail: "Every run triggers an automatic 4-bucket split in Leafs.",
     accent: true,
   },
   {
@@ -271,7 +271,7 @@ function NetworkStatsPanel() {
         <div className="mt-5 grid grid-cols-3 gap-3">
           {[
             { label: "Innovators", count: "—", sublabel: "services published" },
-            { label: "Consumers", count: "—", sublabel: "Leaf's in circulation" },
+            { label: "Consumers", count: "—", sublabel: "Leafs in circulation" },
             { label: "Contributors", count: "—", sublabel: "contributions pending" },
           ].map((item) => (
             <div

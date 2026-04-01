@@ -481,7 +481,7 @@ function getSelectedServiceDetails(
       {
         label: edenLaunchLabels.visiblePricing,
         value: launchDetails.pricingLabel,
-        detail: "The same Eden Leaf's price is shown before the service run begins.",
+        detail: "The same Eden Leafs price is shown before the service run begins.",
       },
       {
         label: "Wallet position",
@@ -624,19 +624,19 @@ export function ConsumerHomePanel({
         id: "consumer-launch-price",
         label: edenLaunchLabels.visiblePricing,
         value: "Shown before every run",
-        detail: "Each service detail page shows the exact Eden Leaf's price before usage begins.",
+        detail: "Each service detail page shows the exact Eden Leafs price before usage begins.",
       },
       {
         id: "consumer-launch-wallet",
         label: "Wallet balance",
         value: formatCredits(currentBalanceCredits),
-        detail: "Top up once, then reuse Eden Leaf's across discovery and service runs.",
+        detail: "Top up once, then reuse Eden Leafs across discovery and service runs.",
       },
       {
         id: "consumer-launch-payments",
         label: edenLaunchLabels.creditsOnlyBilling,
         value: "Top-up only",
-        detail: "Checkout appears only when you explicitly Add Leaf's. Service runs deduct only the visible wallet price.",
+        detail: "Checkout appears only when you explicitly Add Leafs. Service runs deduct only the visible wallet price.",
       },
     ],
     [currentBalanceCredits, discoverySnapshot.marketplaceServices.length],
@@ -653,11 +653,11 @@ export function ConsumerHomePanel({
         id: "consumer-step-compare",
         label: "2. Compare price to your wallet",
         detail:
-          "Check the Eden Leaf's price against your current balance before you decide to run the service.",
+          "Check the Eden Leafs price against your current balance before you decide to run the service.",
       },
       {
         id: "consumer-step-topup",
-        label: "3. Add Leaf's only if needed",
+        label: "3. Add Leafs only if needed",
         detail:
           "Top up through the wallet if your balance is too low. Checkout appears only during this explicit step.",
       },
@@ -693,7 +693,7 @@ export function ConsumerHomePanel({
       return {
         title: "Open Service to preview the first run flow",
         detail:
-          "Published marketplace services still use fallback pricing in this environment, so the wallet and service detail screens explain the Leaf's flow step by step.",
+          "Published marketplace services still use fallback pricing in this environment, so the wallet and service detail screens explain the Leafs flow step by step.",
         cue: edenLaunchLabels.openService,
       };
     }
@@ -704,7 +704,7 @@ export function ConsumerHomePanel({
     ) {
       return {
         title: "You can run a published service now",
-        detail: `${lowestPricedService.service.title} is already within your wallet balance. Open the service, confirm the visible price, and run it through Eden Leaf's.`,
+        detail: `${lowestPricedService.service.title} is already within your wallet balance. Open the service, confirm the visible price, and run it through Eden Leafs.`,
         cue: `${edenLaunchLabels.openService}, then ${edenLaunchLabels.runService}`,
       };
     }
@@ -729,13 +729,13 @@ export function ConsumerHomePanel({
         id: "header-consumers",
         label: "For consumers",
         detail:
-          "Consumers open published services, compare the visible price to their wallet, then Add Leaf's only if needed.",
+          "Consumers open published services, compare the visible price to their wallet, then Add Leafs only if needed.",
       },
       {
         id: "header-billing",
         label: edenLaunchLabels.creditsOnlyBilling,
         detail:
-          "Service runs use wallet Leaf's only, and no hidden checkout appears during service use.",
+          "Service runs use wallet Leafs only, and no hidden checkout appears during service use.",
       },
     ],
     [],
@@ -1058,7 +1058,7 @@ export function ConsumerHomePanel({
       </motion.section>
 
       {/* MAIN CONTENT: Grid with services + sidebar */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(240px,280px)]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(260px,300px)]">
         {/* LEFT: Service grid */}
         <div className="space-y-6">
           {/* Service cards in 3 columns */}
@@ -1253,7 +1253,7 @@ export function ConsumerHomePanel({
                               Recommended services
                             </h3>
                             <p className="mt-1 text-xs text-white/50">
-                              Open Service to inspect published state, visible pricing, and the Leaf's-only run flow.
+                              Open Service to inspect published state, visible pricing, and the Leafs-only run flow.
                             </p>
                           </div>
                           <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
@@ -1672,12 +1672,12 @@ export function ConsumerHomePanel({
               </div>
               <div>
                 <p className="text-2xl font-bold text-white whitespace-nowrap">{formatCredits(currentBalanceCredits)}</p>
-                <p className="text-[10px] text-white/30">Eden Leaves</p>
+                <p className="text-[10px] text-white/30">Eden Leafs</p>
               </div>
             </div>
-            <button type="button" className="mt-3 w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25" style={{ boxShadow: "0 0 12px -4px rgba(45,212,191,0.2)" }}>
+            <a href="/topup" className="mt-3 block w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25" style={{ boxShadow: "0 0 12px -4px rgba(45,212,191,0.2)" }}>
               Top Up
-            </button>
+            </a>
           </div>
 
           {/* Eden Stake card */}

@@ -152,7 +152,7 @@ export function ConsumerWalletPanel({
           detail:
             requestError instanceof Error
               ? requestError.message
-              : "Unable to confirm the payment-backed Leaf's top-up.",
+              : "Unable to confirm the payment-backed Leafs top-up.",
         });
         router.replace(cleanReturnPath, { scroll: false });
       } finally {
@@ -200,7 +200,7 @@ export function ConsumerWalletPanel({
         detail:
           requestError instanceof Error
             ? requestError.message
-            : "Unable to start the payment-backed Leaf's top-up.",
+            : "Unable to start the payment-backed Leafs top-up.",
       });
       setActiveTopUpAction(null);
     }
@@ -281,18 +281,18 @@ export function ConsumerWalletPanel({
               </p>
             </div>
             <span className="rounded-full border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-1 text-xs text-white/50">
-              Add Leaf's only when needed
+              Add Leafs only when needed
             </span>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
               <p className="text-sm font-semibold text-white">1. Pick a package</p>
               <p className="mt-2 text-sm leading-6 text-white/50">
-                Choose the amount of Eden Leaf's you want to add to the wallet.
+                Choose the amount of Eden Leafs you want to add to the wallet.
               </p>
             </div>
             <div className="rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-              <p className="text-sm font-semibold text-white">2. Add Leaf's</p>
+              <p className="text-sm font-semibold text-white">2. Add Leafs</p>
               <p className="mt-2 text-sm leading-6 text-white/50">
                 Continue to checkout for the selected pack. Leaves appear only after the settlement flow completes.
               </p>
@@ -314,7 +314,7 @@ export function ConsumerWalletPanel({
             {formatCreditsValue(displayBalanceCredits)} of {edenSpendableLeavesLabel.toLowerCase()} ready for service runs
           </p>
           <p className="mt-2 text-sm leading-6 text-white/50">
-            After you Add Leaf's here, open a service card and confirm the visible Eden Leaf's price before you run it.
+            After you Add Leafs here, open a service card and confirm the visible Eden Leafs price before you run it.
           </p>
           <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3">
             <p className="text-xs uppercase tracking-[0.12em] text-white/50">Next action</p>
@@ -355,7 +355,7 @@ export function ConsumerWalletPanel({
       <div className="mt-4 rounded-2xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm leading-6 text-white/50">
         {topUpConfig.paymentEnabled
           ? `Selected package: ${selectedPackage.title}. Stripe Checkout remains available for a one-time Leaves purchase here, and Leaves are added only after webhook settlement.`
-          : "Stripe Checkout is not available in this environment, so Leaf's cannot be purchased from this wallet surface."}
+          : "Stripe Checkout is not available in this environment, so Leafs cannot be purchased from this wallet surface."}
       </div>
 
       {receipt ? (

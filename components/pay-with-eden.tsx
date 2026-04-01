@@ -47,7 +47,7 @@ export function PayWithEden({
       const data = await res.json();
       if (!data.ok) {
         if (data.error === "Insufficient Leaf balance") {
-          setError(`You need ${data.required - data.balance} more Leaf's`);
+          setError(`You need ${data.required - data.balance} more Leafs`);
           setShowTopUp(true);
         } else {
           setError(data.error ?? "Payment failed");
@@ -104,7 +104,7 @@ export function PayWithEden({
           ? "Processing..."
           : loadingLabel
             ? loadingLabel
-            : `\ud83c\udf43 Pay with Leaf's (${leafCost} \ud83c\udf43)`}
+            : `\ud83c\udf43 Pay with Leafs (${leafCost} \ud83c\udf43)`}
       </button>
 
       {/* Pay with Card */}

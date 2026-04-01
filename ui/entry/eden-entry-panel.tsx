@@ -55,7 +55,7 @@ const publicLaunchClarityCards = [
     label: "What Eden is",
     value: "A innovator-to-consumer service platform",
     detail:
-      "Innovators create and publish AI-powered services. Consumers discover them, see visible pricing, and run them through Eden Leaf's.",
+      "Innovators create and publish AI-powered services. Consumers discover them, see visible pricing, and run them through Eden Leafs.",
   },
   {
     id: "how-pricing-works",
@@ -69,7 +69,7 @@ const publicLaunchClarityCards = [
     label: edenLaunchLabels.creditsOnlyBilling,
     value: "Top up only when needed",
     detail:
-      "Consumers Add Leaf's first, then reuse them across service runs. Hidden checkout does not appear during service use.",
+      "Consumers Add Leafs first, then reuse them across service runs. Hidden checkout does not appear during service use.",
   },
 ];
 
@@ -84,7 +84,7 @@ const publicHowEdenWorksSteps = [
     id: "consumer-discover",
     label: "2. Consumers explore",
     detail:
-      "Marketplace cards and Ask Eden show published availability, visible pricing, and Leaf's-only trust cues.",
+      "Marketplace cards and Ask Eden show published availability, visible pricing, and Leafs-only trust cues.",
   },
   {
     id: "consumer-wallet",
@@ -105,7 +105,7 @@ const publicAudienceCards = [
     id: "consumers",
     label: "For consumers",
     detail:
-      "Explore published services, check visible pricing, add Eden Leaf's only if needed, and run without hidden charges during service use.",
+      "Explore published services, check visible pricing, add Eden Leafs only if needed, and run without hidden charges during service use.",
   },
 ];
 
@@ -314,7 +314,7 @@ export function EdenEntryPanel({
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50 md:text-base">
               Eden is a innovator-to-consumer service platform. Innovators publish services with
-              visible pricing, consumers discover them and top up Eden Leaf's only when needed,
+              visible pricing, consumers discover them and top up Eden Leafs only when needed,
               and service runs happen with no hidden checkout during usage.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">

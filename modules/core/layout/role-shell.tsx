@@ -229,13 +229,13 @@ export function RoleShell({
                     border: "1px solid rgba(255,255,255,0.07)",
                     background: "rgba(255,255,255,0.04)",
                   }}
-                  title="Top up Leaf's"
+                  title="Top up Leafs"
                 >
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">
                     🍃 {edenSpendableLeavesLabel}
                   </span>
                   <span className="text-xs font-semibold text-white">
-                    {liveBalance !== null ? `${liveBalance.toLocaleString()} Leaf's` : creditsSummary.userBalanceLabel}
+                    {liveBalance !== null ? `${liveBalance.toLocaleString()} Leafs` : creditsSummary.userBalanceLabel}
                   </span>
                   {creditsSummary.businessBalanceLabel ? (
                     <>

@@ -35,7 +35,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Eden — The AI Service Economy",
   description:
-    "Eden connects builders who publish AI services with consumers who discover and run them. Powered by Leaf's — transparent pricing, no hidden charges, contribution economy.",
+    "Eden connects builders who publish AI services with consumers who discover and run them. Powered by Leafs — transparent pricing, no hidden charges, contribution economy.",
 };
 
 export default function RootLayout({
