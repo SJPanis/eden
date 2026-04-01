@@ -3,6 +3,7 @@ import { getServerSession } from "@/modules/core/session/server";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const VALID_TYPES = new Set(["technical", "fundamental", "sentiment", "full"]);
 
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
   try {
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 1200,
+      max_tokens: 3000,
       system: "You are a professional financial analyst with access to real-time market data. Search for current, accurate data. Never fabricate numbers. Always cite your sources.",
       tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages: [
