@@ -125,14 +125,17 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [balance, setBalance] = useState(balanceCredits);
 
-  async function handleRealAnalysis() {
-    const symbol = query.trim().toUpperCase() || activeTicker?.symbol;
+  async function handleAnalyze() {
+    const symbol = query.trim().toUpperCase();
     if (!symbol) return;
-    setAnalysisLoading(true);
+
+    // Clear all previous state
+    setActiveTicker(null);
+    setRealAnalysis(null);
     setAnalysisError(null);
+    setAnalysisLoading(true);
 
     try {
-      // 1. Call real analysis API with web search
       const res = await fetch("/api/services/market-lens/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -141,7 +144,7 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "Analysis failed");
 
-      // 2. Deduct Leafs
+      // Deduct Leafs on success
       const spendRes = await fetch("/api/wallet/spend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -161,22 +164,14 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
     }
   }
 
-  function handleSearch() {
-    const symbol = query.trim().toUpperCase();
-    const match = mockTickers[symbol];
-    if (!match) return;
-    setLoading(true);
-    setTimeout(() => {
-      setActiveTicker(match);
-      setLoading(false);
-    }, 800);
-  }
-
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter") handleSearch();
+    if (e.key === "Enter") handleAnalyze();
   }
 
-  const drawChart = useCallback(() => {
+  // Chart removed — replaced by real API analysis
+  const _unused = () => { void activeTicker; void canvasRef; };
+  void _unused;
+  const __chartStub = () => {
     const canvas = canvasRef.current;
     if (!canvas || !activeTicker) return;
     const ctx = canvas.getContext("2d");
@@ -378,14 +373,8 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
     ctx.font = "10px monospace";
     ctx.textAlign = "center";
     ctx.fillText("NOW", curX, padTop + chartH + 14);
-  }, [activeTicker]);
-
-  useEffect(() => {
-    drawChart();
-    function handleResize() { drawChart(); }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [drawChart]);
+  };
+  void __chartStub;
 
   const inputCls =
     "w-full rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition bg-[rgba(16,185,129,0.04)] border border-[rgba(16,185,129,0.15)] focus:border-[rgba(16,185,129,0.45)] focus:shadow-[0_0_0_3px_rgba(16,185,129,0.1)]";
@@ -459,189 +448,115 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
             />
             <button
               type="button"
-              onClick={handleSearch}
-              disabled={loading || !query.trim()}
+              onClick={handleAnalyze}
+              disabled={analysisLoading || !query.trim()}
               className="shrink-0 rounded-xl px-6 py-3 text-sm font-semibold transition-all disabled:opacity-40"
               style={{ background: ML_GREEN, color: "#060f0b" }}
             >
-              {loading ? "Analyzing..." : "Analyze"}
+              {analysisLoading ? "Analyzing..." : "Analyze — 8 🍃"}
             </button>
           </div>
         </motion.div>
 
-        {/* Chart area */}
+        {/* Results */}
+        {analysisError && (
+          <p className="mt-4 text-center text-xs text-red-400/70">{analysisError}</p>
+        )}
         <AnimatePresence mode="wait">
-          {activeTicker ? (
-            <motion.div
-              key={activeTicker.symbol}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.3 }}
-              className="mt-6"
-            >
-              {/* Ticker header */}
-              <div
-                className="flex items-center justify-between rounded-t-[20px] px-6 py-4"
-                style={{ background: ML_CARD_BG, borderTop: `1px solid ${ML_CARD_BORDER}`, borderLeft: `1px solid ${ML_CARD_BORDER}`, borderRight: `1px solid ${ML_CARD_BORDER}` }}
-              >
-                <div>
-                  <span className="text-lg font-bold text-white">{activeTicker.symbol}</span>
-                  <span className="ml-3 text-sm text-white/40">{activeTicker.name}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-lg font-bold" style={{ color: ML_GREEN }}>
-                    {activeTicker.currentPrice >= 1000
-                      ? `$${activeTicker.currentPrice.toLocaleString()}`
-                      : `$${activeTicker.currentPrice.toFixed(2)}`}
-                  </span>
-                </div>
-              </div>
-
-              {/* Canvas chart */}
-              <div
-                className="overflow-hidden"
-                style={{ background: ML_CARD_BG, borderLeft: `1px solid ${ML_CARD_BORDER}`, borderRight: `1px solid ${ML_CARD_BORDER}` }}
-              >
-                <canvas
-                  ref={canvasRef}
-                  className="h-[320px] w-full"
-                  style={{ display: "block" }}
-                />
-              </div>
-
-              {/* Analysis card */}
-              <div
-                className="rounded-b-[20px] px-6 py-5"
-                style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}
-              >
-                <p className="text-xs uppercase tracking-[0.14em]" style={{ color: ML_GREEN }}>
-                  Claude&apos;s Analysis
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-white/60">
-                  {activeTicker.insight}
-                </p>
-                <div
-                  className="mt-4 flex items-center justify-between rounded-xl px-4 py-3"
-                  style={{ background: ML_GREEN_DIM, border: `1px solid ${ML_CARD_BORDER}` }}
-                >
-                  <span className="text-xs text-white/50">Confidence Score</span>
-                  <span className="text-sm font-semibold" style={{ color: ML_GREEN }}>
-                    {activeTicker.confidence}% confidence in projected range
-                  </span>
-                </div>
-              </div>
-
-              {/* Deep Analysis button — real web data */}
-              <button
-                type="button"
-                onClick={handleRealAnalysis}
-                disabled={analysisLoading}
-                className="mt-4 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-all disabled:opacity-40"
-                style={{ background: ML_GREEN, color: "#060f0b" }}
-              >
-                {analysisLoading ? "Analyzing with live data..." : `Deep Analysis — 8 🍃`}
-              </button>
-              {analysisError && (
-                <p className="mt-2 text-center text-xs text-red-400/70">{analysisError}</p>
-              )}
-
-              {/* Real analysis results */}
-              {realAnalysis && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 space-y-3"
-                >
-                  <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-lg font-bold text-white">{realAnalysis.companyName}</p>
-                        <p className="text-xs text-white/40">{realAnalysis.ticker}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xl font-bold text-white">${realAnalysis.currentPrice?.toFixed(2)}</p>
-                        <p className={`text-sm font-semibold ${(realAnalysis.change ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                          {(realAnalysis.change ?? 0) >= 0 ? "+" : ""}{realAnalysis.change?.toFixed(2)} ({realAnalysis.changePercent?.toFixed(2)}%)
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
-                        <p className="text-[10px] text-white/30">Market Cap</p>
-                        <p className="text-xs font-semibold text-white/70">{realAnalysis.marketCap}</p>
-                      </div>
-                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
-                        <p className="text-[10px] text-white/30">P/E Ratio</p>
-                        <p className="text-xs font-semibold text-white/70">{realAnalysis.peRatio}</p>
-                      </div>
-                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
-                        <p className="text-[10px] text-white/30">52W Range</p>
-                        <p className="text-xs font-semibold text-white/70">${realAnalysis.week52Low} — ${realAnalysis.week52High}</p>
-                      </div>
-                      <div className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.03)" }}>
-                        <p className="text-[10px] text-white/30">Analyst Target</p>
-                        <p className="text-xs font-semibold text-white/70">${realAnalysis.analystTarget}</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 flex gap-2">
-                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                        style={{
-                          background: realAnalysis.analystConsensus === "Buy" ? "rgba(16,185,129,0.15)" : realAnalysis.analystConsensus === "Sell" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)",
-                          color: realAnalysis.analystConsensus === "Buy" ? ML_GREEN : realAnalysis.analystConsensus === "Sell" ? ML_RED : ML_AMBER,
-                          border: `1px solid ${realAnalysis.analystConsensus === "Buy" ? "rgba(16,185,129,0.3)" : realAnalysis.analystConsensus === "Sell" ? "rgba(239,68,68,0.3)" : "rgba(245,158,11,0.3)"}`,
-                        }}
-                      >
-                        {realAnalysis.analystConsensus}
-                      </span>
-                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                        style={{
-                          background: realAnalysis.sentiment === "Bullish" ? "rgba(16,185,129,0.15)" : realAnalysis.sentiment === "Bearish" ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.05)",
-                          color: realAnalysis.sentiment === "Bullish" ? ML_GREEN : realAnalysis.sentiment === "Bearish" ? ML_RED : "rgba(255,255,255,0.5)",
-                          border: `1px solid ${realAnalysis.sentiment === "Bullish" ? "rgba(16,185,129,0.3)" : realAnalysis.sentiment === "Bearish" ? "rgba(239,68,68,0.3)" : "rgba(255,255,255,0.1)"}`,
-                        }}
-                      >
-                        {realAnalysis.sentiment}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
-                    <p className="text-[10px] uppercase tracking-wider" style={{ color: ML_GREEN }}>Outlook</p>
-                    <p className="mt-2 text-sm leading-relaxed text-white/60">{realAnalysis.outlook}</p>
-                  </div>
-
-                  {realAnalysis.catalysts?.length > 0 && (
-                    <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
-                      <p className="text-[10px] uppercase tracking-wider text-emerald-400/70">Catalysts</p>
-                      <ul className="mt-2 space-y-1">
-                        {realAnalysis.catalysts.map((c, i) => (
-                          <li key={i} className="text-xs text-white/50">+ {c}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {realAnalysis.risks?.length > 0 && (
-                    <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
-                      <p className="text-[10px] uppercase tracking-wider text-red-400/70">Risks</p>
-                      <ul className="mt-2 space-y-1">
-                        {realAnalysis.risks.map((r, i) => (
-                          <li key={i} className="text-xs text-white/50">- {r}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <p className="text-center text-[10px] text-white/15">
-                    Powered by Claude + Live Web Data
-                  </p>
-                </motion.div>
-              )}
+          {analysisLoading ? (
+            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-12 text-center">
+              <div className="inline-block h-8 w-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: `${ML_GREEN} transparent ${ML_GREEN} ${ML_GREEN}` }} />
+              <p className="mt-3 text-sm text-white/30">Searching live market data...</p>
             </motion.div>
-          ) : !loading ? (
+          ) : realAnalysis ? (
+            <motion.div key={realAnalysis.ticker} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-6 space-y-4"
+            >
+              {/* Price + Company */}
+              <div className="rounded-xl p-5" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-lg font-bold text-white">{realAnalysis.companyName}</p>
+                    <p className="text-xs text-white/40">{realAnalysis.ticker}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-white">${typeof realAnalysis.currentPrice === "number" ? realAnalysis.currentPrice.toFixed(2) : realAnalysis.currentPrice}</p>
+                    <p className={`text-sm font-semibold ${(realAnalysis.change ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {(realAnalysis.change ?? 0) >= 0 ? "+" : ""}{typeof realAnalysis.change === "number" ? realAnalysis.change.toFixed(2) : realAnalysis.change} ({typeof realAnalysis.changePercent === "number" ? realAnalysis.changePercent.toFixed(2) : realAnalysis.changePercent}%)
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    style={{
+                      background: realAnalysis.sentiment === "Bullish" ? "rgba(16,185,129,0.15)" : realAnalysis.sentiment === "Bearish" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)",
+                      color: realAnalysis.sentiment === "Bullish" ? ML_GREEN : realAnalysis.sentiment === "Bearish" ? ML_RED : ML_AMBER,
+                    }}
+                  >
+                    {realAnalysis.sentiment}
+                  </span>
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    style={{
+                      background: realAnalysis.analystConsensus?.includes("Buy") ? "rgba(16,185,129,0.15)" : realAnalysis.analystConsensus?.includes("Sell") ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)",
+                      color: realAnalysis.analystConsensus?.includes("Buy") ? ML_GREEN : realAnalysis.analystConsensus?.includes("Sell") ? ML_RED : ML_AMBER,
+                    }}
+                  >
+                    {realAnalysis.analystConsensus}
+                  </span>
+                </div>
+              </div>
+
+              {/* Metrics grid */}
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: "Market Cap", value: realAnalysis.marketCap },
+                  { label: "P/E Ratio", value: realAnalysis.peRatio },
+                  { label: "Analyst Target", value: `$${realAnalysis.analystTarget}` },
+                  { label: "52W High", value: `$${realAnalysis.week52High}` },
+                  { label: "52W Low", value: `$${realAnalysis.week52Low}` },
+                  { label: "Data As Of", value: realAnalysis.dataAsOf ? new Date(realAnalysis.dataAsOf).toLocaleDateString() : "Today" },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-lg p-2.5" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                    <p className="text-[10px] text-white/30">{m.label}</p>
+                    <p className="mt-0.5 text-xs font-semibold text-white/70">{m.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Outlook */}
+              <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                <p className="text-[10px] uppercase tracking-wider" style={{ color: ML_GREEN }}>Outlook</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/60">{realAnalysis.outlook}</p>
+              </div>
+
+              {/* Catalysts + Risks */}
+              <div className="grid grid-cols-2 gap-3">
+                {realAnalysis.catalysts?.length > 0 && (
+                  <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                    <p className="text-[10px] uppercase tracking-wider text-emerald-400/70">Catalysts</p>
+                    <ul className="mt-2 space-y-1">
+                      {realAnalysis.catalysts.map((c, i) => (
+                        <li key={i} className="text-xs text-white/50">+ {c}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {realAnalysis.risks?.length > 0 && (
+                  <div className="rounded-xl p-4" style={{ background: ML_CARD_BG, border: `1px solid ${ML_CARD_BORDER}` }}>
+                    <p className="text-[10px] uppercase tracking-wider text-red-400/70">Risks</p>
+                    <ul className="mt-2 space-y-1">
+                      {realAnalysis.risks.map((r, i) => (
+                        <li key={i} className="text-xs text-white/50">- {r}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-center text-[10px] text-white/15">
+                Analysis by Claude Sonnet + Live Web Data
+              </p>
+            </motion.div>
+          ) : (
             <motion.div
               key="empty"
               initial={{ opacity: 0 }}
@@ -649,10 +564,10 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
               className="mt-16 text-center"
             >
               <p className="text-sm text-white/30">
-                Enter a ticker symbol to see its price history and Claude&apos;s probability cone projection.
+                Enter any ticker — AAPL, TSLA, BTC, NVDA, SPY...
               </p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {Object.keys(mockTickers).map((symbol) => (
+                {["AAPL", "TSLA", "NVDA", "BTC", "SPY"].map((symbol) => (
                   <button
                     key={symbol}
                     type="button"
@@ -665,7 +580,7 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
                 ))}
               </div>
             </motion.div>
-          ) : null}
+          )}
         </AnimatePresence>
       </div>
     </div>
