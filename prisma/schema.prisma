@@ -1339,6 +1339,22 @@ model EdenService {
   totalEarned   Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  releases      ServiceRelease[]
 
   @@index([creatorId])
+}
+
+model ServiceRelease {
+  id           String      @id @default(cuid())
+  serviceId    String
+  service      EdenService @relation(fields: [serviceId], references: [id])
+  version      String
+  notes        String      @default("")
+  status       String      @default("staged")
+  systemPrompt String?
+  inputSchema  String?
+  outputFormat String      @default("text")
+  createdAt    DateTime    @default(now())
+
+  @@index([serviceId])
 }
