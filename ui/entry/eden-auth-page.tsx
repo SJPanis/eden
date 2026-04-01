@@ -348,7 +348,7 @@ export function EdenAuthPage({
                       Enter your invite code
                     </p>
                     <p className="mt-1 text-sm text-white/40">
-                      Eden is in early access — an invite code is required.
+                      Enter an invite code if you have one.
                     </p>
                   </>
                 ) : mode === "signup" ? (

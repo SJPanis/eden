@@ -531,7 +531,7 @@ function WaitlistForm() {
               disabled={state === "loading"}
               className="w-full rounded-xl border border-[#2dd4bf]/40 bg-[#2dd4bf]/10 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20 disabled:opacity-60"
             >
-              {state === "loading" ? "Joining…" : "Request early access"}
+              {state === "loading" ? "Joining\u2026" : "Get started"}
             </button>
           </motion.form>
         )}
@@ -636,7 +636,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 className="rounded-full px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                 style={{ background: ACCENT }}
               >
-                Get early access
+                Sign up
               </Link>
             </div>
           </div>
@@ -682,7 +682,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   color: ACCENT,
                 }}
               >
-                Eden Platform — Early Access
+                Eden Platform — Live
               </span>
             </motion.div>
 
@@ -730,7 +730,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   boxShadow: `0 0 32px rgba(${ACCENT_RGB}, 0.28)`,
                 }}
               >
-                Request early access
+                Create account
               </Link>
               <Link
                 href="/consumer"
@@ -980,7 +980,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           </div>
         </section>
 
-        {/* ── Early Access / Waitlist ── */}
+        {/* ── Sign Up CTA ── */}
         <section
           id="waitlist"
           className="border-t px-5 py-20 md:py-28"
