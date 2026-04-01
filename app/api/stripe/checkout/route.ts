@@ -56,8 +56,8 @@ export async function POST(req: NextRequest) {
         packageId,
         leafs: String(pkg.leafs),
       },
-      success_url: `${origin}/consumer?topup=success`,
-      cancel_url: `${origin}/consumer`,
+      success_url: `${origin}/topup?topped_up=true`,
+      cancel_url: `${origin}/topup`,
     });
 
     return NextResponse.json({

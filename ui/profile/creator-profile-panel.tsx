@@ -46,7 +46,7 @@ export function CreatorProfilePanel({
 
   const stats = [
     { label: "Services Published", value: publishedServices },
-    { label: "Total Leaf's Earned", value: totalLeafsEarned.toLocaleString() },
+    { label: "Total Leafs Earned", value: totalLeafsEarned.toLocaleString() },
     { label: "Members Referred", value: membersReferred },
   ];
 

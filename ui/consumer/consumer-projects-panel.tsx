@@ -288,7 +288,7 @@ export function ConsumerProjectsPanel({
             </p>
             <p className="mt-1 text-sm leading-6 text-white/50">
               Submit code improvements, design work, bug fixes, or ideas directly to Eden.
-              Each period, the contribution pool distributes Leaf's to approved contributors
+              Each period, the contribution pool distributes Leafs to approved contributors
               based on their score.
             </p>
           </div>

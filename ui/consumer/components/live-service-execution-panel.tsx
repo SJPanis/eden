@@ -280,7 +280,7 @@ export function LiveServiceExecutionPanel({
           ) : null}
           {!disabled && !hasSufficientBalance ? (
             <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-6 text-amber-300">
-              This live run needs {formatLeaves(requiredCredits)}. Add Leaf's first, then return here to run the service once the wallet is ready.
+              This live run needs {formatLeaves(requiredCredits)}. Add Leafs first, then return here to run the service once the wallet is ready.
             </div>
           ) : null}
           {errorMessage ? (

@@ -665,7 +665,7 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-credits",
-      label: "Eden Leaf's flow",
+      label: "Eden Leafs flow",
       value: `+${formatCredits(creditFlow.inflow)} / -${formatCredits(creditFlow.outflow)}`,
       detail: "Development ledger-overlay movement across wallet top-ups, usage, reserves, and adjustments.",
     },
@@ -692,12 +692,12 @@ export function OwnerDashboardPanel({
     },
     {
       id: "overview-usage-credits",
-      label: "Spendable Leaf's used",
+      label: "Spendable Leafs used",
       value: formatCredits(usageMetrics.totalCreditsUsed),
       detail:
         usageMetrics.source === "persistent"
-          ? "Spendable Leaf's attached to persisted service usage events for early monetization reporting."
-          : "Spendable Leaf's estimated from usage transactions while Prisma-backed usage records are unavailable.",
+          ? "Spendable Leafs attached to persisted service usage events for early monetization reporting."
+          : "Spendable Leafs estimated from usage transactions while Prisma-backed usage records are unavailable.",
     },
     {
       id: "overview-platform-earnings",
@@ -709,7 +709,7 @@ export function OwnerDashboardPanel({
       id: "overview-innovator-earnings",
       label: `${edenEarnedLeavesLabel} accrued`,
       value: formatCredits(usageMetrics.monetization.estimatedBuilderEarningsCredits),
-      detail: "Innovator net earned Leaf's projection after the Eden fee share using current service pricing.",
+      detail: "Innovator net earned Leafs projection after the Eden fee share using current service pricing.",
     },
   ];
   const releaseSummaryCards = [
@@ -754,7 +754,7 @@ export function OwnerDashboardPanel({
     {
       label: "Reserve held",
       value: formatCredits(creditFlow.reserve),
-      detail: "Leaf's reserved for publish staging, safety holds, and owner review buffers.",
+      detail: "Leafs reserved for publish staging, safety holds, and owner review buffers.",
     },
     {
       label: "Net movement",
@@ -767,7 +767,7 @@ export function OwnerDashboardPanel({
       id: "payments-total",
       label: "Total top-ups",
       value: `${paymentMetrics.totalPayments}`,
-      detail: "Persistent Leaf's top-up records tracked through the current owner payment ledger.",
+      detail: "Persistent Leafs top-up records tracked through the current owner payment ledger.",
     },
     {
       id: "payments-settled",
@@ -837,7 +837,7 @@ export function OwnerDashboardPanel({
       id: "payout-internal-use",
       label: "Earned Leaf\'s used internally",
       value: formatCredits(payoutAccounting.totalInternalUseCredits),
-      detail: "Persistent internal-use records where innovators reused earned Leaf's inside Eden instead of leaving them in payout accounting.",
+      detail: "Persistent internal-use records where innovators reused earned Leafs inside Eden instead of leaving them in payout accounting.",
     },
     {
       id: "payout-ready",
@@ -1291,8 +1291,8 @@ export function OwnerDashboardPanel({
                 businessId={simulationBusinessId}
                 description={
                   simulationBusiness
-                    ? `These development-only actions append local Eden Leaf's events for ${simulationBusiness.name}.`
-                    : `These development-only actions append local Eden Leaf's events for ${session.user.displayName}.`
+                    ? `These development-only actions append local Eden Leafs events for ${simulationBusiness.name}.`
+                    : `These development-only actions append local Eden Leafs events for ${session.user.displayName}.`
                 }
               />
             </div>
@@ -1481,7 +1481,7 @@ export function OwnerDashboardPanel({
           >
             {/* Credit summary */}
             <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
-              <PanelHeader eyebrow="Credit Flow" title="Leaf's movement summary" badge="Dev ledger overlay" />
+              <PanelHeader eyebrow="Credit Flow" title="Leafs movement summary" badge="Dev ledger overlay" />
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {creditSummary.map((item) => (
                   <StatCell key={item.label} label={item.label} value={item.value} sub={item.detail} />
@@ -1491,7 +1491,7 @@ export function OwnerDashboardPanel({
 
             {/* Credit activity */}
             <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
-              <PanelHeader eyebrow="Recent Activity" title="Leaf's transaction feed" badge={`${creditActivity.length} entries`} />
+              <PanelHeader eyebrow="Recent Activity" title="Leafs transaction feed" badge={`${creditActivity.length} entries`} />
               <div className="space-y-2">
                 {creditActivity.map((activity) => (
                   <div key={activity.id} className="flex items-start justify-between gap-3 rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] px-3 py-2">
@@ -1706,7 +1706,7 @@ export function OwnerDashboardPanel({
                   <StatCell label="Settled payouts" value={`${payoutAccounting.statusOverview.settledCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.settledSettlementCredits)} recorded as paid`} />
                   <StatCell label="Pending payouts" value={`${payoutAccounting.statusOverview.pendingCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.pendingSettlementCredits)} still queued`} />
                   <StatCell label="Canceled payouts" value={`${payoutAccounting.statusOverview.canceledCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.canceledSettlementCredits)} removed from queue`} />
-                  <StatCell label="Internal Eden use" value={`${payoutAccounting.statusOverview.internalUseCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leaf's`} />
+                  <StatCell label="Internal Eden use" value={`${payoutAccounting.statusOverview.internalUseCount}`} sub={`${formatCredits(payoutAccounting.statusOverview.internalUseCredits)} reused from earned Leafs`} />
                   <div className="sm:col-span-2">
                     <StatCell label="Current state" value={payoutAccounting.payoutStatusLabel} sub={`Liability ${formatCredits(payoutAccounting.totalBuilderLiabilityCredits)} | Ready ${formatCredits(payoutAccounting.totalPayoutReadyCredits)}`} />
                   </div>
@@ -1718,7 +1718,7 @@ export function OwnerDashboardPanel({
             <div className="rounded-2xl p-4" style={{ borderBottom: "1px solid rgba(45,212,191,0.06)" }}>
               <PanelHeader
                 eyebrow="Internal Earned Use"
-                title="Innovator Leaf's reused internally"
+                title="Innovator Leafs reused internally"
                 badge={payoutAccounting.internalUseHistorySource === "persistent" ? "Persistent" : "No records"}
               />
               <div className="space-y-2">
@@ -1747,7 +1747,7 @@ export function OwnerDashboardPanel({
                   ))
                 ) : (
                   <div className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-4 text-sm text-white/40">
-                    No internal earned-Leaf's usage has been recorded yet.
+                    No internal earned-Leafs usage has been recorded yet.
                   </div>
                 )}
               </div>

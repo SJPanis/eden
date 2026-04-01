@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
               userId: createdUser.id,
               grantedByUserId: ownerUser?.id ?? createdUser.id,
               amountCredits: BETA_WELCOME_LEAVES,
-              note: `Beta welcome gift — ${BETA_WELCOME_LEAVES} Leaf's granted on account creation with access code.`,
+              note: `Beta welcome gift — ${BETA_WELCOME_LEAVES} Leafs granted on account creation with access code.`,
             },
           }),
         ]);

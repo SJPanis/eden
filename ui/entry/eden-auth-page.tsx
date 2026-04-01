@@ -152,7 +152,7 @@ export function EdenAuthPage({
       leaves >= 500
         ? `Welcome to Eden. You've been granted ${leaves} Leafs to get started.`
         : leaves > 0
-          ? `Account created! You've been gifted ${leaves} Leaf's. Signing you in now.`
+          ? `Account created! You've been gifted ${leaves} Leafs. Signing you in now.`
           : "Account created. Signing you in now.",
     );
     await handleSignIn();

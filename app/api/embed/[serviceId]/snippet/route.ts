@@ -30,6 +30,6 @@ export async function GET(
     ok: true,
     html,
     embedUrl,
-    instructions: `Paste this anywhere on your site to embed ${name}. Users can pay with Eden Leaf's or card directly in the embed.`,
+    instructions: `Paste this anywhere on your site to embed ${name}. Users can pay with Eden Leafs or card directly in the embed.`,
   });
 }
