@@ -162,7 +162,17 @@ export function Layer2Dashboard() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-white">{sub.request}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-white">{sub.request}</p>
+                    <span className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase"
+                      style={sub.request.includes("[eden-improve]")
+                        ? { background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.2)" }
+                        : { background: "rgba(59,130,246,0.12)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.2)" }
+                      }
+                    >
+                      {sub.request.includes("[eden-improve]") ? "Platform" : "Service"}
+                    </span>
+                  </div>
                   <p className="mt-1 text-xs text-white/40">{sub.summary}</p>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
