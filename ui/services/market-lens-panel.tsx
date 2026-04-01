@@ -119,6 +119,7 @@ type RealAnalysis = {
     ninetyDay?: { low: number; base: number; high: number };
     oneYear?: { low: number; base: number; high: number };
   };
+  history?: { label: string; price: number }[];
 };
 
 export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanelProps) {
@@ -174,32 +175,31 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
     if (e.key === "Enter") handleAnalyze();
   }
 
-  // Prediction cone chart — draws directly when realAnalysis changes
+  // Flashlight chart — history + prediction cone
   useEffect(() => {
     if (!realAnalysis || !canvasRef.current) return;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctx2 = canvas.getContext("2d");
+    if (!ctx2) return;
 
     const draw = () => {
       canvas.style.width = "100%";
-      canvas.style.height = "280px";
+      canvas.style.height = "320px";
       const dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
       if (rect.width === 0) { requestAnimationFrame(draw); return; }
 
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const W = rect.width;
-      const H = rect.height;
-
-      ctx.fillStyle = "#060f0b";
-      ctx.fillRect(0, 0, W, H);
-
-      const padL = 50, padR = 60, padT = 40, padB = 30;
+      ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const W = rect.width, H = rect.height;
+      const padL = 55, padR = 70, padT = 45, padB = 30;
       const chartW = W - padL - padR;
       const chartH = H - padT - padB;
+
+      // Background
+      ctx2.fillStyle = "#060f0b";
+      ctx2.fillRect(0, 0, W, H);
 
       const price = realAnalysis.currentPrice ?? 0;
       const pt = realAnalysis.priceTargets;
@@ -207,95 +207,213 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
       const d90 = pt?.ninetyDay ?? { low: price * 0.88, base: price * 1.05, high: price * 1.12 };
       const d365 = pt?.oneYear ?? { low: price * 0.75, base: price * 1.10, high: price * 1.25 };
 
-      const allPrices = [price, d30.low, d30.high, d90.low, d90.high, d365.low, d365.high];
-      const minP = Math.min(...allPrices) * 0.95;
-      const maxP = Math.max(...allPrices) * 1.05;
+      // Build history points (default: flat line at current price)
+      const hist = realAnalysis.history?.length
+        ? realAnalysis.history.map((h) => h.price)
+        : [price, price, price, price, price, price];
+      const histLabels = realAnalysis.history?.length
+        ? realAnalysis.history.map((h) => h.label.replace(" ago", ""))
+        : ["30d", "21d", "14d", "7d", "3d", "NOW"];
 
-      const toX = (t: number) => padL + (t / 3) * chartW;
+      // Price range for full chart
+      const allP = [...hist, price, d30.low, d30.high, d90.low, d90.high, d365.low, d365.high, d365.high * 1.05, d365.low * 0.95];
+      const minP = Math.min(...allP) * 0.97;
+      const maxP = Math.max(...allP) * 1.03;
+
       const toY = (p: number) => padT + chartH - ((p - minP) / (maxP - minP)) * chartH;
 
-      const points = [
+      // TODAY divider at 35% from left
+      const todayX = padL + chartW * 0.35;
+
+      // ── LEFT: Historical price line ──────────────────────────────
+      const histXStep = (todayX - padL) / (hist.length - 1);
+      const histPoints = hist.map((p, i) => ({ x: padL + i * histXStep, y: toY(p) }));
+
+      // Smooth curve through history points
+      ctx2.beginPath();
+      ctx2.moveTo(histPoints[0].x, histPoints[0].y);
+      for (let i = 1; i < histPoints.length; i++) {
+        const prev = histPoints[i - 1];
+        const curr = histPoints[i];
+        const cpx = (prev.x + curr.x) / 2;
+        ctx2.quadraticCurveTo(prev.x + (cpx - prev.x) * 0.8, prev.y, cpx, (prev.y + curr.y) / 2);
+        ctx2.quadraticCurveTo(curr.x - (curr.x - cpx) * 0.8, curr.y, curr.x, curr.y);
+      }
+      ctx2.strokeStyle = "rgba(255,255,255,0.6)";
+      ctx2.lineWidth = 2;
+      ctx2.stroke();
+
+      // History dots
+      for (const hp of histPoints) {
+        ctx2.beginPath();
+        ctx2.arc(hp.x, hp.y, 2.5, 0, Math.PI * 2);
+        ctx2.fillStyle = "rgba(255,255,255,0.5)";
+        ctx2.fill();
+      }
+
+      // History x-axis labels
+      ctx2.font = "9px monospace";
+      ctx2.textAlign = "center";
+      ctx2.fillStyle = "rgba(255,255,255,0.2)";
+      histLabels.forEach((lbl, i) => {
+        ctx2.fillText(lbl, padL + i * histXStep, H - 8);
+      });
+
+      // ── VERTICAL DIVIDER at TODAY ────────────────────────────────
+      ctx2.beginPath();
+      ctx2.moveTo(todayX, padT);
+      ctx2.lineTo(todayX, padT + chartH);
+      ctx2.strokeStyle = "rgba(255,255,255,0.15)";
+      ctx2.lineWidth = 1;
+      ctx2.stroke();
+
+      ctx2.font = "9px monospace";
+      ctx2.textAlign = "center";
+      ctx2.fillStyle = "rgba(255,255,255,0.35)";
+      ctx2.fillText("TODAY", todayX, padT - 8);
+
+      // Current price dot
+      ctx2.beginPath();
+      ctx2.arc(todayX, toY(price), 5, 0, Math.PI * 2);
+      ctx2.fillStyle = "#ffffff";
+      ctx2.fill();
+
+      // ── RIGHT: Flashlight prediction cones ──────────────────────
+      const coneW = padL + chartW - todayX;
+      const coneX = (t: number) => todayX + (t / 3) * coneW; // t: 0=today,1=30d,2=90d,3=1yr
+
+      const conePoints = [
         { t: 0, low: price, base: price, high: price },
         { t: 1, ...d30 },
         { t: 2, ...d90 },
         { t: 3, ...d365 },
       ];
 
-      // Upper band (green)
-      ctx.beginPath();
-      ctx.moveTo(toX(0), toY(price));
-      for (const p of points) ctx.lineTo(toX(p.t), toY(p.high));
-      for (const p of [...points].reverse()) ctx.lineTo(toX(p.t), toY(p.base));
-      ctx.closePath();
-      ctx.fillStyle = "rgba(16,185,129,0.12)";
-      ctx.fill();
+      // OUTER cone (25% confidence)
+      ctx2.beginPath();
+      ctx2.moveTo(coneX(0), toY(price));
+      for (const cp of conePoints) ctx2.lineTo(coneX(cp.t), toY(cp.high * 1.05));
+      for (const cp of [...conePoints].reverse()) ctx2.lineTo(coneX(cp.t), toY(cp.low * 0.95));
+      ctx2.closePath();
+      ctx2.fillStyle = "rgba(255,255,255,0.03)";
+      ctx2.fill();
 
-      // Lower band (red)
-      ctx.beginPath();
-      ctx.moveTo(toX(0), toY(price));
-      for (const p of points) ctx.lineTo(toX(p.t), toY(p.base));
-      for (const p of [...points].reverse()) ctx.lineTo(toX(p.t), toY(p.low));
-      ctx.closePath();
-      ctx.fillStyle = "rgba(239,68,68,0.10)";
-      ctx.fill();
+      // MIDDLE cone (50% confidence) — upper green, lower red
+      ctx2.beginPath();
+      ctx2.moveTo(coneX(0), toY(price));
+      for (const cp of conePoints) ctx2.lineTo(coneX(cp.t), toY(cp.high));
+      for (const cp of [...conePoints].reverse()) ctx2.lineTo(coneX(cp.t), toY(cp.base));
+      ctx2.closePath();
+      ctx2.fillStyle = "rgba(16,185,129,0.08)";
+      ctx2.fill();
 
-      // Upper line
-      ctx.beginPath();
-      for (const p of points) ctx.lineTo(toX(p.t), toY(p.high));
-      ctx.strokeStyle = "rgba(16,185,129,0.7)";
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      ctx2.beginPath();
+      ctx2.moveTo(coneX(0), toY(price));
+      for (const cp of conePoints) ctx2.lineTo(coneX(cp.t), toY(cp.base));
+      for (const cp of [...conePoints].reverse()) ctx2.lineTo(coneX(cp.t), toY(cp.low));
+      ctx2.closePath();
+      ctx2.fillStyle = "rgba(239,68,68,0.08)";
+      ctx2.fill();
 
-      // Lower line
-      ctx.beginPath();
-      for (const p of points) ctx.lineTo(toX(p.t), toY(p.low));
-      ctx.strokeStyle = "rgba(239,68,68,0.7)";
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      // Middle cone outline (dashed)
+      ctx2.setLineDash([3, 3]);
+      ctx2.beginPath();
+      for (const cp of conePoints) ctx2.lineTo(coneX(cp.t), toY(cp.high));
+      ctx2.strokeStyle = "rgba(255,255,255,0.15)";
+      ctx2.lineWidth = 1;
+      ctx2.stroke();
+      ctx2.beginPath();
+      for (const cp of conePoints) ctx2.lineTo(coneX(cp.t), toY(cp.low));
+      ctx2.stroke();
+      ctx2.setLineDash([]);
 
-      // Center dotted line
-      ctx.beginPath();
-      ctx.setLineDash([4, 4]);
-      for (const p of points) ctx.lineTo(toX(p.t), toY(p.base));
-      ctx.strokeStyle = "rgba(255,255,255,0.35)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.setLineDash([]);
+      // INNER cone (75% confidence)
+      const innerPts = [
+        { t: 0, low: price, base: price, high: price },
+        { t: 1, ...d30 },
+        { t: 2, ...d90 },
+      ];
+      ctx2.beginPath();
+      ctx2.moveTo(coneX(0), toY(price));
+      for (const cp of innerPts) ctx2.lineTo(coneX(cp.t), toY(cp.high));
+      for (const cp of [...innerPts].reverse()) ctx2.lineTo(coneX(cp.t), toY(cp.base));
+      ctx2.closePath();
+      ctx2.fillStyle = "rgba(16,185,129,0.15)";
+      ctx2.fill();
 
-      // Current price dot
-      ctx.beginPath();
-      ctx.arc(toX(0), toY(price), 5, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
+      ctx2.beginPath();
+      ctx2.moveTo(coneX(0), toY(price));
+      for (const cp of innerPts) ctx2.lineTo(coneX(cp.t), toY(cp.base));
+      for (const cp of [...innerPts].reverse()) ctx2.lineTo(coneX(cp.t), toY(cp.low));
+      ctx2.closePath();
+      ctx2.fillStyle = "rgba(239,68,68,0.12)";
+      ctx2.fill();
 
-      // X axis labels
-      ctx.font = "10px monospace";
-      ctx.fillStyle = "rgba(255,255,255,0.3)";
-      ctx.textAlign = "center";
-      ["TODAY", "30D", "90D", "1YR"].forEach((label, i) => {
-        ctx.fillText(label, toX(i), H - 8);
-      });
+      // Inner cone outline (solid)
+      ctx2.beginPath();
+      for (const cp of innerPts) ctx2.lineTo(coneX(cp.t), toY(cp.high));
+      ctx2.strokeStyle = "rgba(16,185,129,0.4)";
+      ctx2.lineWidth = 1.5;
+      ctx2.stroke();
+      ctx2.beginPath();
+      for (const cp of innerPts) ctx2.lineTo(coneX(cp.t), toY(cp.low));
+      ctx2.strokeStyle = "rgba(239,68,68,0.4)";
+      ctx2.stroke();
 
-      // Y axis labels
-      ctx.textAlign = "right";
-      ctx.fillStyle = "rgba(16,185,129,0.6)";
-      ctx.fillText(`$${Math.round(d365.high)}`, W - 8, toY(d365.high) + 4);
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
-      ctx.fillText(`$${Math.round(d365.base)}`, W - 8, toY(d365.base) + 4);
-      ctx.fillStyle = "rgba(239,68,68,0.6)";
-      ctx.fillText(`$${Math.round(d365.low)}`, W - 8, toY(d365.low) + 4);
+      // Center expected line (dotted)
+      ctx2.beginPath();
+      ctx2.setLineDash([4, 4]);
+      for (const cp of conePoints) ctx2.lineTo(coneX(cp.t), toY(cp.base));
+      ctx2.strokeStyle = "rgba(255,255,255,0.5)";
+      ctx2.lineWidth = 1;
+      ctx2.stroke();
+      ctx2.setLineDash([]);
 
-      // Current price label
-      ctx.textAlign = "left";
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 11px monospace";
-      ctx.fillText(`$${price.toFixed(2)}`, toX(0) + 10, toY(price) - 8);
+      // Cone x-axis labels
+      ctx2.font = "9px monospace";
+      ctx2.textAlign = "center";
+      ctx2.fillStyle = "rgba(255,255,255,0.2)";
+      ctx2.fillText("30D", coneX(1), H - 8);
+      ctx2.fillText("90D", coneX(2), H - 8);
+      ctx2.fillText("1YR", coneX(3), H - 8);
 
-      // Ticker label
-      ctx.textAlign = "left";
-      ctx.font = "10px monospace";
-      ctx.fillStyle = "rgba(16,185,129,0.5)";
-      ctx.fillText(`${realAnalysis.ticker} Prediction Cone`, padL, 20);
+      // Right edge labels
+      ctx2.textAlign = "right";
+      ctx2.font = "9px monospace";
+      ctx2.fillStyle = "rgba(16,185,129,0.7)";
+      ctx2.fillText(`$${Math.round(d365.high)}`, W - 6, toY(d365.high) + 3);
+      ctx2.fillStyle = "rgba(255,255,255,0.45)";
+      ctx2.fillText(`$${Math.round(d365.base)}`, W - 6, toY(d365.base) + 3);
+      ctx2.fillStyle = "rgba(239,68,68,0.7)";
+      ctx2.fillText(`$${Math.round(d365.low)}`, W - 6, toY(d365.low) + 3);
+
+      // ── Y-axis price labels (left) ──────────────────────────────
+      ctx2.textAlign = "right";
+      ctx2.font = "9px monospace";
+      ctx2.fillStyle = "rgba(255,255,255,0.2)";
+      const ySteps = 5;
+      for (let i = 0; i <= ySteps; i++) {
+        const p = minP + (maxP - minP) * (i / ySteps);
+        ctx2.fillText(`$${Math.round(p)}`, padL - 6, toY(p) + 3);
+      }
+
+      // ── Top labels ──────────────────────────────────────────────
+      ctx2.textAlign = "left";
+      ctx2.font = "bold 11px monospace";
+      ctx2.fillStyle = "rgba(16,185,129,0.8)";
+      ctx2.fillText(realAnalysis.ticker, padL, 18);
+      ctx2.font = "10px monospace";
+      ctx2.fillStyle = "rgba(255,255,255,0.4)";
+      ctx2.fillText(realAnalysis.companyName ?? "", padL + ctx2.measureText(realAnalysis.ticker).width + 8, 18);
+
+      ctx2.textAlign = "right";
+      ctx2.font = "bold 12px monospace";
+      ctx2.fillStyle = "#ffffff";
+      ctx2.fillText(`$${price.toFixed(2)}`, W - padR + 60, 18);
+      const changeStr = `${(realAnalysis.change ?? 0) >= 0 ? "+" : ""}${typeof realAnalysis.change === "number" ? realAnalysis.change.toFixed(2) : "0"} (${typeof realAnalysis.changePercent === "number" ? realAnalysis.changePercent.toFixed(2) : "0"}%)`;
+      ctx2.font = "10px monospace";
+      ctx2.fillStyle = (realAnalysis.change ?? 0) >= 0 ? "rgba(16,185,129,0.8)" : "rgba(239,68,68,0.8)";
+      ctx2.fillText(changeStr, W - padR + 60, 32);
     };
 
     const timer = setTimeout(draw, 100);
@@ -642,7 +760,7 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
               <div className="overflow-hidden rounded-xl" style={{ border: `1px solid ${ML_CARD_BORDER}` }}>
                 <canvas
                   ref={canvasRef}
-                  className="h-[280px] w-full"
+                  className="h-[320px] w-full"
                   style={{ display: "block" }}
                 />
               </div>
