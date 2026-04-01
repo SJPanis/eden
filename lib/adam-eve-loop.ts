@@ -75,7 +75,7 @@ export function startAdamScheduler(baseUrl: string) {
   if (adamSchedulerStarted) return;
   adamSchedulerStarted = true;
   adamSchedulerStartedAt = Date.now();
-  console.log("[adam] Scheduler starting — runs every 30 minutes");
+  console.log("[artist] Scheduler starting — runs every 5 minutes");
 
   const runAdam = async () => {
     try {
@@ -104,10 +104,9 @@ export function startAdamScheduler(baseUrl: string) {
     }
   };
 
-  // First run after 5 minutes
-  setTimeout(runAdam, 5 * 60 * 1000);
-  // Then every 30 minutes
-  setInterval(runAdam, 30 * 60 * 1000);
+  // First run after 2 minutes, then every 5 minutes
+  setTimeout(runAdam, 2 * 60 * 1000);
+  setInterval(runAdam, 5 * 60 * 1000);
 }
 
 export function startEveScheduler(baseUrl: string) {
