@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
         {
           role: "user",
           content: `Search for "${ticker} stock price today" and return a JSON analysis.
+Also estimate approximate prices at 30, 21, 14, 7, and 3 days ago from recent trend data.
 
 Return ONLY this JSON (no other text):
 {
@@ -71,6 +72,14 @@ Return ONLY this JSON (no other text):
     "ninetyDay": { "low": 0.00, "base": 0.00, "high": 0.00 },
     "oneYear": { "low": 0.00, "base": 0.00, "high": 0.00 }
   },
+  "history": [
+    { "label": "30d ago", "price": 0.00 },
+    { "label": "21d ago", "price": 0.00 },
+    { "label": "14d ago", "price": 0.00 },
+    { "label": "7d ago", "price": 0.00 },
+    { "label": "3d ago", "price": 0.00 },
+    { "label": "today", "price": 0.00 }
+  ],
   "dataAsOf": "${new Date().toISOString()}"
 }`,
         },
