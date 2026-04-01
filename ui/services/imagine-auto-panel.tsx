@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { PayWithEden } from "@/components/pay-with-eden";
+import { ServiceLoadingBar } from "@/components/service-loading-bar";
 
 type ImagineAutoPanelProps = {
   username: string;
@@ -133,7 +134,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
     const data = await res.json();
     if (!data.ok) {
       if (data.error === "Insufficient Leaf balance") {
-        setSpendError(`Not enough Leaf's. You need ${data.required}, you have ${data.balance}.`);
+        setSpendError(`Not enough Leafs. You need ${data.required}, you have ${data.balance}.`);
         setShowTopUp(true);
       } else {
         setSpendError("Payment failed. Try again.");
@@ -180,7 +181,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
       // 3. Show results
       setPartsResults(data.parts as PartResult[]);
     } catch (err) {
-      setSpendError(err instanceof Error ? err.message : "Search failed. No Leaf's were charged.");
+      setSpendError(err instanceof Error ? err.message : "Search failed. No Leafs were charged.");
     } finally {
       setPartsLoading(false);
     }
@@ -221,7 +222,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
         }));
       } catch { /* ignore */ }
     } catch {
-      setSpendError("Generation failed. No Leaf's were charged. Try again.");
+      setSpendError("Generation failed. No Leafs were charged. Try again.");
     } finally {
       setVizLoading(false);
     }
@@ -302,7 +303,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
       // 4. Show result
       setDiagResult(parsed);
     } catch {
-      setSpendError("Diagnosis failed. No Leaf's were charged. Try again.");
+      setSpendError("Diagnosis failed. No Leafs were charged. Try again.");
     } finally {
       setDiagLoading(false);
     }
@@ -318,6 +319,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
 
   return (
     <div className="relative min-h-screen" style={{ backgroundColor: "#0b1622" }}>
+      <ServiceLoadingBar loading={partsLoading || vizLoading || diagLoading} />
       {/* Top nav */}
       <div className="relative z-10 flex items-center justify-between px-6 py-5">
         <Link
@@ -333,7 +335,7 @@ export function ImagineAutoPanel({ username, displayName, balanceCredits }: Imag
             className="rounded-full px-3 py-1 font-mono text-xs font-semibold text-white"
             style={{ border: `1px solid ${IA_CARD_BORDER}`, background: IA_GOLD_DIM }}
           >
-            &#127809; {balance.toLocaleString()}
+            🍃 {balance.toLocaleString()}
           </span>
         </div>
       </div>

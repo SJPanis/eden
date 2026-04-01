@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
+import { ServiceLoadingBar } from "@/components/service-loading-bar";
 
 type SpotSplorePanelProps = {
   username: string;
@@ -318,6 +319,7 @@ export function SpotSplorePanel({ displayName, balanceCredits }: SpotSplorePanel
 
   return (
     <div className="relative min-h-screen" style={{ backgroundColor: "#0a0514" }}>
+      <ServiceLoadingBar loading={discoverLoading} />
       {/* Top nav */}
       <div className="relative z-10 flex items-center justify-between px-6 py-5">
         <Link
@@ -333,7 +335,7 @@ export function SpotSplorePanel({ displayName, balanceCredits }: SpotSplorePanel
             className="rounded-full px-3 py-1 font-mono text-xs font-semibold text-white"
             style={{ border: `1px solid ${SS_CARD_BORDER}`, background: SS_PURPLE_DIM }}
           >
-            &#127809; {balanceCredits.toLocaleString()}
+            🍃 {balanceCredits.toLocaleString()}
           </span>
         </div>
       </div>
@@ -474,7 +476,7 @@ export function SpotSplorePanel({ displayName, balanceCredits }: SpotSplorePanel
                   background: `linear-gradient(135deg, ${SS_PURPLE}, ${SS_PINK})`,
                 }}
               >
-                Explore My Universe — 50 &#127809;
+                Explore My Universe — 50 🍃
               </button>
             </motion.div>
           )}
