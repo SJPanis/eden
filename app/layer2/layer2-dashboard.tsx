@@ -57,13 +57,12 @@ export function Layer2Dashboard() {
       const data = await res.json();
       if (data.ok) {
         setSubmissions((prev) => prev.filter((s) => s.id !== approvalId));
-        // Refresh status
-        fetch("/api/layer2/status")
-          .then((r) => r.json())
-          .then((d) => { if (d.ok) setStatus(d); });
+        fetch("/api/layer2/status").then((r) => r.json()).then((d) => { if (d.ok) setStatus(d); });
+      } else {
+        alert(data.error ?? "Action failed");
       }
     } catch {
-      // silent
+      alert("Network error");
     }
     setActionLoading(null);
   }
