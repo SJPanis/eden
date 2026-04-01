@@ -3,6 +3,7 @@ import { getServerSession } from "@/modules/core/session/server";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 function cleanClaudeText(content: Anthropic.ContentBlock[]): string {
   const allText = content
@@ -38,28 +39,17 @@ export async function POST(req: NextRequest) {
   try {
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
+      max_tokens: 4000,
       system: "You are an automotive parts expert. Search the web for real, currently available parts. Return structured data only. No HTML tags in your response.",
       tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages: [
         {
           role: "user",
-          content: `Find real OEM and aftermarket parts for: ${year} ${make} ${model}
-Part needed: ${part}
+          content: `Find parts for: ${year} ${make} ${model} — ${part}
 
-Search for actual available parts from RockAuto, AutoZone, Advance Auto, O'Reilly, or eBay Motors. Return ONLY this JSON array (no other text, no markdown fences):
-[
-  {
-    "name": "part name",
-    "brand": "brand name",
-    "partNumber": "actual part number",
-    "price": "price in USD",
-    "condition": "New/OEM/Aftermarket/Remanufactured",
-    "source": "RockAuto/AutoZone/etc",
-    "notes": "fitment notes"
-  }
-]
-Return 3-6 real parts. If you cannot find real data, return the text SEARCH_FAILED.`,
+Search RockAuto first, then AutoZone as backup. Return ONLY a JSON array (no markdown, no explanation):
+[{"name":"...","brand":"...","partNumber":"...","price":"$XX.XX","condition":"New/OEM/Aftermarket/Remanufactured","source":"RockAuto/AutoZone","notes":"fitment notes"}]
+Return 3-4 real parts. If nothing found, return SEARCH_FAILED.`,
         },
       ],
     });
