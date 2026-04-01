@@ -39,17 +39,18 @@ export async function POST(req: NextRequest) {
   try {
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 4000,
-      system: "You are an automotive parts expert. Search the web for real, currently available parts. Return structured data only. No HTML tags in your response.",
+      max_tokens: 1000,
+      system: "You are an auto parts expert. Do ONE web search, then return JSON. No HTML tags.",
       tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages: [
         {
           role: "user",
-          content: `Find parts for: ${year} ${make} ${model} — ${part}
+          content: `Search "${year} ${make} ${model} ${part} site:rockauto.com OR site:autozone.com" and return parts as JSON.
 
-Search RockAuto first, then AutoZone as backup. Return ONLY a JSON array (no markdown, no explanation):
-[{"name":"...","brand":"...","partNumber":"...","price":"$XX.XX","condition":"New/OEM/Aftermarket/Remanufactured","source":"RockAuto/AutoZone","notes":"fitment notes"}]
-Return 3-4 real parts. If nothing found, return SEARCH_FAILED.`,
+Return ONLY a JSON array (no markdown, no explanation):
+[{"name":"...","brand":"...","partNumber":"...","price":"$XX.XX","condition":"New/OEM/Aftermarket","source":"RockAuto/AutoZone","notes":"..."}]
+
+Return 3 real parts. If nothing found, return SEARCH_FAILED.`,
         },
       ],
     });
