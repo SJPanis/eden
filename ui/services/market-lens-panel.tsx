@@ -181,8 +181,18 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Ensure canvas is laid out before drawing
+    canvas.style.width = "100%";
+    canvas.style.height = "280px";
+
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
+
+    if (rect.width === 0) {
+      requestAnimationFrame(() => drawCone());
+      return;
+    }
+
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
@@ -300,10 +310,13 @@ export function MarketLensPanel({ displayName, balanceCredits }: MarketLensPanel
   }, [realAnalysis, activeTicker]);
 
   useEffect(() => {
-    drawCone();
+    const timer = setTimeout(() => drawCone(), 50);
     const handleResize = () => drawCone();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [drawCone]);
 
   const __chartStub = () => {
