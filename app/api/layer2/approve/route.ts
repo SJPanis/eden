@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => null);
-  const approvalId = typeof body?.approvalId === "string" ? body.approvalId : "";
+  const approvalId = typeof body?.approvalId === "string" ? body.approvalId
+    : typeof body?.buildId === "string" ? body.buildId : "";
   const decision = body?.decision as "approve" | "deny" | undefined;
   const note = typeof body?.note === "string" ? body.note : "";
 
@@ -33,29 +34,24 @@ export async function POST(req: NextRequest) {
   const context = build.context ? JSON.parse(build.context) : {};
   const prUrl = context.layer2Submission?.prUrl;
 
-  if (!prUrl || !process.env.GITHUB_TOKEN) {
-    return NextResponse.json({ ok: false, error: "Missing PR URL or GitHub token" }, { status: 500 });
-  }
-
-  // Extract PR number from URL: https://github.com/owner/repo/pull/123
-  const prMatch = prUrl.match(/\/pull\/(\d+)/);
-  if (!prMatch) {
-    return NextResponse.json({ ok: false, error: "Invalid PR URL format" }, { status: 400 });
-  }
-
-  const prNumber = parseInt(prMatch[1], 10);
-  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-  const owner = "SJPanis";
-  const repo = "eden";
+  // Check if there's a real GitHub PR to merge/close
+  const hasPR = prUrl && typeof prUrl === "string" && prUrl.includes("/pull/") && process.env.GITHUB_TOKEN;
 
   try {
     if (decision === "approve") {
-      await octokit.pulls.merge({
-        owner,
-        repo,
-        pull_number: prNumber,
-        merge_method: "merge",
-      });
+      // If there's a real PR, merge it
+      if (hasPR) {
+        const prMatch = prUrl.match(/\/pull\/(\d+)/);
+        if (prMatch) {
+          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+          await octokit.pulls.merge({
+            owner: "SJPanis",
+            repo: "eden",
+            pull_number: parseInt(prMatch[1], 10),
+            merge_method: "merge",
+          });
+        }
+      }
 
       await prisma.agentBuild.update({
         where: { id: approvalId },
@@ -73,22 +69,19 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      return NextResponse.json({ ok: true, action: "merged", prNumber });
+      return NextResponse.json({ ok: true, action: "approved", buildId: approvalId });
     } else {
-      await octokit.pulls.update({
-        owner,
-        repo,
-        pull_number: prNumber,
-        state: "closed",
-      });
-
-      if (note) {
-        await octokit.issues.createComment({
-          owner,
-          repo,
-          issue_number: prNumber,
-          body: `**Denied by Sonny:** ${note}`,
-        });
+      // Deny — close PR if exists
+      if (hasPR) {
+        const prMatch = prUrl.match(/\/pull\/(\d+)/);
+        if (prMatch) {
+          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+          const prNumber = parseInt(prMatch[1], 10);
+          await octokit.pulls.update({ owner: "SJPanis", repo: "eden", pull_number: prNumber, state: "closed" });
+          if (note) {
+            await octokit.issues.createComment({ owner: "SJPanis", repo: "eden", issue_number: prNumber, body: `**Denied:** ${note}` });
+          }
+        }
       }
 
       await prisma.agentBuild.update({
@@ -107,10 +100,10 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      return NextResponse.json({ ok: true, action: "denied", prNumber });
+      return NextResponse.json({ ok: true, action: "denied", buildId: approvalId });
     }
   } catch (error) {
-    const msg = error instanceof Error ? error.message : "GitHub API error";
+    const msg = error instanceof Error ? error.message : "Error processing decision";
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }
