@@ -986,6 +986,20 @@ export function ConsumerHomePanel({
 
   return (
     <div className="space-y-6">
+      {/* Hero heading */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="text-center py-12"
+      >
+        <h1 className="text-5xl font-bold tracking-tight md:text-7xl" style={{ fontFamily: "var(--font-serif)" }}>
+          The economy<br />
+          <span className="italic" style={{ color: "#2dd4bf" }}>is alive.</span>
+        </h1>
+        <p className="mt-4 text-sm text-white/30">AI agents building. Humans earning. The garden grows.</p>
+      </motion.section>
+
       {/* Orbital service browser */}
       <motion.section
         initial="hidden"
@@ -995,7 +1009,7 @@ export function ConsumerHomePanel({
         className="flex justify-center py-2 overflow-hidden"
       >
         <OrbitalDiagram
-          size={320}
+          size={420}
           interactive
           centerLabel="Eden"
           centerSublabel="Discover"
@@ -1077,7 +1091,7 @@ export function ConsumerHomePanel({
               variants={railVariants}
               initial="hidden"
               animate="visible"
-              className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+              className="grid gap-5 sm:grid-cols-2"
             >
               {(activeCategory ? recommendedServices.filter(s => s.category === activeCategory) : recommendedServices).map((service) => (
                 <motion.div
@@ -1091,7 +1105,7 @@ export function ConsumerHomePanel({
                 >
                   {/* Generative gradient thumbnail with service monogram */}
                   <div
-                    className="h-40 w-full rounded-xl mb-3 overflow-hidden relative"
+                    className="h-56 w-full rounded-xl mb-3 overflow-hidden relative group/thumb"
                     style={{
                       background: service.category === "Automotive"
                         ? "linear-gradient(135deg, rgba(245,158,11,0.35) 0%, rgba(180,100,5,0.2) 40%, rgba(11,22,34,0.95) 100%)"
@@ -1106,14 +1120,14 @@ export function ConsumerHomePanel({
                   >
                     <div className="absolute inset-0 flex items-center justify-center">
                       {service.category === "Automotive" ? (
-                        <svg viewBox="0 0 200 200" width="120" height="120">
+                        <svg viewBox="0 0 200 200" width="160" height="160">
                           <defs><radialGradient id={`ia-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/><stop offset="100%" stopColor="#92400e" stopOpacity="0"/></radialGradient></defs>
                           <circle cx="100" cy="100" r="60" fill={`url(#ia-g-${service.id})`}><animate attributeName="r" values="55;65;55" dur="3s" repeatCount="indefinite"/></circle>
                           <circle cx="100" cy="100" r="30" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.4"><animate attributeName="r" values="30;45;30" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/></circle>
                           <circle cx="100" cy="100" r="8" fill="#fbbf24"/>
                         </svg>
                       ) : service.category === "Finance" ? (
-                        <svg viewBox="0 0 200 200" width="120" height="120">
+                        <svg viewBox="0 0 200 200" width="160" height="160">
                           <defs><radialGradient id={`ml-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#2dd4bf" stopOpacity="0.7"/><stop offset="100%" stopColor="#064e3b" stopOpacity="0"/></radialGradient></defs>
                           <circle cx="100" cy="100" r="55" fill={`url(#ml-g-${service.id})`}><animate attributeName="r" values="50;60;50" dur="4s" repeatCount="indefinite"/></circle>
                           <circle cx="100" cy="100" r="35" fill="none" stroke="#2dd4bf" strokeWidth="0.8" opacity="0.3"><animate attributeName="r" values="35;48;35" dur="3s" repeatCount="indefinite"/></circle>
@@ -1123,7 +1137,7 @@ export function ConsumerHomePanel({
                           <circle cx="140" cy="100" r="2" fill="#99f6e4" opacity="0.4"><animateTransform attributeName="transform" type="rotate" from="240 100 100" to="600 100 100" dur="10s" repeatCount="indefinite"/></circle>
                         </svg>
                       ) : service.category === "Music" ? (
-                        <svg viewBox="0 0 200 200" width="120" height="120">
+                        <svg viewBox="0 0 200 200" width="160" height="160">
                           <defs><radialGradient id={`ss-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#a855f7" stopOpacity="0.7"/><stop offset="100%" stopColor="#3b0764" stopOpacity="0"/></radialGradient></defs>
                           <circle cx="100" cy="100" r="50" fill={`url(#ss-g-${service.id})`}><animate attributeName="r" values="45;55;45" dur="2s" repeatCount="indefinite"/></circle>
                           <circle cx="100" cy="100" r="28" fill="none" stroke="#ec4899" strokeWidth="0.8" opacity="0.4"><animate attributeName="r" values="28;38;28" dur="2.5s" repeatCount="indefinite"/></circle>

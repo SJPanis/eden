@@ -119,7 +119,7 @@ export function RoleShell({
           <header
             className="relative z-[100] rounded-[20px] backdrop-blur-xl"
             style={{
-              background: "rgba(13,30,46,0.85)",
+              background: "rgba(6,15,11,0.88)",
               border: "1px solid rgba(45,212,191,0.13)",
               boxShadow: "0 4px 24px -4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
             }}

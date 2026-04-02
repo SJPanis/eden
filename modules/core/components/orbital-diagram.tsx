@@ -105,7 +105,13 @@ export function OrbitalDiagram({
 
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
-      {/* Static SVG rings */}
+      <style>{`
+        @keyframes breathe { 0%,100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+        @keyframes glow-pulse { 0%,100% { filter: drop-shadow(0 0 8px rgba(${ACCENT_RGB},0.3)); transform: scale(1); } 50% { filter: drop-shadow(0 0 20px rgba(${ACCENT_RGB},0.8)); transform: scale(1.05); } }
+        .orb-ring-breathe { animation: breathe 4s ease-in-out infinite; }
+        .orb-center-glow { animation: glow-pulse 3s ease-in-out infinite; }
+      `}</style>
+      {/* SVG rings */}
       <svg
         width={size}
         height={size}
@@ -135,6 +141,7 @@ export function OrbitalDiagram({
         ) : null}
         {/* Ring 2 */}
         <circle
+          className="orb-ring-breathe"
           cx={CX} cy={CY} r={rings[1].r}
           fill="none"
           stroke={`rgba(${ACCENT_RGB}, 0.14)`}
@@ -142,6 +149,7 @@ export function OrbitalDiagram({
         />
         {/* Ring 1 */}
         <circle
+          className="orb-ring-breathe"
           cx={CX} cy={CY} r={rings[0].r}
           fill="none"
           stroke={`rgba(${ACCENT_RGB}, 0.18)`}
@@ -154,7 +162,7 @@ export function OrbitalDiagram({
 
       {/* Center label */}
       <div
-        className="absolute flex flex-col items-center justify-center rounded-full"
+        className="absolute flex flex-col items-center justify-center rounded-full orb-center-glow"
         style={{
           width: centerSize,
           height: centerSize,
