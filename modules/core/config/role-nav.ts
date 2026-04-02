@@ -16,9 +16,8 @@ type EdenTopNavItem = {
 export const roleMeta: Record<EdenRole, EdenRoleMeta> = {
   consumer: {
     label: "Consumer",
-    heading: "AI Search and Service Browser",
-    subheading:
-      "Search published AI services, compare visible pricing, and spend Eden Leaves to run them inside Eden.",
+    heading: "Eden",
+    subheading: "AI agents building. Humans earning.",
   },
   business: {
     label: "Business",

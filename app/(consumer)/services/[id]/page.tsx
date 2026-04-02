@@ -101,6 +101,14 @@ export default async function ServiceDetailPage({
   searchParams,
 }: ServiceDetailPageProps) {
   const { id } = await params;
+
+  // Redirect non-custom services to the generic runner
+  const CUSTOM_SERVICES = ["market-lens", "imagine-auto", "spot-splore"];
+  if (!CUSTOM_SERVICES.includes(id)) {
+    const { redirect } = await import("next/navigation");
+    redirect(`/services/run/${id}`);
+  }
+
   const resolvedSearchParams = await searchParams;
   const [session, simulatedTransactions, pipelineRecords, pipelineEvents, adminState, createdBusiness, workspaceServices] = await Promise.all([
     getServerSession(),
