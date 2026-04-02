@@ -28,7 +28,6 @@ export function EdenStakeCard() {
       className="w-full rounded-2xl p-4 text-left transition-all"
       style={{
         background: "rgba(45,212,191,0.04)",
-        border: "1px solid rgba(45,212,191,0.1)",
       }}
     >
       <div className="flex items-center justify-between">

@@ -431,11 +431,11 @@ export function RoleShell({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden rounded-[20px] p-5 backdrop-blur-xl md:p-6"
+              className="overflow-visible rounded-[20px] p-4 backdrop-blur-xl md:p-5"
               style={{
                 background: "rgba(13,30,46,0.78)",
-                border: "1px solid rgba(45,212,191,0.1)",
-                boxShadow: "0 4px 32px -8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
+                border: "none",
+                boxShadow: "0 4px 32px -8px rgba(0,0,0,0.5)",
               }}
             >
               {children}
