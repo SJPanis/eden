@@ -49,6 +49,26 @@ export async function POST() {
     `CREATE INDEX IF NOT EXISTS "ServiceRelease_serviceId_idx" ON "ServiceRelease" ("serviceId")`,
     // Email unique index
     `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User" ("email") WHERE "email" IS NOT NULL`,
+    // Contribution layer
+    `ALTER TABLE "EdenService" ADD COLUMN IF NOT EXISTS "contributionsEnabled" BOOLEAN NOT NULL DEFAULT false`,
+    `CREATE TABLE IF NOT EXISTS "ContributionRequest" (
+      "id" TEXT NOT NULL, "serviceId" TEXT NOT NULL, "creatorId" TEXT NOT NULL,
+      "title" TEXT NOT NULL, "description" TEXT NOT NULL, "rewardPercent" INTEGER NOT NULL DEFAULT 5,
+      "status" TEXT NOT NULL DEFAULT 'open', "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "ContributionRequest_pkey" PRIMARY KEY ("id")
+    )`,
+    `CREATE INDEX IF NOT EXISTS "ContributionRequest_serviceId_idx" ON "ContributionRequest" ("serviceId")`,
+    `CREATE TABLE IF NOT EXISTS "Contribution" (
+      "id" TEXT NOT NULL, "requestId" TEXT NOT NULL, "contributorId" TEXT NOT NULL,
+      "serviceId" TEXT NOT NULL, "title" TEXT NOT NULL, "description" TEXT NOT NULL,
+      "proposedSystemPrompt" TEXT, "status" TEXT NOT NULL DEFAULT 'pending',
+      "rewardPercent" INTEGER NOT NULL DEFAULT 0, "totalEarned" INTEGER NOT NULL DEFAULT 0,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "Contribution_pkey" PRIMARY KEY ("id")
+    )`,
+    `CREATE INDEX IF NOT EXISTS "Contribution_requestId_idx" ON "Contribution" ("requestId")`,
+    `CREATE INDEX IF NOT EXISTS "Contribution_contributorId_idx" ON "Contribution" ("contributorId")`,
+    `CREATE INDEX IF NOT EXISTS "Contribution_serviceId_idx" ON "Contribution" ("serviceId")`,
   ];
 
   for (const sql of migrations) {
