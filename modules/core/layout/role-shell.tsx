@@ -392,8 +392,8 @@ export function RoleShell({
             ) : null}
           </header>
 
-          {/* Role heading */}
-          {showRoleHeader ? (
+          {/* Role heading — hidden for consumer (hero is in the page itself) */}
+          {showRoleHeader && role !== "consumer" ? (
             <motion.section
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
