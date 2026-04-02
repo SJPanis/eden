@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const CATEGORIES = ["Finance", "Automotive", "Music", "Productivity", "Creative", "Health", "Education", "Other"];
 const ACCENT = "#2dd4bf";
@@ -11,6 +12,7 @@ function slugify(name: string) {
 }
 
 export function ServiceBuilder({ username }: { username: string }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +59,11 @@ export function ServiceBuilder({ username }: { username: string }) {
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
-      setSuccess(publish ? `${name} is now live at /services/${slug}` : `${name} saved as draft`);
+      if (publish) {
+        router.push("/consumer?new_service=true");
+        return;
+      }
+      setSuccess(`${name} saved as draft`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {

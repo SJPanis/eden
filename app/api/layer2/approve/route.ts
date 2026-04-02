@@ -53,6 +53,34 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // If this is a service concept, create a draft EdenService
+      const concept = context.concept as { name?: string; slug?: string; description?: string; leafCost?: number } | undefined;
+      let createdServiceSlug: string | null = null;
+      if (concept?.name && concept?.slug && !build.request.includes("[eden-improve]")) {
+        try {
+          const existing = await prisma.edenService.findUnique({ where: { slug: concept.slug } });
+          if (!existing) {
+            await prisma.edenService.create({
+              data: {
+                slug: concept.slug,
+                name: concept.name,
+                description: concept.description ?? "",
+                leafCost: concept.leafCost ?? 5,
+                serviceType: "claude",
+                systemPrompt: `You are ${concept.name}. ${concept.description ?? ""}. Be helpful and specific.`,
+                status: "draft",
+                isActive: false,
+                creatorId: session.user.id,
+              },
+            });
+            createdServiceSlug = concept.slug;
+            console.log(`[layer2] Created draft service: ${concept.slug}`);
+          }
+        } catch (err) {
+          console.error("[layer2] Failed to create service:", err);
+        }
+      }
+
       await prisma.agentBuild.update({
         where: { id: approvalId },
         data: {
@@ -64,6 +92,7 @@ export async function POST(req: NextRequest) {
               note,
               approvedAt: new Date().toISOString(),
               approvedBy: session.user.id,
+              createdServiceSlug,
             },
           }),
         },
