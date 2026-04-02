@@ -1,3 +1,4 @@
+// Prisma client regenerated — contribution layer active
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/modules/core/session/server";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
