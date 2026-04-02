@@ -63,16 +63,38 @@ export async function POST(
         data: { edenBalanceCredits: { decrement: service.leafCost } },
       });
 
-      // Creator cut (70%)
-      if (service.creatorId !== session.user.id) {
-        const creatorCut = Math.floor(service.leafCost * 0.70);
-        await tx.user.update({
-          where: { id: service.creatorId },
-          data: { edenBalanceCredits: { increment: creatorCut } },
+      // Contributor share (accepted contributions, capped at 30%)
+      let contributorShare = 0;
+      try {
+        const acceptedContribs = await tx.contribution.findMany({
+          where: { serviceId: service.id, status: "accepted" },
+          select: { id: true, contributorId: true, rewardPercent: true },
         });
+        const totalContribPct = Math.min(30, acceptedContribs.reduce((s, c) => s + c.rewardPercent, 0));
+        if (totalContribPct > 0 && acceptedContribs.length > 0) {
+          for (const contrib of acceptedContribs) {
+            const share = Math.floor(service.leafCost * 0.70 * (contrib.rewardPercent / totalContribPct) * (totalContribPct / 100));
+            if (share > 0) {
+              contributorShare += share;
+              await tx.user.update({ where: { id: contrib.contributorId }, data: { edenBalanceCredits: { increment: share } } });
+              await tx.contribution.update({ where: { id: contrib.id }, data: { totalEarned: { increment: share } } });
+            }
+          }
+        }
+      } catch { /* contributions table may not exist yet */ }
+
+      // Creator cut (70% minus contributor share)
+      if (service.creatorId !== session.user.id) {
+        const creatorCut = Math.floor(service.leafCost * 0.70) - contributorShare;
+        if (creatorCut > 0) {
+          await tx.user.update({
+            where: { id: service.creatorId },
+            data: { edenBalanceCredits: { increment: creatorCut } },
+          });
+        }
         await tx.edenService.update({
           where: { id: service.id },
-          data: { totalEarned: { increment: creatorCut } },
+          data: { totalEarned: { increment: Math.floor(service.leafCost * 0.70) } },
         });
       }
 

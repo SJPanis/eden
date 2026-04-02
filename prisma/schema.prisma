@@ -358,6 +358,7 @@ model User {
   totpEnabled                     Boolean                          @default(false)
   totpVerifiedAt                  DateTime?
   edenServices                    EdenService[]                    @relation("EdenServiceCreator")
+  contributions                   Contribution[]                   @relation("UserContributions")
 }
 
 model AuthProviderAccount {
@@ -1336,10 +1337,13 @@ model EdenService {
   creatorId     String
   creator       User     @relation("EdenServiceCreator", fields: [creatorId], references: [id])
   isActive      Boolean  @default(true)
-  totalEarned   Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  releases      ServiceRelease[]
+  totalEarned           Int      @default(0)
+  contributionsEnabled  Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  releases              ServiceRelease[]
+  contributions         Contribution[]          @relation("ServiceContributors")
+  contributionRequests  ContributionRequest[]   @relation("ServiceContributions")
 
   @@index([creatorId])
 }
@@ -1356,5 +1360,43 @@ model ServiceRelease {
   outputFormat String      @default("text")
   createdAt    DateTime    @default(now())
 
+  @@index([serviceId])
+}
+
+// ── Contribution Layer ──────────────────────────────────────────────────────
+
+model ContributionRequest {
+  id            String         @id @default(cuid())
+  serviceId     String
+  service       EdenService    @relation("ServiceContributions", fields: [serviceId], references: [id])
+  creatorId     String
+  title         String
+  description   String
+  rewardPercent Int            @default(5)
+  status        String         @default("open")
+  createdAt     DateTime       @default(now())
+  contributions Contribution[]
+
+  @@index([serviceId])
+}
+
+model Contribution {
+  id                   String              @id @default(cuid())
+  requestId            String
+  request              ContributionRequest @relation(fields: [requestId], references: [id])
+  contributorId        String
+  contributor          User                @relation("UserContributions", fields: [contributorId], references: [id])
+  serviceId            String
+  service              EdenService         @relation("ServiceContributors", fields: [serviceId], references: [id])
+  title                String
+  description          String
+  proposedSystemPrompt String?
+  status               String              @default("pending")
+  rewardPercent        Int                 @default(0)
+  totalEarned          Int                 @default(0)
+  createdAt            DateTime            @default(now())
+
+  @@index([requestId])
+  @@index([contributorId])
   @@index([serviceId])
 }
