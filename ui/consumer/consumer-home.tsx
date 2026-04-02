@@ -1108,7 +1108,7 @@ export function ConsumerHomePanel({
         <div className="grid gap-5 sm:grid-cols-2">
           {dbServices.map((svc) => (
             <a key={svc.id} href={`/services/${svc.slug}`}
-              className="group rounded-2xl border border-white/8 bg-white/[0.035] p-4 transition-all hover:border-[#2dd4bf]/40 hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)] hover:scale-[1.02]"
+              className="group rounded-2xl bg-white/[0.035] p-4 transition-all hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)] hover:scale-[1.02]"
             >
               <div className="h-32 w-full rounded-xl overflow-hidden relative"
                 style={{ background: `linear-gradient(135deg, ${svc.thumbnailColor}40, rgba(11,22,34,0.95))` }}
@@ -1133,7 +1133,7 @@ export function ConsumerHomePanel({
       )}
 
       {/* MAIN CONTENT: Grid with services + sidebar */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+      <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
         {/* LEFT: Service grid */}
         <div className="space-y-6">
           {/* Service cards in 3 columns */}
@@ -1148,7 +1148,7 @@ export function ConsumerHomePanel({
                 <motion.div
                   key={service.id}
                   variants={railCardVariants}
-                  className="group cursor-pointer rounded-2xl border border-white/8 bg-white/[0.035] p-4 transition-all hover:border-[#2dd4bf]/40 hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)]"
+                  className="group cursor-pointer rounded-2xl bg-white/[0.035] p-4 transition-all hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)]"
                   onClick={() => setModalService(service)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -1750,7 +1750,7 @@ export function ConsumerHomePanel({
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <div className="hidden w-[280px] shrink-0 space-y-4 lg:block">
+        <div className="hidden w-[260px] shrink-0 space-y-4 lg:block">
           {/* Live stats */}
           {liveStats && (
             <div style={{ borderBottom: "1px solid rgba(45,212,191,0.1)", paddingBottom: "12px" }}>
@@ -1773,7 +1773,7 @@ export function ConsumerHomePanel({
           )}
 
           {/* Leaf balance card */}
-          <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(45,212,191,0.12)", background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
+          <div className="rounded-2xl p-4" style={{ background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
             <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#2dd4bf]">Leaf Balance</p>
             <div className="mt-3 flex items-center gap-3">
               <div className="relative h-14 w-14 shrink-0">
@@ -1797,7 +1797,7 @@ export function ConsumerHomePanel({
           <EdenStakeCard />
 
           {/* Recent activity */}
-          <div className="rounded-2xl p-4" style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
+          <div className="rounded-2xl p-4" style={{ background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
             <p className="text-sm font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>Recent Activity</p>
             <div className="mt-3 space-y-2">
               {recentWalletTransactions.slice(0, 5).map((tx) => (
