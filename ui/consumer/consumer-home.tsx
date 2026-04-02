@@ -605,6 +605,18 @@ export function ConsumerHomePanel({
     const interval = setInterval(fetchStats, 30000);
     return () => clearInterval(interval);
   }, []);
+  const [dbServices, setDbServices] = useState<Array<{ id: string; slug: string; name: string; description: string; category: string; leafCost: number; thumbnailColor: string }>>([]);
+  const searchParams2 = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const [newServiceToast, setNewServiceToast] = useState(searchParams2?.get("new_service") === "true");
+
+  useEffect(() => {
+    fetch("/api/services/list").then((r) => r.json()).then((d) => { if (d.ok) setDbServices(d.services); }).catch(() => {});
+    if (newServiceToast) {
+      const t = setTimeout(() => setNewServiceToast(false), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [newServiceToast]);
+
   const normalizedQuery = activeQuery.trim().toLowerCase();
   const savedBusinessIds = useMemo(() => new Set(activeUser?.savedBusinessIds ?? []), [activeUser]);
   const savedServiceIds = useMemo(() => new Set(activeUser?.savedServiceIds ?? []), [activeUser]);
@@ -1080,6 +1092,45 @@ export function ConsumerHomePanel({
           </div>
         </form>
       </motion.section>
+
+      {/* New service toast */}
+      {newServiceToast && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+          className="rounded-xl px-4 py-3 text-sm text-center"
+          style={{ background: "rgba(45,212,191,0.1)", border: "1px solid rgba(45,212,191,0.2)", color: "#2dd4bf" }}
+        >
+          {"🌿"} Your service is live!
+        </motion.div>
+      )}
+
+      {/* DB-backed services */}
+      {dbServices.length > 0 && (
+        <div className="grid gap-5 sm:grid-cols-2">
+          {dbServices.map((svc) => (
+            <a key={svc.id} href={`/services/${svc.slug}`}
+              className="group rounded-2xl border border-white/8 bg-white/[0.035] p-4 transition-all hover:border-[#2dd4bf]/40 hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)] hover:scale-[1.02]"
+            >
+              <div className="h-32 w-full rounded-xl overflow-hidden relative"
+                style={{ background: `linear-gradient(135deg, ${svc.thumbnailColor}40, rgba(11,22,34,0.95))` }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg viewBox="0 0 200 200" width="80" height="80">
+                    <defs><radialGradient id={`svc-${svc.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={svc.thumbnailColor} stopOpacity="0.7"/><stop offset="100%" stopColor={svc.thumbnailColor} stopOpacity="0"/></radialGradient></defs>
+                    <circle cx="100" cy="100" r="50" fill={`url(#svc-${svc.id})`}><animate attributeName="r" values="45;55;45" dur="3s" repeatCount="indefinite"/></circle>
+                    <circle cx="100" cy="100" r="6" fill={svc.thumbnailColor}/>
+                  </svg>
+                </div>
+              </div>
+              <h3 className="mt-3 text-base font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>{svc.name}</h3>
+              <p className="mt-1 text-xs text-white/40 line-clamp-2">{svc.description}</p>
+              <div className="mt-2 flex items-center gap-2 text-[10px]">
+                <span className="rounded-full px-2 py-0.5" style={{ background: `${svc.thumbnailColor}15`, color: svc.thumbnailColor }}>{svc.category}</span>
+                <span className="text-white/30">{svc.leafCost} {"🍃"} per use</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* MAIN CONTENT: Grid with services + sidebar */}
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
