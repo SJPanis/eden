@@ -682,7 +682,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   color: ACCENT,
                 }}
               >
-                Eden Platform — Live
+                <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981", marginRight: 6 }}></span>EDEN — LIVE
               </span>
             </motion.div>
 
@@ -693,11 +693,11 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                 initial="hidden"
                 animate={contentVisible ? "visible" : "hidden"}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
-                className="mt-6 font-serif text-5xl leading-[1.08] tracking-tight text-white md:text-6xl lg:text-7xl"
+                className="mt-6 font-serif text-5xl font-bold leading-[1.08] tracking-tight text-white md:text-6xl lg:text-8xl"
               >
-                The AI service economy.
+                Build the future.
                 <br />
-                <span style={{ color: ACCENT }}>Open to innovators.</span>
+                <span className="italic" style={{ color: ACCENT }}>Get paid for it.</span>
               </motion.h1>
             </motion.div>
 
@@ -709,9 +709,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.26 }}
               className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/55"
             >
-              Eden connects innovators who publish AI services with consumers who discover
-              and run them — all through a transparent Leaf&apos;s economy where contributors
-              who improve Eden earn from it too.
+              AI agents do the work. You collect the Leafs.
             </motion.p>
 
             {/* CTA buttons */}
@@ -730,13 +728,13 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   boxShadow: `0 0 32px rgba(${ACCENT_RGB}, 0.28)`,
                 }}
               >
-                Create account
+                Enter Eden &rarr;
               </Link>
               <Link
-                href="/consumer"
+                href="#how-it-works"
                 className="rounded-full border border-white/15 px-7 py-3.5 text-sm font-medium text-white/70 transition-colors hover:border-white/30 hover:text-white"
               >
-                Explore services →
+                See how it works
               </Link>
             </motion.div>
 

@@ -25,16 +25,24 @@ export function ParticleCanvas() {
     resize();
     window.addEventListener("resize", resize);
 
-    const NUM = 110;
-    const CONNECT = 100;
+    const NUM = 130;
+    const CONNECT = 110;
     const REPEL = 85;
 
-    const particles = Array.from({ length: NUM }, () => ({
+    const COLORS = [
+      `rgba(${ACCENT_RGB}, 0.4)`,
+      "rgba(16,185,129,0.3)",
+      "rgba(99,102,241,0.2)",
+      "rgba(255,255,255,0.15)",
+    ];
+
+    const particles = Array.from({ length: NUM }, (_, i) => ({
       x: Math.random() * c.width,
       y: Math.random() * c.height,
       vx: (Math.random() - 0.5) * 0.38,
       vy: (Math.random() - 0.5) * 0.38,
-      r: Math.random() * 1.2 + 0.4,
+      r: i < 6 ? Math.random() * 3 + 3 : Math.random() * 2 + 0.4,
+      color: COLORS[i % COLORS.length],
     }));
 
     const onMove = (e: MouseEvent) => {
@@ -66,7 +74,7 @@ export function ParticleCanvas() {
         if (p.y > H) p.y = 0;
         cx.beginPath();
         cx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        cx.fillStyle = `rgba(${ACCENT_RGB}, 0.42)`;
+        cx.fillStyle = (p as typeof particles[0]).color ?? `rgba(${ACCENT_RGB}, 0.42)`;
         cx.fill();
       }
 
