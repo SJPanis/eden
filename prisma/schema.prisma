@@ -357,6 +357,7 @@ model User {
   totpSecret                      String?
   totpEnabled                     Boolean                          @default(false)
   totpVerifiedAt                  DateTime?
+  welcomeGranted                  Boolean                          @default(false)
   edenServices                    EdenService[]                    @relation("EdenServiceCreator")
   contributions                   Contribution[]                   @relation("UserContributions")
 }

@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { EdenStakeCard } from "@/components/eden-stake-card";
+import { WelcomeScreen } from "@/ui/consumer/welcome-screen";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
@@ -998,6 +999,7 @@ export function ConsumerHomePanel({
 
   return (
     <div className="space-y-6">
+      <WelcomeScreen />
       {/* Toast */}
       {newServiceToast && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
