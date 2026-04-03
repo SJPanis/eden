@@ -570,7 +570,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
   return (
     <div
       className="relative min-h-screen overflow-x-hidden"
-      style={{ background: BG, color: "#e8f1f8" }}
+      style={{ color: "#e8f1f8" }}
     >
       {/* Fixed background layers */}
       <ParticleCanvas />
@@ -644,7 +644,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
 
         {/* ── Hero ── */}
         <section ref={heroRef} className="relative overflow-hidden px-5 py-20 md:py-28" style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% -10%, rgba(45,212,191,0.15), transparent), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(11,22,34,0.8), transparent), #0b1622`,
+          background: `radial-gradient(ellipse 80% 50% at 50% -10%, rgba(45,212,191,0.15), transparent), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(11,22,34,0.8), transparent)`,
         }}>
           {/* Glow blobs */}
           <div aria-hidden className="pointer-events-none absolute inset-0">
