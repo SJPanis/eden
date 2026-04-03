@@ -70,6 +70,12 @@ export async function POST() {
     `CREATE INDEX IF NOT EXISTS "Contribution_requestId_idx" ON "Contribution" ("requestId")`,
     `CREATE INDEX IF NOT EXISTS "Contribution_contributorId_idx" ON "Contribution" ("contributorId")`,
     `CREATE INDEX IF NOT EXISTS "Contribution_serviceId_idx" ON "Contribution" ("serviceId")`,
+    // Fix known service categories and colors
+    `UPDATE "EdenService" SET "category"='Finance', "thumbnailColor"='#2dd4bf' WHERE "slug"='market-lens'`,
+    `UPDATE "EdenService" SET "category"='Automotive', "thumbnailColor"='#f59e0b' WHERE "slug"='imagine-auto'`,
+    `UPDATE "EdenService" SET "category"='Music', "thumbnailColor"='#a855f7' WHERE "slug"='spot-splore'`,
+    // Ensure all active services are published
+    `UPDATE "EdenService" SET "status"='published' WHERE "isActive"=true AND ("status" IS NULL OR "status"='draft' OR "status"='')`,
   ];
 
   for (const sql of migrations) {
