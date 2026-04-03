@@ -998,7 +998,7 @@ export function ConsumerHomePanel({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-6" style={{ background: "radial-gradient(ellipse 120% 60% at 50% 30%, rgba(45,212,191,0.04) 0%, transparent 60%)" }}>
       <WelcomeScreen />
       {/* Toast */}
       {newServiceToast && (
@@ -1018,14 +1018,20 @@ export function ConsumerHomePanel({
       >
         <h1 className="text-5xl font-bold tracking-tight md:text-6xl" style={{ fontFamily: "var(--font-serif)" }}>
           The economy<br />
-          <span className="italic" style={{ color: "#2dd4bf" }}>is alive.</span>
+          <span className="italic" style={{ color: "#2dd4bf", textShadow: "0 0 40px rgba(45,212,191,0.4)" }}>is alive.</span>
         </h1>
         <p className="mt-4 text-sm text-white/30">AI agents building. Humans earning. The garden grows.</p>
       </motion.section>
 
       {/* ORBIT — full width centered */}
-      <div className="flex justify-center" style={{ padding: "60px 0" }}>
-        <div style={{ width: 420, height: 420, overflow: "visible", position: "relative" }}>
+      <div className="relative flex justify-center" style={{ padding: "60px 0" }}>
+        {/* Radial glow behind orbit */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{ width: 600, height: 600, background: "radial-gradient(circle, rgba(45,212,191,0.06) 0%, transparent 65%)", filter: "blur(40px)", zIndex: 0 }}
+        />
+        <div style={{ width: 420, height: 420, overflow: "visible", position: "relative", zIndex: 1 }}>
           <OrbitalDiagram
             size={420}
             interactive
@@ -1072,13 +1078,31 @@ export function ConsumerHomePanel({
 
           {/* Services */}
           <div>
-            <p className="text-xs font-mono uppercase tracking-widest text-white/20 mb-4">Services</p>
+            <p className="text-xs font-mono uppercase text-white/30 mb-4" style={{ letterSpacing: "0.3em" }}>Services</p>
 
           {dbServices.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {dbServices.map((svc) => (
                 <a href={`/services/${svc.slug}`} key={svc.id}
-                  className="group block rounded-2xl overflow-hidden bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_-8px_rgba(45,212,191,0.15)]"
+                  className="group block rounded-2xl overflow-hidden transition-all duration-300"
+                  style={{
+                    background: "rgba(15,31,46,0.6)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.07)",
+                    boxShadow: "0 4px 24px -4px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07)",
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget;
+                    el.style.borderColor = "rgba(45,212,191,0.25)";
+                    el.style.boxShadow = "0 8px 40px -8px rgba(0,0,0,0.8), 0 0 0 1px rgba(45,212,191,0.2), 0 0 30px -10px rgba(45,212,191,0.3)";
+                    el.style.transform = "translateY(-2px) scale(1.01)";
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget;
+                    el.style.borderColor = "rgba(255,255,255,0.07)";
+                    el.style.boxShadow = "0 4px 24px -4px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07)";
+                    el.style.transform = "";
+                  }}
                 >
                   <div className="h-52 relative overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 50%, ${svc.thumbnailColor}18, transparent 70%), #060a10` }}>
                     <svg width="100%" height="100%" viewBox="0 0 400 210" className="absolute inset-0">
@@ -1204,6 +1228,8 @@ export function ConsumerHomePanel({
                         <text x="85" y="185" fill="rgba(16,185,129,0.4)" fontSize="9" fontFamily="monospace">7 days</text>
                       </>)}
                     </svg>
+                    {/* Thumbnail-to-text gradient bleed */}
+                    <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16" style={{ background: "linear-gradient(to top, rgba(15,31,46,0.9), transparent)" }} />
                     <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: svc.thumbnailColor, color: "#000" }}>
                         Run — {svc.leafCost} {"🍃"}
@@ -1230,7 +1256,7 @@ export function ConsumerHomePanel({
         <div className="hidden lg:block w-52 shrink-0 sticky top-4 space-y-6">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Your Balance</p>
-            <p className="text-3xl font-bold text-white">{currentBalanceCredits.toLocaleString()}</p>
+            <p className="text-5xl font-bold text-white">{currentBalanceCredits.toLocaleString()}</p>
             <p className="text-xs text-white/30 mt-0.5">Leafs</p>
             <a href="/topup" className="inline-block mt-3 text-xs font-semibold px-4 py-2 rounded-full transition-colors" style={{ background: "rgba(45,212,191,0.15)", color: "#2dd4bf" }}>
               + Top Up
@@ -1241,9 +1267,9 @@ export function ConsumerHomePanel({
             <div>
               <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Eden Live</p>
               <div className="space-y-1">
-                <div className="flex justify-between text-xs"><span className="text-white/30">Leafs today</span><span className="text-white font-medium">{liveStats.leafsToday}</span></div>
-                <div className="flex justify-between text-xs"><span className="text-white/30">Transactions</span><span className="text-white font-medium">{liveStats.transactionsToday}</span></div>
-                <div className="flex justify-between text-xs"><span className="text-white/30">Services</span><span className="text-white font-medium">{liveStats.activeServices}</span></div>
+                <div className="flex justify-between text-xs"><span className="text-white/30">Leafs today</span><span className="text-white font-medium" style={{ fontVariantNumeric: "tabular-nums", textShadow: "0 0 8px rgba(45,212,191,0.3)" }}>{liveStats.leafsToday}</span></div>
+                <div className="flex justify-between text-xs"><span className="text-white/30">Transactions</span><span className="text-white font-medium" style={{ fontVariantNumeric: "tabular-nums", textShadow: "0 0 8px rgba(45,212,191,0.3)" }}>{liveStats.transactionsToday}</span></div>
+                <div className="flex justify-between text-xs"><span className="text-white/30">Services</span><span className="text-white font-medium" style={{ fontVariantNumeric: "tabular-nums", textShadow: "0 0 8px rgba(45,212,191,0.3)" }}>{liveStats.activeServices}</span></div>
               </div>
             </div>
           )}

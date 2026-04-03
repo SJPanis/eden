@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../modules/core/styles/eden-tokens.css";
 
 :root {
   --eden-bg: #0b1622;
@@ -117,6 +118,24 @@ a {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);
+}
+
+/* Portal button pulse ring */
+.eden-portal-btn {
+  position: relative;
+}
+.eden-portal-btn::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(45, 212, 191, 0.5);
+  animation: eden-ring-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes eden-ring-pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.4); opacity: 0; }
 }
 
 /* Focus ring reset */
