@@ -1087,25 +1087,60 @@ export function ConsumerHomePanel({
                       </defs>
                       <rect width="400" height="210" fill={`url(#bg-${svc.id})`}/>
                       {svc.category === "Finance" ? (<>
-                        {/* Market Lens — geometric lens/eye */}
-                        {[0,1,2,3,4,5].map(i => <line key={`g${i}`} x1="0" y1={35*i} x2="400" y2={35*i} stroke="rgba(45,212,191,0.06)" strokeWidth="0.5"/>)}
-                        <ellipse cx="200" cy="105" rx="90" ry="55" fill="none" stroke="rgba(45,212,191,0.3)" strokeWidth="1"/>
-                        <ellipse cx="200" cy="105" rx="65" ry="40" fill="none" stroke="rgba(45,212,191,0.5)" strokeWidth="0.8" transform="rotate(8 200 105)"/>
-                        <circle cx="200" cy="105" r="18" fill="rgba(45,212,191,0.15)" stroke="rgba(45,212,191,0.6)" strokeWidth="1"><animate attributeName="r" values="16;19;16" dur="4s" repeatCount="indefinite"/></circle>
-                        <circle cx="200" cy="105" r="5" fill="#2dd4bf"><animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/></circle>
-                        <line x1="130" y1="60" x2="270" y2="150" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5"/>
-                        {[{x:140,y:70,d:"1.2s"},{x:260,y:80,d:"1.8s"},{x:170,y:140,d:"1.5s"},{x:250,y:130,d:"2.1s"},{x:155,y:95,d:"1.0s"},{x:240,y:110,d:"1.7s"}].map((p,i) =>
-                          <circle key={i} cx={p.x} cy={p.y} r="1.5" fill="#2dd4bf"><animate attributeName="opacity" values="0.2;0.8;0.2" dur={p.d} repeatCount="indefinite"/></circle>
-                        )}
+                        {/* Market Lens — stock candlestick chart */}
+                        <defs>
+                          <filter id={`tglow-${svc.id}`}><feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        </defs>
+                        {[52,89,126,163].map(y => <line key={y} x1="60" y1={y} x2="350" y2={y} stroke="rgba(45,212,191,0.08)" strokeWidth="0.5"/>)}
+                        {/* Candlesticks: [x, open, close, high, low] — close>open = bullish(teal), close<open = bearish(red) */}
+                        {[
+                          [85,120,140,115,145],[115,140,110,105,148],[145,110,90,82,118],[175,95,115,90,122],
+                          [205,115,85,78,120],[235,85,70,62,92],[265,70,55,48,78],[305,55,35,28,60]
+                        ].map(([x,o,c,hi,lo],i) => {
+                          const bull = c < o; const color = bull ? "rgba(45,212,191,0.85)" : "rgba(239,68,68,0.7)";
+                          const top = Math.min(o,c); const h = Math.abs(c-o) || 2;
+                          return <g key={i}>
+                            <line x1={x} y1={hi} x2={x} y2={lo} stroke={color} strokeWidth="1"/>
+                            <rect x={x-8} y={top} width="16" height={h} fill={color} rx="1">
+                              {i === 7 && <animate attributeName="height" values={`${h};${h+3};${h};${h-2};${h}`} dur="3s" repeatCount="indefinite"/>}
+                            </rect>
+                          </g>;
+                        })}
+                        {/* Trend line (moving average) */}
+                        <path d="M85,130 Q115,118 145,100 Q175,105 205,95 Q235,78 265,62 Q285,48 305,40" fill="none" stroke="#2dd4bf" strokeWidth="1.5" filter={`url(#tglow-${svc.id})`} strokeDasharray="300" strokeDashoffset="300">
+                          <animate attributeName="stroke-dashoffset" from="300" to="0" dur="2s" fill="freeze"/>
+                        </path>
+                        {/* Ticker */}
+                        <text x="335" y="38" fill="#2dd4bf" fontSize="11" fontFamily="monospace" opacity="0">↑ 4.2%<animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="0.5s" fill="freeze"/></text>
+                        {/* Volume bars */}
+                        {[85,115,145,175,205,235,265,305].map((x,i) => <rect key={`v${i}`} x={x-5} y={190-[8,12,6,10,14,9,11,16][i]} width="10" height={[8,12,6,10,14,9,11,16][i]} fill="rgba(45,212,191,0.1)" rx="1"/>)}
                       </>) : svc.category === "Automotive" ? (<>
-                        {/* Imagine Auto — geometric engine */}
-                        <polygon points="200,45 255,72 255,138 200,165 145,138 145,72" fill="none" stroke="rgba(245,158,11,0.25)" strokeWidth="1"><animateTransform attributeName="transform" type="rotate" from="0 200 105" to="360 200 105" dur="20s" repeatCount="indefinite"/></polygon>
-                        <circle cx="200" cy="105" r="45" fill="none" stroke="rgba(245,158,11,0.2)" strokeWidth="0.8"/>
-                        <circle cx="200" cy="105" r="30" fill="none" stroke="rgba(245,158,11,0.3)" strokeWidth="0.8"/>
-                        <circle cx="200" cy="105" r="15" fill="none" stroke="rgba(245,158,11,0.4)" strokeWidth="0.8"/>
-                        {[0,60,120,180,240,300].map(a => <line key={a} x1="200" y1="105" x2={200+Math.cos(a*Math.PI/180)*50} y2={105+Math.sin(a*Math.PI/180)*50} stroke="rgba(245,158,11,0.2)" strokeWidth="0.5"/>)}
-                        <circle cx="200" cy="105" r="6" fill="#f59e0b"><animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/></circle>
-                        {[0,90,180,270].map(a => <rect key={a} x="197" y="58" width="6" height="6" fill="#fbbf24" opacity="0.5" transform={`rotate(45 200 61)`}><animateTransform attributeName="transform" type="rotate" from={`${a} 200 105`} to={`${a+360} 200 105`} dur="12s" repeatCount="indefinite"/></rect>)}
+                        {/* Imagine Auto — cyberpunk car / tron grid */}
+                        <defs>
+                          <filter id={`cglow-${svc.id}`}><feGaussianBlur stdDeviation="2.5" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        </defs>
+                        {/* Perspective grid floor */}
+                        {[150,160,168,175,181,186].map(y => <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(245,158,11,0.12)" strokeWidth="0.5"/>)}
+                        {[-120,-70,-30,0,30,70,120,200].map(dx => <line key={dx} x1={200+dx} y1={210} x2={200+dx*0.15} y2={140} stroke="rgba(245,158,11,0.1)" strokeWidth="0.5"/>)}
+                        {/* Car silhouette — minimal neon lines */}
+                        <g filter={`url(#cglow-${svc.id})`}>
+                          <path d="M120,125 L150,125 L165,105 L235,105 L255,115 L280,118 L280,125" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M120,125 L280,125" fill="none" stroke="rgba(245,158,11,0.5)" strokeWidth="0.8"/>
+                          <circle cx="150" cy="128" r="10" fill="none" stroke="#f59e0b" strokeWidth="1.2"/>
+                          <circle cx="255" cy="128" r="10" fill="none" stroke="#f59e0b" strokeWidth="1.2"/>
+                        </g>
+                        {/* Headlight beams */}
+                        <polygon points="280,118 360,108 360,128" fill="url(#hbeam)" opacity="0.4"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.5s" repeatCount="indefinite"/></polygon>
+                        <defs><linearGradient id="hbeam" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#f59e0b" stopOpacity="0.6"/><stop offset="100%" stopColor="#f59e0b" stopOpacity="0"/></linearGradient></defs>
+                        {/* Speed lines */}
+                        <line x1="-200" y1="112" x2="-50" y2="112" stroke="#f59e0b" strokeWidth="0.8" opacity="0.5"><animateTransform attributeName="transform" type="translate" from="-400 0" to="400 0" dur="2s" repeatCount="indefinite"/></line>
+                        <line x1="-280" y1="120" x2="-180" y2="120" stroke="rgba(245,158,11,0.4)" strokeWidth="0.5"><animateTransform attributeName="transform" type="translate" from="-400 0" to="400 0" dur="2.8s" repeatCount="indefinite"/></line>
+                        {/* HUD elements */}
+                        <text x="25" y="30" fill="#f59e0b" fontSize="8" fontFamily="monospace" opacity="0.5">SCAN</text>
+                        <line x1="330" y1="190" x2="370" y2="190" stroke="rgba(245,158,11,0.3)" strokeWidth="1"/>
+                        <line x1="340" y1="196" x2="375" y2="196" stroke="rgba(245,158,11,0.2)" strokeWidth="1"/>
+                        {/* Grid pull animation */}
+                        <rect x="0" y="140" width="400" height="70" fill="none"><animateTransform attributeName="transform" type="scale" values="1 1;1.02 1;1 1" dur="6s" repeatCount="indefinite"/></rect>
                       </>) : svc.category === "Music" ? (<>
                         {/* Spot Splore — audio waveform */}
                         {[0,1,2].map(i => <circle key={i} cx="200" cy="105" r={30+i*25} fill="none" stroke="rgba(168,85,247,0.1)" strokeWidth="0.5"><animate attributeName="r" values={`${30+i*25};${35+i*25};${30+i*25}`} dur={`${3+i}s`} repeatCount="indefinite"/><animate attributeName="opacity" values="0.15;0.05;0.15" dur={`${3+i}s`} repeatCount="indefinite"/></circle>)}
@@ -1116,14 +1151,26 @@ export function ConsumerHomePanel({
                         <circle cx="200" cy="60" r="2" fill="#c084fc" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from="0 200 105" to="360 200 105" dur="6s" repeatCount="indefinite"/></circle>
                         <circle cx="200" cy="150" r="1.5" fill="#e879f9" opacity="0.5"><animateTransform attributeName="transform" type="rotate" from="180 200 105" to="540 200 105" dur="8s" repeatCount="indefinite"/></circle>
                       </>) : (<>
-                        {/* Default — organic growth */}
-                        <circle cx="200" cy="105" r="8" fill="rgba(16,185,129,0.6)"><animate attributeName="r" values="7;10;7" dur="3s" repeatCount="indefinite"/></circle>
-                        {[{x:140,y:70},{x:260,y:75},{x:150,y:145},{x:255,y:140},{x:200,y:50}].map((n,i) => (<g key={i}>
-                          <line x1="200" y1="105" x2={n.x} y2={n.y} stroke="rgba(16,185,129,0.2)" strokeWidth="0.8"/>
-                          <circle cx={n.x} cy={n.y} r="4" fill="rgba(16,185,129,0.4)"><animate attributeName="opacity" values="0.3;0.8;0.3" dur={`${2+i*0.5}s`} repeatCount="indefinite" begin={`${i*0.3}s`}/></circle>
-                          {[{dx:-15,dy:-10},{dx:12,dy:8}].map((b,j) => <circle key={j} cx={n.x+b.dx} cy={n.y+b.dy} r="2" fill="rgba(16,185,129,0.3)"><animate attributeName="opacity" values="0.2;0.6;0.2" dur={`${2.5+j}s`} repeatCount="indefinite" begin={`${i*0.2+j*0.4}s`}/></circle>)}
-                        </g>))}
-                        {[...Array(8)].map((_,i) => <circle key={`p${i}`} cx={120+i*35} cy={40+Math.random()*130} r="1" fill="rgba(16,185,129,0.2)"><animate attributeName="cy" values={`${80+i*10};${70+i*10};${80+i*10}`} dur={`${4+i*0.5}s`} repeatCount="indefinite"/></circle>)}
+                        {/* Smart Meal Planner — food / ingredients / organic */}
+                        <defs>
+                          <filter id={`fglow-${svc.id}`}><feGaussianBlur stdDeviation="1.5" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        </defs>
+                        {/* Plate/bowl circles */}
+                        <circle cx="170" cy="100" r="55" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.2)" strokeWidth="0.8"><animate attributeName="opacity" values="0.8;1;0.8" dur="4s" repeatCount="indefinite"/></circle>
+                        <circle cx="215" cy="90" r="45" fill="rgba(34,197,94,0.08)" stroke="rgba(34,197,94,0.15)" strokeWidth="0.8"><animate attributeName="opacity" values="0.8;1;0.8" dur="3.5s" repeatCount="indefinite" begin="0.5s"/></circle>
+                        <circle cx="195" cy="120" r="40" fill="rgba(5,150,105,0.1)" stroke="rgba(5,150,105,0.18)" strokeWidth="0.8"><animate attributeName="opacity" values="0.8;1;0.8" dur="4.5s" repeatCount="indefinite" begin="1s"/></circle>
+                        {/* Leaf-ingredient dots */}
+                        {[{x:145,y:78,d:"2.5s"},{x:195,y:65,d:"3s"},{x:230,y:88,d:"2.8s"},{x:165,y:125,d:"3.5s"},{x:210,y:115,d:"4s"},{x:185,y:95,d:"2.2s"}].map((p,i) => <g key={i}>
+                          <circle cx={p.x} cy={p.y} r="3" fill="rgba(16,185,129,0.5)"><animate attributeName="cy" values={`${p.y};${p.y-4};${p.y}`} dur={p.d} repeatCount="indefinite"/></circle>
+                          <ellipse cx={p.x+4} cy={p.y-3} rx="4" ry="1.5" fill="rgba(34,197,94,0.35)" transform={`rotate(-30 ${p.x+4} ${p.y-3})`}><animate attributeName="cy" values={`${p.y-3};${p.y-7};${p.y-3}`} dur={p.d} repeatCount="indefinite"/></ellipse>
+                        </g>)}
+                        {/* Recipe flow line */}
+                        <path d="M145,78 Q170,70 195,65 Q215,72 230,88 Q220,105 210,115" fill="none" stroke="rgba(16,185,129,0.25)" strokeWidth="1" strokeDasharray="4 3"/>
+                        {/* Completion ring — top right */}
+                        <circle cx="320" cy="45" r="18" fill="none" stroke="rgba(16,185,129,0.1)" strokeWidth="2"/>
+                        <circle cx="320" cy="45" r="18" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="85" strokeDashoffset="85" strokeLinecap="round" transform="rotate(-90 320 45)"><animate attributeName="stroke-dashoffset" from="85" to="21" dur="2s" fill="freeze"/></circle>
+                        {/* 7 days label */}
+                        <text x="85" y="185" fill="rgba(16,185,129,0.4)" fontSize="9" fontFamily="monospace">7 days</text>
                       </>)}
                     </svg>
                     <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
