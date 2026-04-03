@@ -82,7 +82,7 @@ export function RoleShell({
   }, []);
 
   const roleBadgeColors = {
-    consumer: { border: "rgba(255,255,255,0.1)", text: "rgba(255,255,255,0.5)", glow: "rgba(255,255,255,0.05)" },
+    consumer: { border: "rgba(45,212,191,0.4)", text: "#2dd4bf", glow: "rgba(45,212,191,0.08)" },
     business: { border: "rgba(168,85,247,0.35)", text: "rgba(168,85,247,0.85)", glow: "rgba(168,85,247,0.3)" },
     owner: { border: "rgba(245,158,11,0.35)", text: "rgba(245,158,11,0.85)", glow: "rgba(245,158,11,0.3)" },
   };
@@ -139,9 +139,9 @@ export function RoleShell({
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded-xl"
                   style={{
-                    background: "radial-gradient(circle at 35% 25%, rgba(255,255,255,0.08), rgba(11,22,34,0.95))",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    boxShadow: "0 0 12px -2px rgba(255,255,255,0.05)",
+                    background: "radial-gradient(circle at 35% 25%, rgba(45,212,191,0.18), rgba(11,22,34,0.95))",
+                    border: "1px solid rgba(45,212,191,0.25)",
+                    boxShadow: "0 0 12px -2px rgba(45,212,191,0.15)",
                   }}
                 >
                   <EdenLogoMark size={20} />
@@ -226,8 +226,8 @@ export function RoleShell({
                   href="/consumer?modal=topup"
                   className="hidden items-center gap-2 rounded-full px-3 py-1.5 sm:flex transition-all hover:bg-white/[0.06]"
                   style={{
-                    border: "1px solid rgba(255,255,255,0.07)",
-                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(45,212,191,0.2)",
+                    background: "rgba(45,212,191,0.06)",
                   }}
                   title="Top up Leafs"
                 >
@@ -254,8 +254,8 @@ export function RoleShell({
                     onClick={() => setAvatarOpen(v => !v)}
                     className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white transition-opacity hover:opacity-80"
                     style={{
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(45,212,191,0.4)",
+                      background: "rgba(45,212,191,0.15)",
                     }}
                     title="Account menu"
                   >
