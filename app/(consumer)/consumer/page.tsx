@@ -24,7 +24,9 @@ export default async function ConsumerPage() {
     createdBusiness,
     workspaceServices,
   });
-  const currentBalanceCredits = getUserCreditsBalance(session.user.id, simulatedTransactions);
+  const currentBalanceCredits = session.auth.source === "persistent"
+    ? session.user.edenBalanceCredits
+    : getUserCreditsBalance(session.user.id, simulatedTransactions);
   const recentWalletTransactions = getRecentUserTransactionHistory(
     {
       userId: session.user.id,
