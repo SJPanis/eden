@@ -25,9 +25,12 @@ export function ParticleCanvas() {
     resize();
     window.addEventListener("resize", resize);
 
-    const NUM = 130;
+    const NUM = 150;
     const CONNECT = 110;
-    const REPEL = 85;
+    const REPEL = 120;
+    const CENTER_X = c.width / 2;
+    const CENTER_Y = 400;
+    const CENTER_ZONE = 400;
 
     const COLORS = [
       `rgba(${ACCENT_RGB}, 0.4)`,
@@ -41,7 +44,7 @@ export function ParticleCanvas() {
       y: Math.random() * c.height,
       vx: (Math.random() - 0.5) * 0.38,
       vy: (Math.random() - 0.5) * 0.38,
-      r: i < 6 ? Math.random() * 3 + 3 : Math.random() * 2 + 0.4,
+      r: i < 5 ? Math.random() * 1.5 + 2.5 : Math.random() * 1.2 + 0.3,
       color: COLORS[i % COLORS.length],
     }));
 
@@ -56,13 +59,23 @@ export function ParticleCanvas() {
       cx.clearRect(0, 0, W, H);
 
       for (const p of particles) {
+        // Mouse repulsion (stronger)
         const dx = p.x - mouseRef.current.x;
         const dy = p.y - mouseRef.current.y;
         const d = Math.hypot(dx, dy);
         if (d < REPEL && d > 0) {
-          const f = ((REPEL - d) / REPEL) * 0.55;
+          const f = ((REPEL - d) / REPEL) * 0.82;
           p.vx += (dx / d) * f;
           p.vy += (dy / d) * f;
+        }
+        // Weak center attraction
+        const cdx = CENTER_X - p.x;
+        const cdy = CENTER_Y - p.y;
+        const cd = Math.hypot(cdx, cdy);
+        if (cd > 0) {
+          const af = 0.0002 * cd;
+          p.vx += (cdx / cd) * af;
+          p.vy += (cdy / cd) * af;
         }
         p.vx *= 0.975;
         p.vy *= 0.975;
@@ -90,6 +103,19 @@ export function ParticleCanvas() {
             cx.strokeStyle = `rgba(${ACCENT_RGB}, ${(1 - d / CONNECT) * 0.16})`;
             cx.lineWidth = 0.5;
             cx.stroke();
+          }
+          // Faint web lines near center
+          if (d < 80 && d > 0) {
+            const pi_cd = Math.hypot(particles[i].x - CENTER_X, particles[i].y - CENTER_Y);
+            const pj_cd = Math.hypot(particles[j].x - CENTER_X, particles[j].y - CENTER_Y);
+            if (pi_cd < CENTER_ZONE && pj_cd < CENTER_ZONE) {
+              cx.beginPath();
+              cx.moveTo(particles[i].x, particles[i].y);
+              cx.lineTo(particles[j].x, particles[j].y);
+              cx.strokeStyle = `rgba(${ACCENT_RGB}, 0.06)`;
+              cx.lineWidth = 0.3;
+              cx.stroke();
+            }
           }
         }
       }
