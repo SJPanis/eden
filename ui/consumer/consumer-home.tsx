@@ -1021,35 +1021,35 @@ export function ConsumerHomePanel({
         <p className="mt-4 text-sm text-white/30">AI agents building. Humans earning. The garden grows.</p>
       </motion.section>
 
+      {/* ORBIT — full width centered */}
+      <div className="flex justify-center py-6">
+        <div style={{ width: 380, height: 380, overflow: "hidden" }}>
+          <OrbitalDiagram
+            size={380}
+            interactive
+            centerLabel="Eden"
+            centerSublabel="Discover"
+            innerNodes={visibleCategories.slice(0, 3).map((cat, i) => ({
+              label: cat.label,
+              angle: -90 + i * 120,
+            }))}
+            middleNodes={recommendedServices.slice(0, 2).map((svc, i) => ({
+              label: svc.title.length > 14 ? svc.title.slice(0, 12) + "..." : svc.title,
+              angle: 60 + i * 160,
+            }))}
+            onNodeClick={(label) => {
+              const matchedCat = visibleCategories.find((c) => c.label === label);
+              if (matchedCat) setActiveCategory((prev) => prev === matchedCat.label ? null : matchedCat.label);
+            }}
+          />
+        </div>
+      </div>
+
       {/* MAIN: Content + Sidebar */}
-      <div className="flex gap-6 items-start mt-6">
+      <div className="flex gap-6 items-start">
 
-        {/* LEFT: Orbit + Search + Services */}
+        {/* LEFT: Search + Services */}
         <div className="flex-1 min-w-0 space-y-6">
-
-          {/* Orbit */}
-          <div className="flex justify-center">
-            <div style={{ width: 380, height: 380, overflow: "hidden" }}>
-              <OrbitalDiagram
-                size={380}
-                interactive
-                centerLabel="Eden"
-                centerSublabel="Discover"
-                innerNodes={visibleCategories.slice(0, 3).map((cat, i) => ({
-                  label: cat.label,
-                  angle: -90 + i * 120,
-                }))}
-                middleNodes={recommendedServices.slice(0, 2).map((svc, i) => ({
-                  label: svc.title.length > 14 ? svc.title.slice(0, 12) + "..." : svc.title,
-                  angle: 60 + i * 160,
-                }))}
-                onNodeClick={(label) => {
-                  const matchedCat = visibleCategories.find((c) => c.label === label);
-                  if (matchedCat) setActiveCategory((prev) => prev === matchedCat.label ? null : matchedCat.label);
-                }}
-              />
-            </div>
-          </div>
 
           {/* Search */}
           <form onSubmit={(event) => { void handleAskEden(event); }}>
@@ -1114,7 +1114,7 @@ export function ConsumerHomePanel({
         <div className="hidden lg:block w-52 shrink-0 sticky top-4 space-y-6">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Your Balance</p>
-            <p className="text-3xl font-bold text-white">{formatCredits(currentBalanceCredits)}</p>
+            <p className="text-3xl font-bold text-white">{currentBalanceCredits.toLocaleString()}</p>
             <p className="text-xs text-white/30 mt-0.5">Leafs</p>
             <a href="/topup" className="inline-block mt-3 text-xs font-semibold px-4 py-2 rounded-full transition-colors" style={{ background: "rgba(45,212,191,0.15)", color: "#2dd4bf" }}>
               + Top Up
