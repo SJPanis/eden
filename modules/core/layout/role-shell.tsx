@@ -73,6 +73,14 @@ export function RoleShell({
   const [liveBalance, setLiveBalance] = useState<number | null>(null);
 
   useEffect(() => {
+    // Fetch real balance on mount for persistent sessions
+    fetch("/api/wallet/balance")
+      .then((r) => r.json())
+      .then((d: { ok?: boolean; balance?: number }) => {
+        if (d.ok && typeof d.balance === "number") setLiveBalance(d.balance);
+      })
+      .catch(() => {});
+
     function onBalanceUpdated(e: Event) {
       const detail = (e as CustomEvent<{ newBalance: number }>).detail;
       if (typeof detail?.newBalance === "number") setLiveBalance(detail.newBalance);

@@ -597,6 +597,23 @@ export function ConsumerHomePanel({
   const [selectedResult, setSelectedResult] = useState<SelectedResult | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [liveStats, setLiveStats] = useState<{ leafsToday: number; transactionsToday: number; activeServices: number } | null>(null);
+  const [liveBalance, setLiveBalance] = useState(currentBalanceCredits);
+
+  useEffect(() => {
+    fetch("/api/wallet/balance")
+      .then((r) => r.json())
+      .then((d: { ok?: boolean; balance?: number }) => {
+        if (d.ok && typeof d.balance === "number") setLiveBalance(d.balance);
+      })
+      .catch(() => {});
+
+    function onBalanceUpdated(e: Event) {
+      const detail = (e as CustomEvent<{ newBalance: number }>).detail;
+      if (typeof detail?.newBalance === "number") setLiveBalance(detail.newBalance);
+    }
+    window.addEventListener("eden:balance-updated", onBalanceUpdated);
+    return () => window.removeEventListener("eden:balance-updated", onBalanceUpdated);
+  }, []);
 
   useEffect(() => {
     const fetchStats = () => {
@@ -1256,7 +1273,7 @@ export function ConsumerHomePanel({
         <div className="hidden lg:block w-52 shrink-0 sticky top-4 space-y-6">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Your Balance</p>
-            <p className="text-5xl font-bold text-white">{currentBalanceCredits.toLocaleString()}</p>
+            <p className="text-5xl font-bold text-white">{liveBalance.toLocaleString()}</p>
             <p className="text-xs text-white/30 mt-0.5">Leafs</p>
             <a href="/topup" className="inline-block mt-3 text-xs font-semibold px-4 py-2 rounded-full transition-colors" style={{ background: "rgba(45,212,191,0.15)", color: "#2dd4bf" }}>
               + Top Up
