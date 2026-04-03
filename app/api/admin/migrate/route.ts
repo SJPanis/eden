@@ -76,6 +76,8 @@ export async function POST() {
     `UPDATE "EdenService" SET "category"='Music', "thumbnailColor"='#a855f7' WHERE "slug"='spot-splore'`,
     // Ensure all active services are published
     `UPDATE "EdenService" SET "status"='published' WHERE "isActive"=true AND ("status" IS NULL OR "status"='draft' OR "status"='')`,
+    // Onboarding
+    `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "welcomeGranted" BOOLEAN NOT NULL DEFAULT false`,
   ];
 
   for (const sql of migrations) {
