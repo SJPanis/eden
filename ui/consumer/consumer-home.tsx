@@ -1122,12 +1122,43 @@ export function ConsumerHomePanel({
                         {/* Perspective grid floor */}
                         {[150,160,168,175,181,186].map(y => <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(245,158,11,0.12)" strokeWidth="0.5"/>)}
                         {[-120,-70,-30,0,30,70,120,200].map(dx => <line key={dx} x1={200+dx} y1={210} x2={200+dx*0.15} y2={140} stroke="rgba(245,158,11,0.1)" strokeWidth="0.5"/>)}
-                        {/* Car silhouette — minimal neon lines */}
-                        <g filter={`url(#cglow-${svc.id})`}>
-                          <path d="M120,125 L150,125 L165,105 L235,105 L255,115 L280,118 L280,125" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round"/>
-                          <path d="M120,125 L280,125" fill="none" stroke="rgba(245,158,11,0.5)" strokeWidth="0.8"/>
-                          <circle cx="150" cy="128" r="10" fill="none" stroke="#f59e0b" strokeWidth="1.2"/>
-                          <circle cx="255" cy="128" r="10" fill="none" stroke="#f59e0b" strokeWidth="1.2"/>
+                        {/* Car silhouette — detailed futuristic supercar */}
+                        <g filter={`url(#cglow-${svc.id})`} stroke="#f59e0b" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                          {/* Main body — low aggressive roofline */}
+                          <path d="M80,140 L95,140 L105,118 L130,108 L175,105 L220,105 L245,112 L268,118 L278,130 L290,140 L300,140"/>
+                          {/* Windshield */}
+                          <path d="M130,108 L138,118 L175,118 L175,105"/>
+                          {/* Rear window */}
+                          <path d="M220,105 L220,118 L245,118 L245,112"/>
+                          {/* Door lines */}
+                          <line x1="150" y1="108" x2="150" y2="138" stroke="rgba(245,158,11,0.3)" strokeWidth="0.6"/>
+                          <line x1="215" y1="108" x2="215" y2="138" stroke="rgba(245,158,11,0.3)" strokeWidth="0.6"/>
+                          {/* Side skirt / undercarriage */}
+                          <path d="M95,140 Q190,145 300,140" stroke="rgba(245,158,11,0.4)" strokeWidth="0.8"/>
+                          {/* Front splitter */}
+                          <path d="M80,140 L65,140 L68,136" stroke="#f59e0b" strokeWidth="1"/>
+                          {/* Rear spoiler */}
+                          <path d="M268,118 L272,112 L285,112 L285,118" stroke="#f59e0b" strokeWidth="1"/>
+                          {/* Front wheel arch */}
+                          <path d="M100,138 Q100,128 115,126 Q130,124 133,132 Q134,138 130,140"/>
+                          {/* Front wheel */}
+                          <circle cx="117" cy="140" r="14" stroke="#f59e0b" strokeWidth="1.2"/>
+                          <circle cx="117" cy="140" r="8" stroke="rgba(245,158,11,0.5)" strokeWidth="0.8"/>
+                          <circle cx="117" cy="140" r="3" fill="rgba(245,158,11,0.4)" stroke="none"/>
+                          {/* Rear wheel arch */}
+                          <path d="M258,138 Q258,126 268,124 Q282,122 286,132 Q287,138 282,140"/>
+                          {/* Rear wheel */}
+                          <circle cx="272" cy="140" r="14" stroke="#f59e0b" strokeWidth="1.2"/>
+                          <circle cx="272" cy="140" r="8" stroke="rgba(245,158,11,0.5)" strokeWidth="0.8"/>
+                          <circle cx="272" cy="140" r="3" fill="rgba(245,158,11,0.4)" stroke="none"/>
+                          {/* Headlight — sharp angular */}
+                          <path d="M80,130 L75,127 L78,122 L88,124 L90,130" fill="rgba(245,158,11,0.2)"/>
+                          {/* Taillight */}
+                          <path d="M290,128 L295,125 L298,130 L296,135 L290,134" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" strokeWidth="0.8"/>
+                          {/* Air intake details */}
+                          <line x1="160" y1="118" x2="160" y2="126" stroke="rgba(245,158,11,0.3)" strokeWidth="0.5"/>
+                          <line x1="167" y1="118" x2="167" y2="126" stroke="rgba(245,158,11,0.3)" strokeWidth="0.5"/>
+                          <line x1="174" y1="118" x2="174" y2="126" stroke="rgba(245,158,11,0.3)" strokeWidth="0.5"/>
                         </g>
                         {/* Headlight beams */}
                         <polygon points="280,118 360,108 360,128" fill="url(#hbeam)" opacity="0.4"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.5s" repeatCount="indefinite"/></polygon>
