@@ -643,7 +643,9 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
         </header>
 
         {/* ── Hero ── */}
-        <section ref={heroRef} className="relative overflow-hidden px-5 py-20 md:py-28">
+        <section ref={heroRef} className="relative overflow-hidden px-5 py-20 md:py-28" style={{
+          background: `radial-gradient(ellipse 80% 50% at 50% -10%, rgba(45,212,191,0.15), transparent), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(11,22,34,0.8), transparent), #0b1622`,
+        }}>
           {/* Glow blobs */}
           <div aria-hidden className="pointer-events-none absolute inset-0">
             <div
@@ -667,12 +669,21 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           />
 
           <div className="relative mx-auto max-w-4xl text-center">
+            {/* Glow behind headline */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2"
+              style={{ width: 600, height: 300, background: `radial-gradient(ellipse, rgba(${ACCENT_RGB}, 0.08) 0%, transparent 70%)`, filter: "blur(40px)", zIndex: 0 }}
+            />
+
             {/* Eyebrow */}
             <motion.div
               variants={fadeUp}
               initial="hidden"
-              animate={contentVisible ? "visible" : "hidden"}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              className="relative z-[1]"
             >
               <span
                 className="inline-block rounded-full px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.2em]"
@@ -687,12 +698,13 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
             </motion.div>
 
             {/* H1 with floating parallax */}
-            <motion.div style={{ y: heroHeadlineY }}>
+            <motion.div style={{ y: heroHeadlineY }} className="relative z-[1]">
               <motion.h1
                 variants={fadeUp}
                 initial="hidden"
-                animate={contentVisible ? "visible" : "hidden"}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
                 className="mt-6 font-serif text-5xl font-bold leading-[1.08] tracking-tight text-white md:text-6xl lg:text-8xl"
               >
                 Build the future.
@@ -705,9 +717,10 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
             <motion.p
               variants={fadeUp}
               initial="hidden"
-              animate={contentVisible ? "visible" : "hidden"}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.26 }}
-              className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/55"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+              className="relative z-[1] mx-auto mt-6 max-w-2xl text-xl leading-8 text-white/70"
             >
               AI agents do the work. You collect the Leafs.
             </motion.p>
@@ -716,13 +729,14 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
             <motion.div
               variants={fadeUp}
               initial="hidden"
-              animate={contentVisible ? "visible" : "hidden"}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.34 }}
-              className="mt-10 flex flex-wrap items-center justify-center gap-4"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+              className="relative z-[1] mt-10 flex flex-wrap items-center justify-center gap-4"
             >
               <Link
                 href="#waitlist"
-                className="rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="eden-portal-btn rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                 style={{
                   background: ACCENT,
                   boxShadow: `0 0 32px rgba(${ACCENT_RGB}, 0.28)`,
@@ -742,8 +756,9 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
             <motion.div
               variants={fadeUp}
               initial="hidden"
-              animate={contentVisible ? "visible" : "hidden"}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.42 }}
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
               className="mt-12 flex flex-wrap items-center justify-center gap-3"
             >
               {trustSignals.map((signal) => (
@@ -761,8 +776,9 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           <motion.div
             variants={fadeUp}
             initial="hidden"
-            animate={contentVisible ? "visible" : "hidden"}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
           >
             <NetworkStatsPanel />
           </motion.div>

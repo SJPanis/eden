@@ -209,8 +209,10 @@ export function RoleShell({
                       {isActive ? (
                         <motion.span
                           layoutId="nav-dot"
-                          className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full"
-                          style={{ background: "#2dd4bf", boxShadow: "0 0 6px rgba(45,212,191,0.5)" }}
+                          className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full"
+                          style={{ width: 20, height: 1, background: "#2dd4bf", boxShadow: "0 0 8px rgba(45,212,191,0.6)" }}
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
                           transition={{ type: "spring", stiffness: 400, damping: 30 }}
                         />
                       ) : null}

@@ -1,0 +1,24 @@
+:root {
+  /* Core palette */
+  --eden-void: #060d14;
+  --eden-deep: #0b1622;
+  --eden-surface: #0f1f2e;
+  --eden-surface-2: #142436;
+  --eden-border: rgba(255,255,255,0.06);
+  --eden-border-bright: rgba(255,255,255,0.12);
+
+  /* Teal system */
+  --eden-teal: #2dd4bf;
+  --eden-teal-dim: rgba(45,212,191,0.12);
+  --eden-teal-glow: rgba(45,212,191,0.35);
+  --eden-teal-bloom: rgba(45,212,191,0.08);
+
+  /* Typography */
+  --font-display: "Instrument Serif", serif;
+  --font-body: "Outfit", sans-serif;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px -4px rgba(0,0,0,0.6), 0 0 0 1px var(--eden-border);
+  --shadow-card-hover: 0 8px 40px -8px rgba(0,0,0,0.8), 0 0 0 1px var(--eden-border-bright), 0 0 20px -8px var(--eden-teal-glow);
+  --shadow-glow: 0 0 60px -10px var(--eden-teal-glow);
+}
