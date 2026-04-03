@@ -1023,7 +1023,7 @@ export function ConsumerHomePanel({
 
       {/* ORBIT — full width centered */}
       <div className="flex justify-center py-6">
-        <div style={{ width: 380, height: 380, overflow: "hidden" }}>
+        <div style={{ width: 380, height: 380, overflow: "visible" }}>
           <OrbitalDiagram
             size={380}
             interactive
