@@ -4,7 +4,7 @@ import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 
 export const runtime = "nodejs";
 
-const WELCOME_LEAFS = 5;
+const WELCOME_LEAFS = 50;
 
 export async function POST() {
   const session = await getServerSession();
