@@ -1022,10 +1022,10 @@ export function ConsumerHomePanel({
       </motion.section>
 
       {/* ORBIT — full width centered */}
-      <div className="flex justify-center py-6">
-        <div style={{ width: 380, height: 380, overflow: "visible" }}>
+      <div className="flex justify-center" style={{ padding: "60px 0" }}>
+        <div style={{ width: 420, height: 420, overflow: "visible", position: "relative" }}>
           <OrbitalDiagram
-            size={380}
+            size={420}
             interactive
             centerLabel="Eden"
             centerSublabel="Discover"
