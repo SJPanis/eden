@@ -998,92 +998,63 @@ export function ConsumerHomePanel({
 
   return (
     <div className="space-y-6">
-      {/* Hero heading */}
+      {/* Toast */}
+      {newServiceToast && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl px-4 py-3 text-sm text-center"
+          style={{ background: "rgba(45,212,191,0.1)", border: "1px solid rgba(45,212,191,0.2)", color: "#2dd4bf" }}>
+          {"🌿"} Your service is live!
+        </motion.div>
+      )}
+
+      {/* HERO */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="text-center py-12"
+        className="text-center py-16"
       >
-        <h1 className="text-5xl font-bold tracking-tight md:text-7xl" style={{ fontFamily: "var(--font-serif)" }}>
+        <h1 className="text-5xl font-bold tracking-tight md:text-6xl" style={{ fontFamily: "var(--font-serif)" }}>
           The economy<br />
           <span className="italic" style={{ color: "#2dd4bf" }}>is alive.</span>
         </h1>
         <p className="mt-4 text-sm text-white/30">AI agents building. Humans earning. The garden grows.</p>
       </motion.section>
 
-      {/* Orbital service browser */}
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={sectionVariants}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="flex justify-center py-2 overflow-hidden"
-      >
-        <OrbitalDiagram
-          size={420}
-          interactive
-          centerLabel="Eden"
-          centerSublabel="Discover"
-          innerNodes={visibleCategories.slice(0, 3).map((cat, i) => ({
-            label: cat.label,
-            angle: -90 + i * 120,
-          }))}
-          middleNodes={recommendedServices.slice(0, 2).map((svc, i) => ({
-            label: svc.title.length > 14 ? svc.title.slice(0, 12) + "..." : svc.title,
-            angle: 60 + i * 160,
-          }))}
-          onNodeClick={(label) => {
-            const matchedCat = visibleCategories.find((c) => c.label === label);
-            if (matchedCat) {
-              setActiveCategory((prev) => prev === matchedCat.label ? null : matchedCat.label);
-            } else {
-              const matchedSvc = recommendedServices.find((s) => s.title.startsWith(label.replace("...", "")));
-              if (matchedSvc) setModalService(matchedSvc);
-            }
-          }}
-        />
-      </motion.section>
+      {/* ORBIT */}
+      <div className="flex justify-center py-4">
+        <div style={{ width: 400, height: 400, overflow: "hidden" }}>
+          <OrbitalDiagram
+            size={400}
+            interactive
+            centerLabel="Eden"
+            centerSublabel="Discover"
+            innerNodes={visibleCategories.slice(0, 3).map((cat, i) => ({
+              label: cat.label,
+              angle: -90 + i * 120,
+            }))}
+            middleNodes={recommendedServices.slice(0, 2).map((svc, i) => ({
+              label: svc.title.length > 14 ? svc.title.slice(0, 12) + "..." : svc.title,
+              angle: 60 + i * 160,
+            }))}
+            onNodeClick={(label) => {
+              const matchedCat = visibleCategories.find((c) => c.label === label);
+              if (matchedCat) setActiveCategory((prev) => prev === matchedCat.label ? null : matchedCat.label);
+            }}
+          />
+        </div>
+      </div>
 
-      {/* Active category filter pills */}
-      {activeCategory ? (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2"
-        >
-          <span className="rounded-full border border-[#2dd4bf]/40 bg-[#2dd4bf]/10 px-3 py-1 text-xs text-[#2dd4bf]">
-            {activeCategory}
-          </span>
-          <button
-            type="button"
-            onClick={() => setActiveCategory(null)}
-            className="text-xs text-white/40 hover:text-white/60"
-          >
-            Clear filter
-          </button>
-        </motion.div>
-      ) : null}
-
-      {/* TOP: Search bar */}
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={sectionVariants}
-        transition={{ duration: 0.3, ease: "easeOut", delay: 0.01 }}
-      >
-        <form
-          onSubmit={(event) => {
-            void handleAskEden(event);
-          }}
-        >
+      {/* SEARCH */}
+      <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.3 }}>
+        <form onSubmit={(event) => { void handleAskEden(event); }}>
           <div className="relative">
             <input
               type="text"
               value={promptInput}
               onChange={(event) => setPromptInput(event.target.value)}
               placeholder="Search services, businesses, or ask Eden..."
-              className="w-full rounded-2xl border border-white/8 px-5 py-4 pl-12 text-base text-white outline-none transition placeholder:text-white/30 focus:border-[#2dd4bf]/50"
+              className="w-full rounded-2xl px-5 py-4 pl-12 text-base text-white outline-none transition placeholder:text-white/30 focus:ring-1 focus:ring-[#2dd4bf]/50"
               style={{ background: "rgba(13,30,46,0.8)", backdropFilter: "blur(12px)" }}
             />
             <svg className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1093,823 +1064,78 @@ export function ConsumerHomePanel({
         </form>
       </motion.section>
 
-      {/* New service toast */}
-      {newServiceToast && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-          className="rounded-xl px-4 py-3 text-sm text-center"
-          style={{ background: "rgba(45,212,191,0.1)", border: "1px solid rgba(45,212,191,0.2)", color: "#2dd4bf" }}
-        >
-          {"🌿"} Your service is live!
-        </motion.div>
-      )}
+      {/* MAIN: Services + Sidebar */}
+      <div className="flex gap-8 items-start mt-4">
 
-      {/* DB-backed services */}
-      {dbServices.length > 0 && (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {dbServices.map((svc) => (
-            <a key={svc.id} href={`/services/${svc.slug}`}
-              className="group rounded-2xl bg-white/[0.035] p-4 transition-all hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)] hover:scale-[1.02]"
-            >
-              <div className="h-32 w-full rounded-xl overflow-hidden relative"
-                style={{ background: `linear-gradient(135deg, ${svc.thumbnailColor}40, rgba(11,22,34,0.95))` }}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg viewBox="0 0 200 200" width="80" height="80">
-                    <defs><radialGradient id={`svc-${svc.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={svc.thumbnailColor} stopOpacity="0.7"/><stop offset="100%" stopColor={svc.thumbnailColor} stopOpacity="0"/></radialGradient></defs>
-                    <circle cx="100" cy="100" r="50" fill={`url(#svc-${svc.id})`}><animate attributeName="r" values="45;55;45" dur="3s" repeatCount="indefinite"/></circle>
-                    <circle cx="100" cy="100" r="6" fill={svc.thumbnailColor}/>
-                  </svg>
-                </div>
-              </div>
-              <h3 className="mt-3 text-base font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>{svc.name}</h3>
-              <p className="mt-1 text-xs text-white/40 line-clamp-2">{svc.description}</p>
-              <div className="mt-2 flex items-center gap-2 text-[10px]">
-                <span className="rounded-full px-2 py-0.5" style={{ background: `${svc.thumbnailColor}15`, color: svc.thumbnailColor }}>{svc.category}</span>
-                <span className="text-white/30">{svc.leafCost} {"🍃"} per use</span>
-              </div>
-            </a>
-          ))}
-        </div>
-      )}
+        {/* LEFT: Services */}
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-mono uppercase tracking-widest text-white/20 mb-4">Services</p>
 
-      {/* MAIN CONTENT: Grid with services + sidebar */}
-      <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
-        {/* LEFT: Service grid */}
-        <div className="space-y-6">
-          {/* Service cards in 3 columns */}
-          {recommendedServices.length > 0 ? (
-            <motion.div
-              variants={railVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-5 sm:grid-cols-2"
-            >
-              {(activeCategory ? recommendedServices.filter(s => s.category === activeCategory) : recommendedServices).map((service) => (
-                <motion.div
-                  key={service.id}
-                  variants={railCardVariants}
-                  className="group cursor-pointer rounded-2xl bg-white/[0.035] p-4 transition-all hover:shadow-[0_0_20px_-4px_rgba(45,212,191,0.15)]"
-                  onClick={() => setModalService(service)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          {dbServices.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {dbServices.map((svc) => (
+                <a href={`/services/${svc.slug}`} key={svc.id}
+                  className="group block rounded-2xl overflow-hidden bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_-8px_rgba(45,212,191,0.15)]"
                 >
-                  {/* Generative gradient thumbnail with service monogram */}
-                  <div
-                    className="h-56 w-full rounded-xl mb-3 overflow-hidden relative group/thumb"
-                    style={{
-                      background: service.category === "Automotive"
-                        ? "linear-gradient(135deg, rgba(245,158,11,0.35) 0%, rgba(180,100,5,0.2) 40%, rgba(11,22,34,0.95) 100%)"
-                        : service.category === "Finance"
-                          ? "linear-gradient(135deg, rgba(16,185,129,0.35) 0%, rgba(5,80,50,0.2) 40%, rgba(11,22,34,0.95) 100%)"
-                          : service.category === "Music"
-                            ? "linear-gradient(135deg, rgba(168,85,247,0.35) 0%, rgba(100,20,200,0.2) 40%, rgba(11,22,34,0.95) 100%)"
-                            : `linear-gradient(${135 + (service.title.charCodeAt(0) % 6) * 30}deg, ${
-                                ["rgba(45,212,191,0.2)", "rgba(168,85,247,0.2)", "rgba(245,158,11,0.2)", "rgba(59,130,246,0.2)", "rgba(236,72,153,0.2)", "rgba(34,197,94,0.2)"][service.title.charCodeAt(0) % 6]
-                              }, rgba(13,30,46,0.85))`,
-                    }}
+                  <div className="h-48 relative overflow-hidden"
+                    style={{ background: `linear-gradient(135deg, ${svc.thumbnailColor}30 0%, transparent 70%)` }}
                   >
                     <div className="absolute inset-0 flex items-center justify-center">
-                      {service.category === "Automotive" ? (
-                        <svg viewBox="0 0 200 200" width="160" height="160">
-                          <defs><radialGradient id={`ia-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/><stop offset="100%" stopColor="#92400e" stopOpacity="0"/></radialGradient></defs>
-                          <circle cx="100" cy="100" r="60" fill={`url(#ia-g-${service.id})`}><animate attributeName="r" values="55;65;55" dur="3s" repeatCount="indefinite"/></circle>
-                          <circle cx="100" cy="100" r="30" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.4"><animate attributeName="r" values="30;45;30" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/></circle>
-                          <circle cx="100" cy="100" r="8" fill="#fbbf24"/>
-                        </svg>
-                      ) : service.category === "Finance" ? (
-                        <svg viewBox="0 0 200 200" width="160" height="160">
-                          <defs><radialGradient id={`ml-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#2dd4bf" stopOpacity="0.7"/><stop offset="100%" stopColor="#064e3b" stopOpacity="0"/></radialGradient></defs>
-                          <circle cx="100" cy="100" r="55" fill={`url(#ml-g-${service.id})`}><animate attributeName="r" values="50;60;50" dur="4s" repeatCount="indefinite"/></circle>
-                          <circle cx="100" cy="100" r="35" fill="none" stroke="#2dd4bf" strokeWidth="0.8" opacity="0.3"><animate attributeName="r" values="35;48;35" dur="3s" repeatCount="indefinite"/></circle>
-                          <circle cx="100" cy="100" r="6" fill="#2dd4bf"/>
-                          <circle cx="100" cy="40" r="3" fill="#2dd4bf" opacity="0.7"><animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="6s" repeatCount="indefinite"/></circle>
-                          <circle cx="60" cy="100" r="2.5" fill="#5eead4" opacity="0.5"><animateTransform attributeName="transform" type="rotate" from="120 100 100" to="480 100 100" dur="8s" repeatCount="indefinite"/></circle>
-                          <circle cx="140" cy="100" r="2" fill="#99f6e4" opacity="0.4"><animateTransform attributeName="transform" type="rotate" from="240 100 100" to="600 100 100" dur="10s" repeatCount="indefinite"/></circle>
-                        </svg>
-                      ) : service.category === "Music" ? (
-                        <svg viewBox="0 0 200 200" width="160" height="160">
-                          <defs><radialGradient id={`ss-g-${service.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#a855f7" stopOpacity="0.7"/><stop offset="100%" stopColor="#3b0764" stopOpacity="0"/></radialGradient></defs>
-                          <circle cx="100" cy="100" r="50" fill={`url(#ss-g-${service.id})`}><animate attributeName="r" values="45;55;45" dur="2s" repeatCount="indefinite"/></circle>
-                          <circle cx="100" cy="100" r="28" fill="none" stroke="#ec4899" strokeWidth="0.8" opacity="0.4"><animate attributeName="r" values="28;38;28" dur="2.5s" repeatCount="indefinite"/></circle>
-                          <circle cx="100" cy="100" r="5" fill="#a855f7"/>
-                          {[0, 72, 144, 216, 288].map((angle) => (
-                            <circle key={angle} cx="100" cy="45" r="2" fill="#c084fc" opacity="0.6">
-                              <animateTransform attributeName="transform" type="rotate" from={`${angle} 100 100`} to={`${angle + 360} 100 100`} dur={`${4 + (angle % 3)}s`} repeatCount="indefinite"/>
-                            </circle>
-                          ))}
-                        </svg>
-                      ) : (
-                        <span className="text-[40px] font-bold select-none" style={{ fontFamily: "var(--font-serif)", color: "rgba(45,212,191,0.3)" }}>
-                          {service.title.charAt(0)}
-                        </span>
-                      )}
+                      <svg viewBox="0 0 200 200" width="140" height="140">
+                        <defs><radialGradient id={`svc-${svc.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={svc.thumbnailColor} stopOpacity="0.7"/><stop offset="100%" stopColor={svc.thumbnailColor} stopOpacity="0"/></radialGradient></defs>
+                        <circle cx="100" cy="100" r="50" fill={`url(#svc-${svc.id})`}><animate attributeName="r" values="45;55;45" dur="3s" repeatCount="indefinite"/></circle>
+                        <circle cx="100" cy="100" r="6" fill={svc.thumbnailColor}/>
+                      </svg>
                     </div>
-                    <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)", backgroundSize: "200% 100%", animation: "shimmer 1.5s ease-in-out infinite" }} />
-                  </div>
-                  {/* Service name */}
-                  <h3 className="text-base font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>{service.title}</h3>
-                  {/* Business name + category */}
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="text-sm text-white/50">{service.provider}</span>
-                    <span className="rounded-full border border-white/8 bg-eden-bg px-2 py-0.5 text-[10px] text-white/40">{service.category}</span>
-                  </div>
-                  {/* Price badge */}
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-sm font-medium text-[#2dd4bf]">{service.pricingLabel}</span>
-                    <span className="text-xs text-white/0 transition-all group-hover:text-white/60">Use Service &rarr;</span>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            /* Empty state */
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <OrbitalDiagram size={160} showOuterRing={false} centerLabel="..." glowIntensity={0.3} innerNodes={[]} middleNodes={[]} />
-              <p className="text-lg text-white/40 italic" style={{ fontFamily: "var(--font-serif)" }}>
-                That service doesn&apos;t exist yet.
-              </p>
-              <p className="mt-1 text-sm text-white/30">This is your sign to build it.</p>
-              <a href="/business" className="mt-3 text-xs font-medium text-[#2dd4bf] transition-colors hover:text-white">
-                Start building &rarr;
-              </a>
-            </div>
-          )}
-
-          {/* Ask Eden response section */}
-          <AnimatePresence initial={false}>
-            {isThinking || latestTurn ? (
-              <motion.section
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.32, ease: "easeOut" }}
-                className="overflow-hidden rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 md:p-5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-eden-accent">
-                    Ask Eden Response
-                  </p>
-                  {latestTurn ? (
-                    <p className="text-xs text-white/50">
-                      Route confidence: {latestTurn.response.confidence}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  {pendingPrompt || latestTurn ? (
-                    <div className="ml-auto max-w-3xl rounded-xl border border-white/8 bg-[#2dd4bf]/15/55 p-3 text-left">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">You</p>
-                      <p className="mt-1 text-sm text-white">{pendingPrompt || latestTurn?.prompt}</p>
-                    </div>
-                  ) : null}
-
-                  <div className="mr-auto max-w-4xl rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3 text-left">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
-                      Ask Eden
-                    </p>
-                    <p className="mt-1 text-sm text-white">
-                      {isThinking
-                        ? "Routing your prompt across service search, business discovery, and idea generation..."
-                        : latestTurn?.response.summary}
-                    </p>
-                  </div>
-                </div>
-
-                {!isThinking && latestTurn ? (
-                  <>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {latestTurn.response.lanes.map((route) => (
-                        <span
-                          key={route}
-                          className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-xs text-white/50"
-                        >
-                          {route.replace("_", " ")}
-                        </span>
-                      ))}
-                      <span className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-xs text-white/50">
-                        Grounding: {latestTurn.response.groundingMode}
+                    <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: svc.thumbnailColor, color: "#000" }}>
+                        Run — {svc.leafCost} {"🍃"}
                       </span>
                     </div>
-
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.p
-                        key={assistantStateText}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="mt-4 rounded-lg border border-white/8 bg-[#2dd4bf]/10 px-3 py-2 text-sm text-white"
-                      >
-                        {assistantStateText}
-                      </motion.p>
-                    </AnimatePresence>
-
-                    {latestTurn.response.nextActions.length > 0 ? (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {latestTurn.response.nextActions.map((action) => (
-                          <button
-                            key={`${latestTurn.id}-${action.type}-${action.label}`}
-                            type="button"
-                            disabled={!action.enabled || isThinking}
-                            onClick={() => {
-                              void handleAskEdenAction(action);
-                            }}
-                            className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white transition-colors hover:border-[#2dd4bf]/50 hover:bg-eden-bg disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {action.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {latestTurn.response.warnings.length > 0 ? (
-                      <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10/70 p-3">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-amber-300">
-                          Grounding notes
-                        </p>
-                        <ul className="mt-2 space-y-1 text-sm text-amber-900/80">
-                          {latestTurn.response.warnings.map((warning) => (
-                            <li key={`${latestTurn.id}-${warning}`}>{warning}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-
-                    <div className="mt-5 grid gap-3 xl:grid-cols-3">
-                      <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-sm font-semibold text-white">
-                              Recommended services
-                            </h3>
-                            <p className="mt-1 text-xs text-white/50">
-                              Open Service to inspect published state, visible pricing, and the Leafs-only run flow.
-                            </p>
-                          </div>
-                          <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
-                            {latestTurn.response.results.services.length} ready
-                          </span>
-                        </div>
-                        <motion.div
-                          key={`services-${latestTurn.id}`}
-                          variants={responseLaneVariants}
-                          initial="hidden"
-                          animate="visible"
-                          transition={{ staggerChildren: 0.08, delayChildren: 0.04 }}
-                          className="mt-3 space-y-2"
-                        >
-                          {latestTurn.response.results.services.map((service) => {
-                            const serviceDiscoveryState = getConsumerServiceDiscoveryState(
-                              service,
-                              discoverySnapshot,
-                              currentBalanceCredits,
-                            );
-
-                            return (
-                              <motion.div key={service.id} variants={responseCardVariants}>
-                                <AskEdenServiceResultCard
-                                  service={service}
-                                  availabilityLabel={
-                                    serviceDiscoveryState.launchDetails.availabilityLabel
-                                  }
-                                  pricingLabel={serviceDiscoveryState.launchDetails.pricingLabel}
-                                  launchBadgeLabel={
-                                    serviceDiscoveryState.launchDetails.launchBadgeLabel
-                                  }
-                                  trustLabel={serviceDiscoveryState.launchDetails.trustLabel}
-                                  affordabilityLabel={serviceDiscoveryState.affordability.label}
-                                  affordabilityHint={serviceDiscoveryState.affordability.hint}
-                                  affordabilityTone={serviceDiscoveryState.affordability.tone}
-                                  isSelected={
-                                    selectedResult?.lane === "service" &&
-                                    selectedResult.id === service.id
-                                  }
-                                  onSelect={() =>
-                                    handleSelectResult("service", service.id, service.title)
-                                  }
-                                  onAction={() =>
-                                    handleResultAction(
-                                      "Open Service",
-                                      service.title,
-                                      serviceDiscoveryState.href,
-                                    )
-                                  }
-                                />
-                              </motion.div>
-                            );
-                          })}
-                        </motion.div>
-                      </section>
-
-                      <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-sm font-semibold text-white">Business matches</h3>
-                            <p className="mt-1 text-xs text-white/50">
-                              Open a business card to inspect the matched business surface and current publish state.
-                            </p>
-                          </div>
-                          <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
-                            {latestTurn.response.results.businesses.length} ready
-                          </span>
-                        </div>
-                        <motion.div
-                          key={`business-${latestTurn.id}`}
-                          variants={responseLaneVariants}
-                          initial="hidden"
-                          animate="visible"
-                          transition={{ staggerChildren: 0.08, delayChildren: 0.08 }}
-                          className="mt-3 space-y-2"
-                        >
-                          {latestTurn.response.results.businesses.map((business) => (
-                            <motion.div key={business.id} variants={responseCardVariants}>
-                              <AskEdenBusinessResultCard
-                                business={business}
-                                isSelected={
-                                  selectedResult?.lane === "business" &&
-                                  selectedResult.id === business.id
-                                }
-                                onSelect={() => handleSelectResult("business", business.id, business.name)}
-                                onAction={() =>
-                                  handleResultAction(
-                                    "Open Business",
-                                    business.name,
-                                    buildBusinessDetailHref(business, discoverySnapshot),
-                                  )
-                                }
-                              />
-                            </motion.div>
-                          ))}
-                        </motion.div>
-                      </section>
-
-                      <section className="rounded-xl border border-[rgba(45,212,191,0.07)] bg-white/[0.025] p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-sm font-semibold text-white">
-                              Ideas you could build
-                            </h3>
-                            <p className="mt-1 text-xs text-white/50">
-                              Choose an idea card to stage or inspect the project-build path Eden mapped from your prompt.
-                            </p>
-                          </div>
-                          <span className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50">
-                            {latestTurn.response.results.ideas.length} ready
-                          </span>
-                        </div>
-                        <motion.div
-                          key={`ideas-${latestTurn.id}`}
-                          variants={responseLaneVariants}
-                          initial="hidden"
-                          animate="visible"
-                          transition={{ staggerChildren: 0.08, delayChildren: 0.12 }}
-                          className="mt-3 space-y-2"
-                        >
-                          {latestTurn.response.results.ideas.map((idea) => (
-                            <motion.div key={idea.id} variants={responseCardVariants}>
-                              <AskEdenIdeaResultCard
-                                idea={idea}
-                                isSelected={selectedResult?.lane === "idea" && selectedResult.id === idea.id}
-                                onSelect={() => handleSelectResult("idea", idea.id, idea.title)}
-                                onAction={() =>
-                                  handleResultAction(
-                                    "Start Building",
-                                    idea.title,
-                                    buildBusinessCreationHref(idea),
-                                  )
-                                }
-                              />
-                            </motion.div>
-                          ))}
-                        </motion.div>
-                      </section>
-
-                      <section className="xl:col-span-3">
-                        <div className="rounded-2xl border border-[rgba(45,212,191,0.08)] bg-white/[0.03] p-4">
-                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                            <div>
-                              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                Interactive selection
-                              </p>
-                              <h3 className="mt-1 text-base font-semibold text-white">
-                                Turn the response into a discovery flow
-                              </h3>
-                              <p className="mt-1 text-sm text-white/50">
-                                Ask Eden now keeps service discovery, wallet context, and project
-                                actions inside one grounded operator surface.
-                              </p>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {latestTurn.response.lanes.map((route) => (
-                                <span
-                                  key={`preview-${route}`}
-                                  className="rounded-full border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50"
-                                >
-                                  {route.replace("_", " ")}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-
-                          <AnimatePresence mode="wait" initial={false}>
-                            {selectedResultDetails ? (
-                              <motion.div
-                                key={`${selectedResultDetails.lane}-${selectedResultDetails.id}`}
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -12 }}
-                                transition={{ duration: 0.22, ease: "easeOut" }}
-                                className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.95fr)]"
-                              >
-                                <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                  <div className="flex flex-wrap items-start justify-between gap-3">
-                                    <div>
-                                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                        {selectedResultDetails.eyebrow}
-                                      </p>
-                                      <h4 className="mt-1 text-lg font-semibold text-white">
-                                        {selectedResultDetails.title}
-                                      </h4>
-                                    </div>
-                                    <span className="rounded-full bg-eden-bg px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-white/50">
-                                      {selectedResultDetails.laneLabel}
-                                    </span>
-                                  </div>
-                                  <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
-                                    {selectedResultDetails.description}
-                                  </p>
-                                  <div className="mt-4 flex flex-wrap gap-2">
-                                    {selectedResultDetails.chips.map((chip) => (
-                                      <span
-                                        key={`${selectedResultDetails.id}-${chip}`}
-                                        className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
-                                      >
-                                        {chip}
-                                      </span>
-                                    ))}
-                                  </div>
-                                  <div className="mt-5 flex flex-wrap gap-2">
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleResultAction(
-                                          selectedResultDetails.actionLabel,
-                                          selectedResultDetails.title,
-                                          selectedResultDetails.href,
-                                        )
-                                      }
-                                      className="rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
-                                    >
-                                      {selectedResultDetails.actionLabel}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => setSelectedResult(null)}
-                                      className="rounded-xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:border-[#2dd4bf]/50 hover:text-white"
-                                    >
-                                      Clear selection
-                                    </button>
-                                  </div>
-                                </div>
-
-                                <div className="grid gap-3">
-                                  {selectedResultDetails.guidanceTitle ? (
-                                    <div
-                                      className={`rounded-2xl border p-4 ${
-                                        selectedResultDetails.guidanceTone === "ready"
-                                          ? "border-emerald-500/30 bg-emerald-500/10/70"
-                                          : selectedResultDetails.guidanceTone === "warning"
-                                            ? "border-amber-500/25 bg-amber-500/10/70"
-                                            : "border-[rgba(45,212,191,0.09)] bg-white/[0.035]"
-                                      }`}
-                                    >
-                                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                        Next step
-                                      </p>
-                                      <p className="mt-2 text-sm font-semibold text-white">
-                                        {selectedResultDetails.guidanceTitle}
-                                      </p>
-                                      <p className="mt-2 text-sm leading-6 text-white/50">
-                                        {selectedResultDetails.guidanceDetail}
-                                      </p>
-                                      {selectedResultDetails.guidanceCards?.length ? (
-                                        <div className="mt-4 grid gap-3">
-                                          {selectedResultDetails.guidanceCards.map((card) => (
-                                            <div
-                                              key={`${selectedResultDetails.id}-${card.label}`}
-                                              className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-3"
-                                            >
-                                              <p className="text-xs uppercase tracking-[0.12em] text-white/50">
-                                                {card.label}
-                                              </p>
-                                              <p className="mt-2 text-sm font-semibold text-white">
-                                                {card.value}
-                                              </p>
-                                              <p className="mt-2 text-sm leading-6 text-white/50">
-                                                {card.detail}
-                                              </p>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  ) : null}
-                                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                      What this unlocks
-                                    </p>
-                                    <p className="mt-2 text-sm leading-6 text-white/50">
-                                      {selectedResultDetails.supportingText}
-                                    </p>
-                                  </div>
-                                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                      Routing signals
-                                    </p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                      {(
-                                        latestTurn.response.trace?.signals?.length
-                                          ? latestTurn.response.trace?.signals
-                                          : ["No explicit signals captured"]
-                                      )
-                                        .slice(0, 4)
-                                        .map((signal) => (
-                                          <span
-                                            key={`signal-${signal}`}
-                                            className="rounded-full border border-white/8 bg-eden-bg px-2.5 py-1 text-[11px] text-white/50"
-                                          >
-                                            {signal}
-                                          </span>
-                                        ))}
-                                    </div>
-                                  </div>
-                                  <div className="rounded-2xl border border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4">
-                                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-eden-accent">
-                                      Grounding mode
-                                    </p>
-                                    <p className="mt-2 text-sm leading-6 text-white/50">
-                                      This response is currently marked as{" "}
-                                      <span className="font-semibold text-white">
-                                        {latestTurn.response.groundingMode}
-                                      </span>
-                                      , so Eden is distinguishing live platform state from proposed
-                                      or simulated output instead of pretending everything is confirmed.
-                                    </p>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            ) : (
-                              <motion.div
-                                key="empty-selection"
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -12 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                className="mt-4 rounded-2xl border border-dashed border-[rgba(45,212,191,0.09)] bg-white/[0.035] p-4 text-sm text-white/50"
-                              >
-                                Select a service, business, or idea card to inspect the grounded
-                                details and next step here.
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </section>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-white text-base" style={{ fontFamily: "var(--font-serif)" }}>{svc.name}</h3>
+                    <p className="text-xs text-white/40 mt-1 line-clamp-2">{svc.description}</p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <span className="text-xs text-white/20">{svc.leafCost} Leafs per use</span>
                     </div>
-                  </>
-                ) : null}
-              </motion.section>
-            ) : null}
-          </AnimatePresence>
-
-          {/* Trending Businesses discovery rail */}
-          <motion.section
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
-            transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
-          >
-            <DiscoveryRail
-              title="Trending Businesses"
-              subtitle={
-                savedOnly
-                  ? "Favorites filter is active. Showing saved businesses only."
-                  : "Popular innovator spaces in Eden right now. Open a business to inspect what they publish into the consumer marketplace."
-              }
-              hasItems={trendingBusinesses.length > 0}
-              emptyMessage="No businesses match the current filters yet."
-            >
-              <motion.div
-                variants={railVariants}
-                initial="hidden"
-                animate="visible"
-                className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2"
-              >
-                {trendingBusinesses.map((business) => (
-                  <motion.div key={business.id} variants={railCardVariants}>
-                    <BusinessCard
-                      name={business.name}
-                      tagline={business.tagline}
-                      category={business.category}
-                      saved={business.saved}
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </DiscoveryRail>
-          </motion.section>
-
-          {/* Categories discovery rail */}
-          <motion.section
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
-            transition={{ duration: 0.3, ease: "easeOut", delay: 0.15 }}
-          >
-            <DiscoveryRail
-              title="Categories"
-              subtitle="Browse popular service verticals in Eden."
-              hasItems={visibleCategories.length > 0}
-              emptyMessage="No categories match the current filters yet."
-            >
-              <motion.div
-                variants={railVariants}
-                initial="hidden"
-                animate="visible"
-                className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2"
-              >
-                {visibleCategories.map((category) => (
-                  <motion.div key={category.id} variants={railCardVariants}>
-                    <CategoryCard label={category.label} description={category.description} />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </DiscoveryRail>
-          </motion.section>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 text-white/20 text-sm">Services loading...</div>
+          )}
         </div>
 
-        {/* RIGHT SIDEBAR */}
-        <div className="hidden w-[260px] shrink-0 space-y-4 lg:block">
-          {/* Live stats */}
-          {liveStats && (
-            <div style={{ borderBottom: "1px solid rgba(45,212,191,0.1)", paddingBottom: "12px" }}>
-              <p style={{ fontSize: "9px", letterSpacing: "0.15em", color: "rgba(45,212,191,0.4)", textTransform: "uppercase" }}>Eden Live</p>
-              <div style={{ display: "flex", gap: "16px", marginTop: "6px" }}>
-                <div>
-                  <p style={{ fontSize: "16px", fontWeight: "bold", color: "white" }}>{liveStats.leafsToday.toLocaleString()}</p>
-                  <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>Leafs today</p>
-                </div>
-                <div>
-                  <p style={{ fontSize: "16px", fontWeight: "bold", color: "white" }}>{liveStats.transactionsToday}</p>
-                  <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>Transactions</p>
-                </div>
-                <div>
-                  <p style={{ fontSize: "16px", fontWeight: "bold", color: "white" }}>{liveStats.activeServices}</p>
-                  <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>Services</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Leaf balance card */}
-          <div className="rounded-2xl p-4" style={{ background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#2dd4bf]">Leaf Balance</p>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="relative h-14 w-14 shrink-0">
-                <svg viewBox="0 0 44 44" className="h-14 w-14 -rotate-90">
-                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(45,212,191,0.1)" strokeWidth="3" />
-                  <circle cx="22" cy="22" r="18" fill="none" stroke="#2dd4bf" strokeWidth="3" strokeDasharray={`${Math.min(113, (currentBalanceCredits / 500) * 113)} 113`} strokeLinecap="round" />
-                </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#2dd4bf]">&#x1F33F;</span>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white whitespace-nowrap">{formatCredits(currentBalanceCredits)}</p>
-                <p className="text-[10px] text-white/30">Eden Leafs</p>
-              </div>
-            </div>
-            <a href="/topup" className="mt-3 block w-full rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25" style={{ boxShadow: "0 0 12px -4px rgba(45,212,191,0.2)" }}>
-              Top Up
+        {/* RIGHT: Sidebar */}
+        <div className="hidden lg:block w-56 shrink-0 sticky top-8 space-y-6">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Your Balance</p>
+            <p className="text-3xl font-bold text-white">{formatCredits(currentBalanceCredits)}</p>
+            <p className="text-xs text-white/30 mt-0.5">Leafs</p>
+            <a href="/topup" className="inline-block mt-3 text-xs font-semibold px-4 py-2 rounded-full transition-colors" style={{ background: "rgba(45,212,191,0.15)", color: "#2dd4bf" }}>
+              + Top Up
             </a>
           </div>
 
-          {/* Eden Stake card */}
-          <EdenStakeCard />
-
-          {/* Recent activity */}
-          <div className="rounded-2xl p-4" style={{ background: "rgba(13,30,46,0.82)", backdropFilter: "blur(12px)" }}>
-            <p className="text-sm font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>Recent Activity</p>
-            <div className="mt-3 space-y-2">
-              {recentWalletTransactions.slice(0, 5).map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between py-1.5 text-xs">
-                  <span className="text-white/60 truncate max-w-[180px]">{tx.title}</span>
-                  <span className={tx.direction === "inflow" ? "text-emerald-400" : "text-white/40"}>
-                    {tx.direction === "inflow" ? "+" : "-"}{tx.amountLabel}
-                  </span>
-                </div>
-              ))}
-              {recentWalletTransactions.length === 0 ? (
-                <p className="text-xs text-white/30 italic">No recent activity</p>
-              ) : null}
+          {liveStats && (
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Eden Live</p>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs"><span className="text-white/30">Leafs today</span><span className="text-white font-medium">{liveStats.leafsToday}</span></div>
+                <div className="flex justify-between text-xs"><span className="text-white/30">Transactions</span><span className="text-white font-medium">{liveStats.transactionsToday}</span></div>
+                <div className="flex justify-between text-xs"><span className="text-white/30">Services</span><span className="text-white font-medium">{liveStats.activeServices}</span></div>
+              </div>
             </div>
+          )}
+
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Your Stake</p>
+            <EdenStakeCard />
           </div>
         </div>
       </div>
-
-      {/* Service detail modal with zoom transition */}
-      <AnimatePresence>
-        {modalService ? (
-          <>
-            {/* Dark overlay */}
-            <motion.div
-              key="modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
-              onClick={() => setModalService(null)}
-            />
-            {/* Modal card */}
-            <motion.div
-              key="modal-card"
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
-              transition={{ type: "spring", stiffness: 350, damping: 30 }}
-              className="fixed inset-x-4 top-[10%] z-50 mx-auto max-w-lg overflow-hidden rounded-3xl"
-              style={{
-                border: "1px solid rgba(45,212,191,0.2)",
-                background: "rgba(13,30,46,0.95)",
-                boxShadow: "0 24px 80px -12px rgba(0,0,0,0.7), 0 0 40px -8px rgba(45,212,191,0.1)",
-              }}
-            >
-              {/* Full-width thumbnail */}
-              <div
-                className="h-48 w-full"
-                style={{ background: "linear-gradient(135deg, rgba(45,212,191,0.2), rgba(13,30,46,0.9))" }}
-              />
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-xl font-semibold text-white" style={{ fontFamily: "var(--font-serif)" }}>
-                      {modalService.title}
-                    </h2>
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <span className="text-sm text-white/50">{modalService.provider}</span>
-                      <span className="rounded-full border border-white/8 bg-eden-bg px-2 py-0.5 text-[10px] text-white/40">
-                        {modalService.category}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setModalService(null)}
-                    className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2 text-white/50 transition-colors hover:text-white"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-[#2dd4bf]/30 bg-[#2dd4bf]/10 px-3 py-1 text-xs font-semibold text-[#2dd4bf]">
-                    {modalService.pricingLabel}
-                  </span>
-                  <span className="rounded-full border border-white/8 bg-white/[0.035] px-3 py-1 text-xs text-white/50">
-                    {modalService.availabilityLabel}
-                  </span>
-                  <span className="rounded-full border border-white/8 bg-white/[0.035] px-3 py-1 text-xs text-white/50">
-                    {modalService.launchBadgeLabel}
-                  </span>
-                </div>
-
-                <p className="mt-4 text-sm leading-6 text-white/45">
-                  {modalService.affordabilityHint}
-                </p>
-
-                <div className="mt-6 flex gap-3">
-                  <Link
-                    href={modalService.href}
-                    className="flex-1 rounded-xl border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/25"
-                    style={{ boxShadow: "0 0 16px -4px rgba(45,212,191,0.25)" }}
-                  >
-                    Run Service
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setModalService(null)}
-                    className="rounded-xl border border-white/10 bg-white/[0.035] px-5 py-3 text-sm font-medium text-white/50 transition-colors hover:text-white"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        ) : null}
-      </AnimatePresence>
     </div>
   );
 }
