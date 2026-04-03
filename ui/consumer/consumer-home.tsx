@@ -1080,16 +1080,52 @@ export function ConsumerHomePanel({
                 <a href={`/services/${svc.slug}`} key={svc.id}
                   className="group block rounded-2xl overflow-hidden bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_-8px_rgba(45,212,191,0.15)]"
                 >
-                  <div className="h-48 relative overflow-hidden"
-                    style={{ background: `linear-gradient(135deg, ${svc.thumbnailColor}30 0%, transparent 70%)` }}
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <svg viewBox="0 0 200 200" width="140" height="140">
-                        <defs><radialGradient id={`svc-${svc.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={svc.thumbnailColor} stopOpacity="0.7"/><stop offset="100%" stopColor={svc.thumbnailColor} stopOpacity="0"/></radialGradient></defs>
-                        <circle cx="100" cy="100" r="50" fill={`url(#svc-${svc.id})`}><animate attributeName="r" values="45;55;45" dur="3s" repeatCount="indefinite"/></circle>
-                        <circle cx="100" cy="100" r="6" fill={svc.thumbnailColor}/>
-                      </svg>
-                    </div>
+                  <div className="h-52 relative overflow-hidden" style={{ background: `radial-gradient(ellipse at 50% 50%, ${svc.thumbnailColor}18, transparent 70%), #060a10` }}>
+                    <svg width="100%" height="100%" viewBox="0 0 400 210" className="absolute inset-0">
+                      <defs>
+                        <radialGradient id={`bg-${svc.id}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={svc.thumbnailColor} stopOpacity="0.2"/><stop offset="100%" stopColor={svc.thumbnailColor} stopOpacity="0"/></radialGradient>
+                      </defs>
+                      <rect width="400" height="210" fill={`url(#bg-${svc.id})`}/>
+                      {svc.category === "Finance" ? (<>
+                        {/* Market Lens — geometric lens/eye */}
+                        {[0,1,2,3,4,5].map(i => <line key={`g${i}`} x1="0" y1={35*i} x2="400" y2={35*i} stroke="rgba(45,212,191,0.06)" strokeWidth="0.5"/>)}
+                        <ellipse cx="200" cy="105" rx="90" ry="55" fill="none" stroke="rgba(45,212,191,0.3)" strokeWidth="1"/>
+                        <ellipse cx="200" cy="105" rx="65" ry="40" fill="none" stroke="rgba(45,212,191,0.5)" strokeWidth="0.8" transform="rotate(8 200 105)"/>
+                        <circle cx="200" cy="105" r="18" fill="rgba(45,212,191,0.15)" stroke="rgba(45,212,191,0.6)" strokeWidth="1"><animate attributeName="r" values="16;19;16" dur="4s" repeatCount="indefinite"/></circle>
+                        <circle cx="200" cy="105" r="5" fill="#2dd4bf"><animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/></circle>
+                        <line x1="130" y1="60" x2="270" y2="150" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5"/>
+                        {[{x:140,y:70,d:"1.2s"},{x:260,y:80,d:"1.8s"},{x:170,y:140,d:"1.5s"},{x:250,y:130,d:"2.1s"},{x:155,y:95,d:"1.0s"},{x:240,y:110,d:"1.7s"}].map((p,i) =>
+                          <circle key={i} cx={p.x} cy={p.y} r="1.5" fill="#2dd4bf"><animate attributeName="opacity" values="0.2;0.8;0.2" dur={p.d} repeatCount="indefinite"/></circle>
+                        )}
+                      </>) : svc.category === "Automotive" ? (<>
+                        {/* Imagine Auto — geometric engine */}
+                        <polygon points="200,45 255,72 255,138 200,165 145,138 145,72" fill="none" stroke="rgba(245,158,11,0.25)" strokeWidth="1"><animateTransform attributeName="transform" type="rotate" from="0 200 105" to="360 200 105" dur="20s" repeatCount="indefinite"/></polygon>
+                        <circle cx="200" cy="105" r="45" fill="none" stroke="rgba(245,158,11,0.2)" strokeWidth="0.8"/>
+                        <circle cx="200" cy="105" r="30" fill="none" stroke="rgba(245,158,11,0.3)" strokeWidth="0.8"/>
+                        <circle cx="200" cy="105" r="15" fill="none" stroke="rgba(245,158,11,0.4)" strokeWidth="0.8"/>
+                        {[0,60,120,180,240,300].map(a => <line key={a} x1="200" y1="105" x2={200+Math.cos(a*Math.PI/180)*50} y2={105+Math.sin(a*Math.PI/180)*50} stroke="rgba(245,158,11,0.2)" strokeWidth="0.5"/>)}
+                        <circle cx="200" cy="105" r="6" fill="#f59e0b"><animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/></circle>
+                        {[0,90,180,270].map(a => <rect key={a} x="197" y="58" width="6" height="6" fill="#fbbf24" opacity="0.5" transform={`rotate(45 200 61)`}><animateTransform attributeName="transform" type="rotate" from={`${a} 200 105`} to={`${a+360} 200 105`} dur="12s" repeatCount="indefinite"/></rect>)}
+                      </>) : svc.category === "Music" ? (<>
+                        {/* Spot Splore — audio waveform */}
+                        {[0,1,2].map(i => <circle key={i} cx="200" cy="105" r={30+i*25} fill="none" stroke="rgba(168,85,247,0.1)" strokeWidth="0.5"><animate attributeName="r" values={`${30+i*25};${35+i*25};${30+i*25}`} dur={`${3+i}s`} repeatCount="indefinite"/><animate attributeName="opacity" values="0.15;0.05;0.15" dur={`${3+i}s`} repeatCount="indefinite"/></circle>)}
+                        {[135,155,175,190,205,220,235,250,260,170,215,245].map((x,i) => {
+                          const h = 20 + (Math.sin(i*1.7)*15 + 15); const d = (0.8+i*0.07).toFixed(1);
+                          return <rect key={i} x={x} y={105-h/2} width="4" height={h} rx="2" fill="rgba(168,85,247,0.6)"><animate attributeName="height" values={`${h};${h*1.6};${h*0.7};${h}`} dur={`${d}s`} repeatCount="indefinite"/><animate attributeName="y" values={`${105-h/2};${105-h*0.8};${105-h*0.35};${105-h/2}`} dur={`${d}s`} repeatCount="indefinite"/></rect>;
+                        })}
+                        <circle cx="200" cy="60" r="2" fill="#c084fc" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from="0 200 105" to="360 200 105" dur="6s" repeatCount="indefinite"/></circle>
+                        <circle cx="200" cy="150" r="1.5" fill="#e879f9" opacity="0.5"><animateTransform attributeName="transform" type="rotate" from="180 200 105" to="540 200 105" dur="8s" repeatCount="indefinite"/></circle>
+                      </>) : (<>
+                        {/* Default — organic growth */}
+                        <circle cx="200" cy="105" r="8" fill="rgba(16,185,129,0.6)"><animate attributeName="r" values="7;10;7" dur="3s" repeatCount="indefinite"/></circle>
+                        {[{x:140,y:70},{x:260,y:75},{x:150,y:145},{x:255,y:140},{x:200,y:50}].map((n,i) => (<g key={i}>
+                          <line x1="200" y1="105" x2={n.x} y2={n.y} stroke="rgba(16,185,129,0.2)" strokeWidth="0.8"/>
+                          <circle cx={n.x} cy={n.y} r="4" fill="rgba(16,185,129,0.4)"><animate attributeName="opacity" values="0.3;0.8;0.3" dur={`${2+i*0.5}s`} repeatCount="indefinite" begin={`${i*0.3}s`}/></circle>
+                          {[{dx:-15,dy:-10},{dx:12,dy:8}].map((b,j) => <circle key={j} cx={n.x+b.dx} cy={n.y+b.dy} r="2" fill="rgba(16,185,129,0.3)"><animate attributeName="opacity" values="0.2;0.6;0.2" dur={`${2.5+j}s`} repeatCount="indefinite" begin={`${i*0.2+j*0.4}s`}/></circle>)}
+                        </g>))}
+                        {[...Array(8)].map((_,i) => <circle key={`p${i}`} cx={120+i*35} cy={40+Math.random()*130} r="1" fill="rgba(16,185,129,0.2)"><animate attributeName="cy" values={`${80+i*10};${70+i*10};${80+i*10}`} dur={`${4+i*0.5}s`} repeatCount="indefinite"/></circle>)}
+                      </>)}
+                    </svg>
                     <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: svc.thumbnailColor, color: "#000" }}>
                         Run — {svc.leafCost} {"🍃"}
