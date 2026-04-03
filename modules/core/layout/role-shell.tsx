@@ -82,7 +82,7 @@ export function RoleShell({
   }, []);
 
   const roleBadgeColors = {
-    consumer: { border: "rgba(45,212,191,0.35)", text: "rgba(45,212,191,0.85)", glow: "rgba(45,212,191,0.3)" },
+    consumer: { border: "rgba(255,255,255,0.1)", text: "rgba(255,255,255,0.5)", glow: "rgba(255,255,255,0.05)" },
     business: { border: "rgba(168,85,247,0.35)", text: "rgba(168,85,247,0.85)", glow: "rgba(168,85,247,0.3)" },
     owner: { border: "rgba(245,158,11,0.35)", text: "rgba(245,158,11,0.85)", glow: "rgba(245,158,11,0.3)" },
   };
@@ -120,7 +120,7 @@ export function RoleShell({
             className="relative z-[100] rounded-[20px] backdrop-blur-xl"
             style={{
               background: "rgba(6,15,11,0.88)",
-              border: "1px solid rgba(45,212,191,0.13)",
+              border: "1px solid rgba(255,255,255,0.06)",
               boxShadow: "0 4px 24px -4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
             }}
           >
@@ -128,7 +128,7 @@ export function RoleShell({
             {/* Primary bar: logo | nav | wallet + avatar */}
             <div
               className="flex items-center gap-2 px-3 py-2.5 md:px-4 md:py-3"
-              style={{ borderBottom: "1px solid rgba(45,212,191,0.15)" }}
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
             >
 
               {/* Logo */}
@@ -139,9 +139,9 @@ export function RoleShell({
                 <div
                   className="flex h-8 w-8 items-center justify-center rounded-xl"
                   style={{
-                    background: "radial-gradient(circle at 35% 25%, rgba(45,212,191,0.18), rgba(11,22,34,0.95))",
-                    border: "1px solid rgba(45,212,191,0.3)",
-                    boxShadow: "0 0 12px -2px rgba(45,212,191,0.2)",
+                    background: "radial-gradient(circle at 35% 25%, rgba(255,255,255,0.08), rgba(11,22,34,0.95))",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    boxShadow: "0 0 12px -2px rgba(255,255,255,0.05)",
                   }}
                 >
                   <EdenLogoMark size={20} />
@@ -254,8 +254,8 @@ export function RoleShell({
                     onClick={() => setAvatarOpen(v => !v)}
                     className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white transition-opacity hover:opacity-80"
                     style={{
-                      border: "1px solid rgba(45,212,191,0.38)",
-                      background: "rgba(45,212,191,0.12)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      background: "rgba(255,255,255,0.08)",
                     }}
                     title="Account menu"
                   >
@@ -401,7 +401,7 @@ export function RoleShell({
               className="overflow-hidden rounded-[20px] px-5 py-4 backdrop-blur-xl md:px-6 md:py-5"
               style={{
                 background: "rgba(13,30,46,0.78)",
-                border: "1px solid rgba(45,212,191,0.1)",
+                border: "1px solid rgba(255,255,255,0.06)",
                 boxShadow: "0 2px 16px -4px rgba(0,0,0,0.35)",
               }}
             >
