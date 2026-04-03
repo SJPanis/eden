@@ -607,7 +607,7 @@ export const ownerDashboardBusinessIds = ["business-05", "business-market-lens",
 export const ownerDashboardServiceIds = ["service-06", "service-market-lens", "service-spot-splore"];
 
 export function formatCredits(value: number) {
-  return `${value.toLocaleString()} Leaf’s`;
+  return `${value.toLocaleString()} Leafs`;
 }
 
 export function getUserById(id: string) {

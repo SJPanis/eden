@@ -1021,55 +1021,56 @@ export function ConsumerHomePanel({
         <p className="mt-4 text-sm text-white/30">AI agents building. Humans earning. The garden grows.</p>
       </motion.section>
 
-      {/* ORBIT */}
-      <div className="flex justify-center py-4">
-        <div style={{ width: 400, height: 400, overflow: "hidden" }}>
-          <OrbitalDiagram
-            size={400}
-            interactive
-            centerLabel="Eden"
-            centerSublabel="Discover"
-            innerNodes={visibleCategories.slice(0, 3).map((cat, i) => ({
-              label: cat.label,
-              angle: -90 + i * 120,
-            }))}
-            middleNodes={recommendedServices.slice(0, 2).map((svc, i) => ({
-              label: svc.title.length > 14 ? svc.title.slice(0, 12) + "..." : svc.title,
-              angle: 60 + i * 160,
-            }))}
-            onNodeClick={(label) => {
-              const matchedCat = visibleCategories.find((c) => c.label === label);
-              if (matchedCat) setActiveCategory((prev) => prev === matchedCat.label ? null : matchedCat.label);
-            }}
-          />
-        </div>
-      </div>
+      {/* MAIN: Content + Sidebar */}
+      <div className="flex gap-6 items-start mt-6">
 
-      {/* SEARCH */}
-      <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.3 }}>
-        <form onSubmit={(event) => { void handleAskEden(event); }}>
-          <div className="relative">
-            <input
-              type="text"
-              value={promptInput}
-              onChange={(event) => setPromptInput(event.target.value)}
-              placeholder="Search services, businesses, or ask Eden..."
-              className="w-full rounded-2xl px-5 py-4 pl-12 text-base text-white outline-none transition placeholder:text-white/30 focus:ring-1 focus:ring-[#2dd4bf]/50"
-              style={{ background: "rgba(13,30,46,0.8)", backdropFilter: "blur(12px)" }}
-            />
-            <svg className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+        {/* LEFT: Orbit + Search + Services */}
+        <div className="flex-1 min-w-0 space-y-6">
+
+          {/* Orbit */}
+          <div className="flex justify-center">
+            <div style={{ width: 380, height: 380, overflow: "hidden" }}>
+              <OrbitalDiagram
+                size={380}
+                interactive
+                centerLabel="Eden"
+                centerSublabel="Discover"
+                innerNodes={visibleCategories.slice(0, 3).map((cat, i) => ({
+                  label: cat.label,
+                  angle: -90 + i * 120,
+                }))}
+                middleNodes={recommendedServices.slice(0, 2).map((svc, i) => ({
+                  label: svc.title.length > 14 ? svc.title.slice(0, 12) + "..." : svc.title,
+                  angle: 60 + i * 160,
+                }))}
+                onNodeClick={(label) => {
+                  const matchedCat = visibleCategories.find((c) => c.label === label);
+                  if (matchedCat) setActiveCategory((prev) => prev === matchedCat.label ? null : matchedCat.label);
+                }}
+              />
+            </div>
           </div>
-        </form>
-      </motion.section>
 
-      {/* MAIN: Services + Sidebar */}
-      <div className="flex gap-8 items-start mt-4">
+          {/* Search */}
+          <form onSubmit={(event) => { void handleAskEden(event); }}>
+            <div className="relative">
+              <input
+                type="text"
+                value={promptInput}
+                onChange={(event) => setPromptInput(event.target.value)}
+                placeholder="Search services or ask Eden..."
+                className="w-full rounded-2xl px-5 py-4 pl-12 text-base text-white outline-none transition placeholder:text-white/30 focus:ring-1 focus:ring-[#2dd4bf]/50"
+                style={{ background: "rgba(13,30,46,0.8)", backdropFilter: "blur(12px)" }}
+              />
+              <svg className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </form>
 
-        {/* LEFT: Services */}
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-mono uppercase tracking-widest text-white/20 mb-4">Services</p>
+          {/* Services */}
+          <div>
+            <p className="text-xs font-mono uppercase tracking-widest text-white/20 mb-4">Services</p>
 
           {dbServices.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1106,10 +1107,11 @@ export function ConsumerHomePanel({
           ) : (
             <div className="text-center py-16 text-white/20 text-sm">Services loading...</div>
           )}
+          </div>
         </div>
 
         {/* RIGHT: Sidebar */}
-        <div className="hidden lg:block w-56 shrink-0 sticky top-8 space-y-6">
+        <div className="hidden lg:block w-52 shrink-0 sticky top-4 space-y-6">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/20 mb-2">Your Balance</p>
             <p className="text-3xl font-bold text-white">{formatCredits(currentBalanceCredits)}</p>
