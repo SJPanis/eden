@@ -105,7 +105,6 @@ export function RoleShell({
   return (
     <div
       className="relative min-h-screen"
-      style={{ backgroundColor: "#0b1622" }}
     >
       <ParticleCanvas />
 
