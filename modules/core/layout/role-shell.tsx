@@ -21,6 +21,7 @@ import { getBusinessById, type EdenMockTransaction } from "@/modules/core/mock-d
 import type { EdenMockSession } from "@/modules/core/session/mock-session";
 import { MockSessionSwitcher } from "@/modules/core/session/mock-session-switcher";
 import { AccountPanel } from "@/modules/core/layout/account-panel";
+import { EdenGuide } from "@/modules/core/components/eden-guide";
 
 type RoleShellProps = {
   role: EdenRole;
@@ -453,6 +454,7 @@ export function RoleShell({
 
         </div>
       </div>
+      <EdenGuide />
     </div>
   );
 }

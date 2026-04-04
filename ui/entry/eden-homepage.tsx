@@ -619,6 +619,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
 
             <nav className="hidden items-center gap-6 text-sm text-white/50 md:flex">
               <Link href="/consumer" className="transition-colors hover:text-white/80">Explore</Link>
+              <Link href="/about" className="transition-colors hover:text-white/80">About</Link>
               <Link href="#how-it-works" className="transition-colors hover:text-white/80">How it works</Link>
               <Link href="#economy" className="transition-colors hover:text-white/80">Economy</Link>
               <Link href="#waitlist" className="transition-colors hover:text-white/80">Early access</Link>
