@@ -938,13 +938,13 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   className="font-mono text-[11px] uppercase tracking-[0.22em]"
                   style={{ color: ACCENT }}
                 >
-                  Eden Leaf&apos;s
+                  Eden Leafs
                 </p>
                 <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
                   A transparent currency for AI services
                 </h2>
                 <p className="mt-4 text-base leading-7 text-white/45">
-                  Eden Leaf&apos;s are the platform&apos;s internal credit unit. Top up once, spend
+                  Eden Leafs are the platform&apos;s internal credit unit. Top up once, spend
                   on services with visible pricing, and earn them back through innovator
                   payouts or contribution rewards.
                 </p>

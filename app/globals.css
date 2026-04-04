@@ -138,6 +138,22 @@ a {
   100% { transform: scale(1.4); opacity: 0; }
 }
 
+/* Service card — glass morphism with hover lift */
+.eden-service-card {
+  background: rgba(15,31,46,0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s cubic-bezier(0.22,1,0.36,1),
+              transform 0.2s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.2s cubic-bezier(0.22,1,0.36,1);
+}
+.eden-service-card:hover {
+  border-color: rgba(45,212,191,0.25);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px) scale(1.01);
+}
+
 /* Focus ring reset */
 :focus-visible {
   outline: 2px solid rgba(45, 212, 191, 0.6);
