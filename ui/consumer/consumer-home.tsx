@@ -1074,7 +1074,14 @@ export function ConsumerHomePanel({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
       >
-        <p className="text-xs font-mono uppercase text-white/30 mb-4" style={{ letterSpacing: "0.3em" }}>Services</p>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-mono uppercase text-white/30" style={{ letterSpacing: "0.3em" }}>Services</p>
+          <a href="/services/create"
+            className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full transition-colors"
+            style={{ background: "rgba(45,212,191,0.1)", color: "#2dd4bf", border: "1px solid rgba(45,212,191,0.2)" }}>
+            + Create a service
+          </a>
+        </div>
 
         {dbServices.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
