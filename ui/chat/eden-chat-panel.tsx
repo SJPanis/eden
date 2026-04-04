@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { EdenMarkdown } from "@/modules/core/components/eden-markdown";
 import type { EdenAiIdeaResult, EdenAiRouteResult, EdenAiServiceResult } from "@/modules/eden-ai/types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -188,7 +189,11 @@ export function EdenChatPanel({ initialPrompt, canUseAi }: EdenChatPanelProps) {
                     {msg.role === "eden" && (
                       <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[#2dd4bf]">Eden</p>
                     )}
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                    {msg.role === "eden" ? (
+                      <EdenMarkdown>{msg.text}</EdenMarkdown>
+                    ) : (
+                      <p className="whitespace-pre-wrap">{msg.text}</p>
+                    )}
                   </div>
 
                   {/* Rich result cards */}

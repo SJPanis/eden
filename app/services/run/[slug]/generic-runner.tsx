@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ServiceLoadingBar } from "@/components/service-loading-bar";
+import { EdenMarkdown } from "@/modules/core/components/eden-markdown";
 
 type ServiceInfo = { slug: string; name: string; description: string; leafCost: number; thumbnailColor: string };
 
@@ -97,7 +98,9 @@ export function GenericServiceRunner({ slug, balance: initialBalance }: { slug: 
         {result && (
           <div className="mt-6 rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
             <p className="text-[10px] uppercase tracking-wider text-white/30">Result</p>
-            <div className="mt-3 text-sm leading-relaxed text-white/70 whitespace-pre-wrap">{result}</div>
+            <div className="mt-3">
+              <EdenMarkdown>{result}</EdenMarkdown>
+            </div>
           </div>
         )}
       </div>
