@@ -28,9 +28,6 @@ export function ParticleCanvas() {
     const NUM = 150;
     const CONNECT = 110;
     const REPEL = 120;
-    const CENTER_X = c.width / 2;
-    const CENTER_Y = 400;
-    const CENTER_ZONE = 400;
 
     const COLORS = [
       `rgba(${ACCENT_RGB}, 0.4)`,
@@ -68,14 +65,10 @@ export function ParticleCanvas() {
           p.vx += (dx / d) * f;
           p.vy += (dy / d) * f;
         }
-        // Weak center attraction
-        const cdx = CENTER_X - p.x;
-        const cdy = CENTER_Y - p.y;
-        const cd = Math.hypot(cdx, cdy);
-        if (cd > 0) {
-          const af = 0.0002 * cd;
-          p.vx += (cdx / cd) * af;
-          p.vy += (cdy / cd) * af;
+        // Gentle random drift — prevents clustering, keeps particles alive
+        if (Math.random() < 0.02) {
+          p.vx += (Math.random() - 0.5) * 0.15;
+          p.vy += (Math.random() - 0.5) * 0.15;
         }
         p.vx *= 0.975;
         p.vy *= 0.975;
@@ -103,19 +96,6 @@ export function ParticleCanvas() {
             cx.strokeStyle = `rgba(${ACCENT_RGB}, ${(1 - d / CONNECT) * 0.16})`;
             cx.lineWidth = 0.5;
             cx.stroke();
-          }
-          // Faint web lines near center
-          if (d < 80 && d > 0) {
-            const pi_cd = Math.hypot(particles[i].x - CENTER_X, particles[i].y - CENTER_Y);
-            const pj_cd = Math.hypot(particles[j].x - CENTER_X, particles[j].y - CENTER_Y);
-            if (pi_cd < CENTER_ZONE && pj_cd < CENTER_ZONE) {
-              cx.beginPath();
-              cx.moveTo(particles[i].x, particles[i].y);
-              cx.lineTo(particles[j].x, particles[j].y);
-              cx.strokeStyle = `rgba(${ACCENT_RGB}, 0.06)`;
-              cx.lineWidth = 0.3;
-              cx.stroke();
-            }
           }
         }
       }
