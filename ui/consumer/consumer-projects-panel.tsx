@@ -117,7 +117,7 @@ export function ConsumerProjectsPanel({
             </p>
           </div>
           <Link
-            href="/business/create"
+            href="/services/create"
             className="shrink-0 rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
           >
             + New project
@@ -205,7 +205,7 @@ export function ConsumerProjectsPanel({
               Create your first service and publish it to the Eden marketplace.
             </p>
             <Link
-              href="/business/create"
+              href="/services/create"
               className="mt-4 inline-block rounded-full border border-[#2dd4bf]/50 bg-[#2dd4bf]/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2dd4bf]/20"
             >
               Start building
