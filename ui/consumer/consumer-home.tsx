@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { WelcomeScreen } from "@/ui/consumer/welcome-screen";
 import { ServiceThumbnail } from "@/ui/consumer/components/service-thumbnail";
+import { ReferralPanel } from "@/ui/consumer/components/referral-panel";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
@@ -1131,10 +1132,16 @@ export function ConsumerHomePanel({
           </div>
         </motion.div>
       )}
+
+      {/* Referral panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+      >
+        <ReferralPanel />
+      </motion.div>
     </div>
   );
 }
-
-
-
 
