@@ -6,6 +6,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { WelcomeScreen } from "@/ui/consumer/welcome-screen";
 import { ServiceThumbnail } from "@/ui/consumer/components/service-thumbnail";
 import { ReferralPanel } from "@/ui/consumer/components/referral-panel";
+import { OnboardingModal } from "@/ui/consumer/components/onboarding-modal";
+import { ActivityFeed } from "@/ui/consumer/components/activity-feed";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { EdenConsumerTransactionHistoryItem } from "@/modules/core/credits/mock-credits";
@@ -75,6 +77,7 @@ type ConsumerHomePanelProps = {
   discoverySnapshot: EdenDiscoverySnapshot;
   currentBalanceCredits: number;
   recentWalletTransactions: EdenConsumerTransactionHistoryItem[];
+  needsOnboarding?: boolean;
 };
 
 type EdenResultLane = "service" | "business" | "idea";
@@ -581,6 +584,7 @@ export function ConsumerHomePanel({
   discoverySnapshot,
   currentBalanceCredits,
   recentWalletTransactions,
+  needsOnboarding = false,
 }: ConsumerHomePanelProps) {
   const router = useRouter();
   const activeUser = getUserById(session.user.id);
@@ -1174,6 +1178,18 @@ export function ConsumerHomePanel({
       >
         <ReferralPanel />
       </motion.div>
+
+      {/* Live activity feed */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+      >
+        <ActivityFeed />
+      </motion.div>
+
+      {/* First-run onboarding */}
+      <OnboardingModal initialOpen={needsOnboarding} />
     </div>
   );
 }

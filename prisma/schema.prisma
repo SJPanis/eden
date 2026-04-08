@@ -363,6 +363,7 @@ model User {
   totpEnabled                     Boolean                          @default(false)
   totpVerifiedAt                  DateTime?
   welcomeGranted                  Boolean                          @default(false)
+  onboardingCompletedAt           DateTime?
   edenServices                    EdenService[]                    @relation("EdenServiceCreator")
   contributions                   Contribution[]                   @relation("UserContributions")
 }
