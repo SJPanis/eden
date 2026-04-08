@@ -6,6 +6,8 @@ import { getPrismaClient } from "@/modules/core/repos/prisma-client";
 export const runtime = "nodejs";
 
 const MIN_PAYOUT_LEAFS = 1000; // 1000 Leafs = $10 USD
+const MIN_WITHDRAWABLE_EARNED = 1000; // Must have earned at least 1000 withdrawable Leafs
+const MIN_ACCOUNT_AGE_DAYS = 14;
 const LEAFS_TO_CENTS = 1; // 1 Leaf = 1 cent
 
 export async function POST(request: Request) {
@@ -47,6 +49,20 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ ok: false, error: "User not found." }, { status: 404 });
     }
+
+    // Account age check — block withdrawals for new accounts
+    const accountAgeDays =
+      (Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (accountAgeDays < MIN_ACCOUNT_AGE_DAYS) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `Withdrawals are not available for accounts under ${MIN_ACCOUNT_AGE_DAYS} days old.`,
+        },
+        { status: 403 },
+      );
+    }
+
     if (!user.stripeConnectAccountId) {
       return NextResponse.json(
         { ok: false, error: "No payout account connected. Complete Stripe onboarding first." },
@@ -60,11 +76,25 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate wallet balance
-    const wallet = await prisma.edenWallet.findUnique({ where: { userId } });
-    if (!wallet || wallet.leafsBalance < leafsAmount) {
+    // Strict withdrawableBalance check — promo Leafs cannot be withdrawn
+    if (user.withdrawableBalance < leafsAmount) {
       return NextResponse.json(
-        { ok: false, error: "Insufficient Leaf balance.", available: wallet?.leafsBalance ?? 0 },
+        {
+          ok: false,
+          error: `Insufficient withdrawable balance. You have ${user.withdrawableBalance} withdrawable Leafs. Promo Leafs cannot be withdrawn.`,
+          available: user.withdrawableBalance,
+        },
+        { status: 400 },
+      );
+    }
+
+    // Minimum lifetime withdrawable earnings check
+    if (user.withdrawableBalance < MIN_WITHDRAWABLE_EARNED) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `You must have earned at least ${MIN_WITHDRAWABLE_EARNED} withdrawable Leafs before requesting a payout.`,
+        },
         { status: 400 },
       );
     }
@@ -95,12 +125,24 @@ export async function POST(request: Request) {
         },
       });
 
-      // Deduct Leafs and mark payout completed — atomic update
+      // Deduct withdrawable Leafs and mark payout completed — atomic update.
+      // withdrawableBalance is the only bucket that can be paid out via Stripe.
+      // edenBalanceCredits stays as the spendable total — payout is separate.
       await prisma.$transaction([
-        prisma.edenWallet.update({
-          where: { userId },
+        prisma.user.update({
+          where: { id: userId },
           data: {
-            leafsBalance: { decrement: leafsAmount },
+            withdrawableBalance: { decrement: leafsAmount },
+          },
+        }),
+        prisma.edenWallet.upsert({
+          where: { userId },
+          create: {
+            userId,
+            leafsBalance: 0,
+            totalSpentLeafs: leafsAmount,
+          },
+          update: {
             totalSpentLeafs: { increment: leafsAmount },
           },
         }),
