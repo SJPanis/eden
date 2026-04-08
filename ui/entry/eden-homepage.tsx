@@ -106,12 +106,50 @@ const fadeUp = {
   visible: { opacity: 1, y: 0 },
 };
 
+// Letter-by-letter stagger reveal — Active Theory feel
+const letterContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.025,
+      delayChildren: 0.3,
+    },
+  },
+};
+const letter = {
+  hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+  },
+};
+
+function splitLetters(text: string, keyPrefix: string) {
+  return text.split("").map((char, i) => (
+    <motion.span
+      key={`${keyPrefix}-${i}`}
+      variants={letter}
+      className="inline-block"
+      style={{ whiteSpace: char === " " ? "pre" : "normal" }}
+    >
+      {char}
+    </motion.span>
+  ));
+}
+
 // ── Custom Cursor ──────────────────────────────────────────────────────────────
 function CustomCursor() {
   const x = useMotionValue(-200);
   const y = useMotionValue(-200);
-  const springX = useSpring(x, { stiffness: 120, damping: 18 });
-  const springY = useSpring(y, { stiffness: 120, damping: 18 });
+  // Inner ring — fast spring lag
+  const springX = useSpring(x, { stiffness: 60, damping: 22 });
+  const springY = useSpring(y, { stiffness: 60, damping: 22 });
+  // Outer glow — slow spring lag (more weight)
+  const slowX = useSpring(x, { stiffness: 30, damping: 25 });
+  const slowY = useSpring(y, { stiffness: 30, damping: 25 });
   const [active, setActive] = useState(false);
 
   useEffect(() => {
@@ -134,13 +172,13 @@ function CustomCursor() {
 
   return (
     <>
-      {/* 8px dot — exact position */}
+      {/* 6px dot — exact position */}
       <motion.div
         aria-hidden
         className="pointer-events-none fixed z-[200] rounded-full"
         style={{
-          width: 8,
-          height: 8,
+          width: 6,
+          height: 6,
           background: ACCENT,
           x,
           y,
@@ -148,16 +186,30 @@ function CustomCursor() {
           translateY: "-50%",
         }}
       />
-      {/* 32px ring — spring lag */}
+      {/* 44px ring — fast spring lag */}
       <motion.div
         aria-hidden
         className="pointer-events-none fixed z-[199] rounded-full"
         style={{
-          width: 32,
-          height: 32,
+          width: 44,
+          height: 44,
           border: `1.5px solid rgba(${ACCENT_RGB}, 0.45)`,
           x: springX,
           y: springY,
+          translateX: "-50%",
+          translateY: "-50%",
+        }}
+      />
+      {/* 80px outer glow — slow spring lag */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none fixed z-[198] rounded-full"
+        style={{
+          width: 80,
+          height: 80,
+          border: `1px solid rgba(${ACCENT_RGB}, 0.15)`,
+          x: slowX,
+          y: slowY,
           translateX: "-50%",
           translateY: "-50%",
         }}
@@ -553,6 +605,28 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
   });
   const heroHeadlineY = useTransform(heroScroll, [0, 1], [0, -38]);
 
+  // Orbital diagram mouse tilt
+  const orbitRef = useRef<HTMLDivElement>(null);
+  const orbitTiltX = useMotionValue(0);
+  const orbitTiltY = useMotionValue(0);
+  const orbitSpringX = useSpring(orbitTiltX, { stiffness: 80, damping: 20 });
+  const orbitSpringY = useSpring(orbitTiltY, { stiffness: 80, damping: 20 });
+
+  useEffect(() => {
+    function handleMouseMove(e: MouseEvent) {
+      if (!orbitRef.current) return;
+      const rect = orbitRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / (window.innerWidth / 2);
+      const dy = (e.clientY - cy) / (window.innerHeight / 2);
+      orbitTiltX.set(dy * -12);
+      orbitTiltY.set(dx * 12);
+    }
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [orbitTiltX, orbitTiltY]);
+
   useEffect(() => {
     const played = sessionStorage.getItem("eden_intro_played");
     if (played) {
@@ -586,7 +660,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: contentVisible ? 1 : 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-[10]"
       >
         {maintenanceMode ? (
@@ -698,19 +772,20 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               </span>
             </motion.div>
 
-            {/* H1 with floating parallax */}
+            {/* H1 with floating parallax + letter-by-letter reveal */}
             <motion.div style={{ y: heroHeadlineY }} className="relative z-[1]">
               <motion.h1
-                variants={fadeUp}
+                variants={letterContainer}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
                 className="mt-6 font-serif text-5xl font-bold leading-[1.08] tracking-tight text-white md:text-6xl lg:text-8xl"
               >
-                Build the future.
+                <span className="inline-block">{splitLetters("Build the future.", "h1")}</span>
                 <br />
-                <span className="italic" style={{ color: ACCENT }}>Get paid for it.</span>
+                <span className="italic inline-block" style={{ color: ACCENT }}>
+                  {splitLetters("Get paid for it.", "h2")}
+                </span>
               </motion.h1>
             </motion.div>
 
@@ -806,9 +881,15 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               >
                 The Eden loop
               </p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
-                One closed economy
-              </h2>
+              <motion.h2
+                variants={letterContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl"
+              >
+                {splitLetters("One closed economy", "loop-h2")}
+              </motion.h2>
               <p className="mt-4 text-base text-white/45">
                 Innovators publish. Consumers discover and run. The economy distributes automatically.
                 Contributors improve Eden and earn from it.
@@ -823,7 +904,7 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.1 }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.4 + i * 0.15 }}
                   className="rounded-[20px] p-5"
                   style={{
                     border: `1px solid ${item.accent ? `rgba(${ACCENT_RGB}, 0.28)` : "rgba(255,255,255,0.06)"}`,
@@ -864,9 +945,15 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
               >
                 Who Eden is for
               </p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
-                Three ways to participate
-              </h2>
+              <motion.h2
+                variants={letterContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl"
+              >
+                {splitLetters("Three ways to participate", "audience-h2")}
+              </motion.h2>
             </motion.div>
 
             <div className="mt-12 grid gap-4 md:grid-cols-3">
@@ -877,10 +964,9 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 15,
-                    delay: i * 0.1,
+                    duration: 0.7,
+                    ease: [0.22, 1, 0.36, 1],
+                    delay: 0.4 + i * 0.15,
                   }}
                   className="group rounded-[24px] p-6 transition-colors"
                   style={{
@@ -914,13 +1000,19 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
           style={{ borderColor: "rgba(255,255,255,0.06)" }}
         >
           <div className="mx-auto max-w-5xl">
-            {/* Orbital diagram */}
+            {/* Orbital diagram with mouse-tilt */}
             <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
+              ref={orbitRef}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                rotateX: orbitSpringX,
+                rotateY: orbitSpringY,
+                transformStyle: "preserve-3d",
+                transformPerspective: 1200,
+              }}
               className="mb-12 flex justify-center overflow-visible"
             >
               <OrbitalDiagram />
