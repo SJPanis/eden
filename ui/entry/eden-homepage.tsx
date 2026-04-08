@@ -9,6 +9,7 @@ import {
   type FormEvent,
 } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   motion,
   AnimatePresence,
@@ -21,6 +22,12 @@ import {
 import { EdenLogoMark } from "@/modules/core/components/eden-logo-mark";
 import { OrbitalDiagram } from "@/modules/core/components/orbital-diagram";
 import { ParticleCanvas } from "@/modules/core/components/particle-canvas";
+
+// Lazy-load the 3D scene so it doesn't block initial paint
+const EdenScene3D = dynamic(
+  () => import("@/modules/core/components/eden-scene-3d").then((m) => m.EdenScene3D),
+  { ssr: false },
+);
 
 type EdenHomepageProps = {
   maintenanceMode: boolean;
@@ -596,6 +603,14 @@ function WaitlistForm() {
 export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
   const [introPlayed, setIntroPlayed] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
+  const [use3D, setUse3D] = useState(false);
+
+  useEffect(() => {
+    // 3D scene only on desktop with no reduced-motion preference
+    const isDesktop = window.innerWidth >= 1024;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setUse3D(isDesktop && !reducedMotion);
+  }, []);
 
   // Hero headline parallax
   const heroRef = useRef<HTMLDivElement>(null);
@@ -646,8 +661,8 @@ export function EdenHomepage({ maintenanceMode }: EdenHomepageProps) {
       className="relative min-h-screen overflow-x-hidden"
       style={{ color: "#e8f1f8" }}
     >
-      {/* Fixed background layers */}
-      <ParticleCanvas />
+      {/* Fixed background layers — 3D on desktop, ParticleCanvas fallback on mobile */}
+      {use3D ? <EdenScene3D /> : <ParticleCanvas />}
       <GrainOverlay />
 
       {/* Custom cursor */}
