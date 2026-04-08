@@ -110,6 +110,9 @@ export async function POST(request: NextRequest) {
     const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
     const userReferralCode = `${prefix}${suffix}`;
 
+    // Welcome gift: 500 for referral signups, 200 for invite code signups
+    const welcomeLeaves = referralCode ? 500 : resolvedCodeId ? BETA_WELCOME_LEAVES : 0;
+
     const createdUser = await getPrismaClient().user.create({
       data: {
         username,
@@ -117,8 +120,11 @@ export async function POST(request: NextRequest) {
         passwordHash,
         role: "CONSUMER",
         referralCode: userReferralCode,
-        // Welcome gift: 500 for referral signups, 200 for invite code signups
-        edenBalanceCredits: referralCode ? 500 : resolvedCodeId ? BETA_WELCOME_LEAVES : 0,
+        // All welcome gifts go into promoBalance — non-withdrawable
+        promoBalance: welcomeLeaves,
+        realBalance: 0,
+        withdrawableBalance: 0,
+        edenBalanceCredits: welcomeLeaves,
         ...(resolvedCodeId ? { accessCodeId: resolvedCodeId } : {}),
       },
       select: { id: true, username: true, displayName: true },
@@ -203,8 +209,6 @@ export async function POST(request: NextRequest) {
         console.error("[sign-up] failed to create referral record:", error);
       }
     }
-
-    const welcomeLeaves = referralCode ? 500 : resolvedCodeId ? BETA_WELCOME_LEAVES : 0;
 
     return NextResponse.json({
       ok: true,

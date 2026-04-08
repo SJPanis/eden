@@ -72,11 +72,14 @@ export async function POST() {
       data: { swept: true, stripeTransferId },
     });
 
-    // Credit founder's 30% to owner's Leaf balance
+    // Credit founder's 30% to owner's withdrawable balance
     if (founderCut > 0) {
       await tx.user.update({
         where: { id: session.user.id },
-        data: { edenBalanceCredits: { increment: founderCut } },
+        data: {
+          withdrawableBalance: { increment: founderCut },
+          edenBalanceCredits: { increment: founderCut },
+        },
       });
     }
   });

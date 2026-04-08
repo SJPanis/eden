@@ -176,6 +176,22 @@ export async function settleCreditsTopUpPaymentFromCheckoutSession(
     settledAt: new Date(),
   });
 
+  // Credit the user's realBalance — Stripe-purchased Leafs are the only
+  // bucket that can ultimately become withdrawable USD for creators they spend on.
+  if (checkoutUserId) {
+    try {
+      await getPrismaClient().user.update({
+        where: { id: checkoutUserId },
+        data: {
+          realBalance: { increment: selectedPackage.creditsAmount },
+          edenBalanceCredits: { increment: selectedPackage.creditsAmount },
+        },
+      });
+    } catch (error) {
+      console.error(`[credits-topup] failed to credit user ${checkoutUserId}:`, error);
+    }
+  }
+
   return {
     payment,
     settlementResult: "settled" as const,

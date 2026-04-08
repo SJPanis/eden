@@ -16,11 +16,19 @@ export async function GET() {
 
   const user = await getPrismaClient().user.findUnique({
     where: { id: session.user.id },
-    select: { edenBalanceCredits: true },
+    select: {
+      edenBalanceCredits: true,
+      promoBalance: true,
+      realBalance: true,
+      withdrawableBalance: true,
+    },
   });
 
   return NextResponse.json({
     ok: true,
     balance: user?.edenBalanceCredits ?? 0,
+    promoBalance: user?.promoBalance ?? 0,
+    realBalance: user?.realBalance ?? 0,
+    withdrawableBalance: user?.withdrawableBalance ?? 0,
   });
 }
