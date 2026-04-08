@@ -31,19 +31,47 @@ export async function POST(
       return NextResponse.json({ ok: false, error: "Service not found" }, { status: 404 });
     }
 
-    // Check balance
+    // Check balance + bucket split
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { edenBalanceCredits: true },
+      select: {
+        edenBalanceCredits: true,
+        promoBalance: true,
+        realBalance: true,
+        createdAt: true,
+      },
     });
-    if (!user || user.edenBalanceCredits < service.leafCost) {
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
+    }
+
+    // Anti-bot rate limit: new accounts (under 7 days) capped at 20 runs/hour
+    const accountAgeDays = (Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (accountAgeDays < 7) {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const recentRuns = await prisma.serviceUsage.count({
+        where: { userId: session.user.id, createdAt: { gte: oneHourAgo } },
+      });
+      if (recentRuns >= 20) {
+        return NextResponse.json({
+          ok: false,
+          error: "Rate limit exceeded for new accounts. Try again in an hour.",
+        }, { status: 429 });
+      }
+    }
+
+    const totalSpendable = user.promoBalance + user.realBalance;
+    if (totalSpendable < service.leafCost) {
       return NextResponse.json({
         ok: false,
         error: "Insufficient Leafs",
-        balance: user?.edenBalanceCredits ?? 0,
+        balance: totalSpendable,
         required: service.leafCost,
       }, { status: 402 });
     }
+
+    const promoSpent = Math.min(service.leafCost, user.promoBalance);
+    const realSpent = service.leafCost - promoSpent;
 
     // Call Claude with the service's system prompt
     const client = new Anthropic();
@@ -56,11 +84,21 @@ export async function POST(
 
     const result = message.content[0]?.type === "text" ? message.content[0].text : "";
 
+    // Promo/real proportion — used to route earnings to correct buckets
+    const promoRatio = service.leafCost > 0 ? promoSpent / service.leafCost : 0;
+    const realRatio = service.leafCost > 0 ? realSpent / service.leafCost : 0;
+
     // Deduct Leafs atomically
     await prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: session.user.id },
-        data: { edenBalanceCredits: { decrement: service.leafCost } },
+        data: {
+          promoBalance: { decrement: promoSpent },
+          realBalance: { decrement: realSpent },
+          edenBalanceCredits: { decrement: service.leafCost },
+          lifetimePromoSpent: { increment: promoSpent },
+          lifetimeRealSpent: { increment: realSpent },
+        },
       });
 
       // Contributor share (accepted contributions, capped at 30%)
@@ -76,7 +114,16 @@ export async function POST(
             const share = Math.floor(service.leafCost * 0.70 * (contrib.rewardPercent / totalContribPct) * (totalContribPct / 100));
             if (share > 0) {
               contributorShare += share;
-              await tx.user.update({ where: { id: contrib.contributorId }, data: { edenBalanceCredits: { increment: share } } });
+              const sharePromo = Math.floor(share * promoRatio);
+              const shareReal = share - sharePromo;
+              await tx.user.update({
+                where: { id: contrib.contributorId },
+                data: {
+                  promoBalance: { increment: sharePromo },
+                  withdrawableBalance: { increment: shareReal },
+                  edenBalanceCredits: { increment: share },
+                },
+              });
               await tx.contribution.update({ where: { id: contrib.id }, data: { totalEarned: { increment: share } } });
             }
           }
@@ -87,9 +134,15 @@ export async function POST(
       if (service.creatorId !== session.user.id) {
         const creatorCut = Math.floor(service.leafCost * 0.70) - contributorShare;
         if (creatorCut > 0) {
+          const creatorCutPromo = Math.floor(creatorCut * promoRatio);
+          const creatorCutReal = creatorCut - creatorCutPromo;
           await tx.user.update({
             where: { id: service.creatorId },
-            data: { edenBalanceCredits: { increment: creatorCut } },
+            data: {
+              promoBalance: { increment: creatorCutPromo },
+              withdrawableBalance: { increment: creatorCutReal },
+              edenBalanceCredits: { increment: creatorCut },
+            },
           });
         }
         await tx.edenService.update({

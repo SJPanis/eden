@@ -318,6 +318,11 @@ model User {
   status                          UserStatus                       @default(ACTIVE)
   summary                         String?
   edenBalanceCredits              Int                              @default(0)
+  promoBalance                    Int                              @default(0)
+  realBalance                     Int                              @default(0)
+  withdrawableBalance             Int                              @default(0)
+  lifetimePromoSpent              Int                              @default(0)
+  lifetimeRealSpent               Int                              @default(0)
   stripeConnectAccountId          String?
   payoutEnabled                   Boolean                          @default(false)
   createdAt                       DateTime                         @default(now())

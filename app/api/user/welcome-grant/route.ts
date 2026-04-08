@@ -27,6 +27,7 @@ export async function POST() {
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
+        promoBalance: { increment: WELCOME_LEAFS },
         edenBalanceCredits: { increment: WELCOME_LEAFS },
         welcomeGranted: true,
       },

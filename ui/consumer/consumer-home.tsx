@@ -598,18 +598,35 @@ export function ConsumerHomePanel({
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [liveStats, setLiveStats] = useState<{ leafsToday: number; transactionsToday: number; activeServices: number } | null>(null);
   const [liveBalance, setLiveBalance] = useState(currentBalanceCredits);
+  const [buckets, setBuckets] = useState<{ promo: number; real: number; withdrawable: number }>({ promo: 0, real: 0, withdrawable: 0 });
 
   useEffect(() => {
     fetch("/api/wallet/balance")
       .then((r) => r.json())
-      .then((d: { ok?: boolean; balance?: number }) => {
+      .then((d: { ok?: boolean; balance?: number; promoBalance?: number; realBalance?: number; withdrawableBalance?: number }) => {
         if (d.ok && typeof d.balance === "number") setLiveBalance(d.balance);
+        if (d.ok) setBuckets({
+          promo: d.promoBalance ?? 0,
+          real: d.realBalance ?? 0,
+          withdrawable: d.withdrawableBalance ?? 0,
+        });
       })
       .catch(() => {});
 
     function onBalanceUpdated(e: Event) {
       const detail = (e as CustomEvent<{ newBalance: number }>).detail;
       if (typeof detail?.newBalance === "number") setLiveBalance(detail.newBalance);
+      // Refetch full bucket breakdown after a balance change
+      fetch("/api/wallet/balance")
+        .then((r) => r.json())
+        .then((d: { ok?: boolean; promoBalance?: number; realBalance?: number; withdrawableBalance?: number }) => {
+          if (d.ok) setBuckets({
+            promo: d.promoBalance ?? 0,
+            real: d.realBalance ?? 0,
+            withdrawable: d.withdrawableBalance ?? 0,
+          });
+        })
+        .catch(() => {});
     }
     window.addEventListener("eden:balance-updated", onBalanceUpdated);
     return () => window.removeEventListener("eden:balance-updated", onBalanceUpdated);
@@ -1038,7 +1055,23 @@ export function ConsumerHomePanel({
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-white/50">{liveBalance.toLocaleString()} Leafs</span>
+          <div className="relative group">
+            <span className="text-sm text-white/50 cursor-help border-b border-dotted border-white/20">
+              {liveBalance.toLocaleString()} Leafs
+            </span>
+            <div className="absolute right-0 top-full mt-2 z-50 w-60 rounded-xl p-3 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"
+              style={{ background: "rgba(11,22,34,0.96)", border: "1px solid rgba(45,212,191,0.15)", boxShadow: "0 8px 24px -8px rgba(0,0,0,0.6)" }}>
+              <p className="text-[10px] font-mono uppercase tracking-wider text-white/30 mb-2">Spendable</p>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between"><span className="text-white/40">Free</span><span className="text-white/70 font-mono">{buckets.promo.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-white/40">Purchased</span><span className="text-white/70 font-mono">{buckets.real.toLocaleString()}</span></div>
+              </div>
+              <div className="mt-2 pt-2 border-t border-white/5">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/30 mb-1">Withdrawable earnings</p>
+                <p className="text-xs font-mono" style={{ color: "#2dd4bf" }}>{buckets.withdrawable.toLocaleString()} Leafs</p>
+              </div>
+            </div>
+          </div>
           <a href="/topup" className="text-xs font-semibold px-4 py-2 rounded-full"
             style={{ background: "rgba(45,212,191,0.15)", color: "#2dd4bf" }}>
             + Top Up
