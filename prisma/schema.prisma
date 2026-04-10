@@ -308,6 +308,21 @@ enum ProjectRuntimeTaskAuditEventType {
   LIVE_EXECUTION_FAILED
 }
 
+// ── Eden World (Phase 01) ───────────────────────────────────────────────────
+enum AgentType {
+  ARTIST
+  ARCHITECT
+}
+
+enum AgentState {
+  SPAWNING
+  WALKING
+  WORKING
+  COMPLETING
+  TERMINATING
+  TERMINATED
+}
+
 model User {
   id                              String                           @id @default(cuid())
   username                        String                           @unique
@@ -366,6 +381,13 @@ model User {
   onboardingCompletedAt           DateTime?
   edenServices                    EdenService[]                    @relation("EdenServiceCreator")
   contributions                   Contribution[]                   @relation("UserContributions")
+  avatarConfig                    Json?
+  lastPosition                    Json?
+  lastOnline                      DateTime?
+  agentsV2                        Agent[]                          @relation("UserAgentsV2")
+  worldSessions                   WorldSession[]                   @relation("UserWorldSessions")
+  refreshTokens                   RefreshToken[]                   @relation("UserRefreshTokens")
+  releasedClientVersions          ClientVersion[]                  @relation("ClientVersionReleaser")
 }
 
 model AuthProviderAccount {
@@ -730,17 +752,17 @@ model ProjectRuntimeAuditLog {
 }
 
 model ProjectRuntimeTaskAuditLog {
-  id          String                             @id @default(cuid())
+  id          String                           @id @default(cuid())
   runtimeId   String
   taskId      String
   actorUserId String
   eventType   ProjectRuntimeTaskAuditEventType
   detail      String
   metadata    Json?
-  createdAt   DateTime                           @default(now())
-  runtime     ProjectRuntime                     @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  task        ProjectRuntimeTask                 @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  actorUser   User                               @relation("ProjectRuntimeTaskAuditActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+  createdAt   DateTime                         @default(now())
+  runtime     ProjectRuntime                   @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  task        ProjectRuntimeTask               @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actorUser   User                             @relation("ProjectRuntimeTaskAuditActor", fields: [actorUserId], references: [id], onDelete: Cascade)
 
   @@index([runtimeId, createdAt])
   @@index([taskId, createdAt])
@@ -1043,46 +1065,46 @@ enum EdenContributionPeriodStatus {
 }
 
 model EdenWallet {
-  id                   String            @id @default(cuid())
-  userId               String            @unique
-  leafsBalance         Int               @default(0)
-  lockedLeafs          Int               @default(0)
-  totalPurchasedLeafs  Int               @default(0)
-  totalGrantedLeafs    Int               @default(0)
-  totalSpentLeafs      Int               @default(0)
-  contributionScore    Int               @default(0)
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions         EdenTransaction[]
+  id                  String            @id @default(cuid())
+  userId              String            @unique
+  leafsBalance        Int               @default(0)
+  lockedLeafs         Int               @default(0)
+  totalPurchasedLeafs Int               @default(0)
+  totalGrantedLeafs   Int               @default(0)
+  totalSpentLeafs     Int               @default(0)
+  contributionScore   Int               @default(0)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions        EdenTransaction[]
 
   @@index([userId])
 }
 
 model EdenTransaction {
-  id                      String                @id @default(cuid())
-  walletId                String
-  actorUserId             String
-  businessId              String?
-  runtimeId               String?
-  transactionType         EdenTransactionType
-  status                  EdenTransactionStatus @default(PENDING)
+  id                    String                @id @default(cuid())
+  walletId              String
+  actorUserId           String
+  businessId            String?
+  runtimeId             String?
+  transactionType       EdenTransactionType
+  status                EdenTransactionStatus @default(PENDING)
   // Cash amounts are stored in cents to avoid floating point
-  cashAmountCents         Int?
-  leafsAmount             Int?
+  cashAmountCents       Int?
+  leafsAmount           Int?
   // Fee split buckets (in Leaf's units)
-  builderEarningsLeafs    Int?
-  platformFeeLeafs        Int?
-  providerReserveLeafs    Int?
-  contributionPoolLeafs   Int?
-  description             String
-  metadata                Json?
-  createdAt               DateTime              @default(now())
-  updatedAt               DateTime              @updatedAt
-  wallet                  EdenWallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  actor                   User                  @relation("EdenTransactionActor", fields: [actorUserId], references: [id], onDelete: Cascade)
-  business                Business?             @relation(fields: [businessId], references: [id], onDelete: SetNull)
-  runtime                 ProjectRuntime?       @relation(fields: [runtimeId], references: [id], onDelete: SetNull)
+  builderEarningsLeafs  Int?
+  platformFeeLeafs      Int?
+  providerReserveLeafs  Int?
+  contributionPoolLeafs Int?
+  description           String
+  metadata              Json?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  wallet                EdenWallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  actor                 User                  @relation("EdenTransactionActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+  business              Business?             @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  runtime               ProjectRuntime?       @relation(fields: [runtimeId], references: [id], onDelete: SetNull)
 
   @@index([walletId, createdAt])
   @@index([actorUserId, createdAt])
@@ -1092,28 +1114,28 @@ model EdenTransaction {
 }
 
 model ContributionRecord {
-  id                      String                 @id @default(cuid())
-  contributorUserId       String
-  reviewedByUserId        String?
-  runtimeId               String?
-  businessId              String?
-  contributionType        EdenContributionType
-  title                   String
-  summary                 String
-  artifactRef             String?
-  evidenceRef             String?
-  status                  EdenContributionStatus @default(SUBMITTED)
-  approvedAt              DateTime?
+  id                       String                   @id @default(cuid())
+  contributorUserId        String
+  reviewedByUserId         String?
+  runtimeId                String?
+  businessId               String?
+  contributionType         EdenContributionType
+  title                    String
+  summary                  String
+  artifactRef              String?
+  evidenceRef              String?
+  status                   EdenContributionStatus   @default(SUBMITTED)
+  approvedAt               DateTime?
   contributionScoreAwarded Int?
-  leavesBonusAwarded      Int?
-  notes                   String?
-  createdAt               DateTime               @default(now())
-  updatedAt               DateTime               @updatedAt
-  contributor             User                   @relation("ContributorRecords", fields: [contributorUserId], references: [id], onDelete: Cascade)
-  reviewer                User?                  @relation("ContributionReviewer", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
-  runtime                 ProjectRuntime?        @relation(fields: [runtimeId], references: [id], onDelete: SetNull)
-  business                Business?              @relation(fields: [businessId], references: [id], onDelete: SetNull)
-  allocations             ContributionAllocation[]
+  leavesBonusAwarded       Int?
+  notes                    String?
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  contributor              User                     @relation("ContributorRecords", fields: [contributorUserId], references: [id], onDelete: Cascade)
+  reviewer                 User?                    @relation("ContributionReviewer", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
+  runtime                  ProjectRuntime?          @relation(fields: [runtimeId], references: [id], onDelete: SetNull)
+  business                 Business?                @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  allocations              ContributionAllocation[]
 
   @@index([contributorUserId, createdAt])
   @@index([status, createdAt])
@@ -1121,37 +1143,37 @@ model ContributionRecord {
 }
 
 model ContributionPeriod {
-  id              String                       @id @default(cuid())
-  label           String
-  startDate       DateTime
-  endDate         DateTime
-  poolLeafs       Int                          @default(0)
-  poolCashCents   Int                          @default(0)
-  status          EdenContributionPeriodStatus @default(OPEN)
-  notes           String?
-  createdAt       DateTime                     @default(now())
-  updatedAt       DateTime                     @updatedAt
-  allocations     ContributionAllocation[]
+  id            String                       @id @default(cuid())
+  label         String
+  startDate     DateTime
+  endDate       DateTime
+  poolLeafs     Int                          @default(0)
+  poolCashCents Int                          @default(0)
+  status        EdenContributionPeriodStatus @default(OPEN)
+  notes         String?
+  createdAt     DateTime                     @default(now())
+  updatedAt     DateTime                     @updatedAt
+  allocations   ContributionAllocation[]
 
   @@index([status, startDate])
 }
 
 model ContributionAllocation {
-  id                  String              @id @default(cuid())
-  periodId            String
-  contributionId      String
-  contributorUserId   String
-  scoreWeight         Float               @default(0)
-  percentOfPool       Float               @default(0)
-  leafsGranted        Int                 @default(0)
-  cashAllocatedCents  Int                 @default(0)
-  status              EdenTransactionStatus @default(PENDING)
-  notes               String?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  period              ContributionPeriod  @relation(fields: [periodId], references: [id], onDelete: Cascade)
-  contribution        ContributionRecord  @relation(fields: [contributionId], references: [id], onDelete: Cascade)
-  contributor         User                @relation("ContributionAllocationRecipient", fields: [contributorUserId], references: [id], onDelete: Cascade)
+  id                 String                @id @default(cuid())
+  periodId           String
+  contributionId     String
+  contributorUserId  String
+  scoreWeight        Float                 @default(0)
+  percentOfPool      Float                 @default(0)
+  leafsGranted       Int                   @default(0)
+  cashAllocatedCents Int                   @default(0)
+  status             EdenTransactionStatus @default(PENDING)
+  notes              String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  period             ContributionPeriod    @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  contribution       ContributionRecord    @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  contributor        User                  @relation("ContributionAllocationRecipient", fields: [contributorUserId], references: [id], onDelete: Cascade)
 
   @@index([periodId, contributorUserId])
   @@index([contributorUserId, createdAt])
@@ -1253,18 +1275,18 @@ enum PayoutStatus {
 }
 
 model PayoutRecord {
-  id                 String       @id @default(cuid())
-  userId             String
-  leafsAmount        Int
-  cashAmountCents    Int
-  currency           String       @default("usd")
-  stripeTransferId   String?
-  status             PayoutStatus @default(PENDING)
-  failureReason      String?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-  completedAt        DateTime?
-  user               User         @relation("UserPayoutRecords", fields: [userId], references: [id], onDelete: Cascade)
+  id               String       @id @default(cuid())
+  userId           String
+  leafsAmount      Int
+  cashAmountCents  Int
+  currency         String       @default("usd")
+  stripeTransferId String?
+  status           PayoutStatus @default(PENDING)
+  failureReason    String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  completedAt      DateTime?
+  user             User         @relation("UserPayoutRecords", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([status])
@@ -1326,31 +1348,31 @@ model AgentTask {
 // ── Eden Service Registry (lightweight, slug-based) ─────────────────────────
 
 model EdenService {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  name          String
-  description   String   @default("")
-  category      String   @default("Other")
-  leafCost      Int      @default(5)
-  pricingModel  String   @default("per_use")
-  serviceType   String   @default("claude")
-  systemPrompt  String?
-  inputSchema   String?
-  outputFormat  String   @default("text")
-  externalUrl   String?
-  thumbnailColor String  @default("#2dd4bf")
-  status        String   @default("draft")
-  visibility    String   @default("public")
-  creatorId     String
-  creator       User     @relation("EdenServiceCreator", fields: [creatorId], references: [id])
-  isActive      Boolean  @default(true)
-  totalEarned           Int      @default(0)
-  contributionsEnabled  Boolean  @default(false)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  releases              ServiceRelease[]
-  contributions         Contribution[]          @relation("ServiceContributors")
-  contributionRequests  ContributionRequest[]   @relation("ServiceContributions")
+  id                   String                @id @default(cuid())
+  slug                 String                @unique
+  name                 String
+  description          String                @default("")
+  category             String                @default("Other")
+  leafCost             Int                   @default(5)
+  pricingModel         String                @default("per_use")
+  serviceType          String                @default("claude")
+  systemPrompt         String?
+  inputSchema          String?
+  outputFormat         String                @default("text")
+  externalUrl          String?
+  thumbnailColor       String                @default("#2dd4bf")
+  status               String                @default("draft")
+  visibility           String                @default("public")
+  creatorId            String
+  creator              User                  @relation("EdenServiceCreator", fields: [creatorId], references: [id])
+  isActive             Boolean               @default(true)
+  totalEarned          Int                   @default(0)
+  contributionsEnabled Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  releases             ServiceRelease[]
+  contributions        Contribution[]        @relation("ServiceContributors")
+  contributionRequests ContributionRequest[] @relation("ServiceContributions")
 
   @@index([creatorId])
 }
@@ -1406,4 +1428,80 @@ model Contribution {
   @@index([requestId])
   @@index([contributorId])
   @@index([serviceId])
+}
+
+// ── Eden World — Phase 01 models ────────────────────────────────────────────
+// Unity-client-facing world entities. See docs/PHASE_01_API_CONTRACT.md §14.
+
+model Agent {
+  id           String     @id @default(cuid())
+  type         AgentType
+  state        AgentState @default(SPAWNING)
+  ownerId      String
+  owner        User       @relation("UserAgentsV2", fields: [ownerId], references: [id], onDelete: Cascade)
+  taskSummary  String
+  taskDetail   Json?
+  zoneTarget   String
+  position     Json
+  progress     Float      @default(0)
+  result       Json?
+  leafCost     Int        @default(0)
+  leafReward   Int        @default(0)
+  prTag        String?
+  prUrl        String?
+  spawnedAt    DateTime   @default(now())
+  completedAt  DateTime?
+  terminatedAt DateTime?
+
+  @@index([ownerId, spawnedAt])
+  @@index([state, spawnedAt])
+  @@index([zoneTarget])
+}
+
+model WorldSession {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation("UserWorldSessions", fields: [userId], references: [id], onDelete: Cascade)
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+  clientVersion  String
+  platform       String
+  socketId       String
+  ipAddress      String?
+
+  @@index([userId, connectedAt])
+  @@index([disconnectedAt])
+  @@index([socketId])
+}
+
+model ClientVersion {
+  id                      String   @id @default(cuid())
+  version                 String   @unique
+  minimumSupportedVersion String
+  required                Boolean  @default(true)
+  platforms               Json
+  changelog               String?
+  assetManifest           Json?
+  releasedAt              DateTime @default(now())
+  releasedByUserId        String
+  releasedByUser          User     @relation("ClientVersionReleaser", fields: [releasedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([releasedAt])
+}
+
+model RefreshToken {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation("UserRefreshTokens", fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash         String    @unique
+  platform          String
+  clientVersion     String?
+  issuedAt          DateTime  @default(now())
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  replacedByTokenId String?
+  lastUsedAt        DateTime?
+  ipAddress         String?
+
+  @@index([userId, issuedAt])
 }
