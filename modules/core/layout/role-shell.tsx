@@ -22,6 +22,7 @@ import type { EdenMockSession } from "@/modules/core/session/mock-session";
 import { MockSessionSwitcher } from "@/modules/core/session/mock-session-switcher";
 import { AccountPanel } from "@/modules/core/layout/account-panel";
 import { EdenGuide } from "@/modules/core/components/eden-guide";
+import { EarningsToast } from "@/ui/consumer/components/earnings-toast";
 
 type RoleShellProps = {
   role: EdenRole;
@@ -455,6 +456,7 @@ export function RoleShell({
         </div>
       </div>
       <EdenGuide />
+      <EarningsToast />
     </div>
   );
 }
