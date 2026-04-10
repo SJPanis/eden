@@ -16,11 +16,33 @@
 // Keep this list in sync with the Prisma migration SQL if either is edited.
 
 export const phase01UnityFoundationStatements: string[] = [
+  // ── Pre-Phase-01 backfill ────────────────────────────────────────────────
+  // The 3-bucket Leaf balance migration (20260409000000_add_leaf_buckets_and_onboarding)
+  // plus onboardingCompletedAt were drafted into schema.prisma but never
+  // landed on prod — confirmed via scripts/diagnose-user-columns.ts, which
+  // showed these 6 columns missing while the rest of the User table matched
+  // the Prisma model. The deployed code expects them to exist, so every call
+  // to /api/wallet/spend, /api/wallet/balance, /api/user/welcome-grant, and
+  // /api/owner/leaves-grants has been erroring on prod until these land.
+  // Backfilling them here because Phase 01's balance-migration script reads
+  // them, and because they should have been applied before the Phase 01
+  // schema anyway.
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "promoBalance" INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "realBalance" INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "withdrawableBalance" INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lifetimePromoSpent" INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lifetimeRealSpent" INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "onboardingCompletedAt" TIMESTAMP(3)`,
+  // Seed the new promoBalance column from the legacy edenBalanceCredits so
+  // existing users don't visually lose their Leafs. Only acts on rows where
+  // every new bucket is 0 (i.e. this has never run for that user).
+  `UPDATE "User" SET "promoBalance" = "edenBalanceCredits" WHERE "promoBalance" = 0 AND "realBalance" = 0 AND "withdrawableBalance" = 0 AND "edenBalanceCredits" > 0`,
+
   // ── Enums (Postgres has no CREATE TYPE IF NOT EXISTS) ────────────────────
   `DO $$ BEGIN CREATE TYPE "AgentType" AS ENUM ('ARTIST', 'ARCHITECT'); EXCEPTION WHEN duplicate_object THEN null; END $$`,
   `DO $$ BEGIN CREATE TYPE "AgentState" AS ENUM ('SPAWNING', 'WALKING', 'WORKING', 'COMPLETING', 'TERMINATING', 'TERMINATED'); EXCEPTION WHEN duplicate_object THEN null; END $$`,
 
-  // ── User additive columns ────────────────────────────────────────────────
+  // ── Phase 01 User additive columns ───────────────────────────────────────
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "avatarConfig" JSONB`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastPosition" JSONB`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastOnline" TIMESTAMP(3)`,
