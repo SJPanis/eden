@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code worktrees + session data
+.claude/
+
+# Build artifacts and archives
+*.zip
+eden-macos-latest/
+eden-windows-latest/
+
+# Electron dev dependencies (managed separately)
+electron/node_modules/
+
+# Temporary one-off scripts (prefix _tmp-)
+scripts/_tmp-*
