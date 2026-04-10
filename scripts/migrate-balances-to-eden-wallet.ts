@@ -56,11 +56,20 @@ async function main() {
 
   // Pull every user with their legacy balances and current wallet. We don't
   // page the query — even at 100k users this is <100MB of row data.
+  //
+  // We deliberately DO NOT read edenBalanceCredits here. The 3-bucket
+  // migration (20260409000000_add_leaf_buckets_and_onboarding) defined
+  // promoBalance/realBalance/withdrawableBalance as the post-3-bucket source
+  // of truth, and a seed UPDATE in phase-01-migrations.ts (effectively
+  // re-running the old migrate-existing-balances.ts) already copied
+  // edenBalanceCredits into promoBalance for every user whose buckets were
+  // all zero. Reading edenBalanceCredits here would double-count those
+  // users' Leafs in the EdenWallet total.
   const users = await prisma.user.findMany({
     select: {
       id: true,
       username: true,
-      edenBalanceCredits: true,
+      edenBalanceCredits: true, // kept for audit metadata only
       promoBalance: true,
       realBalance: true,
       withdrawableBalance: true,
@@ -88,11 +97,11 @@ async function main() {
   }
 
   for (const user of users) {
+    // Only the 3-bucket columns are summed — see the comment on the findMany
+    // select above. edenBalanceCredits is captured in the audit metadata for
+    // hand-reversal but not counted toward the migrated total.
     const legacyTotal =
-      user.edenBalanceCredits +
-      user.promoBalance +
-      user.realBalance +
-      user.withdrawableBalance;
+      user.promoBalance + user.realBalance + user.withdrawableBalance;
     const lifetimeSpent = user.lifetimePromoSpent + user.lifetimeRealSpent;
     const alreadyReconciled = reconciledUserIds.has(user.id);
     const walletExists = !!user.wallet;
