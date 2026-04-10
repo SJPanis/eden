@@ -32,6 +32,8 @@ Eden v1 is a **Next.js web app** with ~88 API routes, a single large Prisma sche
 - `ClientVersion`, `WorldSession`, `VisualAsset`, `Garden`-positioned avatars, `Agent` (spec shape) — none of these spec §9.1 models exist.
 - `/api/governance/*` — no on-chain or off-chain governance routes.
 
+**Deploy + migration flow (as of PR #130, 2026-04-09):** `railway.json` startCommand is `node server.js`. Prisma schema migrations are **not** auto-applied; prod's `_prisma_migrations` table is empty and `prisma migrate deploy` cannot run cleanly. Schema changes ship via idempotent raw SQL either through the `/api/admin/migrate` endpoint (owner session required) or one-shot `scripts/apply-*.ts` scripts invoked via `railway run`. Data scripts use the same `railway run` pattern. `prisma migrate deploy` will be reintroduced once prod is baselined against the existing Prisma migration files.
+
 ---
 
 ## §1 — Prisma models
@@ -284,7 +286,8 @@ Large subsystem — 11 models, ~600 lines of schema. Governs the owner-internal 
 
 | Route | Verbs | Status | Notes |
 |---|---|---|---|
-| `/api/health` | GET | WORKING | DB ping + legacy wallet columns probe + Stripe env check. |
+| `/api/health` | GET | WORKING | Railway healthcheck endpoint. Returns `{ ok: true }` 200 unconditionally (PR #130 — Railway requires 200 to mark deploys healthy). |
+| `/api/health/deep` | GET | WORKING | Detailed status: DB ping + legacy wallet columns probe + Stripe env check. Not used by Railway healthcheck; for manual inspection and internal monitoring. |
 | `/api/download/[platform]` | GET | WORKING | Redirects to GitHub releases for `windows`/`mac`. Logs `Download` row. |
 | `/api/stats/live` | GET | UNREAD | |
 | `/api/activity/feed` | GET | UNREAD | |

@@ -885,7 +885,7 @@ app.prepare().then(() => {
 
 Phase 01 ships exactly this plus a permissive dev-mode auth bypass (see §14 below) so the echo test can run before the JWT login route exists.
 
-**Railway:** `railway.json` sets `startCommand` to `npx prisma migrate deploy && node server.js`. Every deploy applies any new migrations in `prisma/migrations/` *before* the server boots, then brings up Next.js + Socket.io in the same process. No infra changes are needed for Phase 01 — the schema migration for this phase (`20260410120000_phase_01_unity_foundation`) ships on the next push.
+**Railway:** `railway.json` sets `startCommand` to `node server.js`. Next.js + Socket.io come up in the same process, no sidecar. `prisma migrate deploy` is **not** part of the startCommand — PR #130 removed it because Eden's prod DB was never initialized via Prisma migrate (the `_prisma_migrations` table is empty), so Prisma would hang trying to replay 17 migrations against a populated schema. Schema changes ship via idempotent raw SQL (`ADD COLUMN IF NOT EXISTS`, `CREATE TABLE IF NOT EXISTS`, `DO $$ ... duplicate_object` for enums). See §13.0 for how the Phase 01 schema actually lands on prod.
 
 **Dependencies to add:** `socket.io` (server) and `jose` (JWT verify). `jose` is already a transitive dep of `next-auth` but should be declared explicitly.
 
@@ -920,16 +920,19 @@ These endpoints appear in the Eden World spec §8.2 but are **explicitly out of 
 
 ### §13.0 Where things run
 
-Eden is containerized and deployed on Railway. There is no local-database workflow for any of the steps in this section:
+Eden is containerized and deployed on Railway. There is no local-database workflow for any of the steps in this section. There are three distinct mechanisms in play, and it matters which is which:
 
-- **Schema migrations** (Prisma `prisma/migrations/*`) apply automatically on every Railway deploy via the `npx prisma migrate deploy && node server.js` startCommand in `railway.json`. Nobody runs them by hand.
-- **Data migrations** (one-shot TypeScript scripts in `scripts/`) are not auto-run. They're triggered against the live Railway environment with `railway run`, which loads the Railway service's env vars (including the real `DATABASE_URL`) and shells into the local source so `tsx` can execute the script against prod.
+1. **Prisma migration files** (`prisma/migrations/*`) are the *canonical schema record* and what the IDE / Prisma client / `prisma validate` reads. They are **not** auto-applied on deploy — `railway.json`'s `startCommand` is just `node server.js`, and PR #130 removed the `prisma migrate deploy` step because prod's `_prisma_migrations` table was never seeded (trying to replay 17+ migrations against a populated DB hangs or fails). Think of these files as the code-level source of truth that will become load-bearing again when prod is eventually baselined.
+
+2. **Idempotent raw-SQL statements** (in `modules/core/db/phase-01-migrations.ts` and the similar inline list in `app/api/admin/migrate/route.ts`) are the *actual apply mechanism*. Every statement uses `IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, or a `DO $$ ... EXCEPTION WHEN duplicate_object` block for enums, so re-runs are no-ops. For each Phase 01 schema change there are **two copies** of the SQL that must stay in sync: the Prisma migration file and the shared const in `phase-01-migrations.ts`. Only the latter is executed against prod.
+
+3. **One-shot data scripts** (`scripts/*.ts`) are triggered explicitly against the live Railway environment with `railway run npx tsx scripts/<name>.ts`. They connect to the Railway DB through the normal Prisma client.
 
 ### §13.1 Pre-conditions
 
-- The `20260410120000_phase_01_unity_foundation` schema migration has shipped via a Railway deploy. Push to main → Railway build → the new migration applies automatically → `EdenWallet`, `RefreshToken`, `Agent`, `WorldSession`, `ClientVersion`, and the additive `User.avatarConfig` / `lastPosition` / `lastOnline` columns all exist on prod.
+- The Phase 01 schema must be applied on prod before the balance data migration runs. Either: run `railway run npx tsx scripts/apply-phase-01-schema.ts` (direct Prisma via the shared const), or POST `/api/admin/migrate` as an authenticated owner (which also iterates the shared const on top of its own historical list). Both end at the same state: `EdenWallet`, `Agent`, `WorldSession`, `ClientVersion`, `RefreshToken` tables exist; `User.avatarConfig` / `lastPosition` / `lastOnline` columns exist; `AgentType` and `AgentState` enums exist.
 - `scripts/verify-ledger-consistency.ts` passes on prod (run via `railway run npx tsx scripts/verify-ledger-consistency.ts`).
-- Announce a ~5 minute window if you want to block new Stripe top-ups mid-migration (the script is idempotent, so this is optional — overlapping top-ups just land in `EdenWallet` directly and the reconciliation row still balances).
+- Announce a ~5 minute window if you want to block new Stripe top-ups mid-migration (the data migration script is idempotent, so this is optional — overlapping top-ups just land in `EdenWallet` directly and the reconciliation row still balances).
 
 ### §13.2 Data migration script
 
@@ -956,13 +959,13 @@ railway run npx tsx scripts/migrate-balances-to-eden-wallet.ts
 
 ### §13.3 Code cutover
 
-The following endpoints are rewritten to read/write `EdenWallet` + `EdenTransaction` only, and each rewrite ships on its own Railway deploy:
+The following endpoints are rewritten to read/write `EdenWallet` + `EdenTransaction` only, and each rewrite ships on its own Railway deploy (git push → Railway auto-build):
 
 - `GET /api/wallet/balance` → read `EdenWallet.leafsBalance`
 - `POST /api/wallet/spend` → `eden-economy-service.deductLeafs()` + transaction row
 - `POST /api/user/welcome-grant` → `grantLeafs()`
 - `POST /api/owner/leaves-grants` → `grantLeafs()`
-- `/api/health` → verifies `EdenWallet` table exists instead of User columns
+- `/api/health/deep` → verifies `EdenWallet` table exists instead of the legacy `User` columns (base `/api/health` stays as the Railway healthcheck endpoint returning `{ ok: true }` unconditionally per PR #130)
 
 The Stripe webhook path already writes `EdenWallet` (via `recordLeafsTopup()`), so no change there.
 
@@ -970,16 +973,12 @@ The new `readOrBackfillWallet()` helper in `modules/core/economy/wallet-read.ts`
 
 ### §13.4 Column drop
 
-After the code cutover has soaked on Railway for 24h and `verify-ledger-consistency` still passes, a follow-up Prisma migration in `prisma/migrations/` drops:
+After the code cutover has soaked on Railway for 24h and `verify-ledger-consistency` still passes, the legacy columns come off `User`. Two artifacts ship in the same commit:
 
-- `User.edenBalanceCredits`
-- `User.promoBalance`
-- `User.realBalance`
-- `User.withdrawableBalance`
-- `User.lifetimePromoSpent`
-- `User.lifetimeRealSpent`
+1. A new Prisma migration file under `prisma/migrations/` containing the `ALTER TABLE "User" DROP COLUMN ...` statements for each of: `edenBalanceCredits`, `promoBalance`, `realBalance`, `withdrawableBalance`, `lifetimePromoSpent`, `lifetimeRealSpent`. This is for the canonical record.
+2. The corresponding `DROP COLUMN` statements appended to `modules/core/db/phase-01-migrations.ts` (or a new `phase-01-column-drop.ts` const if it's cleaner) so they also run via the script / admin endpoint path. That's what actually executes against prod.
 
-This migration ships like any other — commit it, push, Railway runs `prisma migrate deploy` and the columns go away. Same push should delete the legacy-backfill branch in `readOrBackfillWallet()` since it can no longer fire. Two-phase (code first, column drop second) avoids a brief window where a rollback would lose balance data.
+Same commit deletes the legacy-backfill branch in `readOrBackfillWallet()` since it can no longer fire. Run `railway run npx tsx scripts/apply-phase-01-schema.ts` (or whatever new script name) after the deploy to actually drop the columns. Two-phase (code first, column drop second) avoids a brief window where a rollback would lose balance data.
 
 ### §13.5 Verification
 
@@ -1179,25 +1178,25 @@ releasedClientVersions ClientVersion[]     @relation("ClientVersionReleaser")
 
 ## §15 — Implementation order (Phase 01 remaining)
 
-The contract above is the target. Actual build order, and where each step runs:
+The contract above is the target. Actual build order, and where each step runs. "Code commit" always means push to main → Railway auto-builds → new container live. Schema and data changes are NOT part of the auto-deploy (see §13.0); they're run explicitly via `railway run`.
 
 | # | Item | Mechanism |
 |---|---|---|
-| 1 | **Socket.io echo** — `server.js` wired up, JWT-verifying handshake in place, dev bypass behind `EDEN_WS_STRICT_AUTH` flag. | Commit, runs in the same Railway process as Next.js. |
-| 2 | **`jose` dep + JWT helper** (`signUnityAccessToken` / `verifyUnityAccessToken`). | Commit. |
-| 3 | **Schema migration**: `Agent`, `WorldSession`, `ClientVersion`, `RefreshToken`, plus `User.avatarConfig` / `lastPosition` / `lastOnline` — migration file `prisma/migrations/20260410120000_phase_01_unity_foundation/migration.sql`. | **Applies automatically on next Railway deploy** via the `prisma migrate deploy` step in `railway.json` startCommand. No manual action. |
-| 4 | **`POST /api/auth/login` + `/refresh` + `/logout` + `/me`** — JWT login flow, backed by `RefreshToken` + `readOrBackfillWallet()`. | Commit. Ships on next Railway deploy. |
-| 5 | **Balance data migration** — `scripts/migrate-balances-to-eden-wallet.ts`, a one-shot `tsx` script. | `railway run npx tsx scripts/migrate-balances-to-eden-wallet.ts --dry-run` → review → run without `--dry-run`. See §13.2. |
-| 6 | **Code cutover to EdenWallet-only** — rewrite `wallet/balance`, `wallet/spend`, `welcome-grant`, `leaves-grants`, `/api/health` to read/write `EdenWallet`. | Commit. Ships on next Railway deploy. Safe to ship before step 5 finishes thanks to `readOrBackfillWallet()`. |
-| 7 | **`GET /api/version`** + `ClientVersion` CRUD. | Commit. |
-| 8 | **Leaf alias routes** (`/api/leaf/*`) delegating to canonical handlers. | Commit. |
-| 9 | **Avatar routes** (`GET` / `PUT /api/avatar/config`). | Commit. |
-| 10 | **`GET /api/world/state`** — empty world snapshot; no real presence yet. | Commit. |
-| 11 | **`/api/agents/*`** REST endpoints (spawn, mine, detail, terminate) — state-machine stub; real agent execution lands in Phase 05. | Commit. |
-| 12 | **Drop legacy User balance columns** — new Prisma migration after 24h soak of steps 5 + 6. | Commit the migration file. Applies automatically on the next Railway deploy. Delete the legacy branch of `readOrBackfillWallet()` in the same commit. |
+| 1 | **Socket.io echo** — `server.js` wired up, JWT-verifying handshake in place, dev bypass behind `EDEN_WS_STRICT_AUTH` flag. | Code commit. Runs in the same Railway process as Next.js. |
+| 2 | **`jose` dep + JWT helper** (`signUnityAccessToken` / `verifyUnityAccessToken`). | Code commit. |
+| 3 | **Phase 01 schema** — shared const `modules/core/db/phase-01-migrations.ts` + canonical `prisma/migrations/20260410120000_phase_01_unity_foundation/migration.sql`. Adds `Agent`, `WorldSession`, `ClientVersion`, `RefreshToken`, and the `User.avatarConfig` / `lastPosition` / `lastOnline` columns. | Code commit (ships the shared const and the Prisma record). **Then run `railway run npx tsx scripts/apply-phase-01-schema.ts`** to actually apply the idempotent SQL against the Railway Postgres. |
+| 4 | **`POST /api/auth/login` + `/refresh` + `/logout` + `/me`** — JWT login flow, backed by `RefreshToken` + `readOrBackfillWallet()`. | Code commit. Ships on next Railway deploy. Requires step 3 to have been applied on prod. |
+| 5 | **Balance data migration** — `scripts/migrate-balances-to-eden-wallet.ts`. | `railway run npx tsx scripts/migrate-balances-to-eden-wallet.ts --dry-run` → review → run without `--dry-run`. See §13.2. |
+| 6 | **Code cutover to EdenWallet-only** — rewrite `wallet/balance`, `wallet/spend`, `welcome-grant`, `leaves-grants`, and `/api/health/deep` to read/write `EdenWallet`. | Code commit. Safe to ship before step 5 finishes thanks to `readOrBackfillWallet()`. |
+| 7 | **`GET /api/version`** + `ClientVersion` CRUD. | Code commit. |
+| 8 | **Leaf alias routes** (`/api/leaf/*`) delegating to canonical handlers. | Code commit. |
+| 9 | **Avatar routes** (`GET` / `PUT /api/avatar/config`). | Code commit. |
+| 10 | **`GET /api/world/state`** — empty world snapshot; no real presence yet. | Code commit. |
+| 11 | **`/api/agents/*`** REST endpoints (spawn, mine, detail, terminate) — state-machine stub; real agent execution lands in Phase 05. | Code commit. |
+| 12 | **Drop legacy User balance columns** after 24h soak of steps 5 + 6. | Code commit containing a new Prisma migration file and the `DROP COLUMN` statements appended to the shared const. Then `railway run npx tsx scripts/apply-phase-01-schema.ts` (or a new script) to drop on prod. Delete the legacy branch of `readOrBackfillWallet()` in the same commit. |
 | 13 | **`verify-ledger-consistency`** re-run against prod. | `railway run npx tsx scripts/verify-ledger-consistency.ts` |
 
-Steps 1, 2, 3, and 4 are complete as of this session (schema migration sitting in `prisma/migrations/`, auth routes and JWT helper in place). Everything else is the follow-up.
+Steps 1, 2, 3, and 4 are complete as of this session (schema const + Prisma record in place, apply script in place, auth routes in place). Step 3's `apply-phase-01-schema.ts` run against prod is the first operational action in the chain; everything downstream of that can proceed once it's clean.
 
 ---
 
