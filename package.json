@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
+    "dev:ws": "node server.js",
+    "ws:smoke": "node scripts/ws-echo-smoke-test.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -27,6 +29,7 @@
     "@prisma/client": "^7.4.2",
     "@types/qrcode": "^1.5.6",
     "framer-motion": "^12.35.0",
+    "jose": "^6.2.2",
     "next": "16.1.6",
     "next-auth": "^4.24.13",
     "otpauth": "^9.5.0",
@@ -37,6 +40,7 @@
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
     "server-only": "^0.0.1",
+    "socket.io": "^4.8.3",
     "stripe": "^20.4.1",
     "three": "^0.183.2"
   },
@@ -48,6 +52,7 @@
     "@types/three": "^0.183.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "socket.io-client": "^4.8.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

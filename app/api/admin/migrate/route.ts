@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/modules/core/session/server";
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
+import { phase01UnityFoundationStatements } from "@/modules/core/db/phase-01-migrations";
 
 export const runtime = "nodejs";
 
@@ -78,6 +79,11 @@ export async function POST() {
     `UPDATE "EdenService" SET "status"='published' WHERE "isActive"=true AND ("status" IS NULL OR "status"='draft' OR "status"='')`,
     // Onboarding
     `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "welcomeGranted" BOOLEAN NOT NULL DEFAULT false`,
+    // ── Phase 01 Unity world foundation (Agent, WorldSession, ClientVersion,
+    //    RefreshToken, additive User fields). Source of truth:
+    //    modules/core/db/phase-01-migrations.ts + the Prisma migration at
+    //    prisma/migrations/20260410120000_phase_01_unity_foundation/.
+    ...phase01UnityFoundationStatements,
   ];
 
   for (const sql of migrations) {
