@@ -55,3 +55,28 @@ npx tsx scripts/credit-user-promo-leafs.ts \
 - Credits `promoBalance` (non-withdrawable), keeps `edenBalanceCredits` in sync
 - Creates `OwnerLeavesGrant` ledger entry for audit trail
 - Prints before/after balances
+
+---
+
+### `migrate-balances-to-eden-wallet.ts`
+
+**One-shot Phase 01 balance reconciliation.** Consolidates the legacy three-bucket `User.*Balance` columns (and the oldest `edenBalanceCredits` column) into `EdenWallet.leafsBalance` so the Unity client can read a single source of truth. See `docs/PHASE_01_API_CONTRACT.md §13`.
+
+**Dry run first:**
+```
+npx tsx scripts/migrate-balances-to-eden-wallet.ts --dry-run
+```
+Prints a plan summary (create / update / skip counts, totals) plus the first 20 actionable rows. Makes no writes.
+
+**Apply:**
+```
+npx tsx scripts/migrate-balances-to-eden-wallet.ts
+```
+
+- Pulls every `User` + any existing `EdenWallet` + both lifetime-spent columns.
+- **Creates** an `EdenWallet` row for users without one, seeded with `legacyTotal` and `lifetimeSpent`.
+- **Increments** existing wallets (doesn't overwrite) so users who've already topped up via Stripe don't lose those Leafs.
+- Writes a stable `EdenTransaction` audit row per reconciled user (`MANUAL_ADJUSTMENT`, description `"Migration from legacy User.*Balance columns (phase-01 cutover)"`, metadata with every legacy column value). Re-runs skip users who already have this row.
+- Per-user transactions — a single failure doesn't abort the batch; exits non-zero if any row failed.
+- **Pre-condition:** the Phase 01 schema migration (`20260410120000_phase_01_unity_foundation`) must already be deployed. That migration ships via the normal Railway deploy flow (`npx prisma migrate deploy` in `railway.json` startCommand), so just making sure the latest main is deployed is enough.
+- Run the existing `verify-ledger-consistency.ts` afterwards to confirm `EdenWallet.leafsBalance` reconciles against the `EdenTransaction` ledger.
