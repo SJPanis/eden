@@ -12,7 +12,6 @@
 // lands) or a follow-up run of this script.
 
 import { getPrismaClient } from "@/modules/core/repos/prisma-client";
-import { registerClientVersion } from "@/modules/core/releases/client-version-service";
 
 const PLACEHOLDER_VERSION = "0.0.0-phase-01";
 const PLACEHOLDER_MIN = "0.0.0";
@@ -44,30 +43,43 @@ async function main() {
     `[seed-client-version] releaser=${owner.username} (role=${owner.role})`,
   );
 
-  const snapshot = await registerClientVersion({
-    version: PLACEHOLDER_VERSION,
-    minimumSupportedVersion: PLACEHOLDER_MIN,
-    required: false,
-    platforms: {
-      windows: {
-        url: "https://cdn.edencloud.app/client/placeholder/Eden-placeholder.exe",
-        sha256: "0000000000000000000000000000000000000000000000000000000000000000",
-        size: 0,
-      },
-      macos: {
-        url: "https://cdn.edencloud.app/client/placeholder/Eden-placeholder.dmg",
-        sha256: "0000000000000000000000000000000000000000000000000000000000000000",
-        size: 0,
-      },
+  const platforms = {
+    windows: {
+      url: "https://cdn.edencloud.app/client/placeholder/Eden-placeholder.exe",
+      sha256: "0000000000000000000000000000000000000000000000000000000000000000",
+      size: 0,
     },
-    changelog:
-      "Phase 01 placeholder release. No real Unity client binary exists yet — this row exists so GET /api/version returns a valid payload for contract testing.",
-    assetManifest: null,
-    releasedByUserId: owner.id,
+    macos: {
+      url: "https://cdn.edencloud.app/client/placeholder/Eden-placeholder.dmg",
+      sha256: "0000000000000000000000000000000000000000000000000000000000000000",
+      size: 0,
+    },
+  };
+
+  const row = await prisma.clientVersion.upsert({
+    where: { version: PLACEHOLDER_VERSION },
+    create: {
+      version: PLACEHOLDER_VERSION,
+      minimumSupportedVersion: PLACEHOLDER_MIN,
+      required: false,
+      platforms,
+      changelog:
+        "Phase 01 placeholder release. No real Unity client binary exists yet — this row exists so GET /api/version returns a valid payload for contract testing.",
+      releasedByUserId: owner.id,
+    },
+    update: {
+      minimumSupportedVersion: PLACEHOLDER_MIN,
+      required: false,
+      platforms,
+      changelog:
+        "Phase 01 placeholder release. No real Unity client binary exists yet — this row exists so GET /api/version returns a valid payload for contract testing.",
+      releasedByUserId: owner.id,
+      releasedAt: new Date(),
+    },
   });
 
   console.log(
-    `[seed-client-version] upserted: version=${snapshot.version} required=${snapshot.required} releasedAt=${snapshot.releasedAt}`,
+    `[seed-client-version] upserted: version=${row.version} required=${row.required} releasedAt=${row.releasedAt.toISOString()}`,
   );
 }
 
